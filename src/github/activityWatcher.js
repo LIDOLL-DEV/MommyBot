@@ -1,0 +1,319 @@
+import { EmbedBuilder } from "discord.js";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+import { generateGitHubUpdateMessage } from "./aiUpdateMessage.js";
+
+const GITHUB_API_VERSION = "2022-11-28";
+const DEFAULT_POLL_INTERVAL_MS = 5 * 60 * 1000;
+const MIN_POLL_INTERVAL_MS = 60 * 1000;
+const MAX_PAGES = 10;
+
+function truncate(value, maxLength) {
+  const text = String(value ?? "");
+  return text.length <= maxLength ? text : `${text.slice(0, maxLength - 1)}…`;
+}
+
+function eventDetails(event) {
+  const payload = event.payload ?? {};
+  const repoUrl = `https://github.com/${event.repo.name}`;
+
+  switch (event.type) {
+    case "PushEvent": {
+      const branch = payload.ref?.replace("refs/heads/", "") || "unknown branch";
+      const commits = payload.commits ?? [];
+      const summary = commits
+        .slice(0, 5)
+        .map((commit) => `[\`${commit.sha?.slice(0, 7)}\`](${repoUrl}/commit/${commit.sha}) ${truncate(commit.message?.split("\n")[0], 120)}`)
+        .join("\n");
+      const extra = commits.length > 5 ? `\n…and ${commits.length - 5} more` : "";
+      return {
+        title: `Pushed ${commits.length} commit${commits.length === 1 ? "" : "s"} to ${branch}`,
+        description: `${summary || "A branch was updated."}${extra}`,
+        url: payload.head ? `${repoUrl}/commit/${payload.head}` : repoUrl,
+        color: 0x2da44e,
+      };
+    }
+    case "PullRequestEvent":
+      return {
+        title: `${payload.action ?? "updated"} pull request #${payload.number}`,
+        description: payload.pull_request?.title,
+        url: payload.pull_request?.html_url ?? repoUrl,
+        color: payload.action === "closed" ? 0x8250df : 0x1f6feb,
+      };
+    case "PullRequestReviewEvent":
+      return {
+        title: `${payload.action ?? "updated"} a pull request review`,
+        description: payload.pull_request?.title,
+        url: payload.review?.html_url ?? payload.pull_request?.html_url ?? repoUrl,
+        color: 0x1f6feb,
+      };
+    case "PullRequestReviewCommentEvent":
+    case "IssueCommentEvent":
+      return {
+        title: `${payload.action ?? "updated"} a comment on #${payload.issue?.number ?? payload.pull_request?.number ?? "?"}`,
+        description: payload.comment?.body,
+        url: payload.comment?.html_url ?? repoUrl,
+        color: 0x57606a,
+      };
+    case "IssuesEvent":
+      return {
+        title: `${payload.action ?? "updated"} issue #${payload.issue?.number}`,
+        description: payload.issue?.title,
+        url: payload.issue?.html_url ?? repoUrl,
+        color: payload.action === "closed" ? 0x8250df : 0x1a7f37,
+      };
+    case "ReleaseEvent":
+      return {
+        title: `${payload.action ?? "updated"} release ${payload.release?.tag_name ?? ""}`.trim(),
+        description: payload.release?.name || payload.release?.body,
+        url: payload.release?.html_url ?? repoUrl,
+        color: 0x8250df,
+      };
+    case "CreateEvent":
+    case "DeleteEvent":
+      return {
+        title: `${event.type === "CreateEvent" ? "Created" : "Deleted"} ${payload.ref_type ?? "reference"}${payload.ref ? ` ${payload.ref}` : ""}`,
+        description: payload.description,
+        url: repoUrl,
+        color: event.type === "CreateEvent" ? 0x2da44e : 0xcf222e,
+      };
+    case "ForkEvent":
+      return {
+        title: `Forked repository to ${payload.forkee?.full_name ?? "a new repository"}`,
+        url: payload.forkee?.html_url ?? repoUrl,
+        color: 0x57606a,
+      };
+    case "WatchEvent":
+      return { title: "Starred the repository", url: repoUrl, color: 0xe3b341 };
+    default:
+      return {
+        title: event.type.replace(/Event$/, " event"),
+        description: "New repository activity",
+        url: repoUrl,
+        color: 0x57606a,
+      };
+  }
+}
+
+export function buildActivityEmbed(event, aiMessage = null) {
+  const details = eventDetails(event);
+  const actor = event.actor?.display_login ?? event.actor?.login ?? "Someone";
+  const description = aiMessage
+    ? `${truncate(aiMessage, 500)}\n\n${details.description || "New repository activity"}`
+    : details.description || "New repository activity";
+
+  return new EmbedBuilder()
+    .setColor(details.color)
+    .setAuthor({
+      name: actor,
+      iconURL: event.actor?.avatar_url ?? undefined,
+      url: `https://github.com/${event.actor?.login ?? ""}`,
+    })
+    .setTitle(truncate(details.title, 256))
+    .setURL(details.url)
+    .setDescription(truncate(description, 4096))
+    .setFooter({ text: event.repo.name })
+    .setTimestamp(new Date(event.created_at));
+}
+
+async function loadState(stateFile) {
+  try {
+    return JSON.parse(await readFile(stateFile, "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") return {};
+    throw error;
+  }
+}
+
+async function saveState(stateFile, state) {
+  await mkdir(path.dirname(stateFile), { recursive: true });
+  const temporaryFile = `${stateFile}.tmp`;
+  await writeFile(temporaryFile, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+  await rename(temporaryFile, stateFile);
+}
+
+async function fetchEvents({ owner, repo, token, lastEventId }) {
+  const events = [];
+
+  for (let page = 1; page <= MAX_PAGES; page += 1) {
+    const response = await fetch(
+      `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/events?per_page=100&page=${page}`,
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "MommyBot-GitHub-Activity",
+          "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const requestId = response.headers.get("x-github-request-id");
+      throw new Error(`GitHub API returned ${response.status} ${response.statusText}${requestId ? ` (request ${requestId})` : ""}`);
+    }
+
+    const pageEvents = await response.json();
+    for (const event of pageEvents) {
+      if (event.id === lastEventId) return events;
+      events.push(event);
+    }
+
+    if (pageEvents.length < 100) break;
+  }
+
+  return events;
+}
+
+function githubHeaders(token) {
+  return {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${token}`,
+    "User-Agent": "MommyBot-GitHub-Activity",
+    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+  };
+}
+
+async function fetchPushCommits(event, config) {
+  if (event.type !== "PushEvent" || event.payload?.commits?.length) return event;
+
+  const { before, head } = event.payload ?? {};
+  if (!head) return event;
+
+  const repoUrl = `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}`;
+  const hasBefore = before && !/^0+$/.test(before);
+  const endpoint = hasBefore
+    ? `${repoUrl}/compare/${encodeURIComponent(before)}...${encodeURIComponent(head)}`
+    : `${repoUrl}/commits/${encodeURIComponent(head)}`;
+  const response = await fetch(endpoint, { headers: githubHeaders(config.token) });
+
+  if (!response.ok) {
+    const permissionHint = response.status === 403
+      ? "; give the fine-grained GitHub token Contents: Read-only permission"
+      : "";
+    throw new Error(`Could not load GitHub commit text (HTTP ${response.status}${permissionHint})`);
+  }
+
+  const data = await response.json();
+  const commits = hasBefore ? data.commits ?? [] : [data];
+  event.payload.commits = commits.slice(-10).map((commit) => ({
+    sha: commit.sha,
+    message: commit.commit?.message ?? "",
+    author: {
+      name: commit.commit?.author?.name,
+      username: commit.author?.login,
+    },
+  }));
+  return event;
+}
+
+function readConfig() {
+  const repository = process.env.GITHUB_REPOSITORY?.trim();
+  const token = process.env.GITHUB_TOKEN?.trim();
+  const channelId = (process.env.GITHUB_ACTIVITY_CHANNEL_ID || process.env.CHANNEL_ID)?.trim();
+
+  if (!repository && !token) return null;
+  if (!repository || !token || !channelId) {
+    throw new Error("GitHub activity requires GITHUB_REPOSITORY, GITHUB_TOKEN, and GITHUB_ACTIVITY_CHANNEL_ID (or CHANNEL_ID)");
+  }
+
+  const [owner, repo, ...extra] = repository.split("/");
+  if (!owner || !repo || extra.length > 0) {
+    throw new Error("GITHUB_REPOSITORY must use the owner/repository format");
+  }
+
+  const requestedInterval = Number(process.env.GITHUB_POLL_INTERVAL_MS || DEFAULT_POLL_INTERVAL_MS);
+  if (!Number.isFinite(requestedInterval) || requestedInterval < MIN_POLL_INTERVAL_MS) {
+    throw new Error(`GITHUB_POLL_INTERVAL_MS must be at least ${MIN_POLL_INTERVAL_MS}`);
+  }
+
+  return {
+    owner,
+    repo,
+    token,
+    channelId,
+    interval: requestedInterval,
+    announceExisting: process.env.GITHUB_ANNOUNCE_EXISTING === "true",
+    maxAnnouncements: Math.max(1, Math.min(20, Number(process.env.GITHUB_MAX_ANNOUNCEMENTS) || 10)),
+    stateFile: path.resolve(process.env.GITHUB_STATE_FILE || "data/github-activity-state.json"),
+  };
+}
+
+export function startGitHubActivityWatcher(client) {
+  const config = readConfig();
+  if (!config) {
+    console.log("🐙 GitHub activity watcher is disabled");
+    return () => {};
+  }
+
+  let stopped = false;
+  let timer;
+
+  const poll = async () => {
+    try {
+      const savedState = await loadState(config.stateFile);
+      const repository = `${config.owner}/${config.repo}`;
+      const state = savedState.repository === repository ? savedState : {};
+      const events = await fetchEvents({ ...config, lastEventId: state.lastEventId });
+
+      if (events.length === 0) {
+        if (!state.initializedAt) {
+          await saveState(config.stateFile, {
+            repository,
+            lastEventId: state.lastEventId ?? null,
+            initializedAt: new Date().toISOString(),
+            lastCheckedAt: new Date().toISOString(),
+          });
+        }
+        return;
+      }
+
+      const isFirstCheck = !state.initializedAt && !state.lastEventId;
+      if (isFirstCheck && !config.announceExisting) {
+        console.log(`🐙 GitHub activity baseline set at event ${events[0].id}`);
+      } else {
+        const channel = await client.channels.fetch(config.channelId);
+        if (!channel || typeof channel.send !== "function") {
+          throw new Error(`Discord channel ${config.channelId} is not a sendable channel`);
+        }
+
+        const announcements = events.slice(0, config.maxAnnouncements).reverse();
+        for (const event of announcements) {
+          let enrichedEvent = event;
+          try {
+            enrichedEvent = await fetchPushCommits(event, config);
+          } catch (error) {
+            console.error(`🐙 ${error.message}`);
+          }
+          const aiMessage = await generateGitHubUpdateMessage(enrichedEvent);
+          await channel.send({ embeds: [buildActivityEmbed(enrichedEvent, aiMessage)] });
+        }
+
+        if (events.length > announcements.length) {
+          await channel.send(`🐙 ${events.length - announcements.length} additional GitHub events were omitted to avoid flooding this channel.`);
+        }
+        console.log(`🐙 Posted ${announcements.length} GitHub activit${announcements.length === 1 ? "y" : "ies"}`);
+      }
+
+      await saveState(config.stateFile, {
+        repository,
+        lastEventId: events[0].id,
+        initializedAt: state.initializedAt ?? new Date().toISOString(),
+        lastCheckedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("🐙 GitHub activity check failed:", error.message);
+    } finally {
+      if (!stopped) timer = setTimeout(poll, config.interval);
+    }
+  };
+
+  console.log(`🐙 Watching private GitHub activity for ${config.owner}/${config.repo}`);
+  void poll();
+
+  return () => {
+    stopped = true;
+    clearTimeout(timer);
+  };
+}

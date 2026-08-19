@@ -1,0 +1,27 @@
+{
+  "name": "mommybot",
+  "version": "1.0.0",
+  "description": "Sakura: A nurturing Discord bot powered by LangGraph and Llama.cpp",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": [
+    "discord-bot",
+    "langgraph",
+    "llama-cpp",
+    "memory"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/core": "^0.3.42",
+    "@langchain/langgraph": "^0.2.41",
+    "@langchain/langgraph-checkpoint-sqlite": "^0.2.0",
+    "@langchain/openai": "^0.4.2",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7"
+  }
+}
