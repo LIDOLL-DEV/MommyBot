@@ -40,11 +40,18 @@ as the bot origin, including equivalent URLs with a default port/trailing slash.
 This prevents bot `/auth/login` links from hitting the provider's resume route
 when both settings name the same host. No real accounts or provider tokens
 are used. Run `node --test test/lidollid.test.js` for focused verification.
+The same tests check failure-stage attribution, discovery issuer mismatch,
+redaction of arbitrary error data, retries after failed discovery, and the
+read-only checker's exit codes/output using a disposable environment file.
+Browser-start tests also cover repeated preview GETs, HEAD requests, blocked
+cookies, CSRF cookie mismatch, cross-origin submissions, content types, body
+limits, single-use POST and the existing signed OIDC callback checks.
 
 For live SSO acceptance, follow [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md), register
 the exact callback and configure the HTTPS proxy. With a test Discord user,
 run login, authenticate, confirm the browser code, and check status after a bot
 restart. Test an existing LiD0llID browser session, a fresh/private browser,
+the Continue form in your supported browsers, repeated visits before Continue,
 denied login, a code submitted by another Discord account, callback replay,
 expired links, and unlinking while sign-in is pending. Check that replies are
 ephemeral and login URLs do not appear in proxy logs. Verify the other bot

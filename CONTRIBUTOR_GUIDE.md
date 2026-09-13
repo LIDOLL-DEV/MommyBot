@@ -13,6 +13,14 @@ provider tokens, grant roles from profile claims, or connect remote wallet
 permissions implicitly. The new `data/lidollid.db` participates in state backups.
 `openid-client` is pinned to omo-trainer's tested version; preserve its signature,
 state, nonce, PKCE and UserInfo-subject checks when upgrading.
+`auth/diagnostics.js` reports only allowlisted stages/codes and HTTP statuses.
+Never log entire OIDC errors or their causes: these can contain response bodies,
+authorization URLs and tokens. Include `scripts/check-lidollid.mjs` in Fedora
+releases so operators can verify discovery using the deployed dependency versions.
+Keep login GET requests read-only with respect to tickets and OIDC attempts:
+preview fetches must not consume a Discord user's link. The Continue form uses
+an HttpOnly browser cookie, same-origin POST and a bounded body; preserve these
+checks and the single-use store transition when changing the login page.
 
 The Touhou trader is in `src/touhou/`; its ported images and rarity seed are in
 `assets/`. See [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md) for commands and

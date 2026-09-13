@@ -9,7 +9,8 @@ and exact callback URL. LiDollBot's default client ID is `lidollbot`.
 
 ## Player flow
 
-1. Run `/lidollid login` in a server with the bot. Open the private sign-in link.
+1. Run `/lidollid login` in a server with the bot. Open the private sign-in link
+   and press **Continue with LiD0llID** in the browser.
 2. Sign in with LiD0llID. An existing LiD0llID browser session can complete SSO
    without another password prompt.
 3. Check the username on the returned page. Copy its `/lidollid confirm code:…`
@@ -18,7 +19,10 @@ and exact callback URL. LiDollBot's default client ID is `lidollbot`.
    `/lidollid unlink` removes the link and cancels pending sign-ins.
 
 All command replies are ephemeral. Links and codes expire ten minutes after
-starting sign-in; opening a newer login invalidates the older attempt. If a link
+starting sign-in; generating a newer `/lidollid login` invalidates the older
+attempt. Opening or previewing the link does not consume it. The Continue form
+requires a matching browser cookie and consumes the ticket once when starting
+authorization. If a link
 is already used, cookies were blocked, the bot was unavailable, or the provider
 denied sign-in, start again. The browser page never completes an account link by
 itself. Do not share links or enter a confirmation code from another person.
@@ -168,6 +172,78 @@ identity workers, their persistent cookie-signing keys and identity storage must
 be consistent. Inspect cookie names/attributes in browser developer tools without
 sharing values, full sign-in URLs, passwords or tokens. Increasing the bot's
 ten-minute lifetime does not restore a missing provider cookie.
+
+### A newly generated link is invalid on its first click
+
+Older code consumed a login ticket on the first GET request, so a preview or
+automatic link check could use it before the user's browser. Updated code first
+renders a **Continue with LiD0llID** form. GET/HEAD cannot start authorization;
+the same-origin POST requires its matching HttpOnly cookie before consuming the
+ticket. A missing cookie produces a specific browser message and leaves the
+ticket usable. Reopening the landing page allows another attempt while the
+ticket is valid; generating a newer Discord link replaces the old attempt.
+
+Deploy the updated bot, then use a fresh `/lidollid login`. If a new link still
+fails before the Continue button appears, check that the Discord command and
+nginx reach the same bot installation and persistent `data/lidollid.db`.
+Two bot instances with separate databases can issue a ticket on one instance
+while the browser reaches the other. Verify the bot hostname's nginx upstream
+and stop unintended duplicate bot instances. Normal Fedora restarts preserve
+unexpired tickets in the shared data directory; tickets are not held only in RAM.
+
+### Bot displays "Sign-in could not be completed"
+
+The bot page means the browser has reached LiDollBot. A failure on `/auth/login`
+after pressing Continue occurs before redirecting to the provider: investigate
+discovery/authorization URL construction and local attempt storage first.
+Client callback registration
+is checked later by the provider. A failure on `/auth/callback` instead concerns
+callback processing, code exchange, profile retrieval or staging the account link.
+
+Updated releases include a read-only discovery checker. On the Fedora bot host:
+
+```bash
+sudo -u mommybot env NODE_ENV=production /usr/bin/node \
+  /opt/mommybot/current/scripts/check-lidollid.mjs \
+  /etc/mommybot/mommybot.env
+```
+
+Run this after deploying a release that includes the checker. In a development
+checkout, use `node scripts/check-lidollid.mjs PATH_TO_ENV`. It prints only the
+Node version, public issuer/origin, client ID, callback and allowlisted failure
+codes. It uses the bot's OIDC library to retrieve and validate public discovery
+metadata. It does not open account databases, start a login, validate client
+registration or exchange a code. A successful check leaves those later steps
+for normal browser acceptance.
+
+Both the browser error page and service journal now identify the failed stage:
+`discovery`, `authorization`, `token`, `userinfo` or local `storage` (with
+`login`/`callback` as fallbacks). Error output contains only allowlisted codes and
+numeric HTTP statuses; raw exception messages, URLs, cookies, provider response
+bodies and tokens are excluded. Share the displayed reference or checker output.
+
+* `discovery: ISSUER_MISMATCH`: metadata reports an issuer different from
+  `LIDOLLID_ISSUER`. Confirm the intended live provider and correct its routing or
+  configuration; do not migrate account links automatically.
+* `ENOTFOUND` / `EAI_AGAIN`: hostname resolution failed on the bot host.
+* `ECONNREFUSED`, `ETIMEDOUT` or `REQUEST_TIMEOUT`: check the provider proxy,
+  outbound reachability and any LAN/router loopback routing.
+* Certificate codes such as `CERT_HAS_EXPIRED` or
+  `UNABLE_TO_VERIFY_LEAF_SIGNATURE`: correct the certificate chain/trust setup.
+* `OAUTH_RESPONSE_IS_NOT_JSON` / `OAUTH_RESPONSE_IS_NOT_CONFORM`: inspect the public
+  discovery endpoint; nginx may be returning HTML, a redirect or an error.
+
+For initial diagnosis on an older release, check only the public issuer setting
+and its discovery response; do not paste the entire environment file:
+
+```bash
+sudo grep '^LIDOLLID_ISSUER=' /etc/mommybot/mommybot.env
+curl --max-time 15 --fail --show-error https://auth.lidoll.dev/.well-known/openid-configuration
+```
+
+The URL above matches the issuer reported during this deployment's troubleshooting;
+use the intended configured issuer if it differs. Check that discovery's `issuer`
+matches exactly. Do not add `-k` or disable issuer/signature validation.
 
 ### Backups and lifecycle
 

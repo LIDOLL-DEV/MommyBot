@@ -25,7 +25,7 @@ export function createIdentityHandler(store, config) {
       switch (interaction.options.getSubcommand()) {
         case "login": {
           const ticket = store.begin(discordId);
-          content = `Sign in with LiD0llID: ${config.origin}/auth/login?ticket=${ticket}\nThis private link expires in 10 minutes. After signing in, use the confirmation code here. Do not share the link or confirm someone else's sign-in.`;
+          content = `Sign in with LiD0llID: ${config.origin}/auth/login?ticket=${ticket}\nOpen this link in your browser and press Continue with LiD0llID. This private link expires in 10 minutes. After signing in, use the confirmation code here. Do not share the link or confirm someone else's sign-in.`;
           break;
         }
         case "confirm": {

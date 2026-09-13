@@ -120,7 +120,7 @@ trap 'exit 143' TERM
 
 install -d -o mommybot -g mommybot -m 0755 "$release"
 # Copy only application inputs, so local credentials, databases and node_modules stay out.
-tar -C "$source_dir" -cf - package.json package-lock.json src assets | tar -C "$release" -xf -
+tar -C "$source_dir" -cf - package.json package-lock.json src assets scripts/check-lidollid.mjs | tar -C "$release" -xf -
 if [[ -d "$source_dir/test" ]]; then
     tar -C "$source_dir" -cf - test | tar -C "$release" -xf -
 fi
