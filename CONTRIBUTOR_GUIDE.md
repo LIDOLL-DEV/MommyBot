@@ -5,6 +5,14 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+The Touhou trader is in `src/touhou/`; its ported images and rarity seed are in
+`assets/`. See [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md) for commands and
+local wallet rules. Keep currency debits, ownership transfers and receipt writes
+inside the same `TouhouStore.mutate` transaction. Do not let chat-model output
+award or spend currency. Permission checks belong in the Discord handlers.
+`better-sqlite3` is a direct dependency at the same version used by conversation
+checkpointing, and Fedora releases must include the assets directory.
+
 LangGraph (`0.4.10`), its checkpoint package (`0.1.3`) and the SQLite saver
 (`0.2.2`) are pinned as a tested combination. Upgrade them together and run the
 conversation tests from a clean install: opening SQLite alone will not reveal

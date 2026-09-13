@@ -66,6 +66,11 @@ checks the new systemd invocation's Discord-ready log. Failed activation restore
 the previous code and unit and restarts the previous service if it was running.
 Readiness confirms Discord login; test an actual reply to verify model access.
 
+Deployments also copy the Touhou trader's `assets/` directory. Its wallets and
+collections live in `data/touhou-trader.db` and are included in state backups.
+See [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md) for commands, reward permissions
+and the 1-star-or-25-LiDollcoin adoption price.
+
 ## Files and migration
 
 | Path | Purpose |

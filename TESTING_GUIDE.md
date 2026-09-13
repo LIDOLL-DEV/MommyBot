@@ -30,6 +30,20 @@ static checks on Fedora: install `ShellCheck` and run
 
 ## Fedora acceptance checks
 
+Touhou tests cover both payment methods, insufficient funds, duplicate actions,
+rollback after an ownership-write failure, stock/party limits, gifts, consenting
+swaps, stale/expired offers, sales, wallet persistence, guild isolation, admin
+permissions, menu ownership and prefix/slash routing. They use local fixtures
+and disposable databases, never real Discord balances.
+
+For live trader acceptance, use a test server: award one star and 25 LiDollcoins
+to a test user, adopt once with each method, and check `/touhou wallet` and
+`/touhou collection`. Try an award as a normal member, a button as another
+player, and a trade accepted by its recipient. Confirm two rapid payment clicks
+on the same menu buy only one character. Restart the service and verify the
+wallet and collection persist. Check artwork rendering and paginated market
+navigation in Discord. Follow [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md).
+
 Use a test bot/channel and a Fedora VM with systemd for deployment validation.
 
 1. Follow [DEPLOYMENT_FEDORA.md](DEPLOYMENT_FEDORA.md). Confirm the first invocation

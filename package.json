@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "better-sqlite3": "11.10.0",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "0.4.10",
     "@langchain/langgraph-checkpoint": "0.1.3",

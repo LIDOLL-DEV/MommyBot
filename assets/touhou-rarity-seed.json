@@ -1,0 +1,1625 @@
+{
+  "generatedAt": "2026-04-19T21:12:18.201Z",
+  "source": {
+    "category": "https://touhou.fandom.com/wiki/Category:Characters",
+    "api": "https://touhou.fandom.com/api.php",
+    "notes": [
+      "Character list is crawled through MediaWiki categorymembers continuation (all category pages).",
+      "commentCount combines top-level talk-page thread count and revision comment signal due direct Fandom discussion endpoints being Cloudflare-protected in headless fetch contexts.",
+      "baseRarityScore blends popularity percentile, main-character boost, and a very-popular boost (top 10%)."
+    ]
+  },
+  "characters": {
+    "Alice Margatroid": {
+      "commentCount": 295,
+      "discussionCommentCount": 11,
+      "revisionCommentSignal": 284,
+      "appearancesCount": 9,
+      "popularityScore": 96,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Eirin Yagokoro": {
+      "commentCount": 169,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 169,
+      "appearancesCount": 6,
+      "popularityScore": 88,
+      "isMainCharacter": false,
+      "baseRarityScore": 7
+    },
+    "Chen": {
+      "commentCount": 169,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 168,
+      "appearancesCount": 7,
+      "popularityScore": 89,
+      "isMainCharacter": false,
+      "baseRarityScore": 7
+    },
+    "Aya Shameimaru": {
+      "commentCount": 224,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 221,
+      "appearancesCount": 14,
+      "popularityScore": 95,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Chiyuri Kitashirakawa": {
+      "commentCount": 60,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 60,
+      "appearancesCount": 1,
+      "popularityScore": 54,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Elis": {
+      "commentCount": 34,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 33,
+      "appearancesCount": 1,
+      "popularityScore": 41,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Eiki Shiki, Yamaxanadu": {
+      "commentCount": 132,
+      "discussionCommentCount": 5,
+      "revisionCommentSignal": 127,
+      "appearancesCount": 5,
+      "popularityScore": 82,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Daiyousei": {
+      "commentCount": 88,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 88,
+      "appearancesCount": 2,
+      "popularityScore": 66,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Byakuren Hijiri": {
+      "commentCount": 221,
+      "discussionCommentCount": 8,
+      "revisionCommentSignal": 213,
+      "appearancesCount": 8,
+      "popularityScore": 92,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Character List": {
+      "commentCount": 37,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 37,
+      "appearancesCount": 0,
+      "popularityScore": 37,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Cirno": {
+      "commentCount": 330,
+      "discussionCommentCount": 7,
+      "revisionCommentSignal": 323,
+      "appearancesCount": 10,
+      "popularityScore": 98,
+      "isMainCharacter": false,
+      "baseRarityScore": 10
+    },
+    "Doremy Sweet": {
+      "commentCount": 10,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 10,
+      "appearancesCount": 3,
+      "popularityScore": 40,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Clownpiece": {
+      "commentCount": 21,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 21,
+      "appearancesCount": 2,
+      "popularityScore": 38,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Aunn Komano": {
+      "commentCount": 6,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 6,
+      "appearancesCount": 3,
+      "popularityScore": 35,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Eika Ebisu": {
+      "commentCount": 7,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 7,
+      "appearancesCount": 0,
+      "popularityScore": 20,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Chimata Tenkyuu": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 0,
+      "popularityScore": 15,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Chiyari Tenkajin": {
+      "commentCount": 2,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 2,
+      "appearancesCount": 1,
+      "popularityScore": 15,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Chimi Houjuu": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 1,
+      "popularityScore": 22,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Ariya Iwanaga": {
+      "commentCount": 2,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 2,
+      "appearancesCount": 1,
+      "popularityScore": 15,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Benben Tsukumo": {
+      "commentCount": 14,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 14,
+      "appearancesCount": 2,
+      "popularityScore": 36,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Fujiwara no Mokou": {
+      "commentCount": 217,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 215,
+      "appearancesCount": 7,
+      "popularityScore": 91,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Flandre Scarlet": {
+      "commentCount": 313,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 309,
+      "appearancesCount": 7,
+      "popularityScore": 95,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Ellen": {
+      "commentCount": 39,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 38,
+      "appearancesCount": 1,
+      "popularityScore": 46,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Gengetsu": {
+      "commentCount": 47,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 47,
+      "appearancesCount": 1,
+      "popularityScore": 49,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Genjii": {
+      "commentCount": 56,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 56,
+      "appearancesCount": 4,
+      "popularityScore": 64,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Hieda no Akyu": {
+      "commentCount": 87,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 84,
+      "appearancesCount": 0,
+      "popularityScore": 54,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Hourai": {
+      "commentCount": 43,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 42,
+      "appearancesCount": 2,
+      "popularityScore": 52,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Hina Kagiyama": {
+      "commentCount": 81,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 81,
+      "appearancesCount": 3,
+      "popularityScore": 68,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Elly": {
+      "commentCount": 54,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 54,
+      "appearancesCount": 1,
+      "popularityScore": 52,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Iku Nagae": {
+      "commentCount": 88,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 88,
+      "appearancesCount": 5,
+      "popularityScore": 75,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Ichirin Kumoi": {
+      "commentCount": 157,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 155,
+      "appearancesCount": 5,
+      "popularityScore": 85,
+      "isMainCharacter": false,
+      "baseRarityScore": 7
+    },
+    "Hatate Himekaidou": {
+      "commentCount": 136,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 133,
+      "appearancesCount": 4,
+      "popularityScore": 80,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Hong Meiling": {
+      "commentCount": 242,
+      "discussionCommentCount": 6,
+      "revisionCommentSignal": 236,
+      "appearancesCount": 3,
+      "popularityScore": 88,
+      "isMainCharacter": false,
+      "baseRarityScore": 7
+    },
+    "Goliath Doll": {
+      "commentCount": 10,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 10,
+      "appearancesCount": 1,
+      "popularityScore": 31,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Hata no Kokoro": {
+      "commentCount": 22,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 22,
+      "appearancesCount": 3,
+      "popularityScore": 43,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Hecatia Lapislazuli": {
+      "commentCount": 28,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 28,
+      "appearancesCount": 2,
+      "popularityScore": 43,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Eternity Larva": {
+      "commentCount": 14,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 14,
+      "appearancesCount": 2,
+      "popularityScore": 36,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Hisami Yomotsu": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 0,
+      "popularityScore": 15,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Enoko Mitsugashira": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 1,
+      "popularityScore": 22,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Jacketko": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 1,
+      "popularityScore": 18,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Keine Kamishirasawa": {
+      "commentCount": 116,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 115,
+      "appearancesCount": 4,
+      "popularityScore": 76,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Kaguya Houraisan": {
+      "commentCount": 166,
+      "discussionCommentCount": 5,
+      "revisionCommentSignal": 161,
+      "appearancesCount": 6,
+      "popularityScore": 87,
+      "isMainCharacter": false,
+      "baseRarityScore": 7
+    },
+    "Kana Anaberal": {
+      "commentCount": 36,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 35,
+      "appearancesCount": 1,
+      "popularityScore": 43,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Kikuri": {
+      "commentCount": 24,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 23,
+      "appearancesCount": 1,
+      "popularityScore": 36,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Kotohime": {
+      "commentCount": 33,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 33,
+      "appearancesCount": 1,
+      "popularityScore": 40,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Kurumi": {
+      "commentCount": 33,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 33,
+      "appearancesCount": 1,
+      "popularityScore": 40,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Komachi Onozuka": {
+      "commentCount": 124,
+      "discussionCommentCount": 5,
+      "revisionCommentSignal": 119,
+      "appearancesCount": 5,
+      "popularityScore": 82,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Koakuma": {
+      "commentCount": 66,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 64,
+      "appearancesCount": 1,
+      "popularityScore": 57,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Kanako Yasaka": {
+      "commentCount": 122,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 122,
+      "appearancesCount": 9,
+      "popularityScore": 84,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Kisume": {
+      "commentCount": 77,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 77,
+      "appearancesCount": 2,
+      "popularityScore": 62,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Koishi Komeiji": {
+      "commentCount": 137,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 134,
+      "appearancesCount": 6,
+      "popularityScore": 83,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Kasen Ibaraki": {
+      "commentCount": 99,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 96,
+      "appearancesCount": 5,
+      "popularityScore": 76,
+      "isMainCharacter": true,
+      "baseRarityScore": 9
+    },
+    "Kyouko Kasodani": {
+      "commentCount": 28,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 28,
+      "appearancesCount": 3,
+      "popularityScore": 47,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Kosuzu Motoori": {
+      "commentCount": 10,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 10,
+      "appearancesCount": 2,
+      "popularityScore": 35,
+      "isMainCharacter": true,
+      "baseRarityScore": 6
+    },
+    "Kagerou Imaizumi": {
+      "commentCount": 23,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 23,
+      "appearancesCount": 2,
+      "popularityScore": 39,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Junko": {
+      "commentCount": 54,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 54,
+      "appearancesCount": 2,
+      "popularityScore": 56,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Joon Yorigami": {
+      "commentCount": 11,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 11,
+      "appearancesCount": 2,
+      "popularityScore": 36,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Kutaka Niwatari": {
+      "commentCount": 9,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 9,
+      "appearancesCount": 0,
+      "popularityScore": 22,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Keiki Haniyasushin": {
+      "commentCount": 10,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 10,
+      "appearancesCount": 3,
+      "popularityScore": 40,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Labelko": {
+      "commentCount": 5,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 5,
+      "appearancesCount": 1,
+      "popularityScore": 23,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Udzuki (Cookie/Inmu)": {
+      "commentCount": 341,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 341,
+      "appearancesCount": 33,
+      "popularityScore": 100,
+      "isMainCharacter": false,
+      "baseRarityScore": 10
+    },
+    "Letty Whiterock": {
+      "commentCount": 106,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 104,
+      "appearancesCount": 3,
+      "popularityScore": 73,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Lily White": {
+      "commentCount": 92,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 88,
+      "appearancesCount": 7,
+      "popularityScore": 78,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Layla Prismriver": {
+      "commentCount": 29,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 28,
+      "appearancesCount": 0,
+      "popularityScore": 32,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Mai": {
+      "commentCount": 42,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 41,
+      "appearancesCount": 2,
+      "popularityScore": 51,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Maribel Hearn": {
+      "commentCount": 67,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 63,
+      "appearancesCount": 7,
+      "popularityScore": 71,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Meira": {
+      "commentCount": 39,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 39,
+      "appearancesCount": 1,
+      "popularityScore": 46,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Mima": {
+      "commentCount": 94,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 92,
+      "appearancesCount": 5,
+      "popularityScore": 75,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Medicine Melancholy": {
+      "commentCount": 74,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 74,
+      "appearancesCount": 3,
+      "popularityScore": 66,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Minoriko Aki": {
+      "commentCount": 80,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 78,
+      "appearancesCount": 3,
+      "popularityScore": 68,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Minamitsu Murasa": {
+      "commentCount": 140,
+      "discussionCommentCount": 5,
+      "revisionCommentSignal": 135,
+      "appearancesCount": 3,
+      "popularityScore": 80,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Louise": {
+      "commentCount": 18,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 18,
+      "appearancesCount": 1,
+      "popularityScore": 33,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Mamizou Futatsuiwa": {
+      "commentCount": 35,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 35,
+      "appearancesCount": 8,
+      "popularityScore": 58,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Mishaguji": {
+      "commentCount": 6,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 6,
+      "appearancesCount": 4,
+      "popularityScore": 36,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Mai Teireida": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 2,
+      "popularityScore": 26,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Mayumi Joutouguu": {
+      "commentCount": 5,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 5,
+      "appearancesCount": 0,
+      "popularityScore": 16,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Mike Goutokuji": {
+      "commentCount": 7,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 7,
+      "appearancesCount": 0,
+      "popularityScore": 20,
+      "isMainCharacter": true,
+      "baseRarityScore": 5
+    },
+    "Misumaru Tamatsukuri": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 0,
+      "popularityScore": 11,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Megumu Iizunamaru": {
+      "commentCount": 6,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 6,
+      "appearancesCount": 0,
+      "popularityScore": 19,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Marisa Kirisame": {
+      "commentCount": 80,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 80,
+      "appearancesCount": 33,
+      "popularityScore": 77,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Mystia Lorelei": {
+      "commentCount": 113,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 111,
+      "appearancesCount": 3,
+      "popularityScore": 74,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Patchouli Knowledge": {
+      "commentCount": 213,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 209,
+      "appearancesCount": 10,
+      "popularityScore": 92,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Prismriver Sisters": {
+      "commentCount": 120,
+      "discussionCommentCount": 5,
+      "revisionCommentSignal": 115,
+      "appearancesCount": 3,
+      "popularityScore": 75,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Mugetsu": {
+      "commentCount": 51,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 51,
+      "appearancesCount": 1,
+      "popularityScore": 50,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Orange": {
+      "commentCount": 44,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 44,
+      "appearancesCount": 1,
+      "popularityScore": 48,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Nitori Kawashiro": {
+      "commentCount": 121,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 118,
+      "appearancesCount": 8,
+      "popularityScore": 83,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Parsee Mizuhashi": {
+      "commentCount": 117,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 114,
+      "appearancesCount": 3,
+      "popularityScore": 75,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Nazrin": {
+      "commentCount": 145,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 144,
+      "appearancesCount": 3,
+      "popularityScore": 80,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Nue Houjuu": {
+      "commentCount": 164,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 160,
+      "appearancesCount": 5,
+      "popularityScore": 85,
+      "isMainCharacter": false,
+      "baseRarityScore": 7
+    },
+    "Myouren Hijiri": {
+      "commentCount": 40,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 40,
+      "appearancesCount": 1,
+      "popularityScore": 47,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "PC-98 Midbosses": {
+      "commentCount": 66,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 62,
+      "appearancesCount": 0,
+      "popularityScore": 49,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Mononobe no Futo": {
+      "commentCount": 55,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 55,
+      "appearancesCount": 5,
+      "popularityScore": 65,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Nemuno Sakata": {
+      "commentCount": 7,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 7,
+      "appearancesCount": 3,
+      "popularityScore": 36,
+      "isMainCharacter": true,
+      "baseRarityScore": 6
+    },
+    "Narumi Yatadera": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 2,
+      "popularityScore": 26,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Miyoi Okunoda": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 0,
+      "popularityScore": 11,
+      "isMainCharacter": true,
+      "baseRarityScore": 4
+    },
+    "Mizuchi Miyadeguchi": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 1,
+      "popularityScore": 18,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Multi": {
+      "commentCount": 2,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 2,
+      "appearancesCount": 0,
+      "popularityScore": 8,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Momoyo Himemushi": {
+      "commentCount": 8,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 0,
+      "popularityScore": 21,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Nareko Michigami": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 1,
+      "popularityScore": 18,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Momiji Inubashiri": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 3,
+      "popularityScore": 27,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Reimu Hakurei": {
+      "commentCount": 234,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 234,
+      "appearancesCount": 33,
+      "popularityScore": 96,
+      "isMainCharacter": true,
+      "baseRarityScore": 12
+    },
+    "Remilia Scarlet": {
+      "commentCount": 285,
+      "discussionCommentCount": 7,
+      "revisionCommentSignal": 278,
+      "appearancesCount": 13,
+      "popularityScore": 97,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Reisen Udongein Inaba": {
+      "commentCount": 194,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 194,
+      "appearancesCount": 10,
+      "popularityScore": 91,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Rinnosuke Morichika": {
+      "commentCount": 111,
+      "discussionCommentCount": 5,
+      "revisionCommentSignal": 106,
+      "appearancesCount": 5,
+      "popularityScore": 77,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Rumia": {
+      "commentCount": 145,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 143,
+      "appearancesCount": 3,
+      "popularityScore": 80,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Renko Usami": {
+      "commentCount": 49,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 48,
+      "appearancesCount": 6,
+      "popularityScore": 64,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Rika": {
+      "commentCount": 59,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 56,
+      "appearancesCount": 1,
+      "popularityScore": 54,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Rikako Asakura": {
+      "commentCount": 84,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 84,
+      "appearancesCount": 1,
+      "popularityScore": 60,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Ruukoto": {
+      "commentCount": 48,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 47,
+      "appearancesCount": 1,
+      "popularityScore": 50,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Sanae Kochiya": {
+      "commentCount": 240,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 237,
+      "appearancesCount": 12,
+      "popularityScore": 96,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Reisen (Bougetsushou)": {
+      "commentCount": 37,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 37,
+      "appearancesCount": 3,
+      "popularityScore": 54,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Rin Kaenbyou": {
+      "commentCount": 124,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 122,
+      "appearancesCount": 3,
+      "popularityScore": 78,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Rin Satsuki": {
+      "commentCount": 55,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 54,
+      "appearancesCount": 0,
+      "popularityScore": 45,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Sakuya Izayoi": {
+      "commentCount": 315,
+      "discussionCommentCount": 13,
+      "revisionCommentSignal": 302,
+      "appearancesCount": 12,
+      "popularityScore": 98,
+      "isMainCharacter": false,
+      "baseRarityScore": 10
+    },
+    "Reisen Udongein Inaba/Talk": {
+      "commentCount": 26,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 26,
+      "appearancesCount": 2,
+      "popularityScore": 41,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Raiko Horikawa": {
+      "commentCount": 24,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 24,
+      "appearancesCount": 4,
+      "popularityScore": 47,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Ringo": {
+      "commentCount": 10,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 10,
+      "appearancesCount": 2,
+      "popularityScore": 35,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Sagume Kishin": {
+      "commentCount": 28,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 28,
+      "appearancesCount": 3,
+      "popularityScore": 47,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Saki Kurokoma": {
+      "commentCount": 6,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 6,
+      "appearancesCount": 0,
+      "popularityScore": 19,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Ran Yakumo": {
+      "commentCount": 122,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 121,
+      "appearancesCount": 8,
+      "popularityScore": 83,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Suika Ibuki": {
+      "commentCount": 209,
+      "discussionCommentCount": 5,
+      "revisionCommentSignal": 204,
+      "appearancesCount": 9,
+      "popularityScore": 92,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Star Sapphire": {
+      "commentCount": 2,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 2,
+      "appearancesCount": 0,
+      "popularityScore": 8,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Sariel": {
+      "commentCount": 43,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 42,
+      "appearancesCount": 1,
+      "popularityScore": 47,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Sara": {
+      "commentCount": 27,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 27,
+      "appearancesCount": 1,
+      "popularityScore": 37,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Shinki": {
+      "commentCount": 81,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 81,
+      "appearancesCount": 1,
+      "popularityScore": 59,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "SinGyoku": {
+      "commentCount": 39,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 37,
+      "appearancesCount": 1,
+      "popularityScore": 46,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Shanghai": {
+      "commentCount": 35,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 34,
+      "appearancesCount": 2,
+      "popularityScore": 47,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Shizuha Aki": {
+      "commentCount": 63,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 61,
+      "appearancesCount": 3,
+      "popularityScore": 64,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Satori Komeiji": {
+      "commentCount": 145,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 144,
+      "appearancesCount": 4,
+      "popularityScore": 82,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Shou Toramaru": {
+      "commentCount": 114,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 113,
+      "appearancesCount": 3,
+      "popularityScore": 75,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Sokrates": {
+      "commentCount": 22,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 21,
+      "appearancesCount": 0,
+      "popularityScore": 27,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Seiga Kaku": {
+      "commentCount": 47,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 47,
+      "appearancesCount": 3,
+      "popularityScore": 58,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Soga no Tojiko": {
+      "commentCount": 24,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 24,
+      "appearancesCount": 2,
+      "popularityScore": 40,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Sekibanki": {
+      "commentCount": 38,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 37,
+      "appearancesCount": 2,
+      "popularityScore": 49,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Shinmyoumaru Sukuna": {
+      "commentCount": 35,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 35,
+      "appearancesCount": 5,
+      "popularityScore": 55,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Seija Kijin": {
+      "commentCount": 32,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 31,
+      "appearancesCount": 2,
+      "popularityScore": 44,
+      "isMainCharacter": true,
+      "baseRarityScore": 6
+    },
+    "Seiran": {
+      "commentCount": 9,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 9,
+      "appearancesCount": 2,
+      "popularityScore": 33,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Satono Nishida": {
+      "commentCount": 6,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 6,
+      "appearancesCount": 2,
+      "popularityScore": 30,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Sannyo Komakusa": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 0,
+      "popularityScore": 15,
+      "isMainCharacter": true,
+      "baseRarityScore": 4
+    },
+    "Son Biten": {
+      "commentCount": 6,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 6,
+      "appearancesCount": 1,
+      "popularityScore": 26,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Tewi Inaba": {
+      "commentCount": 122,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 120,
+      "appearancesCount": 5,
+      "popularityScore": 80,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Three Mischievous Fairies": {
+      "commentCount": 85,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 81,
+      "appearancesCount": 5,
+      "popularityScore": 73,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Sunny Milk": {
+      "commentCount": 2,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 2,
+      "appearancesCount": 0,
+      "popularityScore": 8,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Tokiko": {
+      "commentCount": 36,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 35,
+      "appearancesCount": 1,
+      "popularityScore": 43,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Suwako Moriya": {
+      "commentCount": 195,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 192,
+      "appearancesCount": 8,
+      "popularityScore": 90,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Watatsuki no Toyohime": {
+      "commentCount": 54,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 54,
+      "appearancesCount": 4,
+      "popularityScore": 62,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Tenshi Hinanawi": {
+      "commentCount": 156,
+      "discussionCommentCount": 4,
+      "revisionCommentSignal": 152,
+      "appearancesCount": 7,
+      "popularityScore": 87,
+      "isMainCharacter": false,
+      "baseRarityScore": 7
+    },
+    "VIVIT": {
+      "commentCount": 26,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 26,
+      "appearancesCount": 3,
+      "popularityScore": 46,
+      "isMainCharacter": true,
+      "baseRarityScore": 7
+    },
+    "Utsuho Reiuzi": {
+      "commentCount": 217,
+      "discussionCommentCount": 9,
+      "revisionCommentSignal": 208,
+      "appearancesCount": 7,
+      "popularityScore": 91,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Unzan": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 0,
+      "popularityScore": 15,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Unnamed Giant Catfish": {
+      "commentCount": 68,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 67,
+      "appearancesCount": 1,
+      "popularityScore": 57,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Toyosatomimi no Miko": {
+      "commentCount": 85,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 85,
+      "appearancesCount": 6,
+      "popularityScore": 74,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Wakasagihime": {
+      "commentCount": 29,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 29,
+      "appearancesCount": 2,
+      "popularityScore": 43,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Sumireko Usami": {
+      "commentCount": 21,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 21,
+      "appearancesCount": 4,
+      "popularityScore": 44,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Urumi Ushizaki": {
+      "commentCount": 7,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 7,
+      "appearancesCount": 0,
+      "popularityScore": 20,
+      "isMainCharacter": true,
+      "baseRarityScore": 5
+    },
+    "Vivit (Erich's Daughter)": {
+      "commentCount": 1,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 1,
+      "appearancesCount": 2,
+      "popularityScore": 17,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "VIVIT-r": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 1,
+      "popularityScore": 18,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Takane Yamashiro": {
+      "commentCount": 4,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 4,
+      "appearancesCount": 0,
+      "popularityScore": 15,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Tsukasa Kudamaki": {
+      "commentCount": 3,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 3,
+      "appearancesCount": 0,
+      "popularityScore": 11,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Ubame Chirizuka": {
+      "commentCount": 2,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 2,
+      "appearancesCount": 1,
+      "popularityScore": 15,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    },
+    "Youmu Konpaku": {
+      "commentCount": 239,
+      "discussionCommentCount": 7,
+      "revisionCommentSignal": 232,
+      "appearancesCount": 11,
+      "popularityScore": 95,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Yuyuko Saigyouji": {
+      "commentCount": 229,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 229,
+      "appearancesCount": 12,
+      "popularityScore": 95,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Yukari Yakumo": {
+      "commentCount": 313,
+      "discussionCommentCount": 3,
+      "revisionCommentSignal": 310,
+      "appearancesCount": 11,
+      "popularityScore": 97,
+      "isMainCharacter": false,
+      "baseRarityScore": 9
+    },
+    "Wriggle Nightbug": {
+      "commentCount": 106,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 104,
+      "appearancesCount": 3,
+      "popularityScore": 73,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Youki Konpaku": {
+      "commentCount": 60,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 59,
+      "appearancesCount": 1,
+      "popularityScore": 54,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Yuki": {
+      "commentCount": 35,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 35,
+      "appearancesCount": 2,
+      "popularityScore": 47,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Yumeko": {
+      "commentCount": 49,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 48,
+      "appearancesCount": 1,
+      "popularityScore": 50,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Yumemi Okazaki": {
+      "commentCount": 63,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 63,
+      "appearancesCount": 1,
+      "popularityScore": 55,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "YuugenMagan": {
+      "commentCount": 37,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 37,
+      "appearancesCount": 1,
+      "popularityScore": 45,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Watatsuki no Yorihime": {
+      "commentCount": 65,
+      "discussionCommentCount": 2,
+      "revisionCommentSignal": 63,
+      "appearancesCount": 3,
+      "popularityScore": 65,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Yamame Kurodani": {
+      "commentCount": 57,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 56,
+      "appearancesCount": 3,
+      "popularityScore": 62,
+      "isMainCharacter": false,
+      "baseRarityScore": 5
+    },
+    "Yuugi Hoshiguma": {
+      "commentCount": 89,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 88,
+      "appearancesCount": 4,
+      "popularityScore": 73,
+      "isMainCharacter": false,
+      "baseRarityScore": 6
+    },
+    "Yoshika Miyako": {
+      "commentCount": 30,
+      "discussionCommentCount": 1,
+      "revisionCommentSignal": 29,
+      "appearancesCount": 3,
+      "popularityScore": 49,
+      "isMainCharacter": false,
+      "baseRarityScore": 4
+    },
+    "Yatsuhashi Tsukumo": {
+      "commentCount": 17,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 17,
+      "appearancesCount": 2,
+      "popularityScore": 37,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Yachie Kicchou": {
+      "commentCount": 9,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 9,
+      "appearancesCount": 6,
+      "popularityScore": 43,
+      "isMainCharacter": false,
+      "baseRarityScore": 3
+    },
+    "Yuuma Toutetsu": {
+      "commentCount": 7,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 7,
+      "appearancesCount": 0,
+      "popularityScore": 20,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Zanmu Nippaku": {
+      "commentCount": 6,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 6,
+      "appearancesCount": 1,
+      "popularityScore": 26,
+      "isMainCharacter": false,
+      "baseRarityScore": 2
+    },
+    "Yeiko Komeiji": {
+      "commentCount": 1,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 1,
+      "appearancesCount": 0,
+      "popularityScore": 6,
+      "isMainCharacter": false,
+      "baseRarityScore": 0
+    },
+    "Yuiman Asama": {
+      "commentCount": 1,
+      "discussionCommentCount": 0,
+      "revisionCommentSignal": 1,
+      "appearancesCount": 1,
+      "popularityScore": 13,
+      "isMainCharacter": false,
+      "baseRarityScore": 1
+    }
+  }
+}
