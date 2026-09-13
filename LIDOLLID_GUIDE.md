@@ -1,8 +1,10 @@
 # LiDollBot sign-in with LiD0llID
 
 LiDollBot uses the same LiD0llID issuer and OpenID Connect contract as
-`C:\Scripts\omo-trainer\server\login.mjs`. The production issuer is
-`https://auth.sadgirlsclub.wtf`. Each application needs its own registered client
+`C:\Scripts\omo-trainer\server\login.mjs`. omo-trainer's documented default issuer
+is `https://auth.sadgirlsclub.wtf`; existing deployments may still use
+`https://auth.lidoll.dev`. Configure the actual deployed issuer rather than
+assuming either hostname. Each application needs its own registered client
 and exact callback URL. LiDollBot's default client ID is `lidollbot`.
 
 ## Player flow
@@ -69,7 +71,9 @@ LIDOLLID_PORT=4190
 ```
 
 The public origin must contain no path, query, credentials or fragment. The
-callback is always `/auth/callback`. Production requires HTTPS for both public
+public origin must also differ from the issuer origin: these are separate
+services with overlapping `/auth` routes. The callback is always `/auth/callback`.
+Production requires HTTPS for both public
 origin and issuer. Local development permits HTTP only on loopback hostnames;
 register the corresponding exact local callback as a separate development
 client. Use Node.js 22 or newer, as required by the existing Fedora deployer.
@@ -113,6 +117,59 @@ untrusted Host/forwarded headers. HTTPS login cookies are host-only,
 embedding sign-in in an iframe is blocked.
 
 ## Storage and maintenance
+
+### Provider reports "authorization request has expired"
+
+If the error appears immediately at `https://auth.lidoll.dev/auth/login?ticket=…`,
+the bot's link has reached the identity service instead of the bot. The identity
+provider interprets `/auth/login` as its `/auth/:uid` resume route, with `login`
+as the identifier, and expects a provider resume cookie that this bot link never
+created. This is an origin/proxy routing error, not a slow sign-in.
+
+Keep the deployed issuer in `LIDOLLID_ISSUER` (for this example,
+`https://auth.lidoll.dev`). Give LiDollBot its own HTTPS hostname, such as
+`bot.example.com`, set `LIDOLLID_PUBLIC_ORIGIN=https://bot.example.com`, and
+proxy that hostname to the bot's port 4190 listener using the configuration above.
+Register `https://bot.example.com/auth/callback` on the `lidollbot` client,
+restart the affected services, then run a fresh `/lidollid login`. Existing
+Discord messages retain the incorrect URL. Do not send the bot's routes to the
+identity service on port 4180. The app now rejects identical public/issuer
+origins at startup and during Fedora deployment; proxy aliases that route two
+different hostnames to the same service still require operator verification.
+
+Opening the bot origin's `/` should show **LiDollBot · LiD0llID** and instructions
+to run `/lidollid login`. Confirm this before retrying Discord. A provider error
+page there means the proxy still reaches the wrong service. The bot hostname is
+a placeholder until DNS, TLS and the proxy are provisioned.
+
+In oidc-provider 9.12.2 this exact message means the authorization resume route
+could not read a valid signed resume cookie. It does not by itself establish
+that the interaction timer expired. The cookie may be absent, expired, blocked,
+already cleared by a completed flow, or have a missing/invalid signature. See
+the provider's [resume handler](https://github.com/panva/node-oidc-provider/blob/v9.12.2/lib/actions/authorization/resume.js).
+
+Close the failed tab, run a new `/lidollid login`, and complete the entire flow
+in one browser. If moving from Discord's embedded browser to another browser,
+start again there with a fresh login link; do not copy an in-progress interaction
+or resume URL. Reloading a completed resume URL cannot restart authorization.
+
+If a fresh attempt fails immediately, compare the hostname on the password page
+and the hostname after submission. Changing between `auth.lidoll.dev` and
+`auth.sadgirlsclub.wtf` can lose host-only cookies. The bot's `LIDOLLID_ISSUER`,
+the identity service's `AUTH_ISSUER`, public discovery metadata and proxy routing
+must describe the intended deployment consistently. An `iss` field in an error
+is a diagnostic clue, not authorization to trust a new issuer or migrate links.
+Do not switch issuers automatically or widen cookies to a shared parent domain.
+
+Check the identity proxy forwards both Cookie requests and all Set-Cookie
+responses, preserves URL paths, does not cache authorization responses, and
+uses the correct public Host and HTTPS scheme. If requests reach multiple
+identity workers, their persistent cookie-signing keys and identity storage must
+be consistent. Inspect cookie names/attributes in browser developer tools without
+sharing values, full sign-in URLs, passwords or tokens. Increasing the bot's
+ten-minute lifetime does not restore a missing provider cookie.
+
+### Backups and lifecycle
 
 `data/lidollid.db` stores links and temporary login attempts, separately from
 conversation memory and trading data. In Fedora this resolves to

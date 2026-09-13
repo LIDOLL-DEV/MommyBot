@@ -78,6 +78,12 @@ test("SSO configuration is opt-in with exact origins and production HTTPS", () =
     assert.throws(() => authConfig({ ...env, LIDOLLID_PUBLIC_ORIGIN: origin }));
   }
   assert.throws(() => authConfig({ ...env, LIDOLLID_PORT: "bad" }));
+  for (const hostname of ["auth.lidoll.dev", "auth.sadgirlsclub.wtf"]) {
+    assert.throws(() => authConfig({ ...env,
+      LIDOLLID_PUBLIC_ORIGIN: `https://${hostname}:443/`,
+      LIDOLLID_ISSUER: `https://${hostname}`,
+    }), /LiDollBot's own web origin/);
+  } // Normalize default ports and slashes when rejecting the routing mistake reported from Discord.
   const local = { ...env, LIDOLLID_PUBLIC_ORIGIN: "http://127.0.0.1:4190", LIDOLLID_ISSUER: "http://127.0.0.1:4180" };
   assert.equal(authConfig(local).port, 4190);
   assert.throws(() => authConfig({ ...local, NODE_ENV: "production" }));

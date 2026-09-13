@@ -35,7 +35,10 @@ provider with real RSA-signed tokens. They verify state, nonce, PKCE, signatures
 issuer, audience, expiry, missing ID tokens, denied sign-in, UserInfo subjects,
 discovery recovery, callback cookies, replay rejection, escaped profile text,
 Discord-user binding, expiry, concurrent replacement, unique links, unlinking,
-persistence and production configuration. No real accounts or provider tokens
+persistence and production configuration. Configuration tests also reject using the identity-provider origin
+as the bot origin, including equivalent URLs with a default port/trailing slash.
+This prevents bot `/auth/login` links from hitting the provider's resume route
+when both settings name the same host. No real accounts or provider tokens
 are used. Run `node --test test/lidollid.test.js` for focused verification.
 
 For live SSO acceptance, follow [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md), register
