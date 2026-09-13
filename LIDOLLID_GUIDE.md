@@ -191,6 +191,26 @@ while the browser reaches the other. Verify the bot hostname's nginx upstream
 and stop unintended duplicate bot instances. Normal Fedora restarts preserve
 unexpired tickets in the shared data directory; tickets are not held only in RAM.
 
+### Continue is rejected before reaching LiD0llID
+
+The original Continue page inherited `Referrer-Policy: no-referrer`, which can
+make a browser's form submission send `Origin: null`. The strict origin check
+then rejected the bot's own form with "Open your Discord sign-in link and use
+its Continue button." This was an application bug, reproduced in headless Chrome.
+
+The landing page now uses `Referrer-Policy: origin`, preserving the POST Origin
+while stripping the private ticket path/query from Referer. Redirects and
+callback pages still use `no-referrer`. Null, missing and foreign origins remain
+rejected, as do missing or mismatched CSRF cookies. Do not remove those checks
+or make nginx manufacture an Origin header.
+
+Deploy the fix, reopen the latest unused login link to load the corrected page,
+and press Continue. If it persists, the page/journal now identifies `ORIGIN_NULL`,
+`ORIGIN_MISSING` or `ORIGIN_MISMATCH` without logging header values. Ensure nginx
+or another proxy is not overriding the landing page's policy with `no-referrer`,
+and verify the browser origin matches `LIDOLLID_PUBLIC_ORIGIN` exactly. This
+behavior follows the [Fetch Standard's Origin-header rules](https://fetch.spec.whatwg.org/#append-a-request-origin-header).
+
 ### Bot displays "Sign-in could not be completed"
 
 The bot page means the browser has reached LiDollBot. A failure on `/auth/login`

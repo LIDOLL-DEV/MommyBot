@@ -34,10 +34,15 @@ export function createAuthServer(config, store, oidc) {
           const ticket = url.searchParams.get("ticket");
           if (!validTicket(ticket)) return page(response, 400, "<p>Login link invalid, expired or already used. Start with /lidollid login in Discord.</p>");
           const csrf = randomBytes(32).toString("base64url");
+          response.setHeader("Referrer-Policy", "origin"); // Preserve the form POST's Origin while excluding the ticket-bearing path/query from Referer.
           response.setHeader("Set-Cookie", cookie(csrf, 600, formCookieName));
           return page(response, 200, `<p>Connect your LiD0llID account to Discord in this browser.</p><form method="post" action="/auth/login"><input type="hidden" name="ticket" value="${escapeHtml(ticket)}"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">Continue with LiD0llID</button></form><p>Keep this browser open until sign-in finishes, then return to Discord with the confirmation code.</p>`);
         } // Link previews and repeated page visits cannot consume tickets or start provider interactions.
-        if (request.headers.origin !== config.origin) return page(response, 403, "<p>Open your Discord sign-in link and use its Continue button.</p>");
+        if (request.headers.origin !== config.origin) {
+          const reason = request.headers.origin === "null" ? "ORIGIN_NULL" : !request.headers.origin ? "ORIGIN_MISSING" : "ORIGIN_MISMATCH";
+          console.error(`[LiD0llID] Sign-in form rejected ${JSON.stringify({ stage: "login", code: reason })}`);
+          return page(response, 403, `<p>The browser could not verify where this sign-in form came from. Reopen your latest Discord sign-in link in a browser tab and press Continue.</p><p>Reference: <code>${reason}</code></p>`);
+        } // Reject null, absent and foreign origins; log only a fixed reason, never arbitrary header values.
         if (request.headers["content-type"]?.split(";")[0].trim() !== "application/x-www-form-urlencoded") {
           return page(response, 415, "<p>Use the sign-in form.</p>");
         }

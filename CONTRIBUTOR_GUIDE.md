@@ -21,6 +21,11 @@ Keep login GET requests read-only with respect to tickets and OIDC attempts:
 preview fetches must not consume a Discord user's link. The Continue form uses
 an HttpOnly browser cookie, same-origin POST and a bounded body; preserve these
 checks and the single-use store transition when changing the login page.
+The Continue page must use `Referrer-Policy: origin`: `no-referrer` makes real
+browser form POSTs send `Origin: null`, which the required origin check rejects.
+Keep `no-referrer` on redirects/callback pages and never include the ticket path
+or query in Referer. Validate form-header changes with the real-browser check
+in `scripts/check-lidollid-browser.mjs`; Node fetch tests set Origin manually.
 
 The Touhou trader is in `src/touhou/`; its ported images and rarity seed are in
 `assets/`. See [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md) for commands and

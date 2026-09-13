@@ -105,6 +105,7 @@ async function close(server) {
 async function loginForm(address, ticket) {
   const response = await fetch(`${address}/auth/login?ticket=${ticket}`, { redirect: "manual" });
   assert.equal(response.status, 200);
+  assert.equal(response.headers.get("referrer-policy"), "origin", "Browser form POST must retain Origin without exposing ticket in Referer");
   const html = await response.text();
   assert.match(html, /Continue with LiD0llID/);
   return { cookie: response.headers.getSetCookie()[0].split(";")[0],
@@ -354,6 +355,12 @@ test("preview visits preserve tickets; only a same-origin form with its browser 
     assert.equal(starts, 0);
     assert.equal((await fetch(`${config.origin}/auth/login?ticket=${ticket}`, { method: "HEAD" })).status, 405);
     assert.equal((await submitLogin(config.origin, browser, "https://foreign.example")).status, 403);
+    const opaqueOrigin = await submitLogin(config.origin, browser, "null");
+    assert.equal(opaqueOrigin.status, 403);
+    assert.match(await opaqueOrigin.text(), /ORIGIN_NULL/);
+    const noOrigin = await fetch(`${config.origin}/auth/login`, { method: "POST", headers: { cookie: browser.cookie }, body: browser.body });
+    assert.equal(noOrigin.status, 403);
+    assert.match(await noOrigin.text(), /ORIGIN_MISSING/);
     const missingCookie = await submitLogin(config.origin, { ...browser, cookie: "" });
     assert.equal(missingCookie.status, 400);
     assert.match(await missingCookie.text(), /did not return the sign-in cookie/);

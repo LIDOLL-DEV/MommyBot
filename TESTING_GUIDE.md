@@ -47,6 +47,26 @@ Browser-start tests also cover repeated preview GETs, HEAD requests, blocked
 cookies, CSRF cookie mismatch, cross-origin submissions, content types, body
 limits, single-use POST and the existing signed OIDC callback checks.
 
+For browser-header regressions, install `puppeteer-core` in a separate tooling
+directory and use an installed Chrome/Chromium browser. Run from a development
+checkout (this optional helper is not copied into production releases):
+
+```bash
+PUPPETEER_MODULE=/absolute/path/to/puppeteer-core/lib/puppeteer/puppeteer-core.js \
+CHROME_PATH=/usr/bin/chromium \
+node scripts/check-lidollid-browser.mjs
+```
+
+Use the actual module entry path for your installed puppeteer-core version and
+a Node version supported by that tool. The check was verified with puppeteer-core
+25.10.0, Node 24 and headless Chrome. It first reproduces the former
+`no-referrer` policy's `Origin: null` / HTTP 403, then uses the production
+`origin` policy and follows the form/provider/callback flow to Discord
+confirmation. It asserts only the origin is sent as the form's Referer and no
+Referer reaches the provider. This uses in-memory accounts and a local provider
+stub; cryptographic OIDC validation remains covered by the Node tests. No real
+Discord or LiD0llID accounts or existing browser profiles are used.
+
 For live SSO acceptance, follow [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md), register
 the exact callback and configure the HTTPS proxy. With a test Discord user,
 run login, authenticate, confirm the browser code, and check status after a bot
