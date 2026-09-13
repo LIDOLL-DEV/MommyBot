@@ -17,6 +17,7 @@ export class IdentityStore {
       discord_id TEXT PRIMARY KEY, generation TEXT NOT NULL, ticket TEXT UNIQUE, browser TEXT UNIQUE,
       verifier TEXT, state TEXT, nonce TEXT, confirmation TEXT,
       issuer TEXT, subject TEXT, username TEXT, expires INTEGER NOT NULL);`);
+    if (!this.db.prepare('PRAGMA table_info(identity_attempts)').all().some(c => c.name === 'reconnect')) this.db.exec('ALTER TABLE identity_attempts ADD COLUMN reconnect INTEGER NOT NULL DEFAULT 0');
   } // Use a separate persistent database; Discord IDs and verified issuer/subject pairs are the keys.
 
   prune() { this.db.prepare("DELETE FROM identity_attempts WHERE expires <= ?").run(this.now()); }
@@ -24,12 +25,12 @@ export class IdentityStore {
   hasTicket(ticket) {
     return Boolean(this.db.prepare("SELECT 1 FROM identity_attempts WHERE ticket = ? AND expires > ?").get(hash(ticket), this.now()));
   } // Reject fabricated tickets locally before making any provider requests.
-  begin(discordId) {
+  begin(discordId, reconnect = false) {
     this.prune();
-    if (this.get(discordId)) throw new Error("Already linked. Use /lidollid unlink before choosing another account.");
+    if (this.get(discordId) && !reconnect) throw new Error("Already linked. Use /lidollid unlink before choosing another account.");
     const ticket = secret();
-    this.db.prepare("INSERT OR REPLACE INTO identity_attempts(discord_id, generation, ticket, expires) VALUES (?, ?, ?, ?)")
-      .run(discordId, secret(), hash(ticket), this.now() + lifetime);
+    this.db.prepare("INSERT OR REPLACE INTO identity_attempts(discord_id, generation, ticket, expires, reconnect) VALUES (?, ?, ?, ?, ?)")
+      .run(discordId, secret(), hash(ticket), this.now() + lifetime, Number(reconnect));
     return ticket;
   } // Replace older attempts for this Discord user and return a private, single-use login ticket.
 
@@ -52,6 +53,8 @@ export class IdentityStore {
   } // Consume callback credentials once, including on failed or replayed callbacks.
 
   verified(attempt, identity) {
+    const linked = this.get(attempt.discord_id);
+    if (linked && (linked.issuer !== identity.issuer || linked.subject !== identity.subject)) throw new Error("Sign in to the account already linked to this Discord user, or unlink first.");
     const code = randomBytes(16).toString("hex");
     const result = this.db.prepare(`UPDATE identity_attempts SET confirmation = ?, issuer = ?, subject = ?, username = ?
       WHERE discord_id = ? AND generation = ? AND expires > ? AND ticket IS NULL AND browser IS NULL AND confirmation IS NULL`)
@@ -60,16 +63,28 @@ export class IdentityStore {
     return code;
   } // Stage verified identity only; the browser cannot finalize a Discord account link.
 
-  confirm(discordId, code) {
+  pendingConfirmation(discordId, code) { // Validate the original Discord confirmation before any wallet exchange.
+    this.prune();
+    const attempt=this.db.prepare('SELECT * FROM identity_attempts WHERE discord_id=? AND confirmation=?').get(discordId,hash(code));
+    if(!attempt)throw new Error('Invalid or expired confirmation code.');
+    const existing=this.get(discordId);
+    if(existing&&(!attempt.reconnect||existing.issuer!==attempt.issuer||existing.subject!==attempt.subject))throw new Error('Already linked. Unlink before changing accounts.');
+    if(this.db.prepare('SELECT 1 FROM identity_links WHERE issuer=? AND subject=? AND discord_id!=?').get(attempt.issuer,attempt.subject,discordId))throw new Error('This LiD0llID is already linked to another Discord account.');
+    return attempt;
+  }
+
+  confirm(discordId, code, activateWallet = null) {
     this.prune();
     return this.db.transaction(() => {
       const attempt = this.db.prepare("SELECT * FROM identity_attempts WHERE discord_id = ? AND confirmation = ?").get(discordId, hash(code));
       if (!attempt) throw new Error("Invalid or expired confirmation code. Use the code from your own sign-in page.");
-      if (this.get(discordId)) throw new Error("Already linked. Unlink before changing accounts.");
-      if (this.db.prepare("SELECT 1 FROM identity_links WHERE issuer = ? AND subject = ?").get(attempt.issuer, attempt.subject)) {
+      const existing=this.get(discordId);
+      if (existing && (!attempt.reconnect || existing.issuer!==attempt.issuer || existing.subject!==attempt.subject)) throw new Error("Already linked. Unlink before changing accounts.");
+      if (this.db.prepare("SELECT 1 FROM identity_links WHERE issuer = ? AND subject = ? AND discord_id != ?").get(attempt.issuer, attempt.subject, discordId)) {
         throw new Error("This LiD0llID is already linked to another Discord account.");
       }
-      this.db.prepare("INSERT INTO identity_links VALUES (?, ?, ?, ?, ?)").run(discordId, attempt.issuer, attempt.subject, attempt.username, this.now());
+      this.db.prepare("INSERT OR REPLACE INTO identity_links VALUES (?, ?, ?, ?, ?)").run(discordId, attempt.issuer, attempt.subject, attempt.username, this.now());
+      if (activateWallet) activateWallet(); // Wallet activation must succeed before this identity transaction commits.
       this.db.prepare("DELETE FROM identity_attempts WHERE discord_id = ?").run(discordId);
       return this.get(discordId);
     })();

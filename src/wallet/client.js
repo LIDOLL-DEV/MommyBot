@@ -5,16 +5,22 @@ export class WalletError extends Error {
 } // Carry safe, locally authored errors instead of exposing provider responses or bearer credentials.
 
 const transportCodes = new Set(["ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "EHOSTUNREACH", "ENETUNREACH",
-  "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "ERR_TLS_CERT_ALTNAME_INVALID", "CERT_HAS_EXPIRED",
+  "EACCES", "EPERM", "EADDRNOTAVAIL", "EPROTO", "ERR_SSL_WRONG_VERSION_NUMBER", "UND_ERR_SOCKET", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "ERR_TLS_CERT_ALTNAME_INVALID", "CERT_HAS_EXPIRED",
   "DEPTH_ZERO_SELF_SIGNED_CERT", "SELF_SIGNED_CERT_IN_CHAIN", "UNABLE_TO_VERIFY_LEAF_SIGNATURE", "UNABLE_TO_GET_ISSUER_CERT_LOCALLY"]);
 
 function transportCode(error) {
-  for (let cause = error, depth = 0; cause && depth < 8; cause = cause.cause, depth++) {
+  const pending = [error], seen = new Set();
+  for (let count = 0; pending.length && count < 32; count++) {
+    const cause = pending.shift();
+    if (!cause || seen.has(cause)) continue;
+    seen.add(cause);
     if (transportCodes.has(cause.code)) return cause.code;
     if (["TimeoutError", "AbortError"].includes(cause.name)) return "REQUEST_TIMEOUT";
+    if (cause.cause) pending.push(cause.cause);
+    if (Array.isArray(cause.errors)) pending.push(...cause.errors.slice(0, 8));
   }
   return "NETWORK_ERROR";
-} // Report only known failure codes, never raw exception messages containing request URLs or credentials.
+} // Inspect Node's aggregate connection failures as well as causes, without exposing messages, addresses or credentials.
 
 const messages = {
   invalid_client: "LiDollBot is not registered with Little Log's wallet API. Ask Doll to add the lidollbot wallet app.",
@@ -96,6 +102,11 @@ export class WalletClient {
         !["wallet:read", "wallet:write", "stars:read", "stars:write"].every(scope => String(data.scope).split(" ").includes(scope))) {
       throw new WalletError("invalid_response", "The wallet did not grant the required permissions. Reconnect and approve stars and coins.");
     }
+    return data;
+  }
+  async exchange(proof) { // Use the internal API address; only a consented OIDC access token can authorize this exchange.
+    const data=await this.request('exchange',{body:{grant_type:'urn:ietf:params:oauth:grant-type:token-exchange',subject_token_type:'urn:ietf:params:oauth:token-type:access_token',subject_token:proof}});
+    if(!/^[\w-]{20,100}$/.test(data.access_token||'')||data.token_type!=='Bearer'||!Number.isInteger(data.expires_in)||data.expires_in<1||data.expires_in>2592000||!['wallet:read','wallet:write','stars:read','stars:write'].every(s=>String(data.scope).split(' ').includes(s))||typeof data.identity?.issuer!=='string'||typeof data.identity?.subject!=='string')throw new WalletError('invalid_response','The login did not grant account and wallet access. Start /lidollid login again.');
     return data;
   }
   async balance(token) {

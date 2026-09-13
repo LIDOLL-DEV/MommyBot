@@ -13,6 +13,7 @@ export async function handleWalletInteraction(interaction, wallet, identities) {
   try {
     if (!wallet) throw new WalletError("disabled", "Online wallets are not enabled yet. Ask Doll to configure the Little Log wallet app.");
     const user = interaction.user.id;
+    if (button && wallet.identityFor) throw new WalletError("expired_token", "Use /lidollid login to connect your account and wallet together.");
     if (button) {
       const [, , owner, generation] = interaction.customId.split(":");
       if (owner !== user) throw new WalletError("wrong_user", "Start your own connection with /lidollid wallet connect.");

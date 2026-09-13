@@ -11,8 +11,9 @@ and exact callback URL. LiDollBot's default client ID is `lidollbot`.
 
 1. Run `/lidollid login` in a server with the bot. Open the private sign-in link
    and press **Continue with LiD0llID** in the browser.
-2. Sign in with LiD0llID. An existing LiD0llID browser session can complete SSO
-   without another password prompt.
+2. Sign in with LiD0llID. An existing browser session avoids another password
+   prompt. With online wallets enabled, review the coin/star permissions and
+   press **Connect account and wallet** once.
 3. Check the username on the returned page. Copy its `/lidollid confirm code:…`
    command into Discord using the same Discord account that started sign-in.
 4. Run `/lidollid status` to see the linked username and verification time.
@@ -39,16 +40,22 @@ account API or logged-in web dashboard. Links persist until unlinked; they are
 not fresh proof that the identity-provider account is still enabled. Do not use
 a stored link as authorization for sensitive provider operations without fresh
 authentication. Unlinking does not log out the shared LiD0llID browser session
-or other apps. There are no provider access/refresh tokens stored in the bot.
+or other apps. Identity-only login discards provider tokens. Combined login
+briefly stages its access token in the protected wallet database for exchange.
+No refresh tokens are requested.
 
-SSO alone does not grant wallet permission. Enable the separate Little Log
-integration in [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md), then use
-`/lidollid wallet connect` to approve reading and spending both online stars and
-LiDollcoins. Adoption then spends the chosen online currency. Local balances
-remain separate for market transactions, items and battle rewards. Wallet bearer
-grants are stored in their own protected database; OIDC tokens are still discarded.
-When online wallets are enabled, `/lidollid unlink` revokes the wallet grant
-before removing the identity link and requires pending purchases to finish first.
+Enable the Little Log integration using [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md).
+Then login requests explicit wallet consent in the same LiD0llID interaction.
+The existing Discord confirmation activates both the identity and matching wallet.
+Already linked users can login again to add/renew wallet access on that same
+account. `/lidollid wallet connect` is an alias for the combined flow.
+
+The OIDC access token is stored only until exchange or the ten-minute attempt
+expires, in `data/online-wallet.db`. The wallet server verifies it directly with
+LiD0llID and issues a separate revocable 30-day grant. Wallet tokens and exchange
+recovery state remain in that protected database. Identity and wallet bindings
+use the verified issuer/subject; usernames cannot select a wallet. Unlink revokes
+wallet access first and requires pending purchases to finish.
 
 ## Register and enable
 

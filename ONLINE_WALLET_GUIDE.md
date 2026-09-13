@@ -2,10 +2,35 @@
 
 LiDollBot can display your existing Little Log balance and use **either 1 star
 or 25 LiDollcoins** for a random Touhou adoption. Each adoption charges only the
-selected currency. Signing in with LiD0llID links an identity; wallet permission
-is a separate approval and app registration.
+selected currency. With online wallets enabled, `/lidollid login` connects the
+account and its wallet through one LiD0llID approval and the existing Discord
+confirmation. `/lidollid wallet connect` starts that same flow. Identity and
+wallet app registrations remain separate operator settings.
 
 ## Operator setup
+
+Deploy the updated **omo-trainer identity and tracker services first**, then
+MommyBot. This release requires the identity `/wallet/identity` endpoint and
+the tracker `/tracker/api/lidollcoin/v1/exchange` endpoint. Back up both projects
+using their stopped-service procedures; market schema 6 adds exchange receipts.
+Do not run an older tracker against the upgraded market database.
+
+The existing `lidollbot` PKCE registration needs no secret or callback changes.
+With no explicit `scope` override, the updated identity service enables the
+four wallet scopes for this client. If `clients.json` already restricts its
+`scope`, include `openid profile wallet:read wallet:write stars:read stars:write`.
+Restart `lidoll-auth` after deploying the identity update.
+
+For Doll's LAN, set this in `/etc/lidoll/tracker.env` so the tracker can verify
+login tokens without routing through the public IP:
+
+```dotenv
+LIDOLLCOIN_IDENTITY_URL=http://10.1.1.23:4180/wallet/identity
+```
+
+Keep `OIDC_ISSUER` equal to the existing public identity issuer. The setting above
+changes only the back-channel transport, not account identity. Without it, the
+tracker calls the issuer's public `/wallet/identity` URL.
 
 1. On the **Little Log / omo-trainer backend**, add this entry to the existing
    `LIDOLLCOIN_APPS` JSON array in its service environment:
@@ -36,6 +61,7 @@ is a separate approval and app registration.
    ```dotenv
    LIDOLLID_ENABLED=true
    LIDOLLID_ISSUER=https://auth.lidoll.dev
+   LIDOLLID_CLIENT_ID=lidollbot
    LIDOLLCOIN_ENABLED=true
    LIDOLLCOIN_API_URL=https://lidoll.dev/tracker/api/lidollcoin/v1/
    LIDOLLCOIN_PUBLIC_ORIGIN=https://lidoll.dev
@@ -43,7 +69,8 @@ is a separate approval and app registration.
    TOUHOU_ENABLED=true
    ```
 
-   Keep the existing bot public origin and callback registration. The wallet
+   Both client IDs must be `lidollbot`. Keep the existing public issuer, bot
+   public origin and callback registration. The wallet
    URL points to Little Log's API, not `auth.lidoll.dev` or `bot.lidoll.dev`.
    It must end with `/`; public API addresses require HTTPS. There is no wallet client
    secret. Existing Nginx callbacks need no additional routes for this feature.
@@ -62,25 +89,28 @@ is a separate approval and app registration.
 
 ## Player steps
 
-1. Link your identity with `/lidollid login` and finish `/lidollid confirm` if
-   you have not already done so.
-2. Run `/lidollid wallet connect`. Open the Little Log page in the private reply,
-   enter the displayed code, and approve **LiDollBot** to read and spend both
-   stars and coins. Sign into the Little Log account whose balance you want to
-   use. This API returns an opaque wallet ID, so the bot cannot compare the
-   approved wallet's username with your identity profile.
-3. Return to Discord and press **Check approval**. Wait a few seconds between
-   checks. Approval codes expire after ten minutes.
-4. Use `/lidollid wallet balance`, `/touhou wallet`, or the menu's **Online
-   balance** button. Both balances are fetched fresh and shown only to you.
-5. Open `/touhou menu` and choose **Adopt · 1 star** or **Adopt · 25 LiDollcoins**.
-   Slash adoption and `!touhou adopt star` / `!touhou adopt coins` use the same
-   wallet. An unavailable wallet never falls back to local funds.
+1. Run `/lidollid login` (or `/lidollid wallet connect`). Open the private
+   link and press **Continue with LiD0llID**.
+2. Sign in, review the coin and star permissions, and press **Connect account
+   and wallet**. Cancel leaves the existing connection unchanged.
+3. Return the displayed `/lidollid confirm code:...` command to the same Discord
+   account that started login. This connects both; there is no second wallet
+   page, device code or Check approval button. The confirmation prevents another
+   person from binding their browser account to your Discord account.
+4. Use `/lidollid wallet balance`, `/touhou wallet`, or **Online balance** to
+   privately see fresh balances. Adoption still costs either 1 star or 25 coins.
 
-Wallet grants expire after 30 days or when revoked. Use connect again to renew.
+Already linked users run login again with **the same LiD0llID account** to add or
+renew wallet access, without unlinking. The bot verifies the wallet's issuer and
+subject against that exact identity. An older, separately approved wallet on a
+different account can be replaced only after its pending purchases are settled.
+
+Wallet grants expire after 30 days or when revoked. Run login again to renew.
 `/lidollid wallet disconnect` revokes wallet access; balances stay in Little Log.
-With the integration enabled, `/lidollid unlink` also disconnects the wallet.
-You can revoke access through Little Log's connected-games settings as well.
+`/lidollid unlink` also disconnects the wallet. Little Log's connected-games
+settings can revoke access. Old Check approval buttons instruct users to login.
+If confirmation is interrupted, retry the same confirmation command while it
+is valid; the exchange reuses its grant instead of creating duplicate access.
 
 ## Connection troubleshooting
 
@@ -98,6 +128,17 @@ response to this token-free probe means the route is reachable and recognizes
 the app; player consent is still required.
 
 The updated bot distinguishes DNS/TLS failures, redirects and non-JSON responses.
+It also inspects Node's aggregate connection errors: `ECONNREFUSED` indicates a
+refused connection, `ETIMEDOUT` an unanswered connection, and `EACCES`/`EPERM` a
+permission denial. Compare the checker's printed `api` with the intended LAN
+URL. A shell curl success alone does not verify the bot's URL, runtime or service
+permissions. If the service-user checker succeeds but Discord still fails,
+compare the running service's configuration and restrictions before changing
+firewall or SELinux policy.
+For the direct backend on port 4173, the API scheme is **http**, not **https**.
+Sending TLS to this plain HTTP listener can produce `ERR_SSL_WRONG_VERSION_NUMBER`
+or `EPROTO` (shown as `NETWORK_ERROR` by older diagnostics). The browser approval
+origin still uses HTTPS; these are separate settings.
 HTTP 502 HTML usually comes from a proxy that cannot reach its backend. HTTP 200
 HTML suggests a static page or sign-in page intercepted the API route. Ensure
 `/tracker/api/` proxies to Little Log while preserving its complete path.
@@ -121,7 +162,8 @@ LIDOLLCOIN_PUBLIC_ORIGIN=https://lidoll.dev
 This deliberately uses HTTP on the operator's trusted LAN for server-to-server
 wallet requests, including bearer credentials. HTTP is accepted only for literal
 private IPv4 or loopback destinations; public endpoints still require HTTPS.
-Browser approval remains at `https://lidoll.dev/tracker/coins/`. The backend's
+The combined browser approval uses the public LiD0llID issuer; legacy device
+approval remains at `https://lidoll.dev/tracker/coins/`. The backend's
 `PUBLIC_ORIGIN` in `/etc/lidoll/tracker.env` must also be `https://lidoll.dev` so it
 returns that browser URL. Keep the bot's existing LiD0llID issuer and callback
 settings. Run the wallet checker after deployment. `invalid_client` still means

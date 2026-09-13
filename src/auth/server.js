@@ -4,7 +4,7 @@ import { authDiagnostic } from "./diagnostics.js";
 
 const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export function createAuthServer(config, store, oidc) {
+export function createAuthServer(config, store, oidc, wallet = null) {
   const secure = config.origin.startsWith("https:");
   const cookieName = secure ? "__Host-lidollbot_login" : "lidollbot_login";
   const formCookieName = secure ? "__Host-lidollbot_form" : "lidollbot_form";
@@ -36,7 +36,7 @@ export function createAuthServer(config, store, oidc) {
           const csrf = randomBytes(32).toString("base64url");
           response.setHeader("Referrer-Policy", "origin"); // Preserve the form POST's Origin while excluding the ticket-bearing path/query from Referer.
           response.setHeader("Set-Cookie", cookie(csrf, 600, formCookieName));
-          return page(response, 200, `<p>Connect your LiD0llID account to Discord in this browser.</p><form method="post" action="/auth/login"><input type="hidden" name="ticket" value="${escapeHtml(ticket)}"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">Continue with LiD0llID</button></form><p>Keep this browser open until sign-in finishes, then return to Discord with the confirmation code.</p>`);
+          return page(response, 200, `<p>Connect your LiD0llID account${wallet ? " and wallet" : ""} to Discord in this browser.</p><form method="post" action="/auth/login"><input type="hidden" name="ticket" value="${escapeHtml(ticket)}"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">Continue with LiD0llID</button></form><p>Keep this browser open until sign-in finishes, then return to Discord with the confirmation code.</p>`);
         } // Link previews and repeated page visits cannot consume tickets or start provider interactions.
         if (request.headers.origin !== config.origin) {
           const reason = request.headers.origin === "null" ? "ORIGIN_NULL" : !request.headers.origin ? "ORIGIN_MISSING" : "ORIGIN_MISMATCH";
@@ -76,8 +76,9 @@ export function createAuthServer(config, store, oidc) {
         stage = "callback";
         const identity = await oidc.finish(url, attempt);
         stage = "storage";
-        const code = store.verified(attempt, identity);
-        return page(response, 200, `<p>Signed in as <strong>${escapeHtml(identity.username)}</strong>.</p><p>To link this account, return to the Discord account that started sign-in and run:</p><pre>/lidollid confirm code:${code}</pre><p>Only confirm a sign-in you started yourself. The code expires ten minutes after you started. You can close this page afterward.</p>`);
+        const code = store.verified(attempt, identity); // Reject replaced attempts and a different linked account before touching wallet staging.
+        if(wallet)await wallet.stageIdentity(attempt,identity,()=>store.pendingConfirmation(attempt.discord_id,code));
+        return page(response, 200, `<p>Signed in as <strong>${escapeHtml(identity.username)}</strong>.</p><p>To link this account${wallet ? ' and wallet' : ''}, return to the Discord account that started sign-in and run:</p><pre>/lidollid confirm code:${code}</pre><p>Only confirm a sign-in you started yourself. The code expires ten minutes after you started. You can close this page afterward.</p>`);
       }
       return page(response, 404, "<p>Page not found.</p>");
     } catch (error) {

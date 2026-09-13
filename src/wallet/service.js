@@ -20,6 +20,7 @@ export class WalletService {
       user_code TEXT NOT NULL, verification_uri TEXT NOT NULL, expires INTEGER NOT NULL,
       interval_ms INTEGER NOT NULL, next_poll INTEGER NOT NULL, candidate TEXT, candidate_expires INTEGER,
       base_url TEXT NOT NULL, client_id TEXT NOT NULL);`);
+    this.db.exec('CREATE TABLE IF NOT EXISTS combined_wallets(discord_id TEXT PRIMARY KEY,generation TEXT NOT NULL,issuer TEXT NOT NULL,subject TEXT NOT NULL,proof TEXT NOT NULL,deadline INTEGER NOT NULL,candidate TEXT,candidate_expires INTEGER,base_url TEXT NOT NULL,client_id TEXT NOT NULL); CREATE TABLE IF NOT EXISTS wallet_identity_links(discord_id TEXT PRIMARY KEY,issuer TEXT NOT NULL,subject TEXT NOT NULL);');
   } // Store wallet grants separately from identity links under the existing protected data directory.
   async exclusive(userId, action) {
     if (this.closing) throw new WalletError("closing", "The bot is restarting. Please try again shortly.");
@@ -38,6 +39,8 @@ export class WalletService {
     if (!connection) throw new WalletError("not_connected", "Connect your Little Log wallet with /lidollid wallet connect to use your online stars and coins.");
     this.assertServer(connection);
     if (connection.expires <= this.now()) throw new WalletError("invalid_token", "Your wallet connection expired. Use /lidollid wallet connect again.");
+    const binding=this.db.prepare('SELECT * FROM wallet_identity_links WHERE discord_id=?').get(userId);
+    if(this.identityFor&&binding){const identity=this.identityFor(userId);if(!identity||identity.issuer!==binding.issuer||identity.subject!==binding.subject)throw new WalletError('not_linked','Finish /lidollid login before using this wallet.');}
     return connection;
   }
   async balance(userId) {
@@ -45,6 +48,43 @@ export class WalletService {
       const connection = this.requireConnection(userId);
       const balance = await this.client.balance(connection.token);
       if (balance.accountId !== connection.account_id) throw new WalletError("account_changed", "The wallet account did not match its saved connection.");
+      return balance;
+    });
+  }
+  async stageIdentity(attempt, identity, validateAttempt = () => {}) { // Stage the short-lived proof in the protected wallet database, never in browser storage or the identity database.
+    if(!identity.walletAccessToken)throw new WalletError('insufficient_scope','Start a fresh /lidollid login and approve wallet access.');
+    return this.exclusive(attempt.discord_id,async()=>{
+      validateAttempt(); // A delayed callback cannot replace the proof from a newer sign-in.
+      const previous=this.db.prepare('SELECT * FROM combined_wallets WHERE discord_id=?').get(attempt.discord_id);
+      if(previous?.candidate&&previous.candidate!==this.connection(attempt.discord_id)?.token){this.assertServer(previous);try{await this.client.revoke(previous.candidate);}catch(error){if(error.code!=='invalid_token')throw error;}}
+      validateAttempt();
+      this.db.prepare('INSERT OR REPLACE INTO combined_wallets VALUES (?,?,?,?,?,?,NULL,NULL,?,?)').run(attempt.discord_id,attempt.generation,identity.issuer,identity.subject,identity.walletAccessToken,attempt.expires,this.client.config.baseUrl,this.client.config.clientId);
+    });
+  }
+  async confirmIdentity(userId, attempt, finishIdentity, validateAttempt = () => {}) { // Replays a lost exchange safely and activates only the exact identity confirmed in Discord.
+    return this.exclusive(userId,async()=>{
+      validateAttempt();
+      const staged=this.db.prepare('SELECT * FROM combined_wallets WHERE discord_id=? AND generation=?').get(userId,attempt.generation);
+      if(!staged||staged.deadline<=this.now()||staged.issuer!==attempt.issuer||staged.subject!==attempt.subject)throw new WalletError('expired_token','Start a fresh /lidollid login to connect account and wallet.');
+      this.assertServer(staged);
+      if(!staged.candidate){
+        const tokens=await this.client.exchange(staged.proof);
+        if(tokens.identity.issuer!==attempt.issuer||tokens.identity.subject!==attempt.subject)throw new WalletError('account_changed','The wallet did not match your verified LiD0llID account.');
+        staged.candidate=tokens.access_token;staged.candidate_expires=this.now()+tokens.expires_in*1000;
+        this.db.prepare('UPDATE combined_wallets SET candidate=?,candidate_expires=?,proof=? WHERE discord_id=? AND generation=?').run(staged.candidate,staged.candidate_expires,'',userId,attempt.generation);
+      }
+      if(staged.candidate_expires<=this.now())throw new WalletError('expired_token','Start a fresh /lidollid login to renew wallet access.');
+      const balance=await this.client.balance(staged.candidate),old=this.connection(userId);
+      validateAttempt(); // Recheck expiry and account ownership before revoking the previous connection.
+      if(old)this.assertServer(old);
+      if(old&&old.account_id!==balance.accountId&&this.hasPending(userId))throw new WalletError('pending_purchase','Reconnect your previous account to finish its pending purchase first.');
+      if(old&&old.token!==staged.candidate){try{await this.client.revoke(old.token);}catch(error){if(error.code!=='invalid_token')throw error;}}
+      finishIdentity(()=>this.db.transaction(()=>{
+        this.db.prepare('INSERT OR REPLACE INTO online_wallets VALUES (?,?,?,?,?,?)').run(userId,staged.candidate,staged.candidate_expires,balance.accountId,staged.base_url,staged.client_id);
+        this.db.prepare('INSERT OR REPLACE INTO wallet_identity_links VALUES (?,?,?)').run(userId,attempt.issuer,attempt.subject);
+        this.db.prepare('DELETE FROM wallet_approvals WHERE discord_id=?').run(userId);
+      })()); // A partially committed cross-database activation cannot be used until its identity binding is present.
+      this.db.prepare('DELETE FROM combined_wallets WHERE discord_id=? AND generation=?').run(userId,attempt.generation);
       return balance;
     });
   }
@@ -109,16 +149,20 @@ export class WalletService {
       if (this.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending adoption with /lidollid wallet retry before disconnecting.");
       const attempt = this.db.prepare("SELECT * FROM wallet_approvals WHERE discord_id = ?").get(userId);
       const connection = this.connection(userId);
-      for (const record of [attempt?.candidate ? { ...attempt, token: attempt.candidate } : null, connection].filter(Boolean)) {
+      const combined=this.db.prepare('SELECT * FROM combined_wallets WHERE discord_id=?').get(userId);
+      for (const record of [combined?.candidate ? {...combined,token:combined.candidate} : null, attempt?.candidate ? { ...attempt, token: attempt.candidate } : null, connection].filter(Boolean)) {
         this.assertServer(record);
         try { await this.client.revoke(record.token); } catch (error) { if (error.code !== "invalid_token") throw error; }
       }
       this.db.transaction(() => {
         this.db.prepare("DELETE FROM wallet_approvals WHERE discord_id = ?").run(userId);
         this.db.prepare("DELETE FROM online_wallets WHERE discord_id = ?").run(userId);
+        this.db.prepare("DELETE FROM combined_wallets WHERE discord_id = ?").run(userId);
+        this.db.prepare("DELETE FROM wallet_identity_links WHERE discord_id = ?").run(userId);
       })();
     });
   } // Revoke stored grants before forgetting them, and do not strand unsettled payments on unlink.
+  pruneProofs() { this.db.prepare('UPDATE combined_wallets SET proof=? WHERE deadline<=? AND proof!=?').run('',this.now(),''); } // Drop expired OIDC credentials while retaining candidate grants for revocation/recovery.
   async close() {
     this.closing = true;
     while (this.locks.size) await new Promise(resolve => setTimeout(resolve, 50));

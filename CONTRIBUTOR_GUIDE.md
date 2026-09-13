@@ -6,9 +6,9 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 Run `npm test` before deploying.
 
 Little Log wallet support lives in `src/wallet/`; see
-[ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md). Request explicit device-flow
-consent for both currencies, and keep bearer grants out of Discord replies and
-logs. Never set local balances from remote snapshots. Online adoption pins an
+[ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md). Request explicit OIDC wallet
+consent for both currencies in the combined account login, and keep bearer grants
+out of Discord replies and logs. Never set local balances from remote snapshots. Online adoption pins an
 opaque wallet account and API registration to a persistent reservation before
 debiting; delivery and its receipt commit together in the trader database.
 Every retry reuses the original payment ID and currency. Failed delivery refunds
@@ -26,9 +26,9 @@ destinations separate and never follow API redirects with bearer credentials.
 LiD0llID account linking lives in `src/auth/`. See
 [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md) for the OIDC registration and proxy setup.
 Keep issuer/subject as identity keys, final confirmation bound to the initiating
-Discord user, callback cookies host-only, and responses ephemeral. Do not retain
-provider tokens, grant roles from profile claims, or connect remote wallet
-permissions implicitly. The new `data/lidollid.db` participates in state backups.
+Discord user, callback cookies host-only, and responses ephemeral. Only stage the short-lived provider access token in the protected wallet database
+until exchange/expiry; never retain it in the identity database. Do not grant roles
+from profile claims or infer wallet permission from an identity-only token. The new `data/lidollid.db` participates in state backups.
 `openid-client` is pinned to omo-trainer's tested version; preserve its signature,
 state, nonce, PKCE and UserInfo-subject checks when upgrading.
 `auth/diagnostics.js` reports only allowlisted stages/codes and HTTP statuses.

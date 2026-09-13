@@ -275,13 +275,14 @@ test("Discord slash, prefix and clickable adoption all use online balances; bala
   assert.deepEqual(f.store.wallet("guild", "alice"), { stars: 0, coins: 0 });
 });
 
-test("wallet approval buttons belong to their Discord user; unlink revokes wallet access", async t => {
+test("legacy wallet approval buttons belong to their Discord user; unlink revokes wallet access", async t => {
   const f = setup(t); let unlinked = false;
   const identities = { get: () => ({ username: "alice" }), unlink: () => { unlinked = true; } };
   const handler = createIdentityHandler(identities, {}, f.wallet);
   const connect = interaction("connect", {}, { commandName: "lidollid" });
   connect.options.getSubcommandGroup = () => "wallet";
-  await handler(connect);
+  const { handleWalletInteraction } = await import("../src/wallet/commands.js");
+  await handleWalletInteraction(connect, f.wallet, identities);
   assert.equal(connect.flags, 64);
   const customId = connect.output.components[0].toJSON().components[0].custom_id;
   const thief = interaction("button", {}, { customId, isChatInputCommand: () => false, user: { id: "bob" } });
@@ -314,6 +315,20 @@ test("wallet diagnostics distinguish DNS, redirects and proxy HTML without expos
     const html = new WalletClient(config, async () => new Response("<html>SECRET</html>", { status }));
     await assert.rejects(html.begin(), error => error.message.includes(`HTTP ${status}`) && !error.message.includes("SECRET") && error.status === 0);
   }
+});
+
+test("aggregate socket and permission failures expose only allowlisted diagnostic codes", async () => {
+  const config = walletConfig({ LIDOLLCOIN_ENABLED: "true" });
+  for (const code of ["ECONNREFUSED", "ETIMEDOUT", "EACCES", "EPERM", "EPROTO", "ERR_SSL_WRONG_VERSION_NUMBER", "UND_ERR_SOCKET"]) {
+    const client = new WalletClient(config, async () => {
+      const aggregate = new AggregateError([Object.assign(new Error("PRIVATE TOKEN AND ADDRESS"), { code })], "PRIVATE URL");
+      throw new TypeError("fetch failed", { cause: aggregate });
+    });
+    await assert.rejects(client.begin(), error => error.message.includes(`(${code})`) && !error.message.includes("PRIVATE"));
+  }
+  const cycle = new Error("PRIVATE"); cycle.cause = cycle; cycle.errors = [cycle];
+  const client = new WalletClient(config, async () => { throw cycle; });
+  await assert.rejects(client.begin(), error => error.message.includes("NETWORK_ERROR") && !error.message.includes("PRIVATE"));
 });
 
 test("the production LAN wallet uses the private API and the public HTTPS approval page", async () => {

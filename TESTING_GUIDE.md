@@ -41,9 +41,12 @@ The same suite checks safe transport/proxy error messages and the token-free
 `scripts/check-wallet.mjs` probe, including missing app registration.
 It also checks production LAN HTTP configuration, public HTTPS approval URLs,
 rejection of public HTTP API addresses and unexpected approval origins.
+Aggregate socket failures, permission errors and cyclic exception causes must
+produce bounded, allowlisted diagnostics without leaking nested error messages.
 
 For a live acceptance check, follow [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md)
-to register the separate wallet app and approve a disposable Little Log account.
+to register the wallet app and approve a disposable account through one combined
+LiD0llID login. Return its confirmation code to the initiating Discord account.
 Check its balances in Little Log and Discord, adopt once with each currency,
 then verify exactly one star and 25 coins were spent and two Touhous delivered.
 Restart and confirm the wallet remains connected. Verify **Online balance** is
@@ -155,3 +158,18 @@ Use a test bot/channel and a Fedora VM with systemd for deployment validation.
 Discord login is the deployment health check; model availability and complete
 conversation behavior require the manual reply check. Rollback restores code
 and the systemd unit, while preserving current runtime data.
+
+## Combined identity and wallet regression checks
+
+`test/combined-login.test.js` checks same-account renewal, different-account
+rejection, Discord confirmation ownership, replaced callbacks, expired proof
+cleanup, pending-purchase account pinning, interrupted balance responses and
+concurrent login/confirmation. The existing OIDC and payment suites also run in
+`npm test`. Legacy device approval ownership is retained as compatibility coverage.
+
+The real-provider/browser integration lives in the sibling omo-trainer checkout
+at `tests/combined-login-browser.mjs`. See that project's LIDOLLCOIN_API.md for
+tooling settings. It starts temporary identity, wallet and bot callback servers,
+approves a synthetic account, simulates a lost exchange response, confirms via
+the Discord handler and exercises star access. It also checks consent denial.
+It never logs into Discord or spends live currency.

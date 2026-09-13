@@ -1,7 +1,7 @@
 import * as oidc from "openid-client";
 import { authStep } from "./diagnostics.js";
 
-export function createOidc(config) {
+export function createOidc(config, combined = false) {
   let discovery;
   const configured = () => {
     discovery ??= authStep("discovery", () => oidc.discovery(new URL(config.issuer), config.clientId, undefined, oidc.None(), {
@@ -14,7 +14,7 @@ export function createOidc(config) {
     async begin() {
       const provider = await configured();
       const values = { verifier: oidc.randomPKCECodeVerifier(), state: oidc.randomState(), nonce: oidc.randomNonce() };
-      const parameters = { redirect_uri: config.callback, scope: "openid profile",
+      const parameters = { redirect_uri: config.callback, ...(combined ? {prompt: "consent"} : {}), scope: combined ? "openid profile wallet:read wallet:write stars:read stars:write" : "openid profile",
         code_challenge: await oidc.calculatePKCECodeChallenge(values.verifier), code_challenge_method: "S256",
         state: values.state, nonce: values.nonce };
       const url = await authStep("authorization", () => oidc.buildAuthorizationUrl(provider, parameters));
@@ -28,7 +28,8 @@ export function createOidc(config) {
       if (!claims?.sub || !claims.iss) throw new Error("Missing verified identity.");
       const profile = await authStep("userinfo", () => oidc.fetchUserInfo(provider, tokens.access_token, claims.sub));
       return { issuer: claims.iss, subject: claims.sub,
-        username: String(profile.preferred_username || "LiD0llID member").slice(0, 100) };
-    }, // Verify token signature, issuer, audience, nonce, state, PKCE and UserInfo subject; retain no tokens.
+        username: String(profile.preferred_username || "LiD0llID member").slice(0, 100),
+        ...(combined ? {walletAccessToken: tokens.access_token} : {}) };
+    }, // Verify token signature, issuer, audience, nonce, state, PKCE and UserInfo subject; retain a short-lived access token only for the explicitly approved wallet exchange.
   };
 }

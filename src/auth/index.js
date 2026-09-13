@@ -9,13 +9,13 @@ import { handleWalletInteraction } from "../wallet/commands.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
-    .addSubcommand(c => c.setName("login").setDescription("Sign in with LiD0llID"))
+    .addSubcommand(c => c.setName("login").setDescription("Connect your LiD0llID account and wallet"))
     .addSubcommand(c => c.setName("confirm").setDescription("Finish your browser sign-in")
       .addStringOption(o => o.setName("code").setDescription("Code shown after signing in").setRequired(true).setMinLength(32).setMaxLength(32)))
     .addSubcommand(c => c.setName("status").setDescription("Check your linked account"))
     .addSubcommand(c => c.setName("unlink").setDescription("Remove your LiDollBot account link"))
     .addSubcommandGroup(g => g.setName("wallet").setDescription("Connect Little Log stars and LiDollcoins")
-      .addSubcommand(c => c.setName("connect").setDescription("Approve your Little Log wallet for Touhou adoption"))
+      .addSubcommand(c => c.setName("connect").setDescription("Connect your LiD0llID account and wallet"))
       .addSubcommand(c => c.setName("balance").setDescription("Privately check your online stars and LiDollcoins"))
       .addSubcommand(c => c.setName("retry").setDescription("Safely finish an interrupted adoption or refund"))
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
@@ -23,21 +23,25 @@ export function buildIdentityCommand() {
 
 export function createIdentityHandler(store, config, wallet = null) {
   return async interaction => {
-    if (await handleWalletInteraction(interaction, wallet, store)) return true;
+    const combined=Boolean(wallet?.stageIdentity);
+    const walletLogin=combined&&interaction.isChatInputCommand()&&interaction.commandName==='lidollid'&&interaction.options.getSubcommandGroup?.()==='wallet'&&interaction.options.getSubcommand()==='connect';
+    if (!walletLogin && await handleWalletInteraction(interaction, wallet, store)) return true;
     if (!interaction.isChatInputCommand() || interaction.commandName !== "lidollid") return false;
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     let content;
     try {
       const discordId = interaction.user.id;
-      switch (interaction.options.getSubcommand()) {
+      switch (walletLogin ? "login" : interaction.options.getSubcommand()) {
         case "login": {
-          const ticket = store.begin(discordId);
-          content = `Sign in with LiD0llID: ${config.origin}/auth/login?ticket=${ticket}\nOpen this link in your browser and press Continue with LiD0llID. This private link expires in 10 minutes. After signing in, use the confirmation code here. Do not share the link or confirm someone else's sign-in.`;
+          const ticket = combined ? await wallet.exclusive(discordId, () => store.begin(discordId, true)) : store.begin(discordId); // Keep a new login from replacing an in-flight wallet confirmation.
+          content = `Connect your LiD0llID account${combined ? " and wallet" : ""}: ${config.origin}/auth/login?ticket=${ticket}\nOpen this link in your browser and press Continue with LiD0llID. This private link expires in 10 minutes. After signing in, use the confirmation code here. Do not share the link or confirm someone else's sign-in.`;
           break;
         }
         case "confirm": {
-          store.confirm(discordId, interaction.options.getString("code", true));
-          content = "Your LiD0llID account is now linked. Use /lidollid status to check it.";
+          const code=interaction.options.getString("code",true);
+          if(combined)await wallet.confirmIdentity(discordId,store.pendingConfirmation(discordId,code),activate=>store.confirm(discordId,code,activate),()=>store.pendingConfirmation(discordId,code));
+          else store.confirm(discordId,code);
+          content=combined?"Your LiD0llID account and wallet are connected. Use /lidollid wallet balance to check your stars and coins.":"Your LiD0llID account is now linked. Use /lidollid status to check it.";
           break;
         }
         case "status": {
@@ -64,12 +68,14 @@ export async function initializeIdentity(wallet = null) {
   const config = authConfig();
   if (!config) return null;
   fs.mkdirSync(fileURLToPath(new URL("../../data/", import.meta.url)), { recursive: true });
+  if(wallet&&wallet.client.config.clientId!==config.clientId)throw new Error("Combined login requires matching LiD0llID and wallet client IDs.");
   const store = new IdentityStore(fileURLToPath(new URL("../../data/lidollid.db", import.meta.url)));
-  const server = createAuthServer(config, store, createOidc(config));
+  if(wallet)wallet.identityFor=id=>store.get(id);
+  const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet);
   try {
     await new Promise((resolve, reject) => { server.once("error", reject); server.listen(config.port, config.host, resolve); });
   } catch (error) { store.close(); throw error; }
-  const cleanup = setInterval(() => store.prune(), 60000);
+  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();}, 60000);
   cleanup.unref();
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
