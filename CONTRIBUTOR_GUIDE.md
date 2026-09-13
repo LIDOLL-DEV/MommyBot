@@ -15,6 +15,13 @@ Every retry reuses the original payment ID and currency. Failed delivery refunds
 the original debit, also idempotently. Keep unsettled reservations when the
 feature is disabled, and do not let reconnect/unlink strand a pending payment.
 `test/online-wallet.test.js` covers both currencies and recovery across restarts.
+Include `scripts/check-wallet.mjs` in Fedora releases for read-only connectivity
+and registration checks. Wallet diagnostics must never print response bodies,
+redirect destinations or arbitrary network exception messages. An HTML proxy
+error does not prove a debit failed; preserve its pending payment record.
+`LIDOLLCOIN_API_URL` may explicitly target a private HTTP backend, while
+`LIDOLLCOIN_PUBLIC_ORIGIN` pins the public HTTPS approval page. Keep those
+destinations separate and never follow API redirects with bearer credentials.
 
 LiD0llID account linking lives in `src/auth/`. See
 [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md) for the OIDC registration and proxy setup.

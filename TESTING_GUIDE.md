@@ -37,6 +37,10 @@ concurrent clicks, missing funds, Momiji protection, party capacity, malformed
 receipts, lost debit/refund responses, restart recovery and all adoption entry
 points. These tests never spend live currency. Run
 `node --test test/online-wallet.test.js` for the focused suite.
+The same suite checks safe transport/proxy error messages and the token-free
+`scripts/check-wallet.mjs` probe, including missing app registration.
+It also checks production LAN HTTP configuration, public HTTPS approval URLs,
+rejection of public HTTP API addresses and unexpected approval origins.
 
 For a live acceptance check, follow [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md)
 to register the separate wallet app and approve a disposable Little Log account.

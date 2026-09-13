@@ -1,6 +1,20 @@
+import { isIP } from "node:net";
+
 export class WalletError extends Error {
   constructor(code, message, status = 0) { super(message); this.code = code; this.status = status; }
 } // Carry safe, locally authored errors instead of exposing provider responses or bearer credentials.
+
+const transportCodes = new Set(["ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "EHOSTUNREACH", "ENETUNREACH",
+  "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "ERR_TLS_CERT_ALTNAME_INVALID", "CERT_HAS_EXPIRED",
+  "DEPTH_ZERO_SELF_SIGNED_CERT", "SELF_SIGNED_CERT_IN_CHAIN", "UNABLE_TO_VERIFY_LEAF_SIGNATURE", "UNABLE_TO_GET_ISSUER_CERT_LOCALLY"]);
+
+function transportCode(error) {
+  for (let cause = error, depth = 0; cause && depth < 8; cause = cause.cause, depth++) {
+    if (transportCodes.has(cause.code)) return cause.code;
+    if (["TimeoutError", "AbortError"].includes(cause.name)) return "REQUEST_TIMEOUT";
+  }
+  return "NETWORK_ERROR";
+} // Report only known failure codes, never raw exception messages containing request URLs or credentials.
 
 const messages = {
   invalid_client: "LiDollBot is not registered with Little Log's wallet API. Ask Doll to add the lidollbot wallet app.",
@@ -13,16 +27,27 @@ const messages = {
   daily_limit: "The wallet app's daily limit has been reached. Try again tomorrow.",
 };
 
+function privateHost(host) {
+  if (["localhost", "[::1]"].includes(host)) return true;
+  if (isIP(host) !== 4) return false;
+  const [first, second] = host.split(".").map(Number);
+  return first === 127 || first === 10 || first === 172 && second >= 16 && second <= 31 || first === 192 && second === 168;
+} // Permit direct HTTP only to loopback or literal RFC1918 addresses explicitly configured by the operator.
+
 export function walletConfig(env = process.env) {
   if (env.LIDOLLCOIN_ENABLED !== "true") return null;
   const base = new URL(env.LIDOLLCOIN_API_URL || "https://lidoll.dev/tracker/api/lidollcoin/v1/");
-  const local = env.NODE_ENV !== "production" && ["127.0.0.1", "localhost", "[::1]"].includes(base.hostname);
-  if ((base.protocol !== "https:" && !(local && base.protocol === "http:")) || base.username || base.password || base.search || base.hash || !base.pathname.endsWith("/")) {
-    throw new Error("LIDOLLCOIN_API_URL requires an HTTPS base URL ending in / (loopback HTTP is allowed for development).");
+  if ((base.protocol !== "https:" && !(privateHost(base.hostname) && base.protocol === "http:")) || base.username || base.password || base.search || base.hash || !base.pathname.endsWith("/")) {
+    throw new Error("LIDOLLCOIN_API_URL must end in / and use HTTPS, or HTTP to a loopback/private IPv4 address.");
+  }
+  const publicUrl = new URL(env.LIDOLLCOIN_PUBLIC_ORIGIN || (base.protocol === "https:" ? base.origin : "https://lidoll.dev"));
+  const developmentBrowser = env.NODE_ENV !== "production" && ["localhost", "127.0.0.1", "[::1]"].includes(publicUrl.hostname) && publicUrl.protocol === "http:";
+  if ((publicUrl.protocol !== "https:" && !developmentBrowser) || publicUrl.username || publicUrl.password || publicUrl.search || publicUrl.hash || publicUrl.pathname !== "/") {
+    throw new Error("LIDOLLCOIN_PUBLIC_ORIGIN must be the public HTTPS origin for Little Log's approval page.");
   }
   const clientId = env.LIDOLLCOIN_CLIENT_ID || "lidollbot";
   if (!/^[a-z0-9_-]{1,64}$/.test(clientId)) throw new Error("Invalid LIDOLLCOIN_CLIENT_ID.");
-  return { baseUrl: base.href, clientId };
+  return { baseUrl: base.href, clientId, verificationOrigin: publicUrl.origin };
 } // Treat wallet registration independently from the OIDC client, even when both are named lidollbot.
 
 export class WalletClient {
@@ -32,11 +57,19 @@ export class WalletClient {
     url.searchParams.set("client_id", this.config.clientId);
     let response, data;
     try {
-      response = await this.fetcher(url, { method: body ? "POST" : "GET", redirect: "error", signal: AbortSignal.timeout(15000),
+      response = await this.fetcher(url, { method: body ? "POST" : "GET", redirect: "manual", signal: AbortSignal.timeout(15000),
         headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body ? { "Content-Type": "application/json" } : {}) },
         ...(body ? { body: JSON.stringify(body) } : {}) });
-      data = await response.json();
-    } catch { throw new WalletError("unavailable", "The online wallet could not be reached. Please try again."); }
+    } catch (error) {
+      throw new WalletError("unavailable", `The online wallet could not be reached (${transportCode(error)}). Ask Doll to check the wallet URL, DNS, TLS and outbound access from the bot host.`);
+    }
+    if (response.status >= 300 && response.status < 400) {
+      throw new WalletError("redirect", `The wallet API redirected this request (HTTP ${response.status}). Ask Doll to check LIDOLLCOIN_API_URL and the Nginx API route.`, response.status);
+    } // Inspect redirects without following them or disclosing a Location header that may contain a credential.
+    try { data = await response.json(); }
+    catch {
+      throw new WalletError("invalid_response", `The wallet server did not return JSON (HTTP ${response.status}). Ask Doll to check Nginx and lidoll-tracker. A pending payment must be retried, not purchased again.`);
+    } // An HTML proxy error is not a definitive payment rejection; leave its financial status uncertain.
     if (!response.ok) {
       const code = Object.hasOwn(messages, data?.error) ? data.error : response.status === 401 ? "invalid_token" : "request_failed";
       throw new WalletError(code, messages[code] || "The online wallet refused this request. Check your balance and try again.", response.status);
@@ -51,11 +84,11 @@ export class WalletClient {
     if (!/^[\w-]{20,100}$/.test(data.device_code || "") || !/^[A-Z0-9-]{6,32}$/.test(data.user_code || "") ||
         !Number.isInteger(data.expires_in) || data.expires_in < 1 || data.expires_in > 3600 ||
         !Number.isInteger(data.interval) || data.interval < 1 || data.interval > 60 ||
-        verification?.origin !== new URL(this.config.baseUrl).origin || verification.username || verification.password || verification.hash || verification.search) {
+        verification?.origin !== this.config.verificationOrigin || verification.username || verification.password || verification.hash || verification.search) {
       throw new WalletError("invalid_response", "The wallet approval response was invalid.");
     }
     return data;
-  } // Only show a verification link on the configured wallet service's origin.
+  } // The API may use a private backend, while players approve only on the configured public browser origin.
   async poll(deviceCode) {
     const data = await this.request("token", { body: { grant_type: "urn:ietf:params:oauth:grant-type:device_code", device_code: deviceCode } });
     if (!/^[\w-]{20,100}$/.test(data.access_token || "") || data.token_type !== "Bearer" ||

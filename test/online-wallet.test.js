@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { fileURLToPath } from "node:url";
 import os from "node:os";
 import path from "node:path";
 import { WalletClient, WalletError, walletConfig } from "../src/wallet/client.js";
@@ -19,7 +23,7 @@ function provider() {
     calls: [], approved: true, failAfterDebit: false, failAfterRefund: false, failBalance: false, badReceipt: false, delayDebit: null };
   api.fetch = async (url, options) => {
     assert.equal(url.searchParams.get("client_id"), "lidollbot");
-    assert.equal(options.redirect, "error");
+    assert.equal(options.redirect, "manual");
     const route = url.pathname.split("/").at(-1);
     const body = options.body ? JSON.parse(options.body) : null;
     api.calls.push({ route, body });
@@ -298,4 +302,61 @@ test("wallet config rejects insecure production URLs and provider errors never e
   }
   const client = new WalletClient(walletConfig({ LIDOLLCOIN_ENABLED: "true" }), async () => new Response(JSON.stringify({ error: "unknown", error_description: "PRIVATE SECRET" }), { status: 401 }));
   await assert.rejects(client.balance("secret"), error => error instanceof WalletError && !error.message.includes("PRIVATE"));
+});
+
+test("wallet diagnostics distinguish DNS, redirects and proxy HTML without exposing secrets", async () => {
+  const config = walletConfig({ LIDOLLCOIN_ENABLED: "true" });
+  const dns = new WalletClient(config, async () => { throw new Error("SECRET URL", { cause: Object.assign(new Error("SECRET TOKEN"), { code: "ENOTFOUND" }) }); });
+  await assert.rejects(dns.begin(), error => error.message.includes("ENOTFOUND") && !error.message.includes("SECRET"));
+  const redirect = new WalletClient(config, async () => new Response(null, { status: 302, headers: { Location: "https://example.com/SECRET" } }));
+  await assert.rejects(redirect.begin(), error => error.message.includes("HTTP 302") && !error.message.includes("SECRET"));
+  for (const status of [200, 403, 502]) {
+    const html = new WalletClient(config, async () => new Response("<html>SECRET</html>", { status }));
+    await assert.rejects(html.begin(), error => error.message.includes(`HTTP ${status}`) && !error.message.includes("SECRET") && error.status === 0);
+  }
+});
+
+test("the production LAN wallet uses the private API and the public HTTPS approval page", async () => {
+  const config = walletConfig({ NODE_ENV: "production", LIDOLLCOIN_ENABLED: "true",
+    LIDOLLCOIN_API_URL: "http://10.1.1.23:4173/tracker/api/lidollcoin/v1/", LIDOLLCOIN_PUBLIC_ORIGIN: "https://lidoll.dev" });
+  const api = provider();
+  const client = new WalletClient(config, (url, options) => {
+    assert.equal(url.origin, "http://10.1.1.23:4173");
+    return api.fetch(url, options);
+  });
+  assert.equal((await client.begin()).verification_uri, "https://lidoll.dev/tracker/coins/");
+  for (const uri of ["http://10.1.1.23:4173/tracker/coins/", "https://other.example/tracker/coins/"]) {
+    const wrong = new WalletClient(config, async () => new Response(JSON.stringify({ device_code: "x".repeat(43),
+      user_code: "ABCDEF-123456", expires_in: 600, interval: 5, verification_uri: uri })));
+    await assert.rejects(wrong.begin(), /approval response was invalid/);
+  }
+  for (const host of ["127.0.0.1", "10.1.1.23", "172.16.0.1", "172.31.255.254", "192.168.1.1"]) {
+    assert.ok(walletConfig({ NODE_ENV: "production", LIDOLLCOIN_ENABLED: "true", LIDOLLCOIN_API_URL: `http://${host}:4173/tracker/api/lidollcoin/v1/` }));
+  }
+  for (const host of ["68.116.17.162", "172.15.0.1", "172.32.0.1", "192.169.1.1", "10.1.1.23.example.com"]) {
+    assert.throws(() => walletConfig({ NODE_ENV: "production", LIDOLLCOIN_ENABLED: "true", LIDOLLCOIN_API_URL: `http://${host}:4173/tracker/api/lidollcoin/v1/` }));
+  }
+  assert.throws(() => walletConfig({ NODE_ENV: "production", LIDOLLCOIN_ENABLED: "true", LIDOLLCOIN_PUBLIC_ORIGIN: "http://10.1.1.23:4173" }));
+});
+
+test("wallet checker uses a token-free GET and reports registration without starting consent", async t => {
+  const folder = mkdtempSync(path.join(os.tmpdir(), "mommybot-wallet-check-"));
+  let providerError = "invalid_token";
+  const requests = [];
+  const server = createServer((request, response) => {
+    requests.push({ method: request.method, path: request.url, token: request.headers.authorization });
+    response.writeHead(401, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ error: providerError, error_description: "PRIVATE PROVIDER BODY" }));
+  });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  t.after(async () => { await new Promise(resolve => server.close(resolve)); rmSync(folder, { recursive: true, force: true }); });
+  const configFile = path.join(folder, "wallet.env");
+  writeFileSync(configFile, `LIDOLLCOIN_ENABLED=true\nLIDOLLCOIN_API_URL=http://127.0.0.1:${server.address().port}/tracker/api/lidollcoin/v1/\nDISCORD_TOKEN=PRIVATE_CONFIG_SECRET\n`);
+  const command = () => promisify(execFile)(process.execPath, [fileURLToPath(new URL("../scripts/check-wallet.mjs", import.meta.url)), configFile], { env: { ...process.env, NODE_ENV: "test" } });
+  const success = await command();
+  assert.match(success.stdout, /PASS:.*recognizes this app/);
+  assert.doesNotMatch(success.stdout + success.stderr, /PRIVATE/);
+  providerError = "invalid_client";
+  await assert.rejects(command(), error => error.code === 1 && /not registered/.test(error.stderr) && !/PRIVATE/.test(error.stdout + error.stderr));
+  assert.deepEqual(requests, Array.from({ length: 2 }, () => ({ method: "GET", path: "/tracker/api/lidollcoin/v1/wallet?client_id=lidollbot", token: undefined })));
 });

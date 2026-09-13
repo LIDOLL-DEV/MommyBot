@@ -38,13 +38,14 @@ is a separate approval and app registration.
    LIDOLLID_ISSUER=https://auth.lidoll.dev
    LIDOLLCOIN_ENABLED=true
    LIDOLLCOIN_API_URL=https://lidoll.dev/tracker/api/lidollcoin/v1/
+   LIDOLLCOIN_PUBLIC_ORIGIN=https://lidoll.dev
    LIDOLLCOIN_CLIENT_ID=lidollbot
    TOUHOU_ENABLED=true
    ```
 
    Keep the existing bot public origin and callback registration. The wallet
    URL points to Little Log's API, not `auth.lidoll.dev` or `bot.lidoll.dev`.
-   It must end with `/`; production requires HTTPS. There is no wallet client
+   It must end with `/`; public API addresses require HTTPS. There is no wallet client
    secret. Existing Nginx callbacks need no additional routes for this feature.
 
 3. Deploy the updated code. Once these changes are committed and pushed to the
@@ -80,6 +81,51 @@ Wallet grants expire after 30 days or when revoked. Use connect again to renew.
 `/lidollid wallet disconnect` revokes wallet access; balances stay in Little Log.
 With the integration enabled, `/lidollid unlink` also disconnects the wallet.
 You can revoke access through Little Log's connected-games settings as well.
+
+## Connection troubleshooting
+
+Run this read-only check using the deployed Node runtime and bot configuration:
+
+```bash
+cd /opt/mommybot/current
+sudo -u mommybot /usr/bin/node scripts/check-wallet.mjs /etc/mommybot/mommybot.env
+```
+
+It prints only the configured API URL/client ID and a safe result. It sends no
+token and creates no approval codes. `invalid_client` means the running Little
+Log backend has not loaded that wallet app registration. A JSON `invalid_token`
+response to this token-free probe means the route is reachable and recognizes
+the app; player consent is still required.
+
+The updated bot distinguishes DNS/TLS failures, redirects and non-JSON responses.
+HTTP 502 HTML usually comes from a proxy that cannot reach its backend. HTTP 200
+HTML suggests a static page or sign-in page intercepted the API route. Ensure
+`/tracker/api/` proxies to Little Log while preserving its complete path.
+
+If the endpoint works externally but times out on the bot host, compare
+`getent ahosts lidoll.dev` and IPv4/IPv6 connectivity there. Possible causes
+include DNS pointing to an unreachable address, outbound firewall rules or a
+router unable to route internal requests back through its public address.
+Confirm the actual Nginx LAN address before changing DNS. An internal DNS entry
+can route `lidoll.dev` to that address while preserving the HTTPS hostname and
+certificate checks.
+
+For Doll's direct LAN backend, deploy the updated bot and set these values in
+`/etc/mommybot/mommybot.env`:
+
+```dotenv
+LIDOLLCOIN_API_URL=http://10.1.1.23:4173/tracker/api/lidollcoin/v1/
+LIDOLLCOIN_PUBLIC_ORIGIN=https://lidoll.dev
+```
+
+This deliberately uses HTTP on the operator's trusted LAN for server-to-server
+wallet requests, including bearer credentials. HTTP is accepted only for literal
+private IPv4 or loopback destinations; public endpoints still require HTTPS.
+Browser approval remains at `https://lidoll.dev/tracker/coins/`. The backend's
+`PUBLIC_ORIGIN` in `/etc/lidoll/tracker.env` must also be `https://lidoll.dev` so it
+returns that browser URL. Keep the bot's existing LiD0llID issuer and callback
+settings. Run the wallet checker after deployment. `invalid_client` still means
+the separate wallet app must be added to `LIDOLLCOIN_APPS` and the tracker restarted.
 
 ## Interrupted purchases
 
