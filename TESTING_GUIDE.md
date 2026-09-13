@@ -14,8 +14,16 @@ bash scripts/deploy-fedora.sh --help
 bash scripts/update-fedora.sh --help
 ```
 
-The existing Node tests exercise GitHub activity fetching with mocked HTTP
-responses. They do not log into Discord or require a model server. Optional
+The Node tests exercise GitHub activity fetching, empty completion handling,
+multiple conversation turns, reopening SQLite, user isolation and continuing
+legacy checkpoints. They use mocked HTTP and disposable databases and do not
+log into Discord, require a model server or open the real memory database.
+`test/fixtures/legacy-checkpoints.json` contains synthetic SQLite rows generated
+with LangGraph 0.2.74 and SQLite saver 0.2.2, the combination that caused
+`checkpoint.pending_sends is not iterable` on the second turn. A separate test
+checks that migrating a nonempty pending-task queue preserves its contents.
+
+Optional
 static checks on Fedora: install `ShellCheck` and run
 `shellcheck scripts/*-fedora.sh`, then run
 `systemd-analyze verify scripts/mommybot.service` after deployment paths exist.
@@ -28,8 +36,10 @@ Use a test bot/channel and a Fedora VM with systemd for deployment validation.
    creates settings without starting an unconfigured bot.
 2. Configure the bot and deploy again. Confirm `systemctl is-active mommybot`
    and `systemctl is-enabled mommybot` succeed; check the journal for Discord login.
-3. Mention the bot in the allowed channel and verify it reaches the configured
-   model. Restart the service and check that conversation memory persists.
+3. Mention the bot twice in the allowed channel and verify it reaches the
+   configured model on both turns. Restart the service, then send a third message
+   and check that conversation memory persists. Also retry with a user who
+   already had saved history before the update.
 4. Run the updater from a clean checkout with an upstream. Confirm the release
    symlink changes, settings remain unchanged, a state archive appears, and the
    existing memory/cursors remain available.

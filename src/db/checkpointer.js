@@ -1,4 +1,4 @@
-import { SqliteSaver } from "@langchain/langgraph-checkpoint-sqlite";
+import { ConversationSqliteSaver } from "./sqliteSaver.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
@@ -13,7 +13,7 @@ if (!fs.existsSync(dataDir)) {
 }
 
 // Initialize SQLite checkpointer
-export const checkpointer = await SqliteSaver.fromConnString(dbPath);
+export const checkpointer = ConversationSqliteSaver.fromConnString(dbPath);
 
 // Helper to initialize the database tables
 export async function initCheckpointer() {

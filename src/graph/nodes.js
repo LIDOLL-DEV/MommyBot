@@ -1,6 +1,7 @@
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import process from "process";
 import { SYSTEM_PROMPT } from "./prompt.js";
+import { completionText } from "./completion.js";
 
 /**
  * Router Node
@@ -144,7 +145,7 @@ export async function sakuraLLMNode(state) {
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content?.trim() || "Hmm, let Mommy think... 💕";
+    const content = completionText(data); // Empty answer text is an error even when the HTTP request succeeded.
 
     console.log(`📥 [LLM NODE] ✅ Response received!`);
     console.log(`   📝 Content: "${content}"`);
@@ -163,6 +164,9 @@ export async function sakuraLLMNode(state) {
 
   } catch (error) {
     console.error(`🌸 [LLM NODE] ❌ Fetch failed:`, error.message);
+    if (error.code === "EMPTY_MODEL_RESPONSE") {
+      return { messages: [new AIMessage("Sakura's model returned no answer text. Please try again. 💕")] }; // Give an accurate retry message without posting reasoning-only output.
+    }
     return { messages: [new AIMessage("Oops! Sakura couldn't reach her brain right now. 💕")] };
   }
 }

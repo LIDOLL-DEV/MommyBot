@@ -132,7 +132,7 @@ if [[ -d test ]]; then
 fi
 # Exercise native SQLite loading without opening or changing the live memory database.
 runuser -u mommybot -- node --input-type=module -e '
-import { SqliteSaver } from "@langchain/langgraph-checkpoint-sqlite";
+import { ConversationSqliteSaver as SqliteSaver } from "./src/db/sqliteSaver.js";
 const saver = SqliteSaver.fromConnString(":memory:");
 saver.setup();
 saver.db.close();

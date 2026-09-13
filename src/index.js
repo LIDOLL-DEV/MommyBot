@@ -1,5 +1,6 @@
 import "dotenv/config";
 import process from "process";
+import { Events } from "discord.js"; // Use the library's current event names instead of deprecated aliases.
 import { createClient } from "./bot/client.js";
 import { handleMessage } from "./bot/handlers/message.js";
 import { initCheckpointer } from "./db/checkpointer.js";
@@ -35,7 +36,7 @@ async function main() {
   });
 
   // Login
-  client.once("ready", () => {
+  client.once(Events.ClientReady, () => {
     console.log(`🌸 Sakura is online and ready to cuddle! (${client.user.tag})`);
     stopGitHubWatcher = startGitHubActivityWatcher(client);
   });

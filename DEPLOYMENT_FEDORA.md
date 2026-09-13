@@ -100,6 +100,19 @@ cursor inside `data` if it should be backed up.
 
 ## Operations and recovery
 
+If a second message fails with `checkpoint.pending_sends is not iterable`, deploy
+the checkpoint compatibility fix using the updater once it is available in your
+Git upstream. This fixes the dependency mismatch and reads existing legacy
+checkpoints without requiring deletion of `memory.db`. The deployment tests now
+exercise a second turn, a database reopen and legacy checkpoint loading.
+
+If the model server is unavailable, start it separately and verify
+`LLAMA_BASE_URL` in `/etc/mommybot/mommybot.env`. The previous
+"Hmm, let Mommy think..." response was a local fallback when a successful HTTP
+response contained no answer text. Empty completions now produce an explicit
+error and journal diagnostics (finish reason and token/reasoning counts).
+An HTTP response alone does not prove the model produced an answer.
+
 ```bash
 sudo systemctl status mommybot --no-pager
 sudo journalctl -u mommybot -f

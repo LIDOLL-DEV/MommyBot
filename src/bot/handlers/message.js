@@ -1,5 +1,6 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { buildGraph } from "../../graph/graph.js";
+import { checkpointer } from "../../db/checkpointer.js"; // Share the application's persistent saver while allowing isolated graph tests.
 
 /**
  * Handle incoming Discord messages
@@ -26,7 +27,7 @@ export async function handleMessage(message, botId) {
 
   try {
     console.log("🌸 [HANDLER] Invoking LangGraph...");
-    const graph = buildGraph();
+    const graph = buildGraph(checkpointer);
     const result = await graph.invoke(input, config);
 
     const finalMessage = result.messages[result.messages.length - 1];

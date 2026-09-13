@@ -5,6 +5,17 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+LangGraph (`0.4.10`), its checkpoint package (`0.1.3`) and the SQLite saver
+(`0.2.2`) are pinned as a tested combination. Upgrade them together and run the
+conversation tests from a clean install: opening SQLite alone will not reveal
+checkpoint compatibility failures. `buildGraph(checkpointer)` takes an explicit
+saver so tests can use disposable databases without opening live memory.
+
+`src/db/sqliteSaver.js` adapts the library's pre-v4 pending-send migration to the
+Topic channel's `[seen, values]` format. Keep this adapter until a tested upstream
+replacement can read the legacy fixture without it. It transforms loaded state
+in memory and preserves queued tasks; it does not erase historical records.
+
 Fedora deployment files live under `scripts/`. Keep Bash and systemd files in LF
 format; `.gitattributes` enforces this on checkout. See
 [DEPLOYMENT_FEDORA.md](DEPLOYMENT_FEDORA.md) for installation and recovery and
