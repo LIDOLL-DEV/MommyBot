@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import path from "node:path";
 import {
   ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder,
@@ -6,6 +5,9 @@ import {
 } from "discord.js";
 import { IMAGE_DIRECTORY, rarity } from "./catalog.js";
 import { TraderError } from "./store.js";
+import { BattleService } from "./battles.js";
+import { TouhouMenus } from "./menu.js";
+import { RARITIES } from "./battleRules.js";
 
 const PAGE_SIZE = 10;
 const noMentions = { parse: [], repliedUser: false };
@@ -49,6 +51,19 @@ export function buildTouhouCommand() {
     .addStringOption((o) => o.setName("currency").setDescription("Reward currency").setRequired(true)
       .addChoices({ name: "Stars", value: "stars" }, { name: "LiDollcoins", value: "coins" }))
     .addIntegerOption((o) => o.setName("amount").setDescription("Amount to award").setMinValue(1).setMaxValue(1_000_000).setRequired(true)));
+  command.addSubcommand((s) => s.setName("battle").setDescription("Start a turn-based PvE battle with your Touhou.")
+    .addStringOption((o) => o.setName("name").setDescription("Your fighter").setRequired(true))
+    .addStringOption((o) => o.setName("rarity").setDescription("Opponent tier").setRequired(true)
+      .addChoices(...[...RARITIES, "gamble"].map((value) => ({ name: value, value })))));
+  command.addSubcommand((s) => s.setName("party").setDescription("View levels, EXP, attacks and recovery timers."));
+  command.addSubcommand((s) => s.setName("heal").setDescription("Heal freely after recovery, or pay 50 coins for instant healing.")
+    .addStringOption((o) => o.setName("name").setDescription("Your Touhou").setRequired(true))
+    .addBooleanOption((o) => o.setName("pay").setDescription("Pay 50 coins if still recovering")));
+  command.addSubcommand((s) => s.setName("potions").setDescription("Buy health potions for 20 coins each (carry up to 10).")
+    .addIntegerOption((o) => o.setName("amount").setDescription("How many (defaults to 1)").setMinValue(1).setMaxValue(10)));
+  command.addSubcommand((s) => s.setName("buyback").setDescription("Sell your Touhou back for two-thirds of its suggested value.")
+    .addStringOption((o) => o.setName("name").setDescription("Your Touhou").setRequired(true))
+    .addBooleanOption((o) => o.setName("confirm").setDescription("Confirm buyback and reset this character's battle levels").setRequired(true)));
   return command.toJSON();
 } // Register only the trader's own command instead of replacing unrelated bot commands.
 
@@ -63,36 +78,27 @@ function button(id, label, style = ButtonStyle.Secondary) {
 } // Keep component construction consistent across menus, pagination and trade offers.
 
 export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", imageDirectory = IMAGE_DIRECTORY } = {}) {
+  const game = new BattleService(store);
+  const menus = new TouhouMenus(store, game, { channelId, imageDirectory });
   function menu(guildId, userId) {
-    const wallet = store.wallet(guildId, userId);
-    const nonce = randomUUID();
-    return {
-      embeds: [new EmbedBuilder().setColor(0xd58cdb).setTitle("Touhou Trader")
-        .setDescription(`Adopt a random Touhou for **1 star OR 25 LiDollcoins**.\nChoose one payment below.\n\nYour wallet: **${wallet.stars} stars • ${wallet.coins} LiDollcoins**\nYour party: **${store.collection(guildId, userId).length}/6**`)],
-      components: [new ActionRowBuilder().addComponents(
-        button(`th:adopt:stars:${userId}:${nonce}`, "Adopt · 1 star", ButtonStyle.Primary),
-        button(`th:adopt:coins:${userId}:${nonce}`, "Adopt · 25 LiDollcoins", ButtonStyle.Success),
-      ), new ActionRowBuilder().addComponents(
-        button(`th:view:collection:${userId}:1`, "My collection"),
-        button(`th:view:market:${userId}:1`, "Market"),
-      )],
-    };
-  } // Bind both payment buttons to one purchase so rapid clicks cannot charge both currencies.
+    return menus.open(guildId, userId);
+  } // Open the full clickable trader, party, battle, healing and marketplace UI.
 
   function characterCard(character, description) {
+    const profile = game.profile(character.guild_id, character.name);
     const attachmentName = `touhou${path.extname(character.filename).toLowerCase()}`;
     const attachment = new AttachmentBuilder(path.join(imageDirectory, character.filename), { name: attachmentName });
     return { files: [attachment], embeds: [new EmbedBuilder().setColor(0xd58cdb).setTitle(character.name)
-      .setDescription(`${description}\n${rarity(character)} • ${character.trade_count} trades`)
+      .setDescription(`${description}\n${rarity(character, profile.level)} • Lv ${profile.level} • ${character.trade_count} trades`)
       .setImage(`attachment://${attachmentName}`)] };
   } // Display the ported character artwork alongside the committed ownership result.
 
   function page(guildId, userId, action, requestedPage = 1, targetId = userId) {
-    const entries = action === "market" ? store.market(guildId) : store.collection(guildId, targetId);
+    const entries = action === "market" ? store.market(guildId) : game.party(guildId, targetId);
     const pages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
     const current = Math.max(1, Math.min(pages, Math.trunc(Number(requestedPage)) || 1));
     const lines = entries.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE).map((entry) =>
-      `**${entry.name}** — ${rarity(entry)}${action === "market" ? (entry.price ? ` · ${entry.price} LiDollcoins (player listing)` : " · adoption stock") : ""}`);
+      `**${entry.name}** — ${rarity(entry, entry.level || 0)}${action === "market" ? (entry.price ? ` · ${entry.price} LiDollcoins (player listing)` : " · adoption stock") : ` · Lv ${entry.level}`}`);
     const nav = new ActionRowBuilder().addComponents(button(`th:menu:${userId}`, "Trader"));
     if (current > 1) nav.addComponents(button(`th:view:${action}:${userId}:${current - 1}:${targetId}`, "Previous"));
     if (current < pages) nav.addComponents(button(`th:view:${action}:${userId}:${current + 1}:${targetId}`, "Next"));
@@ -112,6 +118,24 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
     }
     switch (action) {
       case "menu": return menu(guildId, user.id);
+      case "party": return menus.open(guildId, user.id, "party");
+      case "battle": {
+        const state = game.start(guildId, user.id, options.getString("name", true), options.getString("rarity", true), interaction.id);
+        return menus.open(guildId, user.id, "battle", state.id);
+      }
+      case "heal": {
+        const result = game.heal(guildId, user.id, options.getString("name", true), options.getBoolean("pay") === true, interaction.id);
+        return { content: `**${result.name}** is ready. Healing cost: **${result.price} LiDollcoins**.` };
+      }
+      case "potions": {
+        const result = game.buyPotions(guildId, user.id, options.getInteger("amount") || 1, interaction.id);
+        return { content: `Bought potions for **${result.price} LiDollcoins**. You now carry **${result.count}/10**.` };
+      }
+      case "buyback": {
+        if (options.getBoolean("confirm") !== true) throw new TraderError("Buyback cancelled. Use the market menu to preview the payout.");
+        const result = game.buyback(guildId, user.id, options.getString("name", true), interaction.id);
+        return { content: `Returned **${result.name}** for **${result.payout} LiDollcoins**. Battle levels were reset.` };
+      }
       case "adopt": {
         const result = store.adopt(guildId, user.id, options.getString("payment", true), interaction.id);
         return characterCard(result.character, `<@${user.id}> adopted this Touhou for **${result.price} ${currencyLabel(result.currency)}**.`);
@@ -165,6 +189,7 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
   } // Dispatch actual Discord commands to the transactional store; no language-model decisions can spend currency.
 
   async function handleInteraction(interaction) {
+    if (await menus.handle(interaction)) return true; // Includes select menus and modals, not just buttons.
     const slash = interaction.isChatInputCommand() && interaction.commandName === "touhou";
     const component = interaction.isButton() && interaction.customId.startsWith("th:");
     if (!slash && !component) return false;
@@ -217,6 +242,10 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
       const action = rawAction.toLowerCase() || "menu";
       let result;
       if (action === "menu") result = menu(message.guildId, message.author.id);
+      else if (["battle", "party", "heal", "potions", "shop"].includes(action)) {
+        const current = action === "battle" ? game.current(message.guildId, message.author.id) : null;
+        result = menus.open(message.guildId, message.author.id, action === "battle" ? (current ? "battle" : "battle-pick") : action, current?.id);
+      }
       else if (["market", "collection"].includes(action)) result = page(message.guildId, message.author.id, action, Number(rest[0]) || 1);
       else if (action === "wallet") {
         const wallet = store.wallet(message.guildId, message.author.id);
@@ -227,7 +256,7 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
         const receipt = store.adopt(message.guildId, message.author.id, payment, message.id);
         result = characterCard(receipt.character, `Adopted for **${receipt.price} ${currencyLabel(receipt.currency)}**.`);
       } else if (action === "info") result = characterCard(store.character(message.guildId, rest.join(" ")), "Touhou details");
-      else throw new TraderError("Use !touhou for the menu. Gifting, swaps, listings and rewards use /touhou commands.");
+      else throw new TraderError("Use !touhou for the full battle and trading menu, or /touhou for individual commands.");
       await message.reply({ ...result, allowedMentions: noMentions });
     } catch (error) {
       if (!(error instanceof TraderError)) console.error("[TOUHOU] Prefix command failed:", error);

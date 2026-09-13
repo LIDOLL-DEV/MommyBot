@@ -140,7 +140,9 @@ saver.db.close();
 runuser -u mommybot -- node --input-type=module - "$config" <<'NODE'
 import fs from 'node:fs';
 import dotenv from 'dotenv';
+import { authConfig } from './src/auth/config.js';
 const settings = dotenv.parse(fs.readFileSync(process.argv[2])); // Read configuration without executing it.
+authConfig({ ...settings, NODE_ENV: 'production' }); // Reject invalid SSO settings before stopping the active release.
 if (!settings.DISCORD_TOKEN?.trim() || settings.DISCORD_TOKEN === 'your_discord_bot_token') {
     console.error('Set DISCORD_TOKEN in /etc/mommybot/mommybot.env before deploying.');
     process.exit(1);

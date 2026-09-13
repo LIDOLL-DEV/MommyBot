@@ -30,11 +30,41 @@ static checks on Fedora: install `ShellCheck` and run
 
 ## Fedora acceptance checks
 
+LiD0llID tests in `test/lidollid.test.js` use a disposable local OIDC HTTP
+provider with real RSA-signed tokens. They verify state, nonce, PKCE, signatures,
+issuer, audience, expiry, missing ID tokens, denied sign-in, UserInfo subjects,
+discovery recovery, callback cookies, replay rejection, escaped profile text,
+Discord-user binding, expiry, concurrent replacement, unique links, unlinking,
+persistence and production configuration. No real accounts or provider tokens
+are used. Run `node --test test/lidollid.test.js` for focused verification.
+
+For live SSO acceptance, follow [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md), register
+the exact callback and configure the HTTPS proxy. With a test Discord user,
+run login, authenticate, confirm the browser code, and check status after a bot
+restart. Test an existing LiD0llID browser session, a fresh/private browser,
+denied login, a code submitted by another Discord account, callback replay,
+expired links, and unlinking while sign-in is pending. Check that replies are
+ephemeral and login URLs do not appear in proxy logs. Verify the other bot
+commands still work during an identity-provider outage. Live Discord/HTTPS/SSO
+acceptance requires a registered client and has not been performed by the local
+test suite.
+
 Touhou tests cover both payment methods, insufficient funds, duplicate actions,
 rollback after an ownership-write failure, stock/party limits, gifts, consenting
 swaps, stale/expired offers, sales, wallet persistence, guild isolation, admin
 permissions, menu ownership and prefix/slash routing. They use local fixtures
 and disposable databases, never real Discord balances.
+Momiji tests also verify her fixed owner, blocked transfers and adoption,
+database-level ownership enforcement, and repair of old ownership/listing/offer
+records on startup.
+
+Battle and menu tests also exercise attack/defend/run/potion turns, elemental
+damage, duplicate rewards, payout rollback, EXP caps, healing costs, cooldowns,
+idle expiry, persisted fight recovery, mid-battle transfer locks and Momiji's
+battle eligibility. UI tests walk actual Discord builders through party details,
+rarity selection, battle/resume, potion purchase, listing-price modals, gifts,
+swaps, quote confirmation and buybacks. They check component size limits and
+reject foreign users, stale controls and expired sessions.
 
 For live trader acceptance, use a test server: award one star and 25 LiDollcoins
 to a test user, adopt once with each method, and check `/touhou wallet` and
@@ -43,6 +73,14 @@ player, and a trade accepted by its recipient. Confirm two rapid payment clicks
 on the same menu buy only one character. Restart the service and verify the
 wallet and collection persist. Check artwork rendering and paginated market
 navigation in Discord. Follow [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md).
+
+Also walk **Battle → character → rarity**, try all three attacks, Defend, Potion
+and Run, then verify EXP/coin rewards on victory. Buy potions, test free/paid
+healing, and confirm a buyback quote. List through the price modal and buy with
+another test account; try gifting and a recipient-confirmed swap entirely through
+menus. Reopen the menu mid-fight to resume it, restart within 90 seconds to check
+persistence, and let another fight expire to check recovery. Confirm artwork,
+dropdowns and modals render correctly in the real Discord client.
 
 Use a test bot/channel and a Fedora VM with systemd for deployment validation.
 

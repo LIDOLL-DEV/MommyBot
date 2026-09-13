@@ -105,6 +105,13 @@ cursor inside `data` if it should be backed up.
 
 ## Operations and recovery
 
+Optional LiD0llID SSO requires a registered `lidollbot` client, an HTTPS callback
+hostname/proxy, and the `LIDOLLID_*` settings added to the existing environment
+file. Follow [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md) before enabling it. The bot
+listens on loopback port 4190 by default; the deployer does not provision DNS,
+TLS or an inbound firewall rule. Its new account database is included in the
+existing `data/` backups. SSO configuration is checked before release activation.
+
 If a second message fails with `checkpoint.pending_sends is not iterable`, deploy
 the checkpoint compatibility fix using the updater once it is available in your
 Git upstream. This fixes the dependency mismatch and reads existing legacy

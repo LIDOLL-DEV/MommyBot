@@ -3,7 +3,8 @@ import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { TouhouStore } from "../src/touhou/store.js";
+import { MOMIJI_OWNER_ID, TouhouStore } from "../src/touhou/store.js";
+import Database from "better-sqlite3";
 import { loadCatalog } from "../src/touhou/catalog.js";
 
 const catalog = Array.from({ length: 12 }, (_, i) => ({ name: `Character ${i}`, filename: `${i}.png`, baseRarity: 0 }));
@@ -147,18 +148,62 @@ test("Momiji reservation and per-server balances survive reopening the database"
   const directory = await mkdtemp(path.join(os.tmpdir(), "touhou-test-"));
   const database = path.join(directory, "trader.db");
   const entries = [...catalog, { name: "Momiji Inubashiri", filename: "Momiji.png", baseRarity: 0 }];
-  let store = new TouhouStore(database, entries, { reservedOwner: "doll" });
+  let store = new TouhouStore(database, entries);
   context.after(async () => { store.close(); await rm(directory, { recursive: true, force: true }); });
   fund(store);
   const owned = store.adopt("guild", "alice", "stars", "draw").character;
-  assert.equal(store.character("guild", "Momiji").owner_id, "doll");
-  assert.throws(() => store.release("guild", "doll", "Momiji", "release"), /stays in Doll/);
+  assert.equal(store.character("guild", "Momiji").owner_id, MOMIJI_OWNER_ID);
+  assert.throws(() => store.release("guild", MOMIJI_OWNER_ID, "Momiji", "release"), /stays in Doll/);
   assert.deepEqual(store.wallet("elsewhere", "alice"), { stars: 0, coins: 0 });
   assert.equal(store.character("elsewhere", owned.name).owner_id, null);
   store.close();
-  store = new TouhouStore(database, entries, { reservedOwner: "doll" });
+  store = new TouhouStore(database, entries);
   assert.equal(store.wallet("guild", "alice").stars, 9);
   assert.equal(store.character("guild", owned.name).owner_id, "alice");
+});
+
+test("Momiji's owner is fixed and cannot gift, sell, swap or release her", (context) => {
+  const entries = [...catalog, { name: "Momiji Inubashiri", filename: "Momiji.png", baseRarity: 0 }];
+  const store = create(context, entries, { reservedOwner: "someone-else" });
+  assert.equal(store.character("guild", "Momiji").owner_id, MOMIJI_OWNER_ID); // Older constructor options cannot change the owner.
+  fund(store);
+  const other = store.adopt("guild", "alice", "stars", "draw").character;
+  assert.notEqual(other.name, "Momiji Inubashiri");
+  assert.throws(() => store.send("guild", MOMIJI_OWNER_ID, "alice", "Momiji", "gift"), /stays in Doll/);
+  assert.throws(() => store.list("guild", MOMIJI_OWNER_ID, "Momiji", 25, "sale"), /stays in Doll/);
+  assert.throws(() => store.offer("guild", MOMIJI_OWNER_ID, "alice", "Momiji", other.name, "swap"), /stays in Doll/);
+  assert.throws(() => store.offer("guild", "alice", MOMIJI_OWNER_ID, other.name, "Momiji", "reverse-swap"), /stays in Doll/);
+  assert.throws(() => store.release("guild", MOMIJI_OWNER_ID, "Momiji", "release"), /stays in Doll/);
+  assert.throws(() => store.transfer("guild", store.character("guild", "Momiji"), "alice"), /Momiji is reserved/);
+  assert.throws(() => store.db.prepare("UPDATE characters SET owner_id = NULL WHERE name = ?").run("Momiji Inubashiri"), /Momiji is reserved/);
+  assert.throws(() => store.db.prepare("INSERT INTO characters(guild_id, name, filename, owner_id) VALUES (?, ?, ?, ?)")
+    .run("other-guild", "Momiji Inubashiri", "Momiji.png", "alice"), /Momiji is reserved/);
+  assert.equal(store.character("guild", "Momiji").owner_id, MOMIJI_OWNER_ID);
+});
+
+test("startup repairs legacy Momiji owners and clears pending listings and swaps", async (context) => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), "momiji-migration-"));
+  const database = path.join(directory, "trader.db");
+  const entries = [{ name: "Momiji Inubashiri", filename: "Momiji.png", baseRarity: 0 }];
+  const original = new TouhouStore(database, entries);
+  original.ensureGuild("wrong-owner");
+  original.ensureGuild("unowned");
+  original.close();
+  const legacy = new Database(database);
+  legacy.exec("DROP TRIGGER momiji_owner_insert; DROP TRIGGER momiji_owner_update;"); // Simulate a database created before the ownership constraint existed.
+  legacy.prepare("UPDATE characters SET owner_id = ? WHERE guild_id = ?").run("alice", "wrong-owner");
+  legacy.prepare("UPDATE characters SET owner_id = NULL WHERE guild_id = ?").run("unowned");
+  legacy.prepare("INSERT INTO listings VALUES (?, ?, ?, ?)").run("wrong-owner", "Momiji Inubashiri", "alice", 25);
+  legacy.prepare(`INSERT INTO trade_offers
+    (id, guild_id, from_id, to_id, offered, requested, offered_revision, requested_revision, expires_at)
+    VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)`).run("old-offer", "wrong-owner", "alice", "bob", "Momiji Inubashiri", "Other", Date.now() + 60_000);
+  legacy.close();
+  const repaired = new TouhouStore(database, entries);
+  context.after(async () => { repaired.close(); await rm(directory, { recursive: true, force: true }); });
+  const owners = repaired.db.prepare("SELECT owner_id, revision FROM characters WHERE name = ?").all("Momiji Inubashiri");
+  assert.ok(owners.every((row) => row.owner_id === MOMIJI_OWNER_ID && row.revision === 1));
+  assert.equal(repaired.db.prepare("SELECT COUNT(*) AS count FROM listings").get().count, 0);
+  assert.equal(repaired.db.prepare("SELECT status FROM trade_offers WHERE id = 'old-offer'").get().status, "cancelled");
 });
 
 test("the complete ported catalog contains real artwork and unambiguous names", () => {

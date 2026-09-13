@@ -1,8 +1,11 @@
 import Database from "better-sqlite3";
 import { randomUUID } from "node:crypto";
+import { FAINT_DURATION_MS } from "./battleRules.js";
 
 export const ADOPTION_PRICES = Object.freeze({ stars: 1, coins: 25 });
 export const PARTY_LIMIT = 6;
+export const MOMIJI_OWNER_ID = "319254336402358272";
+const MOMIJI_NAME = "Momiji Inubashiri";
 const MAX_BALANCE = 1_000_000_000;
 
 export class TraderError extends Error {}
@@ -13,10 +16,9 @@ function currencyColumn(currency) {
 } // Whitelist currency names before inserting a column name into SQL.
 
 export class TouhouStore {
-  constructor(databasePath, catalog, { reservedOwner = "319254336402358272", now = Date.now } = {}) {
+  constructor(databasePath, catalog, { now = Date.now } = {}) {
     this.db = new Database(databasePath);
     this.catalog = catalog;
-    this.reservedOwner = reservedOwner;
     this.now = now;
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("busy_timeout = 5000");
@@ -51,10 +53,63 @@ export class TouhouStore {
         operation TEXT NOT NULL, details TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
       CREATE INDEX IF NOT EXISTS characters_owner ON characters(guild_id, owner_id);
+      CREATE TABLE IF NOT EXISTS battle_profiles (
+        guild_id TEXT NOT NULL, name TEXT NOT NULL, level INTEGER NOT NULL DEFAULT 1,
+        exp INTEGER NOT NULL DEFAULT 0, wins INTEGER NOT NULL DEFAULT 0, losses INTEGER NOT NULL DEFAULT 0,
+        fainted_until INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(guild_id, name)
+      );
+      CREATE TABLE IF NOT EXISTS battle_inventory (
+        guild_id TEXT NOT NULL, user_id TEXT NOT NULL, potions INTEGER NOT NULL DEFAULT 0 CHECK(potions BETWEEN 0 AND 10),
+        PRIMARY KEY(guild_id, user_id)
+      );
+      CREATE TABLE IF NOT EXISTS battles (
+        id TEXT PRIMARY KEY, guild_id TEXT NOT NULL, user_id TEXT NOT NULL, name TEXT NOT NULL,
+        character_revision INTEGER NOT NULL, state TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active',
+        turn INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS one_battle_per_player ON battles(guild_id, user_id) WHERE status = 'active';
+      CREATE UNIQUE INDEX IF NOT EXISTS one_battle_per_character ON battles(guild_id, name) WHERE status = 'active';
     `);
+    this.db.transaction(() => {
+      this.db.prepare(`UPDATE characters SET owner_id = ?, revision = revision + 1
+        WHERE name = ? AND owner_id IS NOT ?`).run(MOMIJI_OWNER_ID, MOMIJI_NAME, MOMIJI_OWNER_ID);
+      this.db.prepare("DELETE FROM listings WHERE name = ?").run(MOMIJI_NAME);
+      this.db.prepare(`UPDATE trade_offers SET status = 'cancelled'
+        WHERE status = 'pending' AND (offered = ? OR requested = ?)`).run(MOMIJI_NAME, MOMIJI_NAME);
+      this.db.exec(`
+        CREATE TRIGGER IF NOT EXISTS momiji_owner_insert BEFORE INSERT ON characters
+        WHEN NEW.name = '${MOMIJI_NAME}' AND NEW.owner_id IS NOT '${MOMIJI_OWNER_ID}'
+        BEGIN SELECT RAISE(ABORT, 'Momiji is reserved for ${MOMIJI_OWNER_ID}'); END;
+        CREATE TRIGGER IF NOT EXISTS momiji_owner_update BEFORE UPDATE ON characters
+        WHEN (OLD.name = '${MOMIJI_NAME}' OR NEW.name = '${MOMIJI_NAME}')
+          AND (NEW.name != '${MOMIJI_NAME}' OR NEW.owner_id IS NOT '${MOMIJI_OWNER_ID}')
+        BEGIN SELECT RAISE(ABORT, 'Momiji is reserved for ${MOMIJI_OWNER_ID}'); END;
+      `); // Enforce the fixed owner in SQLite as well as in command handlers.
+    }).immediate(); // Repair legacy ownership and cancel old Momiji listings/offers before accepting requests.
   } // Keep balances, characters and receipts in one database so purchases can commit atomically.
 
   close() { this.db.close(); } // Release the SQLite connection during shutdown and test cleanup.
+
+  expireBattles() {
+    this.db.transaction(() => {
+      const expired = this.db.prepare("SELECT * FROM battles WHERE status = 'active' AND expires_at <= ?").all(this.now());
+      for (const battle of expired) {
+        const state = JSON.parse(battle.state);
+        state.outcome = "timeout";
+        state.log.push("Battle expired after 90 seconds without an action. Your Touhou needs a ten-minute rest.");
+        this.db.prepare("UPDATE battles SET status = 'timeout', state = ? WHERE id = ?").run(JSON.stringify(state), battle.id);
+        this.db.prepare(`UPDATE battle_profiles SET losses = losses + 1, fainted_until = ?
+          WHERE guild_id = ? AND name = ?`).run(battle.expires_at + FAINT_DURATION_MS, battle.guild_id, battle.name);
+      }
+    }).immediate();
+  } // Settle idle fights once, measuring recovery from the actual expiry even after a restart.
+
+  assertNotBattling(guildId, name) {
+    this.expireBattles();
+    if (this.db.prepare("SELECT id FROM battles WHERE guild_id = ? AND name = ? AND status = 'active'").get(guildId, name)) {
+      throw new TraderError("Finish or run from this Touhou's battle before trading, selling or releasing it.");
+    }
+  } // Prevent ownership changes or buybacks while a fight still controls the character.
 
   ensureGuild(guildId) {
     if (!guildId) throw new TraderError("Use the Touhou trader in a server.");
@@ -63,7 +118,7 @@ export class TouhouStore {
     this.db.transaction(() => {
       for (const entry of this.catalog) {
         insert.run(guildId, entry.name, entry.filename, entry.baseRarity,
-          entry.name === "Momiji Inubashiri" ? this.reservedOwner : null);
+          entry.name === MOMIJI_NAME ? MOMIJI_OWNER_ID : null);
       }
     })();
   } // Seed each server independently without resetting balances or existing ownership on restart.
@@ -156,11 +211,13 @@ export class TouhouStore {
   owned(guildId, userId, name) {
     const character = this.character(guildId, name);
     if (character.owner_id !== userId) throw new TraderError("You no longer own that Touhou.");
-    if (character.name === "Momiji Inubashiri" && userId === this.reservedOwner) throw new TraderError("Momiji stays in Doll's collection.");
+    if (character.name === MOMIJI_NAME) throw new TraderError("Momiji stays in Doll's collection (319254336402358272).");
+    this.assertNotBattling(guildId, character.name);
     return character;
   } // Recheck ownership and LumiBot's reserved-character rule at the moment of every transfer.
 
   transfer(guildId, character, recipientId) {
+    this.assertNotBattling(guildId, character.name);
     this.db.prepare("DELETE FROM listings WHERE guild_id = ? AND name = ?").run(guildId, character.name);
     this.db.prepare(`UPDATE characters SET owner_id = ?, trade_count = trade_count + 1,
       revision = revision + 1 WHERE guild_id = ? AND name = ?`).run(recipientId, guildId, character.name);
@@ -180,6 +237,7 @@ export class TouhouStore {
       this.db.prepare("DELETE FROM listings WHERE guild_id = ? AND name = ?").run(guildId, character.name);
       this.db.prepare("UPDATE characters SET owner_id = NULL, revision = revision + 1 WHERE guild_id = ? AND name = ?")
         .run(guildId, character.name);
+      this.db.prepare("DELETE FROM battle_profiles WHERE guild_id = ? AND name = ?").run(guildId, character.name);
       return { name: character.name };
     });
   } // Return a character to adoption stock without minting currency or lowering its earned rarity.
@@ -231,11 +289,14 @@ export class TouhouStore {
     });
   } // Remove only a listing whose character still belongs to the requesting seller.
 
-  buy(guildId, buyerId, name, requestId) {
+  buy(guildId, buyerId, name, requestId, expectedListing) {
     return this.mutate(guildId, buyerId, requestId, `buy:${name}`, () => {
       const character = this.character(guildId, name);
       const listing = this.db.prepare("SELECT * FROM listings WHERE guild_id = ? AND name = ?").get(guildId, character.name);
       if (!listing || listing.seller_id !== character.owner_id) throw new TraderError("That listing is no longer available.");
+      if (expectedListing && (listing.price !== expectedListing.price || listing.seller_id !== expectedListing.sellerId)) {
+        throw new TraderError("This listing changed. Review its new price before buying.");
+      } // Validate the confirmed quote inside the transaction, including when another bot process updates a listing.
       if (listing.seller_id === buyerId) throw new TraderError("You cannot buy your own listing.");
       this.owned(guildId, listing.seller_id, character.name);
       this.changeBalance(guildId, buyerId, "coins", -listing.price);

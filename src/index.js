@@ -6,6 +6,7 @@ import { handleMessage } from "./bot/handlers/message.js";
 import { initCheckpointer } from "./db/checkpointer.js";
 import { startGitHubActivityWatcher } from "./github/activityWatcher.js";
 import { initializeTouhouTrader } from "./touhou/index.js";
+import { initializeIdentity } from "./auth/index.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -24,6 +25,7 @@ async function main() {
 
   // Create and login the Discord client
   const client = createClient();
+  const identity = await initializeIdentity(); // Start the optional LiD0llID callback listener before logging in.
   const touhouTrader = initializeTouhouTrader(); // Open trading separately from the conversation-memory database.
   let stopGitHubWatcher = () => {};
 
@@ -40,9 +42,15 @@ async function main() {
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    if (touhouTrader) await touhouTrader.handleInteraction(interaction);
+    try {
+      if (identity && await identity.handleInteraction(interaction)) return;
+      if (touhouTrader) await touhouTrader.handleInteraction(interaction);
+    } catch {
+      console.error("[Discord] Could not complete an interaction; retry the command.");
+    } // Network or expired-interaction failures must not crash the bot or log private command input.
   }); // Route slash commands and menu buttons directly to the trader's authorization checks.
   client.on(Events.GuildCreate, async (guild) => {
+    if (identity) await identity.registerGuild(guild);
     if (touhouTrader) await touhouTrader.registerGuild(guild);
   }); // Make the trader available when the bot joins another server.
 
@@ -50,21 +58,23 @@ async function main() {
   client.once(Events.ClientReady, () => {
     console.log(`🌸 Sakura is online and ready to cuddle! (${client.user.tag})`);
     stopGitHubWatcher = startGitHubActivityWatcher(client);
+    if (identity) for (const guild of client.guilds.cache.values()) void identity.registerGuild(guild);
     if (touhouTrader) {
       for (const guild of client.guilds.cache.values()) void touhouTrader.registerGuild(guild);
     } // Register guild commands after login without delaying the Discord-ready log used by deployment.
   });
 
-  client.login(DISCORD_TOKEN);
+  await client.login(DISCORD_TOKEN);
 
   // Graceful shutdown
   process.on("SIGINT", async () => {
     console.log("\n🌸 Sakura is going to sleep... Sweet dreams!");
     stopGitHubWatcher();
+    await identity?.close(); // Finish browser callbacks before closing account storage.
     await client.destroy();
     touhouTrader?.close(); // Flush and close trading state before the process exits.
     process.exit(0);
   });
 }
 
-main().catch(console.error);
+main().catch(error => { console.error(error); process.exit(1); }); // Fail startup visibly if authentication cannot bind or Discord login fails.

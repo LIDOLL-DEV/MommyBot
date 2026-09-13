@@ -1,0 +1,4413 @@
+{
+  "generatedAt": "2026-04-21T18:48:59.508Z",
+  "source": {
+    "api": "https://touhou.fandom.com/api.php",
+    "raritySeed": "C:\\Scripts\\SadGirlPlayer\\data\\touhou-rarity-seed.json",
+    "notes": [
+      "Spell cards are extracted from page wikitext (==Spell Cards== section + bold/quoted patterns).",
+      "When fewer than 3 spell cards are found, the remaining slots are filled with themed generics.",
+      "Type is inferred from attack-name keywords. Base power scales with slot (55/70/90) plus rarity boost."
+    ]
+  },
+  "stats": {
+    "totalCharacters": 169,
+    "withSpellCards": 14,
+    "generic": 155
+  },
+  "characters": {
+    "Alice Margatroid": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Eirin Yagokoro": {
+      "spellCardsFound": 6,
+      "attacks": [
+        {
+          "name": "Perfect",
+          "type": "danmaku",
+          "basePower": 63,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "​Eternal Youth & Health",
+          "type": "danmaku",
+          "basePower": 78,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Flawless Healing/Restoration",
+          "type": "danmaku",
+          "basePower": 98,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Chen": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Aya Shameimaru": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Chiyuri Kitashirakawa": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Elis": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Eiki Shiki, Yamaxanadu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Daiyousei": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Byakuren Hijiri": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Cirno": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Doremy Sweet": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Clownpiece": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Aunn Komano": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Eika Ebisu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Chimata Tenkyuu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Chiyari Tenkajin": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Chimi Houjuu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Ariya Iwanaga": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Benben Tsukumo": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Fujiwara no Mokou": {
+      "spellCardsFound": 6,
+      "attacks": [
+        {
+          "name": "Perfect Immortality:",
+          "type": "danmaku",
+          "basePower": 66,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "​Eternal Youth & Health",
+          "type": "danmaku",
+          "basePower": 81,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Flawless Healing/Restoration",
+          "type": "danmaku",
+          "basePower": 101,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Flandre Scarlet": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Ellen": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Gengetsu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Genjii": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hieda no Akyu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hourai": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hina Kagiyama": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Elly": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Iku Nagae": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Ichirin Kumoi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hatate Himekaidou": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hong Meiling": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Goliath Doll": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hata no Kokoro": {
+      "spellCardsFound": 1,
+      "attacks": [
+        {
+          "name": "Hata",
+          "type": "danmaku",
+          "basePower": 59,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hecatia Lapislazuli": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Eternity Larva": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Hisami Yomotsu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Enoko Mitsugashira": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Jacketko": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Keine Kamishirasawa": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kaguya Houraisan": {
+      "spellCardsFound": 6,
+      "attacks": [
+        {
+          "name": "Perfect",
+          "type": "danmaku",
+          "basePower": 63,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "​Eternal Youth & Health",
+          "type": "danmaku",
+          "basePower": 78,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Flawless Healing/Restoration",
+          "type": "danmaku",
+          "basePower": 98,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Kana Anaberal": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kikuri": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kotohime": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kurumi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Komachi Onozuka": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Koakuma": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kanako Yasaka": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kisume": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Koishi Komeiji": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kasen Ibaraki": {
+      "spellCardsFound": 5,
+      "attacks": [
+        {
+          "name": "Hermit arts",
+          "type": "danmaku",
+          "basePower": 66,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Creating light orbs",
+          "type": "holy",
+          "basePower": 81,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Instant movement",
+          "type": "danmaku",
+          "basePower": 101,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Kyouko Kasodani": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kosuzu Motoori": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kagerou Imaizumi": {
+      "spellCardsFound": 2,
+      "attacks": [
+        {
+          "name": "Canine Teeth Under the Moon",
+          "type": "danmaku",
+          "basePower": 59,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Stirling Pounce",
+          "type": "danmaku",
+          "basePower": 74,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Junko": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Joon Yorigami": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Kutaka Niwatari": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Keiki Haniyasushin": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Labelko": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Letty Whiterock": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Lily White": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mai": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Meira": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mima": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Medicine Melancholy": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Minoriko Aki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Minamitsu Murasa": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Louise": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mamizou Futatsuiwa": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mishaguji": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mai Teireida": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mayumi Joutouguu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mike Goutokuji": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Misumaru Tamatsukuri": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Megumu Iizunamaru": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Marisa Kirisame": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mystia Lorelei": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Patchouli Knowledge": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Prismriver Sisters": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mugetsu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Orange": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Nitori Kawashiro": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Parsee Mizuhashi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Nazrin": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Nue Houjuu": {
+      "spellCardsFound": 5,
+      "attacks": [
+        {
+          "name": "Nightmare of Heiankyou",
+          "type": "dark",
+          "basePower": 63,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Danmaku X from a Wandering Star",
+          "type": "danmaku",
+          "basePower": 78,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Mysterious Snake Show",
+          "type": "danmaku",
+          "basePower": 98,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "PC-98 Midbosses": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mononobe no Futo": {
+      "spellCardsFound": 4,
+      "attacks": [
+        {
+          "name": "Rainy Iwafune",
+          "type": "danmaku",
+          "basePower": 61,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Iwafune Ascending to Heaven",
+          "type": "danmaku",
+          "basePower": 76,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Blazing Winds of Haibutsu",
+          "type": "wind",
+          "basePower": 96,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Nemuno Sakata": {
+      "spellCardsFound": 6,
+      "attacks": [
+        {
+          "name": "Imprisoning Autumn Rain",
+          "type": "danmaku",
+          "basePower": 62,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Cursed Torrential Rain",
+          "type": "dark",
+          "basePower": 77,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Yamanba's Kitchen Knife Sharpening",
+          "type": "danmaku",
+          "basePower": 97,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Narumi Yatadera": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Miyoi Okunoda": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Mizuchi Miyadeguchi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Multi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Momoyo Himemushi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Nareko Michigami": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Momiji Inubashiri": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Reimu Hakurei": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Remilia Scarlet": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Reisen Udongein Inaba": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Rinnosuke Morichika": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Rumia": {
+      "spellCardsFound": 1,
+      "attacks": [
+        {
+          "name": "Dark Side of the Moon",
+          "type": "dark",
+          "basePower": 62,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Rika": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Rikako Asakura": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Ruukoto": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sanae Kochiya": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Reisen (Bougetsushou)": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Rin Kaenbyou": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Rin Satsuki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sakuya Izayoi": {
+      "spellCardsFound": 6,
+      "attacks": [
+        {
+          "name": "Sakuya's World",
+          "type": "danmaku",
+          "basePower": 67,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Jack the Ripper",
+          "type": "danmaku",
+          "basePower": 82,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Another Murder",
+          "type": "danmaku",
+          "basePower": 102,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Raiko Horikawa": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Ringo": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sagume Kishin": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Saki Kurokoma": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Ran Yakumo": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Suika Ibuki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sariel": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sara": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Shinki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "SinGyoku": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Shanghai": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Shizuha Aki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Satori Komeiji": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Shou Toramaru": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Seiga Kaku": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Soga no Tojiko": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sekibanki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Shinmyoumaru Sukuna": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Seija Kijin": {
+      "spellCardsFound": 5,
+      "attacks": [
+        {
+          "name": "Reverse Needle Attack",
+          "type": "danmaku",
+          "basePower": 62,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Danmaku Through the Looking-Glass",
+          "type": "danmaku",
+          "basePower": 77,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Evil in the Mirror",
+          "type": "danmaku",
+          "basePower": 97,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Seiran": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Satono Nishida": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sannyo Komakusa": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Son Biten": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Tewi Inaba": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Three Mischievous Fairies": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Tokiko": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Suwako Moriya": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Watatsuki no Toyohime": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Tenshi Hinanawi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "VIVIT": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Utsuho Reiuzi": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Unnamed Giant Catfish": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Toyosatomimi no Miko": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Wakasagihime": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Sumireko Usami": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Urumi Ushizaki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Vivit (Erich's Daughter)": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "VIVIT-r": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Takane Yamashiro": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Tsukasa Kudamaki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Ubame Chirizuka": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Youmu Konpaku": {
+      "spellCardsFound": 5,
+      "attacks": [
+        {
+          "name": "Matsuyoi-Reflecting Satellite Slash",
+          "type": "danmaku",
+          "basePower": 66,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Slash of Present World",
+          "type": "danmaku",
+          "basePower": 81,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Wheel of Pain of the Living and Dead",
+          "type": "danmaku",
+          "basePower": 101,
+          "accuracy": 80,
+          "description": "spell-card"
+        }
+      ]
+    },
+    "Yuyuko Saigyouji": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yukari Yakumo": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Wriggle Nightbug": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yuki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yumeko": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yumemi Okazaki": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "YuugenMagan": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Watatsuki no Yorihime": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yamame Kurodani": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yuugi Hoshiguma": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yoshika Miyako": {
+      "spellCardsFound": 2,
+      "attacks": [
+        {
+          "name": "Saved Up Desire Spirit Invitation",
+          "type": "spirit",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "spell-card"
+        },
+        {
+          "name": "Score Desire Eater",
+          "type": "danmaku",
+          "basePower": 75,
+          "accuracy": 90,
+          "description": "spell-card"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yatsuhashi Tsukumo": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yachie Kicchou": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yuuma Toutetsu": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Zanmu Nippaku": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yeiko Komeiji": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Yuiman Asama": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Reisen Udongein Inaba_Talk": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    },
+    "Udzuki (Cookie_Inmu)": {
+      "spellCardsFound": 0,
+      "attacks": [
+        {
+          "name": "Danmaku Burst",
+          "type": "danmaku",
+          "basePower": 60,
+          "accuracy": 95,
+          "description": "generic"
+        },
+        {
+          "name": "Spirit Shot",
+          "type": "spirit",
+          "basePower": 45,
+          "accuracy": 100,
+          "description": "generic"
+        },
+        {
+          "name": "Focus Strike",
+          "type": "danmaku",
+          "basePower": 80,
+          "accuracy": 80,
+          "description": "generic"
+        }
+      ]
+    }
+  }
+}
