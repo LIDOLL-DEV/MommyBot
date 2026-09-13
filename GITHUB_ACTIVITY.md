@@ -1,6 +1,6 @@
 # Private GitHub activity notifications
 
-MommyBot can poll a private GitHub repository and post repository events to a Discord channel. It handles pushes, pull requests, issues, comments, reviews, releases, branches/tags, forks, stars, and other repository events.
+MommyBot can poll a private GitHub repository and post repository events to a Discord channel. It handles pushes, pull requests, issues, comments, reviews, releases, branches/tags, forks, stars, and other repository events. Pushes to the default branch are read directly from the commits API so they are delivered promptly; other activity uses GitHub's Events API.
 
 ## Setup
 
@@ -17,8 +17,8 @@ MommyBot can poll a private GitHub repository and post repository events to a Di
    - `GITHUB_AI_TIMEOUT_MS`: maximum time to wait for the AI summary, default 120000. A failed or timed-out request falls back to the normal update.
 4. Restart MommyBot.
 
-The watcher stores its cursor in `data/github-activity-state.json`. Delete that file to reset the baseline. GitHub tokens are only sent to `api.github.com` and are never included in Discord messages or logs.
+The watcher stores its event and commit cursors in `data/github-activity-state.json`. Delete that file to reset the baseline. GitHub tokens are only sent to `api.github.com` and are never included in Discord messages or logs.
 
-GitHub's Events API is eventually consistent, so activity can take a short time to appear.
+GitHub documents that its Events API is not intended for real-time use and can lag by 30 seconds to 6 hours. Default-branch push notices use the commits API to avoid that delay. Pull requests, issues, reviews, releases, and activity on non-default branches can still arrive later.
 
 For push events, repository name, branch, GitHub username, commit author, and commit messages are sent to the AI endpoint configured by `LLAMA_BASE_URL`. Do not enable AI updates if that endpoint is not trusted to receive private repository metadata.

@@ -1,0 +1,32 @@
+[Unit]
+Description=MommyBot Sakura Discord bot
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=mommybot
+Group=mommybot
+WorkingDirectory=/opt/mommybot/current
+ExecStart=/usr/bin/node /opt/mommybot/current/src/index.js
+Environment=NODE_ENV=production
+Environment=HOME=/var/lib/mommybot
+# dotenv reads the release's .env symlink; secrets are never shell-sourced.
+Restart=always
+RestartSec=5
+# The existing app handles SIGINT to disconnect Discord and stop its watcher.
+KillSignal=SIGINT
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/mommybot
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

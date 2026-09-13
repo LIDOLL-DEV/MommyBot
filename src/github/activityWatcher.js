@@ -166,6 +166,100 @@ async function fetchEvents({ owner, repo, token, lastEventId }) {
   return events;
 }
 
+async function fetchJson(endpoint, token, description) {
+  const response = await fetch(endpoint, { headers: githubHeaders(token) });
+
+  if (!response.ok) {
+    const requestId = response.headers.get("x-github-request-id");
+    throw new Error(`${description} (HTTP ${response.status}${requestId ? `, request ${requestId}` : ""})`);
+  }
+
+  return response.json();
+}
+
+function commitTimestamp(commit) {
+  // Prefer the committer time because it most closely represents when GitHub received the commit.
+  return commit.commit?.committer?.date ?? commit.commit?.author?.date ?? new Date().toISOString();
+}
+
+function makePushEvent(commits, config, branch, previousHead) {
+  const newestCommit = commits.at(-1);
+  const actor = newestCommit?.committer ?? newestCommit?.author;
+
+  return {
+    id: `commit:${newestCommit.sha}`,
+    type: "PushEvent",
+    actor: {
+      login: actor?.login ?? newestCommit.commit?.author?.name ?? "unknown",
+      display_login: actor?.login ?? newestCommit.commit?.author?.name ?? "Someone",
+      avatar_url: actor?.avatar_url,
+    },
+    repo: { name: `${config.owner}/${config.repo}` },
+    payload: {
+      ref: `refs/heads/${branch}`,
+      before: previousHead,
+      head: newestCommit.sha,
+      commits: commits.map((commit) => ({
+        sha: commit.sha,
+        message: commit.commit?.message ?? "",
+        author: {
+          name: commit.commit?.author?.name,
+          username: commit.author?.login,
+        },
+      })),
+    },
+    created_at: commitTimestamp(newestCommit),
+  };
+}
+
+export async function fetchDefaultBranchPush(config, state) {
+  const repositoryUrl = `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}`;
+  const repository = await fetchJson(repositoryUrl, config.token, "Could not load GitHub repository details");
+  const branch = repository.default_branch;
+  const commitsUrl = `${repositoryUrl}/commits?sha=${encodeURIComponent(branch)}&per_page=100`;
+  const latestCommits = await fetchJson(commitsUrl, config.token, "Could not load GitHub commits");
+  const newestCommit = latestCommits[0];
+
+  if (!newestCommit || newestCommit.sha === state.lastCommitSha) {
+    return { event: null, lastCommitSha: newestCommit?.sha ?? state.lastCommitSha ?? null, defaultBranch: branch };
+  }
+
+  let unseenCommits;
+  if (state.lastCommitSha) {
+    const previousIndex = latestCommits.findIndex((commit) => commit.sha === state.lastCommitSha);
+    unseenCommits = previousIndex >= 0 ? latestCommits.slice(0, previousIndex) : [];
+
+    if (previousIndex < 0) {
+      try {
+        // The compare endpoint handles normal pushes containing more than one page of commits.
+        const comparison = await fetchJson(
+          `${repositoryUrl}/compare/${encodeURIComponent(state.lastCommitSha)}...${encodeURIComponent(newestCommit.sha)}`,
+          config.token,
+          "Could not compare GitHub commits",
+        );
+        unseenCommits = comparison.commits ?? [];
+      } catch (error) {
+        // A force-push can make the old head unreachable, so use timestamps as a bounded fallback.
+        console.warn(`🐙 ${error.message}; using recent commit timestamps instead`);
+        unseenCommits = latestCommits.filter((commit) => commitTimestamp(commit) > (state.lastCheckedAt ?? state.initializedAt ?? ""));
+      }
+    }
+  } else if (state.initializedAt) {
+    // Migrate legacy state by recovering commits made after the last successful activity check.
+    const cutoff = state.lastCheckedAt ?? state.initializedAt;
+    unseenCommits = latestCommits.filter((commit) => commitTimestamp(commit) > cutoff);
+  } else {
+    unseenCommits = config.announceExisting ? latestCommits : [];
+  }
+
+  unseenCommits = unseenCommits.slice(0, config.maxAnnouncements * 10).reverse();
+  return {
+    event: unseenCommits.length ? makePushEvent(unseenCommits, config, branch, state.lastCommitSha) : null,
+    lastCommitSha: newestCommit.sha,
+    defaultBranch: branch,
+  };
+}
+
 function githubHeaders(token) {
   return {
     Accept: "application/vnd.github+json",
@@ -255,24 +349,18 @@ export function startGitHubActivityWatcher(client) {
       const savedState = await loadState(config.stateFile);
       const repository = `${config.owner}/${config.repo}`;
       const state = savedState.repository === repository ? savedState : {};
-      const events = await fetchEvents({ ...config, lastEventId: state.lastEventId });
-
-      if (events.length === 0) {
-        if (!state.initializedAt) {
-          await saveState(config.stateFile, {
-            repository,
-            lastEventId: state.lastEventId ?? null,
-            initializedAt: new Date().toISOString(),
-            lastCheckedAt: new Date().toISOString(),
-          });
-        }
-        return;
-      }
+      const activityEvents = await fetchEvents({ ...config, lastEventId: state.lastEventId });
+      const push = await fetchDefaultBranchPush(config, state);
+      const events = activityEvents
+        // GitHub documents that its Events feed can lag for hours; direct commit polling handles default-branch pushes.
+        .filter((event) => event.type !== "PushEvent" || event.payload?.ref !== `refs/heads/${push.defaultBranch}`)
+        .concat(push.event ? [push.event] : [])
+        .sort((left, right) => new Date(right.created_at) - new Date(left.created_at));
 
       const isFirstCheck = !state.initializedAt && !state.lastEventId;
-      if (isFirstCheck && !config.announceExisting) {
-        console.log(`🐙 GitHub activity baseline set at event ${events[0].id}`);
-      } else {
+      if (isFirstCheck && !config.announceExisting && activityEvents.length) {
+        console.log(`🐙 GitHub activity baseline set at event ${activityEvents[0].id}`);
+      } else if (events.length) {
         const channel = await client.channels.fetch(config.channelId);
         if (!channel || typeof channel.send !== "function") {
           throw new Error(`Discord channel ${config.channelId} is not a sendable channel`);
@@ -298,7 +386,8 @@ export function startGitHubActivityWatcher(client) {
 
       await saveState(config.stateFile, {
         repository,
-        lastEventId: events[0].id,
+        lastEventId: activityEvents[0]?.id ?? state.lastEventId ?? null,
+        lastCommitSha: push.lastCommitSha,
         initializedAt: state.initializedAt ?? new Date().toISOString(),
         lastCheckedAt: new Date().toISOString(),
       });
