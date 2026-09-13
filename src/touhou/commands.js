@@ -8,6 +8,8 @@ import { TraderError } from "./store.js";
 import { BattleService } from "./battles.js";
 import { TouhouMenus } from "./menu.js";
 import { RARITIES } from "./battleRules.js";
+import { WalletError } from "../wallet/client.js";
+import { balanceText } from "../wallet/commands.js";
 
 const PAGE_SIZE = 10;
 const noMentions = { parse: [], repliedUser: false };
@@ -77,9 +79,11 @@ function button(id, label, style = ButtonStyle.Secondary) {
   return new ButtonBuilder().setCustomId(id).setLabel(label).setStyle(style);
 } // Keep component construction consistent across menus, pagination and trade offers.
 
-export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", imageDirectory = IMAGE_DIRECTORY } = {}) {
+export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", imageDirectory = IMAGE_DIRECTORY, wallet = null, adoptions = null } = {}) {
+  if (wallet && !adoptions) throw new Error("Online wallets require the online adoption service."); // Fail closed instead of accidentally spending local currency.
   const game = new BattleService(store);
-  const menus = new TouhouMenus(store, game, { channelId, imageDirectory });
+  const adopt = (...args) => adoptions ? adoptions.adopt(...args) : store.adopt(...args);
+  const menus = new TouhouMenus(store, game, { channelId, imageDirectory, wallet, adopt });
   function menu(guildId, userId) {
     return menus.open(guildId, userId);
   } // Open the full clickable trader, party, battle, healing and marketplace UI.
@@ -137,14 +141,18 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
         return { content: `Returned **${result.name}** for **${result.payout} LiDollcoins**. Battle levels were reset.` };
       }
       case "adopt": {
-        const result = store.adopt(guildId, user.id, options.getString("payment", true), interaction.id);
+        const result = await adopt(guildId, user.id, options.getString("payment", true), interaction.id);
         return characterCard(result.character, `<@${user.id}> adopted this Touhou for **${result.price} ${currencyLabel(result.currency)}**.`);
       }
       case "collection": return page(guildId, user.id, action, options.getInteger("page"), target.id);
       case "market": return page(guildId, user.id, action, options.getInteger("page"));
       case "wallet": {
-        const wallet = store.wallet(guildId, target.id);
-        return { content: `<@${target.id}> has **${wallet.stars} stars** and **${wallet.coins} LiDollcoins**.` };
+        if (wallet) {
+          if (target.id !== user.id) throw new TraderError("Online balances are private. Each player can use /lidollid wallet balance.");
+          return { content: balanceText(await wallet.balance(user.id)) };
+        }
+        const local = store.wallet(guildId, target.id);
+        return { content: `<@${target.id}> has **${local.stars} stars** and **${local.coins} LiDollcoins**.` };
       }
       case "info": {
         const entry = store.character(guildId, options.getString("name", true));
@@ -210,20 +218,20 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
         if (action === "menu") result = menu(interaction.guildId, interaction.user.id);
         else if (action === "view" && ["collection", "market"].includes(value)) result = page(interaction.guildId, interaction.user.id, value, nonce, target);
         else if (action === "adopt") {
-          const receipt = store.adopt(interaction.guildId, interaction.user.id, value, `menu:${nonce}`);
+          const receipt = await adopt(interaction.guildId, interaction.user.id, value, `menu:${nonce}`);
           result = characterCard(receipt.character, `Adopted by <@${interaction.user.id}> for **${receipt.price} ${currencyLabel(receipt.currency)}**. Use /touhou menu for another adoption.`);
         } else if (action === "trade" && ["accept", "decline"].includes(value)) {
           const receipt = store.resolveOffer(interaction.guildId, interaction.user.id, owner, value === "accept", interaction.id);
           result = { content: receipt.accepted ? `Trade complete: **${receipt.offered}** ↔ **${receipt.requested}**.` : "Trade declined. Both collections are unchanged." };
         } else throw new TraderError("This menu is no longer valid. Open /touhou menu.");
       } else {
-        await interaction.deferReply();
+        await interaction.deferReply(wallet && interaction.options.getSubcommand() === "wallet" ? { flags: MessageFlags.Ephemeral } : undefined);
         result = await execute(interaction);
       }
       await interaction.editReply({ content: null, embeds: [], components: [], attachments: [], allowedMentions: noMentions, ...result });
     } catch (error) {
-      const content = error instanceof TraderError ? error.message : "The trader could not finish this request. Check your collection and wallet before trying again.";
-      if (!(error instanceof TraderError)) console.error("[TOUHOU] Request failed:", error);
+      const content = (error instanceof TraderError || error instanceof WalletError) ? error.message : "The trader could not finish this request. Check your collection and wallet before trying again.";
+      if (!((error instanceof TraderError || error instanceof WalletError))) console.error("[TOUHOU] Request failed:", error);
       const reply = { content, allowedMentions: noMentions };
       if (interaction.deferred || interaction.replied) await interaction.editReply({ ...reply, embeds: [], components: [], attachments: [] }).catch(console.error);
       else await interaction.reply({ ...reply, flags: MessageFlags.Ephemeral }).catch(console.error);
@@ -248,19 +256,19 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
       }
       else if (["market", "collection"].includes(action)) result = page(message.guildId, message.author.id, action, Number(rest[0]) || 1);
       else if (action === "wallet") {
-        const wallet = store.wallet(message.guildId, message.author.id);
-        result = { content: `Your wallet: **${wallet.stars} stars • ${wallet.coins} LiDollcoins**.` };
+        const local = store.wallet(message.guildId, message.author.id);
+        result = { content: wallet ? "Use /lidollid wallet balance to privately see your Little Log stars and LiDollcoins." : `Your wallet: **${local.stars} stars • ${local.coins} LiDollcoins**.` };
       } else if (action === "adopt") {
         const payment = { star: "stars", stars: "stars", coin: "coins", coins: "coins", lidollcoins: "coins" }[rest[0]?.toLowerCase()];
         if (!payment || rest.length !== 1) throw new TraderError("Use !touhou adopt star or !touhou adopt coins. The price is 1 star OR 25 LiDollcoins.");
-        const receipt = store.adopt(message.guildId, message.author.id, payment, message.id);
+        const receipt = await adopt(message.guildId, message.author.id, payment, message.id);
         result = characterCard(receipt.character, `Adopted for **${receipt.price} ${currencyLabel(receipt.currency)}**.`);
       } else if (action === "info") result = characterCard(store.character(message.guildId, rest.join(" ")), "Touhou details");
       else throw new TraderError("Use !touhou for the full battle and trading menu, or /touhou for individual commands.");
       await message.reply({ ...result, allowedMentions: noMentions });
     } catch (error) {
-      if (!(error instanceof TraderError)) console.error("[TOUHOU] Prefix command failed:", error);
-      await message.reply({ content: error instanceof TraderError ? error.message : "The trader could not finish this request. Check your wallet and collection before retrying.", allowedMentions: noMentions }).catch(console.error);
+      if (!((error instanceof TraderError || error instanceof WalletError))) console.error("[TOUHOU] Prefix command failed:", error);
+      await message.reply({ content: (error instanceof TraderError || error instanceof WalletError) ? error.message : "The trader could not finish this request. Check your wallet and collection before retrying.", allowedMentions: noMentions }).catch(console.error);
     }
     return true;
   } // Keep familiar LumiBot prefix entry points available even while slash commands are registering.

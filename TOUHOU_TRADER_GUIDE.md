@@ -36,9 +36,17 @@ a Discord modal. Gifts, swaps, purchases, buybacks and healing have confirmation
 screens; swap recipients receive their own Accept/Decline buttons. A listing's
 price and seller must still match the confirmed quote when payment commits.
 
-MommyBot tracks **local balances per server**, starting at zero. These are not
-LumiBot's SGC balances, an external coin service or starboard reaction counts.
-To award existing earned currency, a member with **Manage Server** can use:
+Enable the Little Log wallet integration using [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md)
+to show and spend existing online stars or LiDollcoins for adoption. Players use
+`/lidollid wallet connect` once to approve both currencies. The menu's **Online
+balance** button and `/touhou wallet` show fresh balances privately. All adoption
+entry points use the online wallet when enabled; they never fall back to local
+currency if a connection is missing or a payment fails.
+
+With online wallets disabled, adoption uses **local balances per server**,
+starting at zero. Market purchases, items, healing, rewards and buybacks still
+use local coins in either mode. Local balances are separate from Little Log and
+starboard reactions. A member with **Manage Server** can award local currency:
 
 ```text
 /touhou award user:@player currency:Stars amount:1
@@ -56,7 +64,7 @@ victories, sales and trader buybacks. Imports of old balances are not enabled.
 | --- | --- |
 | `/touhou adopt payment:1 star` | Pay one star for a random unowned Touhou |
 | `/touhou adopt payment:25 LiDollcoins` | Pay 25 coins for a random unowned Touhou |
-| `/touhou wallet [user]` | Show both local balances |
+| `/touhou wallet [user]` | Show your private online balance when enabled; otherwise show local balances |
 | `/touhou collection [user] [page]` | Browse a player's collection |
 | `/touhou market [page]` | Browse adoption stock and player listings |
 | `/touhou info name` | Show artwork, rarity and owner |

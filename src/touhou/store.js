@@ -48,6 +48,17 @@ export class TouhouStore {
         guild_id TEXT NOT NULL, request_id TEXT NOT NULL, actor_id TEXT NOT NULL,
         operation TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(guild_id, request_id)
       );
+      CREATE TABLE IF NOT EXISTS online_adoptions (
+        id TEXT PRIMARY KEY, guild_id TEXT NOT NULL, user_id TEXT NOT NULL, request_id TEXT NOT NULL,
+        name TEXT NOT NULL, revision INTEGER NOT NULL, currency TEXT NOT NULL, price INTEGER NOT NULL,
+        account_id TEXT NOT NULL, base_url TEXT NOT NULL, client_id TEXT NOT NULL,
+        state TEXT NOT NULL DEFAULT 'debit', result TEXT, attempted INTEGER NOT NULL DEFAULT 0,
+        UNIQUE(guild_id, request_id)
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS online_reserved_character ON online_adoptions(guild_id,name)
+        WHERE state IN ('debit','paid','refund');
+      CREATE UNIQUE INDEX IF NOT EXISTS online_pending_user ON online_adoptions(user_id)
+        WHERE state IN ('debit','paid','refund');
       CREATE TABLE IF NOT EXISTS trader_history (
         id INTEGER PRIMARY KEY, guild_id TEXT NOT NULL, actor_id TEXT NOT NULL,
         operation TEXT NOT NULL, details TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -191,14 +202,21 @@ export class TouhouStore {
     this.ensureGuild(guildId);
     return this.db.prepare(`SELECT c.*, l.price, l.seller_id FROM characters c
       LEFT JOIN listings l ON l.guild_id = c.guild_id AND l.name = c.name
-      WHERE c.guild_id = ? AND (c.owner_id IS NULL OR l.seller_id = c.owner_id) ORDER BY c.name`).all(guildId);
+      WHERE c.guild_id = ? AND (c.owner_id IS NULL OR l.seller_id = c.owner_id)
+      AND NOT EXISTS (SELECT 1 FROM online_adoptions a WHERE a.guild_id=c.guild_id AND a.name=c.name
+        AND a.state IN ('debit','paid','refund')) ORDER BY c.name`).all(guildId);
   } // Show both random-adoption stock and player listings.
 
   adopt(guildId, userId, currency, requestId) {
     currencyColumn(currency);
     return this.mutate(guildId, userId, requestId, `adopt:${currency}`, () => {
+      if (this.db.prepare("SELECT 1 FROM online_adoptions WHERE (user_id=? AND state IN ('debit','paid','refund')) OR (guild_id=? AND request_id=?)").get(userId, guildId, requestId)) {
+        throw new TraderError("This adoption uses the online wallet. Enable it and use /lidollid wallet retry to finish pending payments.");
+      } // Keep online reservations protected even if the operator temporarily disables the wallet feature.
       if (this.collection(guildId, userId).length >= PARTY_LIMIT) throw new TraderError("Your six-Touhou party is full. Gift or release one first.");
-      const selected = this.db.prepare("SELECT * FROM characters WHERE guild_id = ? AND owner_id IS NULL ORDER BY RANDOM() LIMIT 1").get(guildId);
+      const selected = this.db.prepare(`SELECT * FROM characters c WHERE guild_id = ? AND owner_id IS NULL
+        AND NOT EXISTS (SELECT 1 FROM online_adoptions a WHERE a.guild_id=c.guild_id AND a.name=c.name
+          AND a.state IN ('debit','paid','refund')) ORDER BY RANDOM() LIMIT 1`).get(guildId);
       if (!selected) throw new TraderError("No Touhous are available for adoption right now.");
       const price = ADOPTION_PRICES[currency];
       this.changeBalance(guildId, userId, currency, -price);

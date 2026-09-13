@@ -5,6 +5,17 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+Little Log wallet support lives in `src/wallet/`; see
+[ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md). Request explicit device-flow
+consent for both currencies, and keep bearer grants out of Discord replies and
+logs. Never set local balances from remote snapshots. Online adoption pins an
+opaque wallet account and API registration to a persistent reservation before
+debiting; delivery and its receipt commit together in the trader database.
+Every retry reuses the original payment ID and currency. Failed delivery refunds
+the original debit, also idempotently. Keep unsettled reservations when the
+feature is disabled, and do not let reconnect/unlink strand a pending payment.
+`test/online-wallet.test.js` covers both currencies and recovery across restarts.
+
 LiD0llID account linking lives in `src/auth/`. See
 [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md) for the OIDC registration and proxy setup.
 Keep issuer/subject as identity keys, final confirmation bound to the initiating

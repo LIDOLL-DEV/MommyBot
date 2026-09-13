@@ -30,6 +30,22 @@ static checks on Fedora: install `ShellCheck` and run
 
 ## Fedora acceptance checks
 
+Online wallet coverage in `test/online-wallet.test.js` uses disposable SQLite
+databases and a simulated Little Log API. It checks both fixed prices, private
+balances, explicit consent/backoff, saved grants, account pinning, revocation,
+concurrent clicks, missing funds, Momiji protection, party capacity, malformed
+receipts, lost debit/refund responses, restart recovery and all adoption entry
+points. These tests never spend live currency. Run
+`node --test test/online-wallet.test.js` for the focused suite.
+
+For a live acceptance check, follow [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md)
+to register the separate wallet app and approve a disposable Little Log account.
+Check its balances in Little Log and Discord, adopt once with each currency,
+then verify exactly one star and 25 coins were spent and two Touhous delivered.
+Restart and confirm the wallet remains connected. Verify **Online balance** is
+private even from a public prefix menu. Local market and battle balances must
+remain separate. Do not test failures by deleting journals or restoring one DB.
+
 LiD0llID tests in `test/lidollid.test.js` use a disposable local OIDC HTTP
 provider with real RSA-signed tokens. They verify state, nonce, PKCE, signatures,
 issuer, audience, expiry, missing ID tokens, denied sign-in, UserInfo subjects,

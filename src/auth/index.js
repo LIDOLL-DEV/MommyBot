@@ -5,6 +5,7 @@ import { authConfig } from "./config.js";
 import { IdentityStore } from "./store.js";
 import { createOidc } from "./oidc.js";
 import { createAuthServer } from "./server.js";
+import { handleWalletInteraction } from "../wallet/commands.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
@@ -12,11 +13,17 @@ export function buildIdentityCommand() {
     .addSubcommand(c => c.setName("confirm").setDescription("Finish your browser sign-in")
       .addStringOption(o => o.setName("code").setDescription("Code shown after signing in").setRequired(true).setMinLength(32).setMaxLength(32)))
     .addSubcommand(c => c.setName("status").setDescription("Check your linked account"))
-    .addSubcommand(c => c.setName("unlink").setDescription("Remove your LiDollBot account link"));
+    .addSubcommand(c => c.setName("unlink").setDescription("Remove your LiDollBot account link"))
+    .addSubcommandGroup(g => g.setName("wallet").setDescription("Connect Little Log stars and LiDollcoins")
+      .addSubcommand(c => c.setName("connect").setDescription("Approve your Little Log wallet for Touhou adoption"))
+      .addSubcommand(c => c.setName("balance").setDescription("Privately check your online stars and LiDollcoins"))
+      .addSubcommand(c => c.setName("retry").setDescription("Safely finish an interrupted adoption or refund"))
+      .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
 } // Add a dedicated command without replacing the trader or any other application's commands.
 
-export function createIdentityHandler(store, config) {
+export function createIdentityHandler(store, config, wallet = null) {
   return async interaction => {
+    if (await handleWalletInteraction(interaction, wallet, store)) return true;
     if (!interaction.isChatInputCommand() || interaction.commandName !== "lidollid") return false;
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     let content;
@@ -39,6 +46,7 @@ export function createIdentityHandler(store, config) {
           break;
         }
         case "unlink":
+          await wallet?.disconnect(discordId); // Revoke wallet access and settle pending purchases before removing identity.
           store.unlink(discordId);
           content = "Your LiDollBot account link and pending sign-ins were removed. Your shared LiD0llID browser session remains signed in.";
           break;
@@ -52,7 +60,7 @@ export function createIdentityHandler(store, config) {
   }; // Only Discord's authenticated interaction user can read, confirm or remove their link; replies stay private.
 }
 
-export async function initializeIdentity() {
+export async function initializeIdentity(wallet = null) {
   const config = authConfig();
   if (!config) return null;
   fs.mkdirSync(fileURLToPath(new URL("../../data/", import.meta.url)), { recursive: true });
@@ -65,7 +73,7 @@ export async function initializeIdentity() {
   cleanup.unref();
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
-    handleInteraction: createIdentityHandler(store, config),
+    handleInteraction: createIdentityHandler(store, config, wallet),
     async registerGuild(guild) {
       try { await guild.commands.create(buildIdentityCommand()); }
       catch { console.error(`[LiD0llID] Could not register /lidollid in guild ${guild.id}.`); }

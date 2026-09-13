@@ -3,6 +3,8 @@ import path from "node:path";
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlags,
   StringSelectMenuBuilder, UserSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import { TraderError } from "./store.js";
+import { WalletError } from "../wallet/client.js";
+import { balanceText } from "../wallet/commands.js";
 import { rarity, IMAGE_DIRECTORY } from "./catalog.js";
 import { RARITIES, POTION_PRICE, POTION_CAP, HEAL_PRICE, levelThreshold } from "./battleRules.js";
 
@@ -13,9 +15,10 @@ const row = (...items) => new ActionRowBuilder().addComponents(...items);
 const remaining = (until, now) => `${Math.ceil(Math.max(0, until - now) / 1000)}s`;
 
 export class TouhouMenus {
-  constructor(store, game, { channelId = "", imageDirectory = IMAGE_DIRECTORY } = {}) {
+  constructor(store, game, { channelId = "", imageDirectory = IMAGE_DIRECTORY, wallet = null, adopt = (...args) => store.adopt(...args) } = {}) {
     this.store = store; this.game = game; this.channelId = channelId; this.imageDirectory = imageDirectory;
     this.sessions = new Map();
+    this.wallet = wallet; this.adopt = adopt;
   } // Keep short-lived UI selections separate from persistent battles and currency transactions.
 
   open(guild, user, screen = "home", battleId = null) {
@@ -64,10 +67,11 @@ export class TouhouMenus {
       return `attachment://${filename}`;
     };
     if (screen === "home") {
-      text += `**${wallet.stars} stars • ${wallet.coins} LiDollcoins**\nAdopt one random Touhou for **1 star OR 25 LiDollcoins**.\nParty: ${this.store.collection(guild, user).length}/6 · Potions: ${this.game.potions(guild, user)}/${POTION_CAP}`;
+      text += (this.wallet ? "Adoption uses your **Little Log wallet**. Press **Online balance** to check it privately, or connect with /lidollid wallet connect.\n" : `**${wallet.stars} stars • ${wallet.coins} LiDollcoins**\n`) + `Adopt one random Touhou for **1 star OR 25 LiDollcoins**.\nParty: ${this.store.collection(guild, user).length}/6 · Potions: ${this.game.potions(guild, user)}/${POTION_CAP}`;
       components = [row(this.button(session, "adopt-stars", "Adopt · 1 star", ButtonStyle.Primary), this.button(session, "adopt-coins", "Adopt · 25 LiDollcoins", ButtonStyle.Success)),
         row(this.button(session, "battle", "Battle"), this.button(session, "party", "My party"), this.button(session, "shop", "Market & items"), this.button(session, "heal", "Heal"))];
       if (session.hero) embed.setThumbnail(picture(session.hero));
+      if (this.wallet) components.push(row(this.button(session, "online-balance", "Online balance")));
     } else if (screen === "shop") {
       text += `**${wallet.coins} LiDollcoins**\nBrowse player listings, buy health potions, send gifts or offer a swap. Buyback pays two-thirds of a character's suggested value.`;
       components = [row(this.button(session, "listings", "Buy a listing"), this.button(session, "stock", "Adoption stock"), this.button(session, "potions", "Health potions")),
@@ -129,6 +133,7 @@ export class TouhouMenus {
           row(this.button(session, "defend", "Defend"), this.button(session, "potion", "Use potion"), this.button(session, "run", "Run"), this.button(session, "home", "Trader (battle continues)"))];
       } else components = [row(this.button(session, "battle", "Battle again"), this.button(session, "heal", "Heal")), home()];
     }
+    if (this.wallet && screen !== "home") text += "\n\nMarket, items and battle rewards use local coins. Adoption uses Little Log stars or LiDollcoins.";
     embed.setDescription(text.slice(0, 4096)).setFooter({ text: "Only you can use this menu · Expires after 5 minutes idle" });
     return { content: null, embeds: [embed], components, files, attachments: [], allowedMentions: safeMentions };
   } // Render every gameplay path in the same message, with real art, bounded controls and fresh balances.
@@ -144,6 +149,14 @@ export class TouhouMenus {
       if (this.channelId && this.channelId !== interaction.channelId) throw new TraderError(`Use the trader in <#${this.channelId}>.`);
       if (session.busy || session.version !== Number(revision)) throw new TraderError("This menu already changed. Use its latest controls.");
       session.busy = true; locked = true; // Lock before acknowledging so concurrent button events cannot share a menu revision.
+      if (action === "online-balance" && this.wallet) {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        let content;
+        try { content = balanceText(await this.wallet.balance(session.user)); }
+        catch (error) { content = error instanceof WalletError ? error.message : "The wallet could not be read. Try again shortly."; }
+        await interaction.editReply({ content, allowedMentions: safeMentions });
+        return true;
+      } // Keep balances private even when this trader menu was posted publicly through a prefix command.
       if (action === "price") {
         if (session.screen !== "price-entry" || session.intent !== "sell-price") throw new TraderError("Choose a Touhou to sell first.");
         const modal = new ModalBuilder().setCustomId(this.id(session, "price-submit")).setTitle("List your Touhou")
@@ -159,8 +172,8 @@ export class TouhouMenus {
       session.expiresAt = this.store.now() + MENU_IDLE_MS;
       await interaction.editReply(this.render(session));
     } catch (error) {
-      if (!(error instanceof TraderError)) console.error("[TOUHOU MENU]", error);
-      const content = error instanceof TraderError ? error.message : "The menu could not finish. Check your wallet and collection before retrying.";
+      if (!((error instanceof TraderError || error instanceof WalletError))) console.error("[TOUHOU MENU]", error);
+      const content = (error instanceof TraderError || error instanceof WalletError) ? error.message : "The menu could not finish. Check your wallet and collection before retrying.";
       if (locked && interaction.deferred) {
         session.banner = content;
         session.version++;
@@ -186,7 +199,7 @@ export class TouhouMenus {
     } else if (action === "prev" || action === "next") s.page += action === "next" ? 1 : -1;
     else if (action === "cancel") { s.screen = "shop"; s.page = 0; }
     else if (action.startsWith("adopt-")) {
-      const receipt = this.store.adopt(guild, user, action.slice(6), request);
+      const receipt = await this.adopt(guild, user, action.slice(6), request);
       s.banner = `Adopted **${receipt.character.name}** for ${receipt.price} ${receipt.currency === "stars" ? "star" : "LiDollcoins"}!`;
       s.hero = receipt.character.name; s.screen = "home";
     } else if (action === "battle") {

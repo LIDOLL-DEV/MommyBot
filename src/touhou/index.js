@@ -3,13 +3,15 @@ import { fileURLToPath } from "node:url";
 import { loadCatalog } from "./catalog.js";
 import { TouhouStore } from "./store.js";
 import { buildTouhouCommand, createTouhouHandlers } from "./commands.js";
+import { OnlineAdoptions } from "../wallet/adoptions.js";
 
-export function initializeTouhouTrader() {
+export function initializeTouhouTrader(wallet = null) {
   if (process.env.TOUHOU_ENABLED === "false") return null;
   const dataDirectory = fileURLToPath(new URL("../../data/", import.meta.url));
   fs.mkdirSync(dataDirectory, { recursive: true });
   const store = new TouhouStore(fileURLToPath(new URL("../../data/touhou-trader.db", import.meta.url)), loadCatalog());
   const handlers = createTouhouHandlers(store, {
+    wallet, adoptions: wallet ? new OnlineAdoptions(store, wallet) : null,
     channelId: process.env.CHANNEL_ID || "",
     adminRoleId: process.env.TOUHOU_ADMIN_ROLE_ID || "",
   });

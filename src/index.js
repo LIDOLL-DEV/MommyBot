@@ -7,6 +7,7 @@ import { initCheckpointer } from "./db/checkpointer.js";
 import { startGitHubActivityWatcher } from "./github/activityWatcher.js";
 import { initializeTouhouTrader } from "./touhou/index.js";
 import { initializeIdentity } from "./auth/index.js";
+import { initializeWallet } from "./wallet/index.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -25,8 +26,9 @@ async function main() {
 
   // Create and login the Discord client
   const client = createClient();
-  const identity = await initializeIdentity(); // Start the optional LiD0llID callback listener before logging in.
-  const touhouTrader = initializeTouhouTrader(); // Open trading separately from the conversation-memory database.
+  const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
+  const identity = await initializeIdentity(wallet); // Start the optional LiD0llID callback listener before logging in.
+  const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
   let stopGitHubWatcher = () => {};
 
   // Handle message events
@@ -72,6 +74,7 @@ async function main() {
     stopGitHubWatcher();
     await identity?.close(); // Finish browser callbacks before closing account storage.
     await client.destroy();
+    await wallet?.close(); // Finish payment journaling before closing trader storage.
     touhouTrader?.close(); // Flush and close trading state before the process exits.
     process.exit(0);
   });

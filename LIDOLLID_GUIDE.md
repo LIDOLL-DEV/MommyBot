@@ -41,9 +41,14 @@ a stored link as authorization for sensitive provider operations without fresh
 authentication. Unlinking does not log out the shared LiD0llID browser session
 or other apps. There are no provider access/refresh tokens stored in the bot.
 
-The trader's local stars and LiDollcoins remain local. omo-trainer's LiDollCoin
-device-flow API is a separate wallet permission contract; SSO does not consent
-to that API, migrate balances or connect the remote wallet.
+SSO alone does not grant wallet permission. Enable the separate Little Log
+integration in [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md), then use
+`/lidollid wallet connect` to approve reading and spending both online stars and
+LiDollcoins. Adoption then spends the chosen online currency. Local balances
+remain separate for market transactions, items and battle rewards. Wallet bearer
+grants are stored in their own protected database; OIDC tokens are still discarded.
+When online wallets are enabled, `/lidollid unlink` revokes the wallet grant
+before removing the identity link and requires pending purchases to finish first.
 
 ## Register and enable
 
