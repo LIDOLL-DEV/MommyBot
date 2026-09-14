@@ -28,7 +28,7 @@ async function main() {
   const client = createClient();
   const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
   const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
-  const identity = await initializeIdentity(wallet); // Load all pending game payments before exposing browser purchases.
+  const identity = await initializeIdentity(wallet, touhouTrader); // Load all pending game payments before exposing browser purchases.
   let stopGitHubWatcher = () => {};
 
   // Handle message events

@@ -20,6 +20,26 @@ design enter bank inventory, with rarity setting the starting value. Its pending
 payments participate in the same reconnect/unlink guards and can be recovered
 with `/lidollid wallet retry`. No star balance is spent by this game.
 
+## Clickable menu
+
+Open `/menu`, `/lidollid menu` or `/lidollid wallet menu` for the same private
+pastel panel, styled like Touhou Trader. Use **Connect / renew**, **Enter sign-in
+code**, **Account status**, **Online balance**, **Retry payment**, **Disconnect
+wallet** or **Unlink account**. Removing a connection requires a confirmation.
+The sign-in form takes only the 32-character code from the browser, not the full
+slash command. Menus expire after five minutes idle; reopen one to continue.
+
+**Touhou Trader** opens its existing menu in the configured trader channel.
+**Diaper Atelier** issues your private browser link for rolling, viewing your
+collection and using the bank. All game prices and channel restrictions still
+apply. The panel and all balance and login responses are visible only to you.
+
+Administrators also see **Gift coins**, **Gift stars** and **Retry a gift**.
+Choose a currency, select the recipient, press **Enter amount**, then review
+the recipient and amount before pressing **Send gift**. Use **Retry a gift**
+to resume an uncertain reward. Access is checked again on every action, even
+if a role was removed after opening the menu. All slash commands remain available.
+
 ## Administrator gifts
 
 Use these commands in your Discord server after deploying and restarting the bot:

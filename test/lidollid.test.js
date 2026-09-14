@@ -231,7 +231,7 @@ test("Discord account commands are private, use authenticated user ID, and do no
     options: { getSubcommand: () => "login" }, deferReply: async options => { assert.equal(options.flags, 64); },
     editReply: async options => { replies.push(options); } };
   try {
-    assert.equal(buildIdentityCommand().toJSON().options.length, 5);
+    assert.deepEqual(buildIdentityCommand().toJSON().options.map(option => option.name), ["menu", "login", "confirm", "status", "unlink", "wallet"]);
     assert.equal(await handler({ ...interaction, commandName: "touhou" }), false);
     assert.equal(await handler(interaction), true);
     assert.match(replies.at(-1).content, /https:\/\/bot.example\/auth\/login\?ticket=/);

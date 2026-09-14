@@ -26,6 +26,7 @@ export function createGachaCommands(config, sessions) {
     return `Open your Diaper Atelier: ${config.origin}/diapers/open?ticket=${ticket}\nRoll for cute diapers, view your collection, and buy or sell at the shared diaper bank using LiDollcoins. Open the link and press Open my atelier. This private link expires in 10 minutes and signs your browser in for 8 hours. Do not share it.`;
   }; // Use the same authenticated-user handoff for slash replies and private prefix-command messages.
   return {
+    linkMessage, // Allow the private account menu to issue the same owner-bound browser handoff.
     async registerGuild(guild) {
       for (const name of names) {
         try {

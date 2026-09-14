@@ -11,28 +11,34 @@ export async function handleWalletInteraction(interaction, wallet, identities) {
   const command = interaction.isChatInputCommand() && interaction.commandName === "lidollid" && interaction.options.getSubcommandGroup?.() === "wallet";
   if (!button && !command) return false;
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+  const response = await runWalletAction(interaction, wallet, identities, button ? "legacy-finish" : interaction.options.getSubcommand());
+  await interaction.editReply({ ...response, allowedMentions: { parse: [] }, flags: MessageFlags.SuppressEmbeds });
+  return true;
+} // Keep Discord acknowledgement separate so private menus can reuse the same authorization and payments.
+
+export async function runWalletAction(interaction, wallet, identities, action, options = interaction.options) {
   let response;
   try {
     if (!wallet) throw new WalletError("disabled", "Online wallets are not enabled yet. Ask Doll to configure the Little Log wallet app.");
     const user = interaction.user.id;
-    if (button && wallet.identityFor) throw new WalletError("expired_token", "Use /lidollid login to connect your account and wallet together.");
-    if (button) {
+    if (action === "legacy-finish" && wallet.identityFor) throw new WalletError("expired_token", "Use /lidollid login to connect your account and wallet together.");
+    if (action === "legacy-finish") {
       const [, , owner, generation] = interaction.customId.split(":");
       if (owner !== user) throw new WalletError("wrong_user", "Start your own connection with /lidollid wallet connect.");
       if (!identities.get(user)) throw new WalletError("not_linked", "Use /lidollid login and confirm your identity before connecting a wallet.");
       response = { content: `Wallet connected!\n${balanceText(await wallet.finish(user, generation))}` };
-    } else switch (interaction.options.getSubcommand()) {
+    } else switch (action) {
       case "gift":
       case "gift-retry": {
         if (!interaction.guildId || !canAward(interaction, process.env.TOUHOU_ADMIN_ROLE_ID || "")) {
           throw new WalletError("forbidden", "You need Manage Server or the configured trader admin role to gift currency in a server.");
         }
-        const target = interaction.options.getUser("user", true);
+        const target = options.getUser("user", true);
         if (target.bot) throw new WalletError("invalid_gift", "Choose a person, not a bot, to receive this gift.");
-        const retry = interaction.options.getSubcommand() === "gift-retry";
+        const retry = action === "gift-retry";
         if (!retry && !identities.get(target.id)) throw new WalletError("not_linked", "The recipient needs to finish /lidollid login and connect their wallet first.");
         const gift = retry ? await wallet.gifts.retry(target.id, interaction.guildId) :
-          await wallet.gifts.gift(interaction.guildId, user, target.id, interaction.options.getString("currency", true), interaction.options.getInteger("amount", true), interaction.id);
+          await wallet.gifts.gift(interaction.guildId, user, target.id, options.getString("currency", true), options.getInteger("amount", true), interaction.id);
         response = { content: giftText(gift) };
         break;
       }
@@ -66,6 +72,5 @@ export async function handleWalletInteraction(interaction, wallet, identities) {
   } catch (error) {
     response = { content: error instanceof WalletError || error instanceof TraderError ? error.message : "Wallet storage is unavailable. Try again; pending payments are saved for /lidollid wallet retry." };
   }
-  await interaction.editReply({ ...response, allowedMentions: { parse: [] }, flags: MessageFlags.SuppressEmbeds });
-  return true;
+  return response;
 } // Use authenticated Discord IDs and private replies for approval codes, account balances and recovery.

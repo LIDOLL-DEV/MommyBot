@@ -5,18 +5,21 @@ import { authConfig } from "./config.js";
 import { IdentityStore } from "./store.js";
 import { createOidc } from "./oidc.js";
 import { createAuthServer } from "./server.js";
-import { handleWalletInteraction } from "../wallet/commands.js";
+import { handleWalletInteraction, runWalletAction } from "../wallet/commands.js";
 import { awardLinkedRole } from "./linkedRole.js";
 import { initializeGacha } from "../gacha/index.js";
+import { IdentityMenus } from "./menu.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
+    .addSubcommand(c => c.setName("menu").setDescription("Open your account, wallet and admin gift buttons"))
     .addSubcommand(c => c.setName("login").setDescription("Connect your LiD0llID account and wallet"))
     .addSubcommand(c => c.setName("confirm").setDescription("Finish your browser sign-in")
       .addStringOption(o => o.setName("code").setDescription("Code shown after signing in").setRequired(true).setMinLength(32).setMaxLength(32)))
     .addSubcommand(c => c.setName("status").setDescription("Check your linked account"))
     .addSubcommand(c => c.setName("unlink").setDescription("Unlink your account and wallet, or reset an unfinished sign-in"))
     .addSubcommandGroup(g => g.setName("wallet").setDescription("Connect Little Log stars and LiDollcoins")
+      .addSubcommand(c => c.setName("menu").setDescription("Open your account, wallet and admin gift buttons"))
       .addSubcommand(c => c.setName("connect").setDescription("Connect your LiD0llID account and wallet"))
       .addSubcommand(c => c.setName("balance").setDescription("Privately check your online stars and LiDollcoins"))
       .addSubcommand(c => c.setName("retry").setDescription("Finish your pending payment, gift, reward or refund"))
@@ -30,8 +33,14 @@ export function buildIdentityCommand() {
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
 } // Add a dedicated command without replacing the trader or any other application's commands.
 
-export function createIdentityHandler(store, config, wallet = null, gacha = null) {
+export function createIdentityHandler(store, config, wallet = null, gacha = null, trader = null) {
+  const accountAction = (interaction, action, options) => runIdentityAction(interaction, store, config, wallet, gacha, action, options);
+  const menus = new IdentityMenus({
+    accountAction, walletAction: (interaction, action, options) => runWalletAction(interaction, wallet, store, action, options),
+    atelier: gacha?.linkMessage, trader: trader?.openMenu,
+  }); // Menus share the slash-command actions, including linked-role assignment and payment recovery.
   return async interaction => {
+    if (await menus.handleInteraction(interaction)) return true;
     if (gacha && await gacha.handleInteraction(interaction)) return true;
     const unlinkButton = interaction.isButton?.() && interaction.customId?.startsWith("lidollid:unlink:");
     const combined=Boolean(wallet?.stageIdentity);
@@ -39,21 +48,30 @@ export function createIdentityHandler(store, config, wallet = null, gacha = null
     if (!unlinkButton && !walletLogin && await handleWalletInteraction(interaction, wallet, store)) return true;
     if (!unlinkButton && (!interaction.isChatInputCommand() || interaction.commandName !== "lidollid")) return false;
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    if (unlinkButton && interaction.customId !== `lidollid:unlink:${interaction.user.id}`) {
+      await interaction.editReply({ content: "Use /lidollid status to manage your own account link.", allowedMentions: { parse: [] } });
+      return true;
+    }
+    const result = await accountAction(interaction, unlinkButton ? "unlink" : walletLogin ? "login" : interaction.options.getSubcommand());
+    await interaction.editReply({ ...result, allowedMentions: { parse: [] }, flags: MessageFlags.SuppressEmbeds });
+    return true;
+  }; // Only Discord's authenticated interaction user can read, confirm or remove their link; replies stay private.
+}
+
+export async function runIdentityAction(interaction, store, config, wallet, gacha, action, options = interaction.options) {
+    const combined = Boolean(wallet?.stageIdentity);
     let content;
     let components = [];
     try {
       const discordId = interaction.user.id;
-      if (unlinkButton && interaction.customId !== `lidollid:unlink:${discordId}`) {
-        throw new Error("Use /lidollid status to manage your own account link.");
-      } // A button can only unlink the Discord user whose private status message created it.
-      switch (unlinkButton ? "unlink" : walletLogin ? "login" : interaction.options.getSubcommand()) {
+      switch (action) {
         case "login": {
           const ticket = combined ? await wallet.exclusive(discordId, () => store.begin(discordId, true)) : store.begin(discordId); // Keep a new login from replacing an in-flight wallet confirmation.
           content = `Connect your LiD0llID account${combined ? " and wallet" : ""}: ${config.origin}/auth/login?ticket=${ticket}\nOpen this link in your browser and press Continue with LiD0llID. This private link expires in 10 minutes. After signing in, use the confirmation code here. Do not share the link or confirm someone else's sign-in.`;
           break;
         }
         case "confirm": {
-          const code=interaction.options.getString("code",true);
+          const code=options.getString("code",true);
           if(combined)await wallet.confirmIdentity(discordId,store.pendingConfirmation(discordId,code),activate=>store.confirm(discordId,code,activate),()=>store.pendingConfirmation(discordId,code));
           else store.confirm(discordId,code);
           content=combined?"Your LiD0llID account and wallet are connected. Use /lidollid wallet balance to check your stars and coins.":"Your LiD0llID account is now linked. Use /lidollid status to check it.";
@@ -80,12 +98,10 @@ export function createIdentityHandler(store, config, wallet = null, gacha = null
     } catch (error) {
       content = error.code?.startsWith("SQLITE") ? "Account storage is unavailable. Please try again later." : error.message;
     }
-    await interaction.editReply({ content, components, allowedMentions: { parse: [] }, flags: MessageFlags.SuppressEmbeds });
-    return true;
-  }; // Only Discord's authenticated interaction user can read, confirm or remove their link; replies stay private.
-}
+    return { content, components };
+} // Reuse the same account validation, revocation and role behavior from slash commands and menu buttons.
 
-export async function initializeIdentity(wallet = null) {
+export async function initializeIdentity(wallet = null, trader = null) {
   const config = authConfig();
   if (!config) return null;
   fs.mkdirSync(fileURLToPath(new URL("../../data/", import.meta.url)), { recursive: true });
@@ -101,12 +117,14 @@ export async function initializeIdentity(wallet = null) {
   cleanup.unref();
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
-    handleInteraction: createIdentityHandler(store, config, wallet, gacha),
+    handleInteraction: createIdentityHandler(store, config, wallet, gacha, trader),
     handleMessage: message => gacha?.handleMessage(message) || false,
     closeGames: () => gacha?.close(),
     async registerGuild(guild) {
       try { await guild.commands.create(buildIdentityCommand()); }
       catch { console.error(`[LiD0llID] Could not register /lidollid in guild ${guild.id}.`); }
+      try { await guild.commands.create(new SlashCommandBuilder().setName("menu").setDescription("Open LiDollBot's account, wallet, games and admin gift menu")); }
+      catch { console.error(`[LiD0llID] Could not register /menu in guild ${guild.id}.`); }
       await gacha?.registerGuild(guild);
     },
     async close() {

@@ -273,5 +273,10 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
     return true;
   } // Keep familiar LumiBot prefix entry points available even while slash commands are registering.
 
-  return { handleInteraction, handleMessage };
+  const openMenu = interaction => {
+    if (!interaction.guildId) throw new TraderError("Open Touhou Trader in your server.");
+    if (channelId && channelId !== interaction.channelId) throw new TraderError(`Use the trader in <#${channelId}>.`);
+    return menus.open(interaction.guildId, interaction.user.id);
+  }; // Let the private account hub open the existing trader while preserving its channel gate.
+  return { handleInteraction, handleMessage, openMenu };
 } // Build handlers around an injected store so tests can exercise real commands with disposable wallets.

@@ -37,6 +37,16 @@ the Discord interaction ID and durable provider request ID. Load its pending
 guard in WalletService before game guards, validate credit receipts for both
 currencies, and never release an uncertain payment because a later retry fails.
 Gift replies must not expose total balances or provider error bodies.
+The private `/menu` hub and `/lidollid [wallet] menu` aliases live in
+`src/auth/menu.js`. Keep their owner/guild binding, five-minute expiry, bounded
+session count, revision checks and in-flight lock. Route menu actions through
+`runIdentityAction` and `runWalletAction` so slash and button permissions,
+linked-role assignment, unlink guards and gift journaling stay identical.
+Gift entry uses a user select, amount modal and final review; recheck admin
+permissions on every step. Clear the send screen before awaiting a credit and
+recover pending rewards through the existing retry path. Never put codes or
+balances in public replies. Game launchers must keep the trader channel gate
+and the atelier's private authenticated browser handoff.
 Never set local balances from remote snapshots. Online adoption pins an
 opaque wallet account and API registration to a persistent reservation before
 debiting; delivery and its receipt commit together in the trader database.

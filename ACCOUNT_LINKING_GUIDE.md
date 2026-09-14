@@ -3,6 +3,20 @@
 Hi sweetpeas! Linking lets Sakura recognize your LiD0llID and connect your
 Little Log stars and LiDollcoins for Touhou Trader. Here's our little walkthrough. 💕
 
+## Prefer buttons?
+
+Open `/menu` for Sakura's little account-and-wallet panel! Press **Connect /
+renew**, open your private browser link, and approve your account connection.
+Back in Discord, press **Enter sign-in code** and paste just the 32-character
+code from the browser page. The confirmation finishes linking and awards your
+linked-account role when Sakura has permission.
+
+Use **Account status** or **Online balance** to check everything. **Touhou
+Trader** opens the trader in its channel, and **Diaper Atelier** gives you your
+private game link. **Unlink account** has a confirmation screen for testing.
+Only you can use your buttons; reopen `/menu` if they expire after five minutes.
+`/lidollid menu` and `/lidollid wallet menu` open this same panel.
+
 ## Link your account
 
 1. In Discord, type `/lidollid login` and send the command.

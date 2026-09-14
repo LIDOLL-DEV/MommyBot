@@ -1,5 +1,21 @@
 # Testing MommyBot
 
+## Private command menu
+
+`test/account-menu.test.js` serializes real Discord builders and checks the
+private pastel panel, row/custom-ID limits, menu aliases, role-gated gift
+buttons, recipient selection, amount forms, review/cancel, account confirmation,
+unlink/disconnect confirmation and game handoffs. Tests reject foreign users or
+servers, stale and expired controls, concurrent actions, bots, invalid amounts
+and revoked admin access. An integration test runs a menu gift against the real
+wallet journal and an idempotency-compatible fake provider; no live coins are
+used. Existing identity, role, unlink and wallet tests cover the shared actions.
+
+After deployment, open `/menu` in Discord, verify your private controls, and
+check that ordinary members do not see gift buttons. Touhou Trader must still
+require its configured channel. Use a designated test account for any operator
+gift checks, and review the amount before pressing Send gift.
+
 ## Administrator wallet gifts
 
 `test/wallet-gifts.test.js` uses disposable SQLite databases and a fake idempotent
