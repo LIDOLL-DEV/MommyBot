@@ -2,17 +2,33 @@ export class ReportError extends Error {
   constructor(code, status) { super(code); this.code = code; this.status = status; }
 } // Keep provider bodies and credentials out of diagnostic errors.
 
+export class ReportConfigurationError extends ReportError {
+  constructor(issues) {
+    super("invalid_configuration");
+    this.message = `invalid_configuration: ${issues.join("; ")}`;
+  }
+} // Configuration diagnostics contain only authored field names and requirements, never environment values.
+
 export function reportConfig(env = process.env) {
   if (env.MOMMYBOT_REPORTS_ENABLED !== "true") return null;
+  const issues = [];
   let url;
-  try { url = new URL(env.MOMMYBOT_REPORTS_URL); } catch { throw new ReportError("invalid_configuration"); }
-  const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
-  if ((url.protocol !== "https:" && !(local && url.protocol === "http:")) || url.username || url.password || url.search || url.hash) throw new ReportError("invalid_configuration");
+  try { url = new URL(env.MOMMYBOT_REPORTS_URL); }
+  catch { issues.push("MOMMYBOT_REPORTS_URL must be the full report feed URL from the tracker admin console"); }
+  if (url) {
+    const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+    if (url.protocol !== "https:" && !(local && url.protocol === "http:")) issues.push("MOMMYBOT_REPORTS_URL requires HTTPS (HTTP is allowed only for localhost development)");
+    if (url.username || url.password || url.search || url.hash) issues.push("MOMMYBOT_REPORTS_URL must not contain credentials, a query string or a fragment");
+  }
   const token = env.MOMMYBOT_REPORTS_TOKEN?.trim();
   const channelId = env.MOMMYBOT_REPORTS_CHANNEL_ID;
   const initial = env.MOMMYBOT_REPORTS_INITIAL;
   const interval = Number(env.MOMMYBOT_REPORTS_POLL_MS || 60000);
-  if (!token || /\s/.test(token) || !/^\d{17,20}$/.test(channelId || "") || !["future", "history"].includes(initial) || !Number.isSafeInteger(interval) || interval < 10000 || interval > 3600000) throw new ReportError("invalid_configuration");
+  if (!token || /\s/.test(token)) issues.push("MOMMYBOT_REPORTS_TOKEN must contain a report-read token without internal whitespace");
+  if (!/^\d{17,20}$/.test(channelId || "")) issues.push("MOMMYBOT_REPORTS_CHANNEL_ID must contain a 17-20 digit Discord channel ID");
+  if (!["future", "history"].includes(initial)) issues.push("MOMMYBOT_REPORTS_INITIAL must explicitly be history or future");
+  if (!Number.isSafeInteger(interval) || interval < 10000 || interval > 3600000) issues.push("MOMMYBOT_REPORTS_POLL_MS must be an integer from 10000 to 3600000");
+  if (issues.length) throw new ReportConfigurationError(issues); // Report all invalid fields in one pass so operators can repair the protected configuration together.
   return { url: url.href.replace(/\/$/, ""), token, channelId, initial, interval, filename: env.MOMMYBOT_REPORTS_DB || "data/reports.db" };
 } // Require an explicit destination and first-run policy before enabling publication.
 

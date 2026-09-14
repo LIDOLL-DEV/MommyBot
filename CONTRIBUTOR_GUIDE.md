@@ -15,6 +15,13 @@ Discord readiness and drain before disconnecting. Include the read-only
 `scripts/check-reports.mjs` in releases and private `data/reports.db` in backups.
 Run one publisher process per journal.
 
+Report configuration errors must disable only the optional publisher, leaving
+Discord startup and the saved journal untouched. Validate configuration inside
+the publisher factory's guarded body, not a default argument that can throw
+before that guard. Keep diagnostic field names and requirements authored in
+code, collect all failures, and never interpolate dotenv values or URL errors.
+The standalone read-only check must still exit unsuccessfully for bad settings.
+
 New-member onboarding lives in `src/welcome.js` and
 `src/graph/welcomeMessage.js`; see [WELCOME_GUIDE.md](WELCOME_GUIDE.md). Route
 `GuildMemberAdd` independently of chat and wallet gates and request `GuildMembers`

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { ReportClient, ReportError, reportConfig } from "./client.js";
+import { ReportClient, ReportConfigurationError, ReportError, reportConfig } from "./client.js";
 import { ReportStore } from "./store.js";
 
 export function reportMessage(config, report) {
@@ -12,7 +12,13 @@ export function reportMessage(config, report) {
   };
 } // Attach the complete document without truncation and keep generated text out of the message/mention surface.
 
-export function createReportPublisher(client, { env = process.env, config = reportConfig(env), store, api, now = Date.now, logger = console } = {}) {
+export function createReportPublisher(client, { env = process.env, config, store, api, now = Date.now, logger = console } = {}) {
+  try { if (config === undefined) config = reportConfig(env); }
+  catch (error) {
+    if (!(error instanceof ReportConfigurationError)) throw error;
+    logger.error(`[Reports] Publication disabled: ${error.message}. Fix the protected report settings and restart; MommyBot will continue starting.`);
+    return null;
+  } // A misconfigured optional publisher must not stop Discord login or touch its saved delivery journal.
   if (!config) return null;
   store ??= new ReportStore(config.filename);
   api ??= new ReportClient(config);

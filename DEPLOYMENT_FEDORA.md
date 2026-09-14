@@ -7,6 +7,14 @@ for a read-only connection check. The default `data/reports.db` participates in
 existing state backups. Local `.env` changes do not update service configuration.
 See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md) before enabling publication.
 
+If an older release enters a restart loop with `ReportError: invalid_configuration`,
+temporarily set `MOMMYBOT_REPORTS_ENABLED=false` in the service environment, then
+run `sudo systemctl reset-failed mommybot.service` and
+`sudo systemctl restart mommybot.service`. Updated releases disable only report
+publication and log the invalid fields. After deploying, run
+`sudo -u mommybot node /opt/mommybot/current/scripts/check-reports.mjs /etc/mommybot/mommybot.env`
+to diagnose settings before re-enabling reports. Never paste the protected token.
+
 These scripts deploy MommyBot/Sakura on a conventional Fedora host with DNF,
 systemd and sudo. They install Node.js and native SQLite build tools, then run
 the bot as the unprivileged `mommybot` account. Node.js 22 or newer is required.

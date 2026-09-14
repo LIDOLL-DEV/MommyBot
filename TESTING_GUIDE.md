@@ -9,6 +9,11 @@ receipts, concurrent polls and shutdown. Fixtures never post to Discord. Run
 `node scripts/check-reports.mjs` with protected configuration for a read-only
 probe. See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md) for setup and recovery.
 
+Configuration regression tests verify that invalid enabled reports return a
+disabled publisher without accessing Discord or storage, identify all bad fields
+without echoing secrets, and make the read-only CLI fail with useful diagnostics.
+The CLI test uses a temporary dotenv file and exits before any network request.
+
 ## New-member welcomes
 
 `test/welcome.test.js` verifies `.250` model routing, shared persona, generic

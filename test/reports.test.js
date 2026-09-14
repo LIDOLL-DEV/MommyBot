@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { ReportClient, reportConfig } from "../src/reports/client.js";
+import { ReportClient, ReportConfigurationError, reportConfig } from "../src/reports/client.js";
 import { ReportStore } from "../src/reports/store.js";
 import { createReportPublisher, reportMessage } from "../src/reports/publisher.js";
 
@@ -32,6 +33,46 @@ test("configuration requires explicit activation, destination and initial histor
   const env = { MOMMYBOT_REPORTS_ENABLED: "true", MOMMYBOT_REPORTS_URL: config.url, MOMMYBOT_REPORTS_TOKEN: "secret", MOMMYBOT_REPORTS_CHANNEL_ID: config.channelId, MOMMYBOT_REPORTS_INITIAL: "history" };
   assert.equal(reportConfig(env).initial, "history");
   for (const values of [{ MOMMYBOT_REPORTS_INITIAL: "" }, { MOMMYBOT_REPORTS_CHANNEL_ID: "" }, { MOMMYBOT_REPORTS_TOKEN: "" }, { MOMMYBOT_REPORTS_URL: "http://external.example/reports" }, { MOMMYBOT_REPORTS_URL: `${config.url}?token=secret` }, { MOMMYBOT_REPORTS_URL: "https://user:secret@tracker.example/reports" }]) assert.throws(() => reportConfig({ ...env, ...values }), /invalid_configuration/);
+});
+
+test("invalid report settings disable only the publisher without accessing Discord or storage", () => {
+  const logs = [];
+  const env = { MOMMYBOT_REPORTS_ENABLED: "true", MOMMYBOT_REPORTS_URL: "https://private-user:private-password@example.com/reports?secret=private-query", MOMMYBOT_REPORTS_TOKEN: "private token", MOMMYBOT_REPORTS_CHANNEL_ID: "private-channel", MOMMYBOT_REPORTS_INITIAL: "private-policy", MOMMYBOT_REPORTS_POLL_MS: "private-interval" };
+  const forbidden = new Proxy({}, { get() { assert.fail("Invalid configuration must not access Discord or journal storage"); } });
+  assert.equal(createReportPublisher(forbidden, { env, store: forbidden, logger: { error: line => logs.push(line) } }), null);
+  assert.equal(logs.length, 1);
+  assert.match(logs[0], /MommyBot will continue starting/);
+  for (const field of ["URL", "TOKEN", "CHANNEL_ID", "INITIAL", "POLL_MS"]) assert.ok(logs[0].includes(`MOMMYBOT_REPORTS_${field}`));
+  assert.ok(!logs[0].includes("private"));
+  assert.equal(createReportPublisher(forbidden, { env: {}, store: forbidden, logger: { error() { assert.fail("Disabled reports should stay silent"); } } }), null);
+});
+
+test("configuration identifies the exact invalid field without echoing its value", () => {
+  const env = { MOMMYBOT_REPORTS_ENABLED: "true", MOMMYBOT_REPORTS_URL: config.url, MOMMYBOT_REPORTS_TOKEN: "secret", MOMMYBOT_REPORTS_CHANNEL_ID: config.channelId, MOMMYBOT_REPORTS_INITIAL: "history" };
+  for (const [field, value] of [["URL", "secret-invalid-url"], ["URL", "http://192.168.1.5/reports"], ["TOKEN", "secret token"], ["CHANNEL_ID", "secret-channel"], ["INITIAL", "secret-policy"], ["POLL_MS", "9999"]]) {
+    assert.throws(() => reportConfig({ ...env, [`MOMMYBOT_REPORTS_${field}`]: value }), error => {
+      assert.ok(error instanceof ReportConfigurationError);
+      assert.equal(error.code, "invalid_configuration");
+      assert.match(error.message, new RegExp(`MOMMYBOT_REPORTS_${field}`));
+      assert.ok(!error.message.includes(value));
+      assert.equal((error.message.match(/MOMMYBOT_REPORTS_/g) || []).length, 1);
+      return true;
+    });
+  }
+});
+
+test("the read-only CLI reports all configuration failures without exposing dotenv secrets", t => {
+  const dir = mkdtempSync(path.join(tmpdir(), "mommy-report-config-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const filename = path.join(dir, ".env");
+  writeFileSync(filename, 'MOMMYBOT_REPORTS_ENABLED=false\nMOMMYBOT_REPORTS_URL=secret-invalid-url\nMOMMYBOT_REPORTS_TOKEN="secret token"\nMOMMYBOT_REPORTS_CHANNEL_ID=\nMOMMYBOT_REPORTS_INITIAL=\nMOMMYBOT_REPORTS_POLL_MS=oops\n');
+  const result = spawnSync(process.execPath, ["scripts/check-reports.mjs", filename], { encoding: "utf8" });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /FAIL: invalid_configuration/);
+  for (const field of ["URL", "TOKEN", "CHANNEL_ID", "INITIAL", "POLL_MS"]) assert.ok(result.stderr.includes(`MOMMYBOT_REPORTS_${field}`));
+  assert.ok(!result.stderr.includes("secret"));
+  assert.ok(!result.stderr.includes("oops"));
+  assert.equal(result.stdout, "");
 });
 
 test("API uses bounded authenticated GET without redirects and validates nightly documents", async () => {

@@ -44,6 +44,37 @@ its own delivery history. The interval accepts 10,000–3,600,000 milliseconds.
 
 ## Delivery and recovery
 
+Invalid enabled report settings now disable only the report publisher. Startup
+logs name every invalid `MOMMYBOT_REPORTS_*` field and its requirement without
+printing configured values; the rest of MommyBot continues starting. Fix those
+fields and restart to activate reports. The read-only check remains a failing
+command for invalid settings so it can be used before deployment.
+
+Older releases may exit before Discord login with only
+`ReportError: invalid_configuration`. To restore service immediately, edit
+`/etc/mommybot/mommybot.env` and temporarily set `MOMMYBOT_REPORTS_ENABLED=false`,
+then run:
+
+```bash
+sudo systemctl reset-failed mommybot.service
+sudo systemctl restart mommybot.service
+```
+
+Deploy the updated code for specific diagnostics. Check the production settings
+without posting anything:
+
+```bash
+sudo -u mommybot node /opt/mommybot/current/scripts/check-reports.mjs /etc/mommybot/mommybot.env
+```
+
+The check validates report settings even while publication is disabled. Ensure
+`MOMMYBOT_REPORTS_CHANNEL_ID=1549134762172481557` and
+`MOMMYBOT_REPORTS_INITIAL=history` are present in the service environment; neither
+is inferred from local checkout settings. Add the dedicated report-read token
+and the full HTTPS feed URL shown by Little Log's admin console. After the check
+passes, set `MOMMYBOT_REPORTS_ENABLED=true` and restart the service. The old generic
+error alone does not identify which field is wrong or establish API reachability.
+
 `data/reports.db` stores cursors per feed/channel and receipts keyed by
 channel/report ID, including the full document snapshot. Protect it as private
 bot data and include its SQLite WAL in consistent backups. Fedora's existing
