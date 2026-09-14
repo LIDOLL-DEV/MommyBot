@@ -13,6 +13,7 @@ export function initializeGacha(config, identities, wallet) {
   const game = new DiaperStore(fileURLToPath(new URL("../../data/diaper-gacha.db", import.meta.url)), loadDiaperCatalog(), wallet, settings);
   const sessions = new GachaSessions(game.db, identities);
   return {
+    sessions,
     web: createGachaWeb(config, game, sessions),
     revoke: user => sessions.revoke(user),
     prune: () => sessions.prune(),

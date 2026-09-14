@@ -9,7 +9,7 @@ export function initializeHangman(config, identities, wallet) {
   if (!wallet) return null;
   const game = new HangmanStore(fileURLToPath(new URL("../../data/hangman.db", import.meta.url)), wallet, hangmanConfig());
   const sessions = new GameSessions(game.db, identities, { prefix: "hangman", command: "/hangman", ErrorClass: HangmanError });
-  return { web: createHangmanWeb(config, game, sessions), revoke: user => sessions.revoke(user),
+  return { sessions, web: createHangmanWeb(config, game, sessions), revoke: user => sessions.revoke(user),
     prune: () => sessions.prune(), close: () => game.close(), ...createHangmanCommands(config, sessions) };
 } // Load pending hangman payments before the shared auth listener accepts browser actions.
 

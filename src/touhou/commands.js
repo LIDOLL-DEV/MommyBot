@@ -278,5 +278,5 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
     if (channelId && channelId !== interaction.channelId) throw new TraderError(`Use the trader in <#${channelId}>.`);
     return menus.open(interaction.guildId, interaction.user.id);
   }; // Let the private account hub open the existing trader while preserving its channel gate.
-  return { handleInteraction, handleMessage, openMenu };
+  return { handleInteraction, handleMessage, openMenu, webState: { store, game, wallet, adopt, economy, imageDirectory } }; // The web view uses these same rule and payment services; none of this object is sent to clients.
 } // Build handlers around an injected store so tests can exercise real commands with disposable wallets.

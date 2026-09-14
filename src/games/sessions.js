@@ -46,6 +46,16 @@ export class GameSessions {
     const identity = row && this.identities.get(row.user_id);
     return identity && binding(identity) === row.binding ? { ...row, username: identity.username, csrf: hash(`${this.prefix}-csrf:${token}`) } : null;
   }
+  openForIdentity(identity) {
+    return this.db.transaction(() => {
+      const linked = this.identities.find(identity.issuer, identity.subject);
+      if (!linked) return null;
+      const token = secret();
+      this.db.prepare(`DELETE FROM ${this.prefix}_sessions WHERE user_id=?`).run(linked.discord_id);
+      this.db.prepare(`INSERT INTO ${this.prefix}_sessions VALUES (?,?,?,?)`).run(hash(token), linked.discord_id, binding(linked), this.now() + 8 * 3600000);
+      return token;
+    }).immediate();
+  } // A verified web sign-in can open an existing linked account, but never create links, alter wallet grants or consume Discord tickets.
   revoke(user) {
     this.db.prepare(`DELETE FROM ${this.prefix}_sessions WHERE user_id=?`).run(user);
     this.db.prepare(`DELETE FROM ${this.prefix}_tickets WHERE user_id=?`).run(user);

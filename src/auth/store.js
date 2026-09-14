@@ -22,6 +22,7 @@ export class IdentityStore {
 
   prune() { this.db.prepare("DELETE FROM identity_attempts WHERE expires <= ?").run(this.now()); }
   get(discordId) { return this.db.prepare("SELECT * FROM identity_links WHERE discord_id = ?").get(discordId); }
+  find(issuer, subject) { return this.db.prepare("SELECT * FROM identity_links WHERE issuer=? AND subject=?").get(issuer, subject); } // Resolve only verified issuer/subject pairs; names and caller-supplied Discord IDs cannot grant access.
   hasTicket(ticket) {
     return Boolean(this.db.prepare("SELECT 1 FROM identity_attempts WHERE ticket = ? AND expires > ?").get(hash(ticket), this.now()));
   } // Reject fabricated tickets locally before making any provider requests.

@@ -1,7 +1,7 @@
 import * as oidc from "openid-client";
 import { authStep } from "./diagnostics.js";
 
-export function createOidc(config, combined = false) {
+export function createOidc(config, combined = false, { statePrefix = "" } = {}) {
   let discovery;
   const configured = () => {
     discovery ??= authStep("discovery", () => oidc.discovery(new URL(config.issuer), config.clientId, undefined, oidc.None(), {
@@ -13,7 +13,7 @@ export function createOidc(config, combined = false) {
   return {
     async begin() {
       const provider = await configured();
-      const values = { verifier: oidc.randomPKCECodeVerifier(), state: oidc.randomState(), nonce: oidc.randomNonce() };
+      const values = { verifier: oidc.randomPKCECodeVerifier(), state: statePrefix + oidc.randomState(), nonce: oidc.randomNonce() };
       const parameters = { redirect_uri: config.callback, ...(combined ? {prompt: "consent"} : {}), scope: combined ? "openid profile wallet:read wallet:write stars:read stars:write" : "openid profile",
         code_challenge: await oidc.calculatePKCECodeChallenge(values.verifier), code_challenge_method: "S256",
         state: values.state, nonce: values.nonce };
