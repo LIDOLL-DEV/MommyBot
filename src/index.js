@@ -8,6 +8,7 @@ import { startGitHubActivityWatcher } from "./github/activityWatcher.js";
 import { initializeTouhouTrader } from "./touhou/index.js";
 import { initializeIdentity } from "./auth/index.js";
 import { initializeWallet } from "./wallet/index.js";
+import { createSwearJar } from "./swearJar.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -29,11 +30,14 @@ async function main() {
   const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
   const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
   const identity = await initializeIdentity(wallet, touhouTrader, client); // Load all pending game payments before exposing browser purchases.
+  const swearJar = createSwearJar(client, wallet, identity?.identities);
   let stopGitHubWatcher = () => {};
 
   // Handle message events
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Bot messages must never spend currency or trigger another bot reply.
+    try { if (swearJar && await swearJar.handleMessage(message)) return; }
+    catch { console.error("[Swear jar] Could not process a message; check storage availability."); }
     if (identity && await identity.handleMessage(message)) return; // Open the web game before the conversation channel gate or LLM routing.
     if (touhouTrader && await touhouTrader.handleMessage(message)) return; // Consume trader commands before calling the language model.
     // Gate to specific channel if configured
@@ -61,6 +65,7 @@ async function main() {
   client.once(Events.ClientReady, () => {
     console.log(`🌸 Sakura is online and ready to cuddle! (${client.user.tag})`);
     stopGitHubWatcher = startGitHubActivityWatcher(client);
+    swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
     if (identity) for (const guild of client.guilds.cache.values()) void identity.registerGuild(guild);
     if (touhouTrader) {
       for (const guild of client.guilds.cache.values()) void touhouTrader.registerGuild(guild);
@@ -70,16 +75,22 @@ async function main() {
   await client.login(DISCORD_TOKEN);
 
   // Graceful shutdown
-  process.on("SIGINT", async () => {
+  let shuttingDown = false;
+  const shutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     console.log("\n🌸 Sakura is going to sleep... Sweet dreams!");
     stopGitHubWatcher();
+    await swearJar?.stop(); // Stop scheduled draws and finish replies before closing identity or wallet storage.
     await identity?.close(); // Finish browser callbacks before closing account storage.
     await client.destroy();
     await wallet?.close(); // Finish payment journaling before closing trader storage.
     identity?.closeGames(); // Keep the diaper journal open until every wallet action has drained.
     touhouTrader?.close(); // Flush and close trading state before the process exits.
     process.exit(0);
-  });
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown); // Fedora service stops must drain the same journals as an interactive stop.
 }
 
 main().catch(error => { console.error(error); process.exit(1); }); // Fail startup visibly if authentication cannot bind or Discord login fails.

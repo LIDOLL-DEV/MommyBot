@@ -316,3 +316,14 @@ consent, balances and Fedora deployment require the operator setup above.
 ## Diamonds
 
 Diamonds are now supported by the shared online wallet. Use /lidollid wallet balance to see them; administrators can use /lidollid wallet gift user:@Someone currency:diamonds amount:2 or Gift diamonds in /menu. Gifts use the same exact-receipt verification and pending recovery as coins/stars. Exchange diamonds for coins on Little Log's Stickers & market page at 1 diamond = 50 coins. Game prices remain unchanged. Existing coin/star connections still work; renew via /lidollid login and approve diamonds to enable the new balance and gifts.
+
+## Swear jar payments
+
+With online wallets and LiD0llID enabled, MommyBot automatically charges one
+LiDollcoin per server message containing a configured swear word and distributes
+each server's confirmed pot to one linked member every Monday at 00:00 UTC.
+Saved fines and prizes share wallet locks, account bindings and pending-payment
+guards with games and gifts. `/lidollid wallet retry` can finish them; automatic
+retries run each minute. Unlinked users receive account creation/login guidance.
+See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for configuration, eligibility,
+missing-wallet behavior, word matching and recovery.

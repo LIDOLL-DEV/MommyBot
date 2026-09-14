@@ -130,6 +130,7 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
     handleInteraction: createIdentityHandler(store, config, wallet, gacha, trader, hangman, touhouWeb),
+    identities: store, // Share verified Discord links with the swear jar's server-membership checks.
     handleMessage: async message => Boolean(await gacha?.handleMessage(message) || await hangman?.handleMessage(message)),
     closeGames: () => { gacha?.close(); hangman?.close(); }, // Both journals remain open until wallet actions drain at shutdown.
     async registerGuild(guild) {

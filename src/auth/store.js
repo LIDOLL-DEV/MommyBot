@@ -23,6 +23,7 @@ export class IdentityStore {
 
   prune() { this.db.prepare("DELETE FROM identity_attempts WHERE expires <= ?").run(this.now()); }
   get(discordId) { return this.db.prepare("SELECT * FROM identity_links WHERE discord_id = ?").get(discordId); }
+  discordLinks() { return this.db.prepare("SELECT discord_id,issuer,subject FROM identity_links ORDER BY discord_id").all(); } // Lottery entries come only from confirmed Discord links, never standalone web accounts.
   find(issuer, subject) { return this.db.prepare("SELECT * FROM identity_links WHERE issuer=? AND subject=?").get(issuer, subject); } // Resolve only verified issuer/subject pairs; names and caller-supplied Discord IDs cannot grant access.
   gameIdentity(userId) {
     const linked = this.get(userId);

@@ -1,0 +1,328 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { WalletService } from "../src/wallet/service.js";
+import { WalletError } from "../src/wallet/client.js";
+import { IdentityStore } from "../src/auth/store.js";
+import { nextSwearJarDraw } from "../src/wallet/swearJar.js";
+import { createSwearJar, swearMatcher } from "../src/swearJar.js";
+import { runWalletAction } from "../src/wallet/commands.js";
+
+const MONDAY = Date.parse("2026-09-14T00:00:00Z"), WEEK = 7 * 86_400_000;
+
+function fixture(t, env = {}) {
+  const directory = mkdtempSync(path.join(tmpdir(), "mommybot-swear-jar-"));
+  const f = { now: MONDAY + 1000, calls: [], balances: new Map(), receipts: new Map(), sent: [], fetched: [], members: new Map(), nextMessage: 100 };
+  f.identities = new IdentityStore(path.join(directory, "identity.db"), () => f.now);
+  f.api = {
+    config: { baseUrl: "https://wallet.example/v1/", clientId: "lidollbot" },
+    async operation(token, body) {
+      f.calls.push({ token, ...body });
+      if (f.reject) throw f.reject;
+      const key = `${token}:${body.request_id}`;
+      let receipt = f.receipts.get(key);
+      if (!receipt) {
+        const old = f.balances.get(token) ?? 0;
+        if (body.kind === "debit" && old < body.amount) throw new WalletError("request_failed", "Balance too low.", 409);
+        const balance = old + (body.kind === "debit" ? -body.amount : body.amount);
+        f.balances.set(token, balance);
+        receipt = { ...body, currency: "LiDollCoin", balance };
+        f.receipts.set(key, receipt);
+      }
+      if (f.delay) await f.delay;
+      if (f.lose === body.kind) throw new Error("PRIVATE response lost");
+      return f.badReceipt ? { ...receipt, currency: "Stars" } : receipt;
+    },
+    async revoke() {},
+  };
+  f.open = () => {
+    f.wallet = new WalletService(path.join(directory, "wallet.db"), f.api, { now: () => f.now });
+    f.wallet.identityFor = user => f.identities.gameIdentity(user);
+    f.wallet.swearJar.draw = count => { f.drawCount = count; return f.winnerIndex ?? 0; };
+    f.bot = createSwearJar(f.client, f.wallet, f.identities, env);
+  };
+  f.channel = guild => ({ guildId: guild, isTextBased: () => true, async send(options) {
+    if (f.failSend) throw new Error("Discord offline");
+    f.sent.push(options);
+  } });
+  f.client = {
+    channels: { async fetch(id) { return f.channel(id === "other-channel" ? "other" : "guild"); } },
+    guilds: { cache: new Map([["guild", { members: { async fetch({ user, force }) {
+      assert.equal(force, true); f.fetched.push(user);
+      if (f.membershipError) throw f.membershipError;
+      if (!f.members.has(user)) throw Object.assign(new Error("Unknown member"), { code: 10007 });
+      return { user: { id: user, bot: f.members.get(user) } };
+    } } }]]) },
+  };
+  f.open();
+  f.link = (user, { coins = 10, connected = true, member = true, bot = false } = {}) => {
+    f.identities.db.prepare("INSERT OR REPLACE INTO identity_links VALUES (?,?,?,?,?)").run(user, "issuer", user, user, f.now);
+    if (member) f.members.set(user, bot);
+    if (connected) f.connect(user, coins);
+  };
+  f.connect = (user, coins = 10) => {
+    f.wallet.db.prepare("INSERT OR REPLACE INTO online_wallets VALUES (?,?,?,?,?,?)").run(user, user, f.now + 100 * WEEK, user, f.api.config.baseUrl, f.api.config.clientId);
+    f.balances.set(user, coins);
+  };
+  f.message = (content = "Oh SHIT!", overrides = {}) => ({
+    id: String(f.nextMessage++), guildId: "guild", channelId: "channel", createdTimestamp: f.now,
+    author: { id: "alice", bot: false }, content,
+    async reply(options) { if (f.failSend) throw new Error("Discord offline"); f.sent.push(options); }, ...overrides,
+  });
+  f.jobs = () => f.wallet.db.prepare("SELECT * FROM swear_jar_jobs ORDER BY created,id").all();
+  f.prizes = () => f.jobs().filter(job => job.kind === "credit");
+  f.restart = async () => { await f.bot.stop(); await f.wallet.close(); f.open(); };
+  t.after(async () => { await f.bot.stop(); await f.wallet.close(); f.identities.close(); rmSync(directory, { recursive: true, force: true }); });
+  return f;
+} // Exercise real SQLite journals and wallet locks using disposable accounts, a controlled clock and an idempotent fake provider.
+
+test("whole-word swears support case, punctuation and Unicode normalization without innocent substrings", () => {
+  const matches = swearMatcher();
+  for (const text of ["Fuck!", "shit, fuck", "that's bullshit", "ＦＵＣＫ", "bitch's", "damn-it"]) assert.equal(matches(text), true, text);
+  for (const text of ["class assignment", "Scunthorpe", "hello shell", "Dickens", "passage", "shitake", "éshit", "fucké", "", null]) assert.equal(matches(text), false, text);
+  assert.equal(swearMatcher(["heck", "a+b"])("Heck! a+b"), true);
+  assert.equal(swearMatcher(["heck"])("fuck"), false);
+  assert.equal(swearMatcher([])("fuck"), false);
+});
+
+test("weekly boundary is always the next Monday midnight UTC", () => {
+  assert.equal(nextSwearJarDraw(MONDAY), MONDAY + WEEK);
+  assert.equal(nextSwearJarDraw(MONDAY - 1), MONDAY);
+  assert.equal(nextSwearJarDraw(Date.parse("2026-11-01T23:59:59Z")), Date.parse("2026-11-02T00:00:00Z"));
+  assert.equal(nextSwearJarDraw(Date.parse("2026-12-31T23:59:59Z")), Date.parse("2027-01-04T00:00:00Z"));
+});
+
+test("a message with several swears costs one coin and duplicate deliveries do not charge or reply again", async t => {
+  const f = fixture(t); f.link("alice");
+  const message = f.message("fuck shit damn");
+  assert.equal(await f.bot.handleMessage(message), true);
+  await f.bot.handleMessage(message);
+  assert.equal(f.balances.get("alice"), 9); assert.equal(f.calls.length, 1); assert.equal(f.sent.length, 1);
+  assert.match(f.sent[0].content, /1 coin in the swear jar/);
+  assert.match(f.sent[0].content, /has been put/);
+  assert.deepEqual(f.sent[0].allowedMentions.parse, []);
+  assert.equal(f.calls[0].asset, "coins"); assert.equal(f.jobs()[0].state, "done");
+  await f.restart(); await f.bot.handleMessage(message);
+  assert.equal(f.calls.length, 1); assert.equal(f.sent.length, 1);
+});
+
+test("bot messages, webhooks, DMs and clean messages are ignored; swears outside the conversation channel count", async t => {
+  const f = fixture(t, { CHANNEL_ID: "conversation-only" }); f.link("alice");
+  for (const message of [f.message("hello"), f.message("shit", { guildId: null }), f.message("shit", { webhookId: "hook" }), f.message("shit", { author: { id: "alice", bot: true } })]) {
+    assert.equal(await f.bot.handleMessage(message), false);
+  }
+  assert.equal(f.calls.length, 0);
+  assert.equal(await f.bot.handleMessage(f.message()), true);
+  assert.equal(f.calls.length, 1);
+});
+
+test("unlinked users are asked to create and register LiD0llID; missing wallets get login guidance without debt", async t => {
+  const f = fixture(t);
+  await f.bot.handleMessage(f.message());
+  assert.match(f.sent.at(-1).content, /make a \*\*LiD0llID account/);
+  assert.match(f.sent.at(-1).content, /\/lidollid login/);
+  f.link("alice", { connected: false });
+  await f.bot.handleMessage(f.message());
+  assert.match(f.sent.at(-1).content, /connect your wallet/);
+  f.connect("alice"); await f.bot.tick();
+  assert.equal(f.calls.length, 0); assert.equal(f.wallet.hasPending("alice"), false);
+});
+
+test("insufficient coins collect nothing and cannot inflate the lottery pot", async t => {
+  const f = fixture(t); f.link("alice", { coins: 0 });
+  await f.bot.handleMessage(f.message());
+  assert.match(f.sent[0].content, /No coin was collected/);
+  assert.equal(f.jobs()[0].state, "failed"); assert.equal(f.wallet.hasPending("alice"), false);
+  f.now = MONDAY + WEEK; await f.bot.tick();
+  assert.equal(f.prizes().length, 0); assert.equal(f.balances.get("alice"), 0);
+});
+
+test("lost debit responses survive restart, prevent unlink, and recover exactly once with private retry", async t => {
+  const f = fixture(t); f.link("alice"); f.lose = "debit";
+  await f.bot.handleMessage(f.message());
+  assert.equal(f.balances.get("alice"), 9); assert.equal(f.wallet.hasPending("alice"), true);
+  assert.match(f.sent[0].content, /payment is pending/); assert.doesNotMatch(f.sent[0].content, /PRIVATE/);
+  await assert.rejects(f.wallet.disconnect("alice"), /pending/);
+  await f.restart(); f.lose = null;
+  const response = await runWalletAction({ user: { id: "alice" } }, f.wallet, f.identities, "retry");
+  assert.match(response.content, /has been put in the swear jar/);
+  assert.equal(f.balances.get("alice"), 9); assert.equal(f.wallet.hasPending("alice"), false);
+  assert.equal(f.calls[0].request_id, f.calls[1].request_id);
+});
+
+test("uncertain debit stays reserved even if a later attempt is refused", async t => {
+  const f = fixture(t); f.link("alice"); f.lose = "debit";
+  await f.bot.handleMessage(f.message());
+  f.reject = new WalletError("request_failed", "Declined", 403);
+  await assert.rejects(f.wallet.swearJar.retry("alice"), /saved/);
+  assert.equal(f.wallet.hasPending("alice"), true);
+  f.reject = null; f.lose = null; await f.bot.tick();
+  assert.equal(f.balances.get("alice"), 9); assert.equal(f.wallet.hasPending("alice"), false);
+});
+
+test("weekly draw pays the entire pot to one linked current human member, including members who never swore", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob"); f.link("departed", { member: false }); f.link("robot", { bot: true });
+  f.identities.gameAccount({ issuer: "issuer", subject: "web-only", username: "web-only" });
+  f.members.set("unlinked", false); f.winnerIndex = 1;
+  await f.bot.handleMessage(f.message()); await f.bot.handleMessage(f.message());
+  f.now = MONDAY + WEEK - 1; await f.bot.tick(); assert.equal(f.prizes().length, 0);
+  f.now++; await f.bot.tick();
+  assert.equal(f.drawCount, 2); assert.equal(f.prizes().length, 1);
+  assert.equal(f.prizes()[0].user_id, "bob"); assert.equal(f.prizes()[0].amount, 2);
+  assert.equal(f.balances.get("alice"), 8); assert.equal(f.balances.get("bob"), 12);
+  assert.match(f.sent.at(-1).content, /weekly swear jar lottery winner is <@bob>/);
+  assert.match(f.sent.at(-1).content, /have been gifted/);
+  assert.deepEqual(f.sent.at(-1).allowedMentions.users, ["bob"]);
+  assert.ok(f.fetched.includes("departed")); assert.ok(!f.fetched.includes("unlinked"));
+  await Promise.all([f.bot.tick(), f.bot.tick()]); await f.restart(); await f.bot.tick();
+  assert.equal(f.prizes().length, 1); assert.equal(f.balances.get("bob"), 12);
+});
+
+test("pending prize holds the same winner and coins through timeout, restart and a subsequent week", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob"); f.winnerIndex = 1;
+  await f.bot.handleMessage(f.message());
+  f.now = MONDAY + WEEK; f.lose = "credit"; await f.bot.tick();
+  const prize = f.prizes()[0];
+  assert.equal(prize.state, "pending"); assert.equal(f.balances.get("bob"), 11);
+  assert.match(f.sent.at(-1).content, /reserved for you/);
+  await f.restart(); f.now += WEEK; f.lose = null; await f.bot.tick();
+  assert.equal(f.prizes().length, 1); assert.equal(f.prizes()[0].id, prize.id);
+  assert.equal(f.balances.get("bob"), 11); assert.equal(f.prizes()[0].state, "done");
+  assert.match(f.sent.at(-1).content, /has been gifted/);
+  assert.equal(f.calls.filter(call => call.kind === "credit").every(call => call.request_id === prize.id), true);
+});
+
+test("linked winners without a wallet remain eligible and can collect after connecting", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob", { connected: false }); f.winnerIndex = 1;
+  await f.bot.handleMessage(f.message()); f.now = MONDAY + WEEK; await f.bot.tick();
+  assert.equal(f.prizes()[0].user_id, "bob"); assert.equal(f.prizes()[0].state, "pending");
+  assert.equal(f.wallet.hasPending("bob"), true); assert.equal(f.calls.length, 1);
+  f.connect("bob", 0);
+  const result = await f.wallet.swearJar.retry("bob");
+  assert.equal(result.state, "done"); assert.equal(f.balances.get("bob"), 1);
+  await f.bot.tick(); assert.match(f.sent.at(-1).content, /has been gifted/);
+});
+
+test("no eligible members carries the pot forward, and transient membership errors defer the draw", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  f.now = MONDAY + WEEK; f.membershipError = Object.assign(new Error("Discord unavailable"), { code: 500 });
+  await f.bot.tick(); assert.equal(f.prizes().length, 0);
+  assert.equal(f.wallet.db.prepare("SELECT next_draw FROM swear_jar_guilds").get().next_draw, f.now);
+  f.membershipError = null; f.members.clear(); await f.bot.tick();
+  assert.equal(f.prizes().length, 0); assert.equal(f.jobs()[0].allocation, null);
+  f.members.set("alice", false); f.now += WEEK; await f.bot.tick();
+  assert.equal(f.prizes()[0].amount, 1); assert.equal(f.balances.get("alice"), 10);
+});
+
+test("the next week's messages stay out of an overdue draw and unresolved fines enter a later lottery", async t => {
+  const f = fixture(t); f.link("alice");
+  await f.bot.handleMessage(f.message()); f.lose = "debit"; await f.bot.handleMessage(f.message());
+  f.now = MONDAY + WEEK; f.reject = new WalletError("daily_limit", "Tomorrow", 429);
+  await f.bot.tick();
+  assert.equal(f.prizes()[0].amount, 1);
+  f.reject = null; f.lose = null; await f.bot.handleMessage(f.message()); await f.bot.tick();
+  assert.equal(f.prizes()[0].amount, 1);
+  f.now += WEEK; await f.bot.tick();
+  assert.deepEqual(f.prizes().map(job => job.amount), [1, 2]);
+  assert.equal(f.balances.get("alice"), 10);
+});
+
+test("API, wallet account and identity changes cannot redirect a saved fine", async t => {
+  const f = fixture(t); f.link("alice"); f.lose = "debit"; await f.bot.handleMessage(f.message()); f.lose = null;
+  f.api.config.baseUrl = "https://other.example/v1/";
+  await assert.rejects(f.wallet.swearJar.retry("alice"), /different API settings/);
+  f.api.config.baseUrl = "https://wallet.example/v1/";
+  f.wallet.db.prepare("UPDATE online_wallets SET account_id='other'").run();
+  await assert.rejects(f.wallet.swearJar.retry("alice"), /original wallet/);
+  f.wallet.db.prepare("UPDATE online_wallets SET account_id='alice'").run();
+  f.identities.db.prepare("UPDATE identity_links SET subject='different'").run();
+  await assert.rejects(f.wallet.swearJar.retry("alice"), /original LiD0llID/);
+  assert.equal(f.calls.length, 1);
+});
+
+test("malformed receipts and SQLite completion failures retain the original operation for recovery", async t => {
+  const f = fixture(t); f.link("alice"); f.badReceipt = true;
+  await f.bot.handleMessage(f.message()); assert.equal(f.wallet.hasPending("alice"), true);
+  f.badReceipt = false;
+  f.wallet.db.exec("CREATE TRIGGER fail_swear BEFORE UPDATE OF state ON swear_jar_jobs WHEN NEW.state='done' BEGIN SELECT RAISE(FAIL,'disk failure'); END");
+  await assert.rejects(f.wallet.swearJar.retry("alice"), /saved/);
+  f.wallet.db.exec("DROP TRIGGER fail_swear"); await f.restart(); await f.bot.tick();
+  assert.equal(f.balances.get("alice"), 9); assert.equal(f.wallet.hasPending("alice"), false);
+  assert.equal(new Set(f.calls.map(call => call.request_id)).size, 1);
+});
+
+test("concurrent messages share wallet locks, queue their own one-coin fines and do not duplicate notifications", async t => {
+  const f = fixture(t); f.link("alice");
+  let release; f.delay = new Promise(resolve => { release = resolve; });
+  const first = f.bot.handleMessage(f.message());
+  const second = f.bot.handleMessage(f.message());
+  assert.equal(f.calls.length, 1); assert.equal(f.jobs().length, 1);
+  release(); await Promise.all([first, second]); f.delay = null; await f.bot.tick();
+  assert.equal(f.calls.length, 2); assert.equal(f.balances.get("alice"), 8); assert.equal(f.sent.length, 2);
+});
+
+test("a swear arriving during unlink waits for its result and cannot strand a charge on the removed account", async t => {
+  const f = fixture(t); f.link("alice");
+  let release;
+  const waiting = new Promise(resolve => { release = resolve; });
+  f.api.revoke = async () => waiting;
+  const unlink = f.wallet.disconnect("alice").then(() => f.identities.unlink("alice"));
+  const message = f.bot.handleMessage(f.message());
+  assert.equal(f.jobs().length, 0);
+  release(); await unlink; await message;
+  assert.equal(f.calls.length, 0); assert.equal(f.wallet.hasPending("alice"), false);
+  assert.match(f.sent[0].content, /make a \*\*LiD0llID account/);
+});
+
+test("failed Discord notices retry independently without charging again", async t => {
+  const f = fixture(t); f.link("alice"); f.failSend = true;
+  await f.bot.handleMessage(f.message()); assert.equal(f.jobs()[0].notified, 0);
+  f.failSend = false; await f.bot.tick();
+  assert.equal(f.calls.length, 1); assert.equal(f.sent.length, 1); assert.equal(f.jobs()[0].notified, 1);
+  assert.equal(f.sent[0].reply.messageReference, "100");
+});
+
+test("shutdown drains an in-flight reply even when the same message is delivered again", async t => {
+  const f = fixture(t); f.link("alice");
+  let release, beginReply;
+  const waiting = new Promise(resolve => { release = resolve; });
+  const replying = new Promise(resolve => { beginReply = resolve; });
+  const message = f.message("shit", { async reply(options) { beginReply(); await waiting; f.sent.push(options); } });
+  const first = f.bot.handleMessage(message);
+  await replying; await f.bot.handleMessage(message);
+  let stopped = false;
+  const stopping = f.bot.stop().then(() => { stopped = true; });
+  await Promise.resolve(); assert.equal(stopped, false);
+  release(); await Promise.all([first, stopping]);
+  assert.equal(f.sent.length, 1); assert.equal(f.calls.length, 1); assert.equal(f.jobs()[0].notified, 1);
+  assert.equal(await f.bot.handleMessage(f.message()), false);
+});
+
+test("pausing stops new fines while saved money still settles and overdue draws recover", async t => {
+  const env = {}, f = fixture(t, env); f.link("alice");
+  await f.bot.handleMessage(f.message()); env.SWEAR_JAR_ENABLED = "false"; await f.restart();
+  assert.equal(await f.bot.handleMessage(f.message()), false);
+  f.now = MONDAY + 3 * WEEK; await f.bot.tick();
+  assert.equal(f.prizes().length, 1); assert.equal(f.prizes()[0].amount, 1);
+  assert.equal(f.balances.get("alice"), 10);
+});
+
+test("per-server pots stay separate and an announcement channel in another server is never used", async t => {
+  const f = fixture(t, { SWEAR_JAR_CHANNEL_ID: "other-channel" }); f.link("alice");
+  await f.bot.handleMessage(f.message());
+  await f.bot.handleMessage(f.message("shit", { guildId: "other", channelId: "other-channel" }));
+  f.now = MONDAY + WEEK; await f.bot.tick();
+  assert.equal(f.prizes().length, 1); assert.equal(f.prizes()[0].guild_id, "guild"); assert.equal(f.prizes()[0].amount, 1);
+  assert.equal(f.jobs().filter(job => job.guild_id === "other")[0].allocation, null);
+  assert.equal(f.balances.get("alice"), 9);
+});
+
+test("configuration can replace the swear list and missing wallet or identity disables the handler", async t => {
+  const f = fixture(t, { SWEAR_JAR_WORDS: "heck, darn" }); f.link("alice");
+  assert.equal(await f.bot.handleMessage(f.message("shit")), false);
+  assert.equal(await f.bot.handleMessage(f.message("heck!")), true);
+  assert.equal(createSwearJar(f.client, null, f.identities), null);
+  assert.equal(createSwearJar(f.client, f.wallet, null), null);
+});

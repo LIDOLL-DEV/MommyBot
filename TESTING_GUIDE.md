@@ -1,5 +1,26 @@
 # Testing MommyBot
 
+## Swear jar and weekly lottery
+
+`node --test test/swear-jar.test.js` uses real disposable SQLite journals with
+fake Discord members, a controlled UTC clock and an idempotent wallet provider.
+It covers whole-word matching and customization, one coin per message, duplicate
+delivery, bots/webhooks/DM exclusions, all-channel handling, unlinked accounts,
+missing wallets, insufficient funds, exact Monday boundaries, equal eligibility
+for quiet linked members, departed/bot/web-only exclusions, per-server pots,
+empty draws and rollovers, reserved winners without wallets, interrupted debit
+and credit recovery, private retry, receipt validation, API/account/identity
+pinning, storage failures, concurrent messages and unlink, notice retries,
+overdue draws and pausing new fines. Run `npm test` before deployment.
+
+On a designated test server, verify the configured swear list, reply permissions
+and announcement channel. Check that an unlinked test user receives account
+creation/login guidance. A linked funded test user should lose exactly one coin
+for a message containing multiple listed words. Ordinary messages must still
+reach normal bot routing. Inspect saved journals for pending payments instead
+of manually issuing replacement charges or prizes. See
+[SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for scheduling and recovery behavior.
+
 ## Cozy Hangman
 
 `test/hangman.test.js` covers one-coin entry, per-occurrence letter rewards,

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { chmodSync } from "node:fs";
 import { WalletError } from "./client.js";
 import { WalletGifts } from "./gifts.js";
+import { SwearJar } from "./swearJar.js";
 
 export class WalletService {
   constructor(filename, client, { now = Date.now } = {}) {
@@ -23,6 +24,7 @@ export class WalletService {
       interval_ms INTEGER NOT NULL, next_poll INTEGER NOT NULL, candidate TEXT, candidate_expires INTEGER,
       base_url TEXT NOT NULL, client_id TEXT NOT NULL);`);
     this.db.exec('CREATE TABLE IF NOT EXISTS combined_wallets(discord_id TEXT PRIMARY KEY,generation TEXT NOT NULL,issuer TEXT NOT NULL,subject TEXT NOT NULL,proof TEXT NOT NULL,deadline INTEGER NOT NULL,candidate TEXT,candidate_expires INTEGER,base_url TEXT NOT NULL,client_id TEXT NOT NULL); CREATE TABLE IF NOT EXISTS wallet_identity_links(discord_id TEXT PRIMARY KEY,issuer TEXT NOT NULL,subject TEXT NOT NULL);');
+    this.swearJar = new SwearJar(this); // Restore swear jar reservations even when new fines are paused.
   } // Store wallet grants separately from identity links under the existing protected data directory.
   async exclusive(userId, action) {
     return this.exclusiveMany([userId], action);

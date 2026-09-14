@@ -5,6 +5,18 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+The swear jar uses `src/swearJar.js` for message matching, Discord notices and
+weekly scheduling, and `src/wallet/swearJar.js` for the durable coin journal.
+See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md). Charge exactly one online coin per
+matched human server message, before the AI channel gate. Deduplicate by message
+ID, wait for in-flight wallet changes before creating a fine, and allocate only
+confirmed debits to a single saved winner per server and weekly boundary.
+Check all confirmed Discord links against current server membership; missing
+wallet grants must not exclude a linked winner. Keep pending prizes pinned to
+their original identity/account, compose the wallet reservation guards before
+HTTP startup, and preserve payment recovery when new fines are paused. Stop and
+drain the scheduler before closing identity/wallet storage on SIGINT or SIGTERM.
+
 Cozy Hangman lives in `src/hangman/`; see [HANGMAN_GUIDE.md](HANGMAN_GUIDE.md).
 Charge exactly one online coin before exposing a playable word. Credit one
 coin per newly revealed position, recording the guess and credit reservation
