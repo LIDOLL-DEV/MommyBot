@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { authDiagnostic } from "./diagnostics.js";
+import { authStyleSource, renderAuthPage } from "./page.js";
 
 const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -14,14 +15,14 @@ export function createAuthServer(config, store, oidc, wallet = null) {
   const validTicket = ticket => /^[\w-]{43}$/.test(ticket || "") && store.hasTicket(ticket);
   const page = (response, status, body) => {
     response.writeHead(status, { "Content-Type": "text/html; charset=utf-8" });
-    response.end(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>LiDollBot account</title><body><main><h1>LiDollBot · LiD0llID</h1>${body}</main></body></html>`);
+    response.end(renderAuthPage(body, status));
   }; // Render escaped server-side text with no scripts, third-party assets or browser token storage.
   return createServer({ requestTimeout: 15000, headersTimeout: 10000, maxHeaderSize: 8192 }, async (request, response) => {
     response.setHeader("Cache-Control", "no-store");
     response.setHeader("Referrer-Policy", "no-referrer");
     response.setHeader("X-Content-Type-Options", "nosniff");
     const issuerOrigin = config.issuer ? new URL(config.issuer).origin : "";
-    response.setHeader("Content-Security-Policy", `default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self' ${issuerOrigin}`.trim());
+    response.setHeader("Content-Security-Policy", `default-src 'none'; style-src ${authStyleSource}; frame-ancestors 'none'; base-uri 'none'; form-action 'self' ${issuerOrigin}`.trim());
     let stage = "login";
     try {
       const url = new URL(request.url, config.origin);

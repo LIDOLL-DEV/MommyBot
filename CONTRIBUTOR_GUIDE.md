@@ -36,6 +36,15 @@ destinations separate and never follow API redirects with bearer credentials.
 
 LiD0llID account linking lives in `src/auth/`. See
 [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md) for the OIDC registration and proxy setup.
+`auth/page.js` and `auth/theme.css` define the shared browser-page shell, matching
+the default pastel Little Tracker theme. Bundle styles locally and authorize
+their exact content with a CSP hash; do not load tracker scripts, remote fonts,
+or browser storage on sign-in pages. Keep dynamic body values HTML-escaped.
+The member-facing [ACCOUNT_LINKING_GUIDE.md](ACCOUNT_LINKING_GUIDE.md) covers
+linking and testing resets. Keep the status button and `/lidollid unlink` on
+the same revocation-first path. Bind unlink buttons to the authenticated Discord
+user; never accept another user's ID as an unlink target. Unlink cancels pending
+sign-ins but preserves game data, remote balances and the awarded role.
 Keep issuer/subject as identity keys, final confirmation bound to the initiating
 Discord user, callback cookies host-only, and responses ephemeral. Only stage the short-lived provider access token in the protected wallet database
 until exchange/expiry; never retain it in the identity database. Do not grant roles

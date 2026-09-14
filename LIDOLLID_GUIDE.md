@@ -9,6 +9,14 @@ and exact callback URL. LiDollBot's default client ID is `lidollbot`.
 
 ## Player flow
 
+The bot's landing, confirmation and error pages use the default pastel Little
+Tracker theme from `lidoll.dev/tracker/`. Styles ship with the bot and require
+no third-party asset requests or browser scripts. The separate LiD0llID
+provider's password and consent screens are managed by the identity service.
+
+Share [ACCOUNT_LINKING_GUIDE.md](ACCOUNT_LINKING_GUIDE.md) with Discord members
+for the step-by-step login, unlink and testing walkthrough.
+
 1. Run `/lidollid login` in a server with the bot. Open the private sign-in link
    and press **Continue with LiD0llID** in the browser.
 2. Sign in with LiD0llID. An existing browser session avoids another password
@@ -19,7 +27,10 @@ and exact callback URL. LiDollBot's default client ID is `lidollbot`.
 4. Successful confirmation awards role `1548848979754614857` in its server.
    Run `/lidollid status` to see the linked username and verification time and
    retry role delivery if needed. Already-linked members can use status too.
-   `/lidollid unlink` removes the link and cancels pending sign-ins.
+   `/lidollid unlink` or the **Unlink account** button on `/lidollid status`
+   immediately removes the link and cancels pending sign-ins. Wallet access is
+   revoked first; pending trader payments or a revocation failure keep the
+   link intact for recovery. Both options operate only on the requesting user.
 
 All command replies are ephemeral. Links and codes expire ten minutes after
 starting sign-in; generating a newer `/lidollid login` invalidates the older

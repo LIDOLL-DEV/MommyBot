@@ -108,6 +108,11 @@ Referer reaches the provider. This uses in-memory accounts and a local provider
 stub; cryptographic OIDC validation remains covered by the Node tests. No real
 Discord or LiD0llID accounts or existing browser profiles are used.
 
+The browser check also verifies that CSP permits the bundled pastel stylesheet
+and that login, error and confirmation pages fit 390px and 1280px viewports.
+Set `AUTH_SCREENSHOT_DIR` to a disposable output folder to save screenshots of
+those fixture pages for visual review. It captures no live accounts.
+
 For live SSO acceptance, follow [LIDOLLID_GUIDE.md](LIDOLLID_GUIDE.md), register
 the exact callback and configure the HTTPS proxy. With a test Discord user,
 run login, authenticate, confirm the browser code, and check status after a bot
@@ -119,6 +124,14 @@ ephemeral and login URLs do not appear in proxy logs. Verify the other bot
 commands still work during an identity-provider outage. Live Discord/HTTPS/SSO
 acceptance requires a registered client and has not been performed by the local
 test suite.
+
+`test/unlink-account.test.js` exercises the private status unlink button and
+slash command using real disposable identity/wallet databases. It checks user
+binding, wallet revocation, stale confirmation rejection, a fresh login after
+unlink, identity-only cancellation, and preservation on pending payments or
+revocation failure. No live accounts or balances are changed. For a manual reset,
+follow [ACCOUNT_LINKING_GUIDE.md](ACCOUNT_LINKING_GUIDE.md); remove the awarded
+role manually only when retesting role delivery from an absent role.
 
 Touhou tests cover both payment methods, insufficient funds, duplicate actions,
 rollback after an ownership-write failure, stock/party limits, gifts, consenting

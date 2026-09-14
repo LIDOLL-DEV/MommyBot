@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { pathToFileURL } from "node:url";
+import { mkdir } from "node:fs/promises";
+import { join } from "node:path";
 import { IdentityStore } from "../src/auth/store.js";
 import { createAuthServer } from "../src/auth/server.js";
 
@@ -51,6 +53,22 @@ try {
   browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH, headless: true, pipe: true });
   const page = await browser.newPage();
   page.setDefaultTimeout(15000);
+  const screenshotDir = process.env.AUTH_SCREENSHOT_DIR;
+  if (screenshotDir) await mkdir(screenshotDir, { recursive: true });
+  const checkAppearance = async name => {
+    for (const width of [390, 1280]) {
+      await page.setViewport({ width, height: 900, deviceScaleFactor: 1 });
+      const layout = await page.evaluate(() => ({
+        color: getComputedStyle(document.documentElement).color,
+        fits: document.documentElement.scrollWidth <= window.innerWidth,
+        rounded: getComputedStyle(document.querySelector("main")).borderRadius,
+      }));
+      assert.equal(layout.color, "rgb(86, 59, 104)", "CSP must allow the bundled tracker theme.");
+      assert.equal(layout.rounded, "24px");
+      assert.ok(layout.fits, `${name} must fit a ${width}px viewport, including its confirmation command.`);
+      if (screenshotDir) await page.screenshot({ path: join(screenshotDir, `${name}-${width}.png`), fullPage: true });
+    }
+  }; // Check actual browser styling and mobile overflow; optional captures contain only disposable fixture credentials.
   const ticket = store.begin("fixture-discord-user");
   const login = `${config.origin}/auth/login?ticket=${ticket}`;
   await page.goto(login);
@@ -59,10 +77,12 @@ try {
   assert.equal(submissions.at(-1).origin, "null");
   assert.equal(store.hasTicket(ticket), true);
   assert.equal(attempts, 0);
+  await checkAppearance("error");
   console.log("PASS: Reproduced the old no-referrer form failure (Origin: null, HTTP 403).");
 
   brokenPolicy = false;
   await page.goto(login);
+  await checkAppearance("login");
   const [accepted] = await Promise.all([page.waitForNavigation(), page.click("button[type=submit]")]);
   assert.equal(accepted.status(), 200);
   assert.equal(new URL(page.url()).pathname, "/auth/callback");
@@ -70,6 +90,7 @@ try {
   assert.equal(submissions.at(-1).referer, `${config.origin}/`);
   assert.deepEqual(providerReferrers, [undefined]);
   assert.equal(attempts, 1);
+  await checkAppearance("confirmation");
   const text = await page.$eval("main", element => element.textContent);
   const confirmation = text.match(/confirm code:([a-f0-9]{32})/)?.[1];
   assert.ok(confirmation, "Browser must reach the Discord confirmation page.");
@@ -77,6 +98,7 @@ try {
   store.confirm("fixture-discord-user", confirmation);
   assert.equal(store.get("fixture-discord-user").subject, "fixture-account");
   console.log("PASS: Corrected policy preserves Origin, strips ticket from Referer, follows provider redirect, and permits Discord confirmation.");
+  console.log("PASS: Login, error and confirmation pages apply the tracker theme and fit mobile and desktop viewports.");
 } finally {
   await browser?.close();
   await close(server);
