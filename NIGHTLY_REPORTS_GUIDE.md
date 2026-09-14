@@ -25,8 +25,9 @@ disabled until a dedicated report-read token is supplied and enabled.
    ```
 
    Use your installation's exact feed URL. Wallet and sign-in tokens cannot
-   authorize reports. HTTPS is required except for localhost development.
-   URL credentials, query strings and fragments are rejected.
+   authorize reports. HTTPS and explicit HTTP loopback/private IPv4 destinations
+   are supported, including production LAN connections. URL credentials, query
+   strings and fragments are rejected.
 3. Grant the bot **View Channel**, **Send Messages**, **Attach Files**, and
    **Read Message History** at the destination. A thread also needs access and
    **Send Messages in Threads**.
@@ -43,6 +44,21 @@ changing it later does not rewind a saved cursor. A different destination has
 its own delivery history. The interval accepts 10,000–3,600,000 milliseconds.
 
 ## Delivery and recovery
+
+To bypass hairpin NAT, point `MOMMYBOT_REPORTS_URL` directly at the tracker on
+your trusted LAN. For example, if its backend is `10.1.1.23:4173`:
+
+```dotenv
+MOMMYBOT_REPORTS_URL=http://10.1.1.23:4173/tracker/api/ai-reports/v1/reports
+```
+
+Use your actual backend address, port and path. HTTP accepts literal addresses
+in `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, IPv4 loopback, `localhost`,
+and IPv6 loopback (`[::1]`). Use a literal private IPv4 address for a LAN server.
+Public HTTP addresses and DNS hostnames other than localhost are rejected.
+There is no extra enable flag; the explicitly configured HTTP URL selects the
+transport. Redirects remain blocked, so the backend must serve the API directly.
+Deploy the updated client before testing the LAN URL with `check-reports.mjs`.
 
 Invalid enabled report settings now disable only the report publisher. Startup
 logs name every invalid `MOMMYBOT_REPORTS_*` field and its requirement without
@@ -71,7 +87,7 @@ The check validates report settings even while publication is disabled. Ensure
 `MOMMYBOT_REPORTS_CHANNEL_ID=1549134762172481557` and
 `MOMMYBOT_REPORTS_INITIAL=history` are present in the service environment; neither
 is inferred from local checkout settings. Add the dedicated report-read token
-and the full HTTPS feed URL shown by Little Log's admin console. After the check
+and the full feed URL (public HTTPS or direct LAN HTTP). After the check
 passes, set `MOMMYBOT_REPORTS_ENABLED=true` and restart the service. The old generic
 error alone does not identify which field is wrong or establish API reachability.
 

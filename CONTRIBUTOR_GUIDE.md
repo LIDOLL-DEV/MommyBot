@@ -15,6 +15,12 @@ Discord readiness and drain before disconnecting. Include the read-only
 `scripts/check-reports.mjs` in releases and private `data/reports.db` in backups.
 Run one publisher process per journal.
 
+Report feeds accept explicit HTTP loopback/private IPv4 destinations in
+production, matching the wallet's direct-backend policy for hairpin NAT bypass.
+Keep public HTTP, URL credentials, queries and fragments rejected and redirects
+blocked. Both document retrieval and listing must preserve the configured port
+and base path. HTTPS remains available for public tracker connections.
+
 Report configuration errors must disable only the optional publisher, leaving
 Discord startup and the saved journal untouched. Validate configuration inside
 the publisher factory's guarded body, not a default argument that can throw

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { ReportClient, ReportConfigurationError, reportConfig } from "../src/reports/client.js";
@@ -49,7 +50,7 @@ test("invalid report settings disable only the publisher without accessing Disco
 
 test("configuration identifies the exact invalid field without echoing its value", () => {
   const env = { MOMMYBOT_REPORTS_ENABLED: "true", MOMMYBOT_REPORTS_URL: config.url, MOMMYBOT_REPORTS_TOKEN: "secret", MOMMYBOT_REPORTS_CHANNEL_ID: config.channelId, MOMMYBOT_REPORTS_INITIAL: "history" };
-  for (const [field, value] of [["URL", "secret-invalid-url"], ["URL", "http://192.168.1.5/reports"], ["TOKEN", "secret token"], ["CHANNEL_ID", "secret-channel"], ["INITIAL", "secret-policy"], ["POLL_MS", "9999"]]) {
+  for (const [field, value] of [["URL", "secret-invalid-url"], ["URL", "http://203.0.113.5/reports"], ["TOKEN", "secret token"], ["CHANNEL_ID", "secret-channel"], ["INITIAL", "secret-policy"], ["POLL_MS", "9999"]]) {
     assert.throws(() => reportConfig({ ...env, [`MOMMYBOT_REPORTS_${field}`]: value }), error => {
       assert.ok(error instanceof ReportConfigurationError);
       assert.equal(error.code, "invalid_configuration");
@@ -59,6 +60,52 @@ test("configuration identifies the exact invalid field without echoing its value
       return true;
     });
   }
+});
+
+test("production report configuration permits direct LAN HTTP without enabling public HTTP", () => {
+  const env = { NODE_ENV: "production", MOMMYBOT_REPORTS_ENABLED: "true", MOMMYBOT_REPORTS_TOKEN: "secret", MOMMYBOT_REPORTS_CHANNEL_ID: config.channelId, MOMMYBOT_REPORTS_INITIAL: "history" };
+  for (const host of ["10.1.1.23", "10.255.255.255", "172.16.0.1", "172.31.255.254", "192.168.1.5", "localhost", "127.0.0.1", "127.0.0.2", "[::1]"]) {
+    const url = `http://${host}:4173/tracker/api/ai-reports/v1/reports`;
+    assert.equal(reportConfig({ ...env, MOMMYBOT_REPORTS_URL: url }).url, url);
+  }
+  for (const url of ["http://172.15.0.1/reports", "http://172.32.0.1/reports", "http://192.169.0.1/reports", "http://11.0.0.1/reports", "http://example.com/reports", "http://10.1.1.23.example.com/reports", "http://169.254.169.254/reports", "ftp://10.1.1.23/reports", "http://user:secret@10.1.1.23/reports", "http://10.1.1.23/reports?token=secret", "http://10.1.1.23/reports#secret"]) {
+    assert.throws(() => reportConfig({ ...env, MOMMYBOT_REPORTS_URL: url }), ReportConfigurationError);
+  }
+});
+
+test("LAN HTTP configuration reaches both report endpoints and publishes full documents", async t => {
+  const configured = reportConfig({ NODE_ENV: "production", MOMMYBOT_REPORTS_ENABLED: "true", MOMMYBOT_REPORTS_URL: "http://10.1.1.23:4173/tracker/api/ai-reports/v1/reports", MOMMYBOT_REPORTS_TOKEN: "secret", MOMMYBOT_REPORTS_CHANNEL_ID: config.channelId, MOMMYBOT_REPORTS_INITIAL: "history" });
+  const calls = [], report = makeReport(2);
+  const api = new ReportClient(configured, async (url, init) => {
+    calls.push({ url, init });
+    return { ok: true, json: async () => url.includes("?") ? page([report]) : report };
+  });
+  const f = fixture(t, { config: configured, api });
+  await f.publisher.poll();
+  assert.deepEqual(calls.map(call => call.url), [`${configured.url}?after=0&limit=20`, `${configured.url}/report-2`]);
+  for (const call of calls) { assert.equal(call.init.redirect, "error"); assert.equal(call.init.headers.Authorization, "Bearer secret"); }
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.sends[0].files[0].attachment.toString(), report.document);
+  assert.equal(f.store.cursor(configured), 2);
+});
+
+test("real HTTP reads succeed while redirects never reach their destination", async t => {
+  const requests = [], report = makeReport(2);
+  const server = createServer((request, response) => {
+    requests.push({ url: request.url, auth: request.headers.authorization });
+    if (request.url.startsWith("/redirect")) { response.writeHead(302, { Location: "/unexpected-destination" }); response.end(); return; }
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify(request.url === "/reports/report-2" ? report : page([report])));
+  }); // A local fixture exercises real fetch behavior without contacting a tracker or using real credentials.
+  t.after(() => new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve())));
+  await new Promise((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
+  const origin = `http://127.0.0.1:${server.address().port}`;
+  const api = new ReportClient({ ...config, url: `${origin}/reports` });
+  assert.equal((await api.list(0)).reports[0].id, report.id);
+  assert.equal((await api.document(report)).document, report.document);
+  await assert.rejects(new ReportClient({ ...config, url: `${origin}/redirect` }).list(0), /api_unavailable/);
+  assert.deepEqual(requests.map(request => request.url), ["/reports?after=0&limit=20", "/reports/report-2", "/redirect?after=0&limit=20"]);
+  assert.ok(requests.every(request => request.auth === "Bearer secret"));
 });
 
 test("the read-only CLI reports all configuration failures without exposing dotenv secrets", t => {

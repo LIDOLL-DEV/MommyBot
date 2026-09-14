@@ -1,3 +1,5 @@
+import { isIP } from "node:net";
+
 export class ReportError extends Error {
   constructor(code, status) { super(code); this.code = code; this.status = status; }
 } // Keep provider bodies and credentials out of diagnostic errors.
@@ -9,6 +11,13 @@ export class ReportConfigurationError extends ReportError {
   }
 } // Configuration diagnostics contain only authored field names and requirements, never environment values.
 
+function privateReportHost(host) {
+  if (["localhost", "[::1]"].includes(host)) return true;
+  if (isIP(host) !== 4) return false;
+  const [first, second] = host.split(".").map(Number);
+  return first === 127 || first === 10 || (first === 172 && second >= 16 && second <= 31) || (first === 192 && second === 168);
+} // Match the wallet's direct-backend policy: allow explicitly configured loopback or RFC1918 IPv4 HTTP endpoints.
+
 export function reportConfig(env = process.env) {
   if (env.MOMMYBOT_REPORTS_ENABLED !== "true") return null;
   const issues = [];
@@ -16,8 +25,7 @@ export function reportConfig(env = process.env) {
   try { url = new URL(env.MOMMYBOT_REPORTS_URL); }
   catch { issues.push("MOMMYBOT_REPORTS_URL must be the full report feed URL from the tracker admin console"); }
   if (url) {
-    const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
-    if (url.protocol !== "https:" && !(local && url.protocol === "http:")) issues.push("MOMMYBOT_REPORTS_URL requires HTTPS (HTTP is allowed only for localhost development)");
+    if (url.protocol !== "https:" && !(privateReportHost(url.hostname) && url.protocol === "http:")) issues.push("MOMMYBOT_REPORTS_URL requires HTTPS or HTTP to localhost, a loopback address or a private IPv4 address");
     if (url.username || url.password || url.search || url.hash) issues.push("MOMMYBOT_REPORTS_URL must not contain credentials, a query string or a fragment");
   }
   const token = env.MOMMYBOT_REPORTS_TOKEN?.trim();

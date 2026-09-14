@@ -14,6 +14,11 @@ disabled publisher without accessing Discord or storage, identify all bad fields
 without echoing secrets, and make the read-only CLI fail with useful diagnostics.
 The CLI test uses a temporary dotenv file and exits before any network request.
 
+Report transport tests cover private IPv4 ranges and their boundaries in
+production, rejected public HTTP and URL credentials, complete delivery through
+the configured LAN URL, and real loopback HTTP reads with redirect blocking.
+They use fake tokens and never contact the deployed tracker or Discord.
+
 ## New-member welcomes
 
 `test/welcome.test.js` verifies `.250` model routing, shared persona, generic

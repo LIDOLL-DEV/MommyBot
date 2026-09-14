@@ -7,6 +7,12 @@ for a read-only connection check. The default `data/reports.db` participates in
 existing state backups. Local `.env` changes do not update service configuration.
 See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md) before enabling publication.
 
+For hairpin NAT issues, the report feed may use direct LAN HTTP, for example
+`MOMMYBOT_REPORTS_URL=http://10.1.1.23:4173/tracker/api/ai-reports/v1/reports`.
+Substitute your tracker's private IPv4 address, port and base path. Deploy the
+updated report client first; no separate HTTP enable setting is required.
+The backend must serve the API without redirecting to the public hostname.
+
 If an older release enters a restart loop with `ReportError: invalid_configuration`,
 temporarily set `MOMMYBOT_REPORTS_ENABLED=false` in the service environment, then
 run `sudo systemctl reset-failed mommybot.service` and
