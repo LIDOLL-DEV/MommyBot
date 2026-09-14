@@ -50,8 +50,18 @@ LiD0llID login. Return its confirmation code to the initiating Discord account.
 Check its balances in Little Log and Discord, adopt once with each currency,
 then verify exactly one star and 25 coins were spent and two Touhous delivered.
 Restart and confirm the wallet remains connected. Verify **Online balance** is
-private even from a public prefix menu. Local market and battle balances must
-remain separate. Do not test failures by deleting journals or restoring one DB.
+private even from a public prefix menu. Buy potions, use paid healing, win a
+battle and perform a buyback; verify debits and rewards in Little Log. Sell a
+Touhou between two disposable connected accounts and verify the buyer's debit,
+seller's credit and ownership. Legacy local balances must stay unchanged. Do
+not test failures by deleting journals or restoring one DB.
+
+`test/online-economy.test.js` covers online potions, free/paid healing, buybacks,
+battle payouts, admin permissions and player sales through real store/services,
+slash handlers and menus. It verifies insufficient funds, price changes, party
+ownership locks, storage failures, delayed/refused credits, lost debit/credit/
+refund responses, account pinning and restart recovery. Wallet fixtures use
+different balances and receipts for each participant. No tests spend live coins.
 
 LiD0llID tests in `test/lidollid.test.js` use a disposable local OIDC HTTP
 provider with real RSA-signed tokens. They verify state, nonce, PKCE, signatures,
@@ -119,8 +129,11 @@ rarity selection, battle/resume, potion purchase, listing-price modals, gifts,
 swaps, quote confirmation and buybacks. They check component size limits and
 reject foreign users, stale controls and expired sessions.
 
-For live trader acceptance, use a test server: award one star and 25 LiDollcoins
-to a test user, adopt once with each method, and check `/touhou wallet` and
+For live trader acceptance, set `TOUHOU_CHANNEL_ID` to your test channel (the
+production default is `1548647250543251507`). Verify trader commands and controls
+work there and direct players back there from other channels, independently of
+the chat `CHANNEL_ID`. Give the test account a star in Little Log and award 25
+LiDollcoins through the bot, adopt once with each method, and check `/touhou wallet` and
 `/touhou collection`. Try an award as a normal member, a button as another
 player, and a trade accepted by its recipient. Confirm two rapid payment clicks
 on the same menu buy only one character. Restart the service and verify the

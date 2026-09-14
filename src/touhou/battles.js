@@ -96,6 +96,7 @@ export class BattleService {
     return this.store.mutate(guild, user, request, `battle-start:${name}:${choice}`, () => {
       if (this.current(guild, user)) throw new TraderError("You already have an active battle. Resume it from Battle.");
       const entry = this.store.character(guild, name);
+      this.store.assertNotPaying(guild, entry.name);
       if (entry.owner_id !== user) throw new TraderError("You do not own that Touhou.");
       const profile = this.profile(guild, entry.name);
       if (profile.fainted_until > this.store.now()) throw new TraderError("This Touhou is recovering. Heal it or wait for its timer.");
@@ -126,6 +127,7 @@ export class BattleService {
       if (row.turn !== expectedTurn) throw new TraderError("That turn already finished. Resume Battle for the latest controls.");
       const state = JSON.parse(row.state);
       const owner = this.store.character(guild, row.name);
+      this.store.assertNotPaying(guild, owner.name);
       if (owner.owner_id !== user || owner.revision !== row.character_revision) throw new TraderError("The character's ownership changed; this battle cannot continue.");
       if (action.startsWith("attack") && !state.player.attacks[Number(action.slice(-1))]) throw new TraderError("That attack is unavailable.");
       if (action === "potion") {
@@ -163,6 +165,7 @@ export class BattleService {
     this.store.db.prepare("UPDATE battle_profiles SET level = ?, exp = ?, wins = wins + 1 WHERE guild_id = ? AND name = ?")
       .run(level, exp, guild, state.player.name);
     state.reward = { exp: gained, coins, level };
+    if (this.store.balanceHandler) state.reward.payment = "pending"; // Persist a won battle even when its online payout needs a later retry.
     state.log.push(`Victory! +${gained} EXP, +${coins} LiDollcoins. ${state.player.name} is level ${level}.`);
   } // Port rarity-scaled rewards and the 20% Gamble bonus, with a level-50 progression cap.
 }

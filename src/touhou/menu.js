@@ -15,10 +15,11 @@ const row = (...items) => new ActionRowBuilder().addComponents(...items);
 const remaining = (until, now) => `${Math.ceil(Math.max(0, until - now) / 1000)}s`;
 
 export class TouhouMenus {
-  constructor(store, game, { channelId = "", imageDirectory = IMAGE_DIRECTORY, wallet = null, adopt = (...args) => store.adopt(...args) } = {}) {
+  constructor(store, game, { channelId = "", imageDirectory = IMAGE_DIRECTORY, wallet = null, adopt = (...args) => store.adopt(...args), economy = null } = {}) {
     this.store = store; this.game = game; this.channelId = channelId; this.imageDirectory = imageDirectory;
     this.sessions = new Map();
     this.wallet = wallet; this.adopt = adopt;
+    this.economy = economy;
   } // Keep short-lived UI selections separate from persistent battles and currency transactions.
 
   open(guild, user, screen = "home", battleId = null) {
@@ -67,18 +68,18 @@ export class TouhouMenus {
       return `attachment://${filename}`;
     };
     if (screen === "home") {
-      text += (this.wallet ? "Adoption uses your **Little Log wallet**. Press **Online balance** to check it privately, or connect with /lidollid wallet connect.\n" : `**${wallet.stars} stars • ${wallet.coins} LiDollcoins**\n`) + `Adopt one random Touhou for **1 star OR 25 LiDollcoins**.\nParty: ${this.store.collection(guild, user).length}/6 · Potions: ${this.game.potions(guild, user)}/${POTION_CAP}`;
+      text += (this.wallet ? "All payments and rewards use your **Little Log wallet**. Press **Online balance** to check it privately, or connect with /lidollid login.\n" : `**${wallet.stars} stars • ${wallet.coins} LiDollcoins**\n`) + `Adopt one random Touhou for **1 star OR 25 LiDollcoins**.\nParty: ${this.store.collection(guild, user).length}/6 · Potions: ${this.game.potions(guild, user)}/${POTION_CAP}`;
       components = [row(this.button(session, "adopt-stars", "Adopt · 1 star", ButtonStyle.Primary), this.button(session, "adopt-coins", "Adopt · 25 LiDollcoins", ButtonStyle.Success)),
         row(this.button(session, "battle", "Battle"), this.button(session, "party", "My party"), this.button(session, "shop", "Market & items"), this.button(session, "heal", "Heal"))];
       if (session.hero) embed.setThumbnail(picture(session.hero));
-      if (this.wallet) components.push(row(this.button(session, "online-balance", "Online balance")));
+      if (this.wallet) components.push(row(this.button(session, "online-balance", "Online balance"), this.button(session, "retry-payment", "Retry pending payment")));
     } else if (screen === "shop") {
-      text += `**${wallet.coins} LiDollcoins**\nBrowse player listings, buy health potions, send gifts or offer a swap. Buyback pays two-thirds of a character's suggested value.`;
+      text += (this.wallet ? "**Little Log LiDollcoins**\n" : `**${wallet.coins} LiDollcoins**\n`) + "Browse player listings, buy health potions, send gifts or offer a swap. Buyback pays two-thirds of a character's suggested value.";
       components = [row(this.button(session, "listings", "Buy a listing"), this.button(session, "stock", "Adoption stock"), this.button(session, "potions", "Health potions")),
         row(this.button(session, "sell", "List for sale"), this.button(session, "delist", "Delist"), this.button(session, "buyback", "Buyback")),
         row(this.button(session, "send", "Send gift"), this.button(session, "trade", "Offer swap"), this.button(session, "home", "Trader"))];
     } else if (screen === "potions") {
-      text += `Health potions cost **${POTION_PRICE} LiDollcoins** each and restore **50% maximum HP** in battle. The enemy acts after you drink one.\nStock: **${this.game.potions(guild, user)}/${POTION_CAP}**\nWallet: **${wallet.coins} LiDollcoins**`;
+      text += `Health potions cost **${POTION_PRICE} LiDollcoins** each and restore **50% maximum HP** in battle. The enemy acts after you drink one.\nStock: **${this.game.potions(guild, user)}/${POTION_CAP}**\n` + (this.wallet ? "Payment uses your Little Log wallet." : `Wallet: **${wallet.coins} LiDollcoins**`);
       components = [row(this.button(session, "potion1", "Buy 1 · 20 coins"), this.button(session, "potion5", "Buy 5 · 100 coins")), home()];
     } else if (["party", "battle-pick", "heal", "sell", "delist", "buyback", "send", "trade"].includes(screen)) {
       let party = this.game.party(guild, user);
@@ -126,6 +127,7 @@ export class TouhouMenus {
       session.battleTurn = state.turn;
       embed.setTitle(`${state.player.name} vs Evil ${state.enemy.name}`).setThumbnail(picture(state.player.name, "player"));
       text += `**${state.player.name}** Lv ${state.player.level} · ${state.player.type}\nHP: **${state.player.hp}/${state.player.stats.hpMax}**\n\n**Evil ${state.enemy.name}** Lv ${state.enemy.level} · ${state.enemy.type}\nHP: **${state.enemy.hp}/${state.enemy.stats.hpMax}**\n\n${state.log.slice(-6).join("\n")}`;
+      if (state.reward?.payment) text += `\nOnline payout: **${state.reward.payment === "paid" ? "paid" : "waiting — use /lidollid wallet retry"}**.`;
       embed.setImage(picture(state.enemy.name, "enemy"));
       if (!state.outcome) {
         text += `\n\nTurn ${state.turn + 1} · Potions: ${this.game.potions(guild, user)} · Idle limit: 90s`;
@@ -133,7 +135,7 @@ export class TouhouMenus {
           row(this.button(session, "defend", "Defend"), this.button(session, "potion", "Use potion"), this.button(session, "run", "Run"), this.button(session, "home", "Trader (battle continues)"))];
       } else components = [row(this.button(session, "battle", "Battle again"), this.button(session, "heal", "Heal")), home()];
     }
-    if (this.wallet && screen !== "home") text += "\n\nMarket, items and battle rewards use local coins. Adoption uses Little Log stars or LiDollcoins.";
+    if (this.wallet && screen !== "home") text += "\n\nPayments and rewards use Little Log LiDollcoins. Adoption also accepts 1 star.";
     embed.setDescription(text.slice(0, 4096)).setFooter({ text: "Only you can use this menu · Expires after 5 minutes idle" });
     return { content: null, embeds: [embed], components, files, attachments: [], allowedMentions: safeMentions };
   } // Render every gameplay path in the same message, with real art, bounded controls and fresh balances.
@@ -194,7 +196,12 @@ export class TouhouMenus {
       return s.choices[Number(value)];
     };
     const confirm = (intent, prompt) => { s.intent = intent; s.prompt = prompt; s.screen = "confirm"; };
-    if (["home", "shop", "party", "heal", "sell", "delist", "buyback", "send", "trade", "potions", "stock", "listings"].includes(action)) {
+    if (action === "retry-payment" && this.wallet) {
+      if (this.wallet.adoptions?.pending(user)) {
+        const result = await this.wallet.adoptions.retry(user);
+        s.banner = `Adopted **${result.character.name}** in server ${result.character.guild_id}.`;
+      } else s.banner = (await this.economy.retry(user)).content;
+    } else if (["home", "shop", "party", "heal", "sell", "delist", "buyback", "send", "trade", "potions", "stock", "listings"].includes(action)) {
       s.screen = action; s.page = 0;
     } else if (action === "prev" || action === "next") s.page += action === "next" ? 1 : -1;
     else if (action === "cancel") { s.screen = "shop"; s.page = 0; }
@@ -220,11 +227,11 @@ export class TouhouMenus {
     } else if (action === "rarity") s.screen = "rarity";
     else if (action === "heal-selected") this.healPrompt(s, confirm);
     else if (action === "difficulty") {
-      const state = this.game.start(guild, user, s.selected, interaction.values?.[0], request);
+      const state = await this.game.start(guild, user, s.selected, interaction.values?.[0], request);
       s.battleId = state.id; s.screen = "battle";
     } else if (["attack0", "attack1", "attack2", "defend", "potion", "run"].includes(action)) {
       if (s.screen !== "battle") throw new TraderError("Resume the battle before choosing an action.");
-      this.game.act(guild, user, s.battleId, s.battleTurn, action, request);
+      await this.game.act(guild, user, s.battleId, s.battleTurn, action, request);
     } else if (action === "recipient") {
       const id = interaction.values?.[0];
       const member = await interaction.guild.members.fetch(id);
@@ -241,26 +248,26 @@ export class TouhouMenus {
       else { s.quote = entry.price; s.seller = entry.seller_id; confirm("buy", `Buy **${entry.name}** from <@${entry.seller_id}> for **${entry.price} LiDollcoins**?`); }
     } else if (action === "potion1" || action === "potion5") {
       const count = action === "potion1" ? 1 : 5;
-      const result = this.game.buyPotions(guild, user, count, request);
+      const result = await this.game.buyPotions(guild, user, count, request);
       s.banner = `Bought ${count} potion(s) for ${result.price} LiDollcoins.`;
     } else if (action === "price-submit") {
       if (s.intent !== "sell-price") throw new TraderError("Choose a Touhou to sell first.");
       const value = interaction.fields.getTextInputValue("price").trim();
       if (!/^\d+$/.test(value)) throw new TraderError("Enter a whole-number LiDollcoin price.");
-      const result = this.store.list(guild, user, s.selected, Number(value), request);
+      const result = await (this.economy || this.store).list(guild, user, s.selected, Number(value), request);
       s.banner = `Listed **${result.name}** for **${result.price} LiDollcoins**.`; s.screen = "shop";
     } else if (action === "confirm") {
       if (s.screen !== "confirm") throw new TraderError("Review an action before confirming it.");
       if (s.intent === "sell-price") { s.screen = "price-entry"; return; }
-      if (s.intent === "buyback") { const result = this.game.buyback(guild, user, s.selected, request, s.quote); s.banner = `Returned **${result.name}** for ${result.payout} LiDollcoins.`; }
-      else if (s.intent === "heal") { const result = this.game.heal(guild, user, s.selected, s.payHeal, request); s.banner = `**${result.name}** is ready! Cost: ${result.price} coins.`; }
+      if (s.intent === "buyback") { const result = await this.game.buyback(guild, user, s.selected, request, s.quote); s.banner = `Returned **${result.name}** for ${result.payout} LiDollcoins.`; }
+      else if (s.intent === "heal") { const result = await this.game.heal(guild, user, s.selected, s.payHeal, request); s.banner = `**${result.name}** is ready! Cost: ${result.price} LiDollcoins.`; }
       else if (s.intent === "delist") { this.store.delist(guild, user, s.selected, request); s.banner = "Listing removed."; }
       else if (s.intent === "send") {
         const member = await interaction.guild.members.fetch(s.recipient);
         if (member.user?.bot) throw new TraderError("Choose a human recipient.");
         this.store.send(guild, user, s.recipient, s.selected, request); s.banner = `Gifted **${s.selected}** to <@${s.recipient}>.`;
       } else if (s.intent === "buy") {
-        const receipt = this.store.buy(guild, user, s.selected, request, { price: s.quote, sellerId: s.seller });
+        const receipt = await (this.economy || this.store).buy(guild, user, s.selected, request, { price: s.quote, sellerId: s.seller });
         s.banner = `Bought **${receipt.character.name}** for ${receipt.price} LiDollcoins.`;
       } else if (s.intent === "trade") {
         const member = await interaction.guild.members.fetch(s.recipient);

@@ -23,10 +23,14 @@ export class WalletService {
     this.db.exec('CREATE TABLE IF NOT EXISTS combined_wallets(discord_id TEXT PRIMARY KEY,generation TEXT NOT NULL,issuer TEXT NOT NULL,subject TEXT NOT NULL,proof TEXT NOT NULL,deadline INTEGER NOT NULL,candidate TEXT,candidate_expires INTEGER,base_url TEXT NOT NULL,client_id TEXT NOT NULL); CREATE TABLE IF NOT EXISTS wallet_identity_links(discord_id TEXT PRIMARY KEY,issuer TEXT NOT NULL,subject TEXT NOT NULL);');
   } // Store wallet grants separately from identity links under the existing protected data directory.
   async exclusive(userId, action) {
+    return this.exclusiveMany([userId], action);
+  } // Reuse the same lock set for single-player actions and marketplace buyer/seller settlement.
+  async exclusiveMany(userIds, action) {
+    const users = [...new Set(userIds)].sort();
     if (this.closing) throw new WalletError("closing", "The bot is restarting. Please try again shortly.");
-    if (this.locks.has(userId)) throw new WalletError("busy", "Another wallet action is finishing. Please wait and try again.");
-    this.locks.add(userId);
-    try { return await action(); } finally { this.locks.delete(userId); }
+    if (users.some(user => this.locks.has(user))) throw new WalletError("busy", "Another wallet action is finishing. Please wait and try again.");
+    for (const user of users) this.locks.add(user);
+    try { return await action(); } finally { for (const user of users) this.locks.delete(user); }
   } // Serialize connection changes and purchases for each authenticated Discord user before awaiting network I/O.
   connection(userId) { return this.db.prepare("SELECT * FROM online_wallets WHERE discord_id = ?").get(userId); }
   assertServer(record) {
@@ -146,7 +150,7 @@ export class WalletService {
   } // Pin purchases to the approved opaque wallet account, which the wallet API scopes to this app.
   async disconnect(userId) {
     return this.exclusive(userId, async () => {
-      if (this.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending adoption with /lidollid wallet retry before disconnecting.");
+      if (this.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending adoption or trader payment with /lidollid wallet retry before disconnecting.");
       const attempt = this.db.prepare("SELECT * FROM wallet_approvals WHERE discord_id = ?").get(userId);
       const connection = this.connection(userId);
       const combined=this.db.prepare('SELECT * FROM combined_wallets WHERE discord_id=?').get(userId);

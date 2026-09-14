@@ -17,7 +17,7 @@ export function buildIdentityCommand() {
     .addSubcommandGroup(g => g.setName("wallet").setDescription("Connect Little Log stars and LiDollcoins")
       .addSubcommand(c => c.setName("connect").setDescription("Connect your LiD0llID account and wallet"))
       .addSubcommand(c => c.setName("balance").setDescription("Privately check your online stars and LiDollcoins"))
-      .addSubcommand(c => c.setName("retry").setDescription("Safely finish an interrupted adoption or refund"))
+      .addSubcommand(c => c.setName("retry").setDescription("Finish a pending trader payment, reward or refund"))
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
 } // Add a dedicated command without replacing the trader or any other application's commands.
 

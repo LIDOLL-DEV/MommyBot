@@ -22,7 +22,7 @@ export class OnlineAdoptions {
           if (old.user_id !== user || old.currency !== currency) throw new TraderError("This action has already been used.");
           return old;
         }
-        if (this.pending(user)) throw new TraderError("Finish your earlier adoption with /lidollid wallet retry before buying another.");
+        if (this.wallet.hasPending(user)) throw new TraderError("Finish your earlier adoption or payment with /lidollid wallet retry before buying another.");
         if (this.db.prepare("SELECT 1 FROM receipts WHERE guild_id=? AND request_id=?").get(guild, request)) throw new TraderError("This action has already been used.");
         if (this.store.collection(guild, user).length >= PARTY_LIMIT) throw new TraderError("Your six-Touhou party is full. Gift or release one first.");
         const selected = this.store.market(guild).filter(c => !c.owner_id);

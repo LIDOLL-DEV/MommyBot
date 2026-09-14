@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from "disc
 import { WalletError } from "./client.js";
 import { TraderError } from "../touhou/store.js";
 
-export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**.\nAdoption costs **1 star OR 25 LiDollcoins**. Market, items and battle rewards use separate local coins.`;
+export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**.\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
 
 export async function handleWalletInteraction(interaction, wallet, identities) {
   const button = interaction.customId?.startsWith("lw:finish:");
@@ -31,6 +31,7 @@ export async function handleWalletInteraction(interaction, wallet, identities) {
       case "disconnect": await wallet.disconnect(user); response = { content: "Your wallet connection was revoked and removed. Your balances remain in Little Log." }; break;
       case "retry": {
         if (!wallet.adoptions) throw new WalletError("disabled", "Enable Touhou Trader to finish pending adoptions.");
+        if (!wallet.adoptions.pending(user) && wallet.economy) { response = await wallet.economy.retry(user); break; }
         const result = await wallet.adoptions.retry(user);
         response = { content: `Adopted **${result.character.name}** in server ${result.character.guild_id} for **${result.price} ${result.currency === "stars" ? "star" : "LiDollcoins"}**. Check /touhou collection there.` };
         break;

@@ -12,7 +12,7 @@ export function initializeTouhouTrader(wallet = null) {
   const store = new TouhouStore(fileURLToPath(new URL("../../data/touhou-trader.db", import.meta.url)), loadCatalog());
   const handlers = createTouhouHandlers(store, {
     wallet, adoptions: wallet ? new OnlineAdoptions(store, wallet) : null,
-    channelId: process.env.CHANNEL_ID || "",
+    channelId: process.env.TOUHOU_CHANNEL_ID?.trim() || "1548647250543251507", // Give commands, buttons and menus the trader's own channel gate.
     adminRoleId: process.env.TOUHOU_ADMIN_ROLE_ID || "",
   });
   return {

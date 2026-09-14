@@ -55,7 +55,10 @@ expires, in `data/online-wallet.db`. The wallet server verifies it directly with
 LiD0llID and issues a separate revocable 30-day grant. Wallet tokens and exchange
 recovery state remain in that protected database. Identity and wallet bindings
 use the verified issuer/subject; usernames cannot select a wallet. Unlink revokes
-wallet access first and requires pending purchases to finish.
+wallet access first and requires pending purchases and payouts to finish.
+The connected wallet funds the whole Touhou trader: adoption accepts one star
+or 25 LiDollcoins, and all other currency payments and rewards use online
+LiDollcoins. Use `/lidollid wallet retry` for delayed rewards, sales or refunds.
 
 ## Register and enable
 

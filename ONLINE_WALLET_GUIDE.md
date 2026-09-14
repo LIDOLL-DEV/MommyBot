@@ -7,6 +7,13 @@ account and its wallet through one LiD0llID approval and the existing Discord
 confirmation. `/lidollid wallet connect` starts that same flow. Identity and
 wallet app registrations remain separate operator settings.
 
+With online wallets enabled, **all trader payments and rewards use Little Log**.
+Adoption keeps the choice of 1 star or 25 LiDollcoins. Potions, instant healing,
+player sales, buybacks, battle rewards and administrator awards use online
+LiDollcoins. Gifts, swaps, listing/delisting, browsing and free recovery keep
+their existing zero cost. Legacy local balances are not spent or automatically
+converted into online currency.
+
 ## Operator setup
 
 Deploy the updated **omo-trainer identity and tracker services first**, then
@@ -53,7 +60,9 @@ tracker calls the issuer's public `/wallet/identity` URL.
    custom paths, edit its actual environment file instead. The earlier
    `auth-admin.mjs add-client` command registers identity login only. The empty
    origins list is appropriate for this server-to-server client. Daily limits
-   cap issuance; this bot uses only debits and refunds. Little Log must run the
+   cap issuance, including battle rewards, buybacks, admin awards and seller
+   credits. A capped payout remains queued until the limit permits it; retries
+   do not bypass the cap. Little Log must run the
    version supporting `stars:read`, `stars:write` and `asset: "stars"`.
 
 2. In `/etc/mommybot/mommybot.env` on Fedora (or `.env` locally), set:
@@ -186,16 +195,45 @@ releases the reservation; a payment whose earlier outcome is uncertain stays
 pending until its original operation can be confirmed. Do not change API URL
 or client ID while payments are pending. Run one bot process per data directory.
 
-## Local economy and storage
+Potions and paid healing use the same confirmation rule: no item or healing
+is delivered on an uncertain debit. Price, inventory and ownership changes
+that prevent delivery cause an idempotent full refund. A database write failure
+keeps the confirmed payment for later delivery rather than guessing a result.
 
-Online adoption does not migrate or duplicate local currency. Market listings,
-potions, healing, administrator awards, battle rewards and buybacks continue
-using the per-server local wallet. Menus label this distinction. Turning off
-`LIDOLLCOIN_ENABLED` restores local adoption, but keeps pending reservations
+Battle victories commit the turn, EXP and a saved coin payout together. A wallet
+outage cannot reroll the winning turn. Buybacks commit character removal and
+the owed payout together. If a credit is delayed, the bot says the game action
+completed and the payout is waiting. The battle screen shows whether its payout
+is waiting or paid. Use `/lidollid wallet retry` or **Retry pending payment** in
+the trader menu; the original request ID prevents duplicate credits.
+
+Player sales require both players to have a connected wallet when the purchase
+starts. The buyer is debited first; confirmed delivery atomically transfers the
+Touhou and records the seller's owed credit. Little Log provides separate debit
+and credit operations, so seller payment can be delayed by a token expiry,
+revocation, outage or credit limit. Either participant can retry settlement; an
+expired seller grant must be renewed by that seller using the same account.
+Both accounts remain pinned while payment is pending. The seller cannot gift,
+reprice or battle the reserved Touhou during the buyer's debit. Once delivered,
+the bot retries the owed seller credit rather than refunding a delivered item.
+
+## Currency storage and upgrades
+
+The existing online-wallet configuration enables the whole trader economy;
+no additional environment flag, scope or backend endpoint is needed for this
+change. Existing connected accounts can use it after the bot update. Admin
+awards retain Manage Server / configured-role checks and now award coins only.
+Old menus or commands requesting a star award are rejected.
+
+Disabling `LIDOLLCOIN_ENABLED` retains the legacy local economy for standalone
+installations. Pending online transactions and reserved characters remain
 blocked until the online integration is re-enabled and payments are settled.
+This mode does not migrate, merge or convert balances in either direction.
 
 `data/online-wallet.db` stores sensitive wallet grants and approval attempts;
-`data/touhou-trader.db` stores the payment journal alongside ownership. Fedora's
+`data/touhou-trader.db` stores adoption payments and the new `online_economy`,
+`online_economy_payments` and `online_economy_locks` tables alongside ownership.
+The new tables are added automatically without rewriting old receipts. Fedora's
 existing protected data directory and stopped-state backups cover both. Keep
 backups private, and never delete a payment journal or restore only one database.
 An external wallet cannot roll back with a local backup; restoring older game

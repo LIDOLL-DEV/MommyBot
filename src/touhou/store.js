@@ -59,6 +59,21 @@ export class TouhouStore {
         WHERE state IN ('debit','paid','refund');
       CREATE UNIQUE INDEX IF NOT EXISTS online_pending_user ON online_adoptions(user_id)
         WHERE state IN ('debit','paid','refund');
+      CREATE TABLE IF NOT EXISTS online_economy (
+        id TEXT PRIMARY KEY, guild_id TEXT NOT NULL, user_id TEXT NOT NULL, request_id TEXT NOT NULL,
+        operation TEXT NOT NULL, args TEXT NOT NULL, state TEXT NOT NULL, result TEXT, guard TEXT,
+        UNIQUE(guild_id, request_id)
+      );
+      CREATE TABLE IF NOT EXISTS online_economy_payments (
+        id TEXT PRIMARY KEY, job_id TEXT NOT NULL, user_id TEXT NOT NULL,
+        account_id TEXT NOT NULL, base_url TEXT NOT NULL, client_id TEXT NOT NULL,
+        kind TEXT NOT NULL, amount INTEGER NOT NULL, attempted INTEGER NOT NULL DEFAULT 0,
+        confirmed INTEGER NOT NULL DEFAULT 0
+      );
+      CREATE INDEX IF NOT EXISTS online_payment_user ON online_economy_payments(user_id,job_id);
+      CREATE TABLE IF NOT EXISTS online_economy_locks (
+        guild_id TEXT NOT NULL, name TEXT NOT NULL, job_id TEXT NOT NULL, PRIMARY KEY(guild_id,name)
+      );
       CREATE TABLE IF NOT EXISTS trader_history (
         id INTEGER PRIMARY KEY, guild_id TEXT NOT NULL, actor_id TEXT NOT NULL,
         operation TEXT NOT NULL, details TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -116,11 +131,17 @@ export class TouhouStore {
   } // Settle idle fights once, measuring recovery from the actual expiry even after a restart.
 
   assertNotBattling(guildId, name) {
+    this.assertNotPaying(guildId, name);
     this.expireBattles();
     if (this.db.prepare("SELECT id FROM battles WHERE guild_id = ? AND name = ? AND status = 'active'").get(guildId, name)) {
       throw new TraderError("Finish or run from this Touhou's battle before trading, selling or releasing it.");
     }
   } // Prevent ownership changes or buybacks while a fight still controls the character.
+
+  assertNotPaying(guildId, name) {
+    const lock = this.db.prepare("SELECT job_id FROM online_economy_locks WHERE guild_id=? AND name=?").get(guildId, name);
+    if (lock && lock.job_id !== this.paymentJob) throw new TraderError("This Touhou has a pending wallet payment. Finish it with /lidollid wallet retry first.");
+  } // Reserve a character through a purchase so gifts, repricing and battles cannot race its debit.
 
   ensureGuild(guildId) {
     if (!guildId) throw new TraderError("Use the Touhou trader in a server.");
@@ -143,6 +164,12 @@ export class TouhouStore {
   changeBalance(guildId, userId, currency, delta) {
     const column = currencyColumn(currency);
     if (!Number.isSafeInteger(delta) || Math.abs(delta) > MAX_BALANCE) throw new TraderError("Invalid currency amount.");
+    if (this.balanceHandler) return this.balanceHandler(guildId, userId, currency, delta);
+    if (this.onlineEconomy) throw new TraderError("This action must use the online LiDollcoin payment service.");
+    if (this.db.prepare(`SELECT 1 FROM online_economy j LEFT JOIN online_economy_payments p ON p.job_id=j.id
+      WHERE (j.user_id=? OR p.user_id=?) AND j.state IN ('debit','paid','credit','refund')`).get(userId, userId)) {
+      throw new TraderError("Finish the pending online payment before changing this wallet.");
+    } // A disabled integration must not let local transactions bypass an unsettled online payment.
     this.db.prepare("INSERT OR IGNORE INTO wallets(guild_id, user_id) VALUES (?, ?)").run(guildId, userId);
     const result = this.db.prepare(`UPDATE wallets SET ${column} = ${column} + ?
       WHERE guild_id = ? AND user_id = ? AND ${column} + ? BETWEEN 0 AND ${MAX_BALANCE}`)

@@ -10,6 +10,7 @@ import { TouhouMenus } from "./menu.js";
 import { RARITIES } from "./battleRules.js";
 import { WalletError } from "../wallet/client.js";
 import { balanceText } from "../wallet/commands.js";
+import { OnlineEconomy } from "../wallet/economy.js";
 
 const PAGE_SIZE = 10;
 const noMentions = { parse: [], repliedUser: false };
@@ -48,10 +49,10 @@ export function buildTouhouCommand() {
   command.addSubcommand((s) => s.setName("release").setDescription("Return your Touhou to the trader without a refund.")
     .addStringOption((o) => o.setName("name").setDescription("Your Touhou").setRequired(true))
     .addBooleanOption((o) => o.setName("confirm").setDescription("Confirm release without a refund").setRequired(true)));
-  command.addSubcommand((s) => s.setName("award").setDescription("(Manage Server) Award stars or LiDollcoins.")
+  command.addSubcommand((s) => s.setName("award").setDescription("(Manage Server) Award LiDollcoins.")
     .addUserOption((o) => o.setName("user").setDescription("Recipient").setRequired(true))
     .addStringOption((o) => o.setName("currency").setDescription("Reward currency").setRequired(true)
-      .addChoices({ name: "Stars", value: "stars" }, { name: "LiDollcoins", value: "coins" }))
+      .addChoices({ name: "LiDollcoins", value: "coins" }))
     .addIntegerOption((o) => o.setName("amount").setDescription("Amount to award").setMinValue(1).setMaxValue(1_000_000).setRequired(true)));
   command.addSubcommand((s) => s.setName("battle").setDescription("Start a turn-based PvE battle with your Touhou.")
     .addStringOption((o) => o.setName("name").setDescription("Your fighter").setRequired(true))
@@ -81,9 +82,11 @@ function button(id, label, style = ButtonStyle.Secondary) {
 
 export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", imageDirectory = IMAGE_DIRECTORY, wallet = null, adoptions = null } = {}) {
   if (wallet && !adoptions) throw new Error("Online wallets require the online adoption service."); // Fail closed instead of accidentally spending local currency.
-  const game = new BattleService(store);
+  const localGame = new BattleService(store);
+  const economy = wallet ? new OnlineEconomy(store, localGame, wallet) : null;
+  const game = economy ? economy.facade() : localGame;
   const adopt = (...args) => adoptions ? adoptions.adopt(...args) : store.adopt(...args);
-  const menus = new TouhouMenus(store, game, { channelId, imageDirectory, wallet, adopt });
+  const menus = new TouhouMenus(store, game, { channelId, imageDirectory, wallet, adopt, economy });
   function menu(guildId, userId) {
     return menus.open(guildId, userId);
   } // Open the full clickable trader, party, battle, healing and marketplace UI.
@@ -124,20 +127,20 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
       case "menu": return menu(guildId, user.id);
       case "party": return menus.open(guildId, user.id, "party");
       case "battle": {
-        const state = game.start(guildId, user.id, options.getString("name", true), options.getString("rarity", true), interaction.id);
+        const state = await game.start(guildId, user.id, options.getString("name", true), options.getString("rarity", true), interaction.id);
         return menus.open(guildId, user.id, "battle", state.id);
       }
       case "heal": {
-        const result = game.heal(guildId, user.id, options.getString("name", true), options.getBoolean("pay") === true, interaction.id);
+        const result = await game.heal(guildId, user.id, options.getString("name", true), options.getBoolean("pay") === true, interaction.id);
         return { content: `**${result.name}** is ready. Healing cost: **${result.price} LiDollcoins**.` };
       }
       case "potions": {
-        const result = game.buyPotions(guildId, user.id, options.getInteger("amount") || 1, interaction.id);
+        const result = await game.buyPotions(guildId, user.id, options.getInteger("amount") || 1, interaction.id);
         return { content: `Bought potions for **${result.price} LiDollcoins**. You now carry **${result.count}/10**.` };
       }
       case "buyback": {
         if (options.getBoolean("confirm") !== true) throw new TraderError("Buyback cancelled. Use the market menu to preview the payout.");
-        const result = game.buyback(guildId, user.id, options.getString("name", true), interaction.id);
+        const result = await game.buyback(guildId, user.id, options.getString("name", true), interaction.id);
         return { content: `Returned **${result.name}** for **${result.payout} LiDollcoins**. Battle levels were reset.` };
       }
       case "adopt": {
@@ -160,7 +163,8 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
       }
       case "award": {
         if (!canAward(interaction, adminRoleId)) throw new TraderError("You need Manage Server or the configured trader admin role to award currency.");
-        const result = store.award(guildId, user.id, target.id, options.getString("currency", true), options.getInteger("amount", true), interaction.id);
+        if (options.getString("currency", true) !== "coins") throw new TraderError("Admin awards use LiDollcoins. Stars remain an adoption payment option.");
+        const result = await (economy || store).award(guildId, user.id, target.id, "coins", options.getInteger("amount", true), interaction.id);
         return { content: `Awarded <@${target.id}> **${result.amount} ${currencyLabel(result.currency)}**.` };
       }
       case "send": {
@@ -176,7 +180,7 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
             button(`th:trade:decline:${result.id}`, "Decline", ButtonStyle.Danger))] };
       }
       case "sell": {
-        const result = store.list(guildId, user.id, options.getString("name", true), options.getInteger("price", true), interaction.id);
+        const result = await (economy || store).list(guildId, user.id, options.getString("name", true), options.getInteger("price", true), interaction.id);
         return { content: `Listed **${result.name}** for **${result.price} LiDollcoins**.` };
       }
       case "delist": {
@@ -184,7 +188,7 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
         return { content: `Removed the listing for **${result.name}**.` };
       }
       case "buy": {
-        const result = store.buy(guildId, user.id, options.getString("name", true), interaction.id);
+        const result = await (economy || store).buy(guildId, user.id, options.getString("name", true), interaction.id);
         return characterCard(result.character, `Bought by <@${user.id}> for **${result.price} LiDollcoins**, paid to <@${result.sellerId}>.`);
       }
       case "release": {

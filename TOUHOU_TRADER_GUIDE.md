@@ -20,7 +20,10 @@ Run the Fedora updater after these changes are in your upstream branch. It now
 includes `assets/` in releases. Restarting the bot registers `/touhou` in each
 server without replacing other application commands. The bot needs the
 `applications.commands` scope, View Channel, Send Messages, Embed Links and
-Attach Files permissions. Trader commands obey the existing `CHANNEL_ID` gate.
+Attach Files permissions. Trader commands, prefix shortcuts, buttons, select
+menus and modals use `TOUHOU_CHANNEL_ID`, defaulting to `1548647250543251507`.
+Set `TOUHOU_CHANNEL_ID=1548647250543251507` in the bot environment to make the
+channel explicit. The chat channel is configured separately through `CHANNEL_ID`.
 
 Use `/touhou menu` or `!touhou`. The menu shows your wallet and has separate
 **Adopt · 1 star** and **Adopt · 25 LiDollcoins** buttons. The same message updates
@@ -37,19 +40,20 @@ screens; swap recipients receive their own Accept/Decline buttons. A listing's
 price and seller must still match the confirmed quote when payment commits.
 
 Enable the Little Log wallet integration using [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md)
-to show and spend existing online stars or LiDollcoins for adoption. Players use
+to show and spend existing online stars or LiDollcoins. Players use
 `/lidollid wallet connect` once to approve both currencies. The menu's **Online
-balance** button and `/touhou wallet` show fresh balances privately. All adoption
-entry points use the online wallet when enabled; they never fall back to local
+balance** button and `/touhou wallet` show fresh balances privately. All trader
+payments and rewards use the online wallet when enabled; they never fall back to local
 currency if a connection is missing or a payment fails.
 
-With online wallets disabled, adoption uses **local balances per server**,
-starting at zero. Market purchases, items, healing, rewards and buybacks still
-use local coins in either mode. Local balances are separate from Little Log and
-starboard reactions. A member with **Manage Server** can award local currency:
+Adoption accepts 1 star or 25 LiDollcoins. Everything else that costs or awards
+currency uses online LiDollcoins, including marketplace sales, potions, healing,
+battle victories and buybacks. Gifts and swaps remain free. With online wallets
+disabled, standalone installations retain local balances per server. Legacy
+local currency is not imported into Little Log. A member with **Manage Server**
+can award LiDollcoins to a connected player's wallet:
 
 ```text
-/touhou award user:@player currency:Stars amount:1
 /touhou award user:@player currency:LiDollcoins amount:25
 ```
 
@@ -116,21 +120,24 @@ One fight can be active per player per server. Use **Battle** to resume it after
 navigating away. Active fighters cannot be gifted, swapped, sold, released or
 bought back. Character levels follow gifts and sales. Buyback pays two-thirds
 of suggested value, preserves trade-based rarity and clears battle progression.
-Free release remains available through its slash command. All rewards and
-buybacks use local LiDollcoins; the original external SGC bank and taxes are not
-connected.
+Free release remains available through its slash command. Online rewards and
+buybacks credit Little Log; its app credit limits apply. Delayed payouts remain
+saved for `/lidollid wallet retry` or **Retry pending payment** in the main menu.
 
 ## Persistence and recovery
 
-All balances, ownership, listings, one-minute trade offers, battle progress,
+Ownership, listings, one-minute trade offers, battle progress, legacy local balances,
 potions, cooldowns, receipts and audit history live together in
 `data/touhou-trader.db`. On Fedora this resolves to
 `/var/lib/mommybot/data/touhou-trader.db`, which existing deployment backups cover.
-Payment and ownership changes use one SQLite transaction; an error rolls back
-both. Duplicate delivery of the same command reuses its receipt. Stale offers
+Online balances live in Little Log. Purchases save their request before debit
+and deliver only on confirmation; game delivery and its receipt commit together.
+Marketplace delivery also records the seller's owed online credit in that same
+transaction. Either player can retry a delayed seller payout; reconnect the
+original account if needed. Duplicate delivery of the same command reuses its receipt. Stale offers
 cannot trade characters that have changed hands since the offer was created.
 
-Battle turns, potion consumption, EXP and rewards commit together, and repeated
+Battle turns, potion consumption, EXP and queued rewards commit together, and repeated
 or stale turns cannot pay out again. Menu sessions expire on restart; open a new
 menu to resume the saved fight. Its 90-second deadline continues while the bot
 is offline. Idle battles are settled when next accessed, with recovery measured

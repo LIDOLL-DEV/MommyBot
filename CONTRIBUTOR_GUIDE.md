@@ -15,6 +15,17 @@ Every retry reuses the original payment ID and currency. Failed delivery refunds
 the original debit, also idempotently. Keep unsettled reservations when the
 feature is disabled, and do not let reconnect/unlink strand a pending payment.
 `test/online-wallet.test.js` covers both currencies and recovery across restarts.
+`wallet/economy.js` routes all other trader money changes through online coins.
+Purchase previews use a rolled-back SQLite transaction to reuse pricing and
+ownership checks without delivering anything. Keep the balance interception
+synchronous and restore it in `finally`; never await while it is installed.
+After a confirmed debit, revalidate the exact ledger and character reservation
+before committing delivery. Credit-only actions commit game effects and their
+payout queue together. Never rerun a won battle to recover a missing payout.
+Marketplace legs pin both accounts; buyer/seller locks precede network awaits.
+Seller credits can remain pending after ownership transfer. Preserve their
+operation IDs, account bindings and retry access for both participants.
+`test/online-economy.test.js` covers these flows and legacy-balance isolation.
 Include `scripts/check-wallet.mjs` in Fedora releases for read-only connectivity
 and registration checks. Wallet diagnostics must never print response bodies,
 redirect destinations or arbitrary network exception messages. An HTML proxy
@@ -47,8 +58,11 @@ in `scripts/check-lidollid-browser.mjs`; Node fetch tests set Origin manually.
 
 The Touhou trader is in `src/touhou/`; its ported images and rarity seed are in
 `assets/`. See [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md) for commands and
-local wallet rules. Keep currency debits, ownership transfers and receipt writes
-inside the same `TouhouStore.mutate` transaction. Do not let chat-model output
+wallet rules. Gate every trader entry point using
+`TOUHOU_CHANNEL_ID` (default `1548647250543251507`); `CHANNEL_ID` controls chat.
+Keep ownership changes and receipt writes inside the same
+`TouhouStore.mutate` transaction. In online mode, route currency through the
+persistent payment journal; local mode keeps its debits in SQLite. Do not let chat-model output
 award or spend currency. Permission checks belong in the Discord handlers.
 `better-sqlite3` is a direct dependency at the same version used by conversation
 checkpointing, and Fedora releases must include the assets directory.
