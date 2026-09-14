@@ -9,6 +9,11 @@ and credit responses, SQLite delivery failures, restart recovery and pending
 payment guards across games. It also checks private browser handoff, CSRF,
 session expiry/unlink/logout, static file allowlisting and collection isolation.
 Fixtures use disposable databases and an idempotent fake online wallet.
+`test/diaper-commands.test.js` verifies both command aliases register and issue
+private handoffs for the authenticated Discord user, including partial
+registration failure without exposing raw Discord response data.
+It also checks that `!diapers` delivers its ticket only by DM, falls back to
+slash-command instructions when DMs are blocked, and ignores unrelated messages.
 
 `scripts/check-diaper-browser.mjs` checks real Chrome navigation, rolls, reveals,
 selling, bank buyback, filtering and logout at desktop/mobile sizes. See

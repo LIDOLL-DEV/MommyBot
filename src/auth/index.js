@@ -95,6 +95,7 @@ export async function initializeIdentity(wallet = null) {
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
     handleInteraction: createIdentityHandler(store, config, wallet, gacha),
+    handleMessage: message => gacha?.handleMessage(message) || false,
     closeGames: () => gacha?.close(),
     async registerGuild(guild) {
       try { await guild.commands.create(buildIdentityCommand()); }

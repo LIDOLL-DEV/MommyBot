@@ -9,7 +9,9 @@ All purchases and sales use the connected **online LiDollcoin wallet**.
 
 1. Link your identity and wallet with `/lidollid login`, finish browser consent,
    and send the returned `/lidollid confirm code:…` command in Discord.
-2. Run `/diapers`. Open the private link and press **Open my atelier**.
+2. Run `/diaper` (or `/diapers`). Open the private link and press **Open my atelier**.
+   You can also type `!diapers`: the bot DMs your private link. If your DMs are
+   closed, use either slash command for an ephemeral reply instead.
 3. Visit **The capsule machine** to roll for **3 LiDollcoins**. Every successful
    roll delivers one copy; a reveal shows the design and rarity.
 4. Open **My collection** to see all your copies, search names/descriptions,
@@ -88,6 +90,12 @@ removing a design from new rolls does not delete owned copies. Retired art must
 also remain available in the web asset allowlist before retiring a design.
 
 ## Fedora deployment
+
+Both `/diaper` and `/diapers` register as server commands on startup. If a command
+is missing, try it inside the server with the bot, check that the latest release
+is deployed and that identity/wallet services are enabled. The service journal
+logs each successful registration or a numeric Discord error code. Existing
+deployments need an update to gain the singular `/diaper` alias.
 
 With `LIDOLLID_ENABLED=true` and `LIDOLLCOIN_ENABLED=true`, the game enables
 automatically after deploying this code. It reuses the bot's HTTPS hostname,

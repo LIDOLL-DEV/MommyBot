@@ -34,6 +34,7 @@ async function main() {
   // Handle message events
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Bot messages must never spend currency or trigger another bot reply.
+    if (identity && await identity.handleMessage(message)) return; // Open the web game before the conversation channel gate or LLM routing.
     if (touhouTrader && await touhouTrader.handleMessage(message)) return; // Consume trader commands before calling the language model.
     // Gate to specific channel if configured
     if (CHANNEL_ID && message.channel.id !== CHANNEL_ID) {

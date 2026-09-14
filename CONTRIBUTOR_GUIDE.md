@@ -7,8 +7,10 @@ Run `npm test` before deploying.
 
 Diaper Atelier lives in `src/gacha/`, with supplied art and the reviewed rarity
 manifest under `diaper-gacha/`. See [DIAPER_GACHA_GUIDE.md](DIAPER_GACHA_GUIDE.md).
-`/diapers` issues an ephemeral, one-use browser handoff; all play happens under
+`/diaper` and `/diapers` issue the same ephemeral, one-use browser handoff; all play happens under
 the existing bot origin's `/diapers/` routes. Keep GET previews non-consuming,
+and keep `!diapers` links in DMs. Dispatch that exact prefix before the chat
+channel gate and LLM, ignoring messages from bots. Preserve
 sessions bound to the confirmed identity, and mutations protected by exact
 Origin and session CSRF checks. Browser code never receives wallet tokens.
 Keep bank-copy reservations, pinned account/price, payment journal and delivery
