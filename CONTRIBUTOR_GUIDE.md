@@ -24,6 +24,14 @@ their original identity/account, compose the wallet reservation guards before
 HTTP startup, and preserve payment recovery when new fines are paused. Stop and
 drain the scheduler before closing identity/wallet storage on SIGINT or SIGTERM.
 
+Swear-jar notification prose comes from `src/graph/swearJarMessage.js`, with a
+bounded AI timeout and the original factual message as fallback. Append payment
+status and `swearJarBalanceText` from the journal after generation and channel
+lookup; keep unallocated confirmed coins separate from reserved unpaid prizes.
+Do not send player messages, identities or balances to the model. AI prose must
+never control payments, account guidance or winner selection. See
+[GENERATION_TUNING_GUIDE.md](GENERATION_TUNING_GUIDE.md).
+
 Cozy Hangman lives in `src/hangman/`; see [HANGMAN_GUIDE.md](HANGMAN_GUIDE.md).
 Charge exactly one online coin before exposing a playable word. Credit one
 coin per newly revealed position, recording the guess and credit reservation

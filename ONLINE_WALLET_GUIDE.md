@@ -327,3 +327,9 @@ guards with games and gifts. `/lidollid wallet retry` can finish them; automatic
 retries run each minute. Unlinked users receive account creation/login guidance.
 See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for configuration, eligibility,
 missing-wallet behavior, word matching and recovery.
+
+Every swear-jar notice and private payment retry displays confirmed coins
+available for the next draw, with reserved unpaid lottery prizes shown separately.
+AI-written wording is paired with application-generated payment facts and jar
+totals. The displayed amount never reveals a member's personal wallet balance;
+an AI failure uses the standard message and does not interrupt payments.

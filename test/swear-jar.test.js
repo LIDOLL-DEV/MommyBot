@@ -41,7 +41,7 @@ function fixture(t, env = {}) {
     f.wallet = new WalletService(path.join(directory, "wallet.db"), f.api, { now: () => f.now });
     f.wallet.identityFor = user => f.identities.gameIdentity(user);
     f.wallet.swearJar.draw = count => { f.drawCount = count; return f.winnerIndex ?? 0; };
-    f.bot = createSwearJar(f.client, f.wallet, f.identities, env);
+    f.bot = createSwearJar(f.client, f.wallet, f.identities, env, { generateMessage: async (...args) => f.generate ? f.generate(...args) : null }); // Keep payment tests independent of live model servers.
   };
   f.channel = guild => ({ guildId: guild, isTextBased: () => true, async send(options) {
     if (f.failSend) throw new Error("Discord offline");
@@ -325,4 +325,81 @@ test("configuration can replace the swear list and missing wallet or identity di
   assert.equal(await f.bot.handleMessage(f.message("heck!")), true);
   assert.equal(createSwearJar(f.client, null, f.identities), null);
   assert.equal(createSwearJar(f.client, f.wallet, null), null);
+});
+
+test("AI wording accompanies factual payment details and the live server jar balance", async t => {
+  const f = fixture(t); f.link("alice");
+  const calls = [];
+  f.generate = async kind => { calls.push(kind); return "Gentle words, sweetheart! Mommy's jar is listening."; };
+  await f.bot.handleMessage(f.message());
+  assert.match(f.sent[0].content, /^Gentle words, sweetheart!/);
+  assert.match(f.sent[0].content, /has been put/);
+  assert.match(f.sent[0].content, /Swear jar balance: \*\*1 LiDollcoins\*\*/);
+  await f.bot.handleMessage(f.message());
+  assert.match(f.sent[1].content, /Swear jar balance: \*\*2 LiDollcoins\*\*/);
+  assert.deepEqual(calls, ["debit", "debit"]);
+  assert.deepEqual(f.wallet.swearJar.balance("other"), { available: 0, reserved: 0 });
+});
+
+test("unlinked, disconnected and refused-payment replies still show the confirmed jar balance", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  await f.bot.handleMessage(f.message("shit", { author: { id: "unlinked", bot: false } }));
+  f.link("bob", { connected: false }); await f.bot.handleMessage(f.message("shit", { author: { id: "bob", bot: false } }));
+  f.link("empty", { coins: 0 }); await f.bot.handleMessage(f.message("shit", { author: { id: "empty", bot: false } }));
+  assert.ok(f.sent.every(message => message.content.includes("Swear jar balance: **1 LiDollcoins**")));
+  assert.match(f.sent[1].content, /make a \*\*LiD0llID account/);
+  assert.match(f.sent[2].content, /connect your wallet/);
+  assert.match(f.sent[3].content, /No coin was collected/);
+});
+
+test("AI outages cannot prevent a paid fine, its fallback notice, or its balance", async t => {
+  const f = fixture(t); f.link("alice");
+  f.generate = async () => { throw new Error("brain offline"); };
+  await f.bot.handleMessage(f.message());
+  assert.equal(f.balances.get("alice"), 9); assert.equal(f.sent.length, 1);
+  assert.match(f.sent[0].content, /MommyBot asks you/);
+  assert.match(f.sent[0].content, /Swear jar balance: \*\*1 LiDollcoins\*\*/);
+  assert.equal(f.jobs()[0].notified, 1);
+});
+
+test("lottery notices show available and reserved coins, then clear the reservation once paid", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob", { connected: false }); f.winnerIndex = 1;
+  f.generate = async kind => kind === "credit" ? "A little celebration for our lucky winner!" : null;
+  await f.bot.handleMessage(f.message()); f.now = MONDAY + WEEK; await f.bot.tick();
+  assert.match(f.sent.at(-1).content, /^A little celebration/);
+  assert.match(f.sent.at(-1).content, /Swear jar balance: \*\*0 LiDollcoins\*\*/);
+  assert.match(f.sent.at(-1).content, /Reserved lottery prizes: \*\*1 LiDollcoins\*\*/);
+  assert.deepEqual(f.wallet.swearJar.balance("guild"), { available: 0, reserved: 1 });
+  f.connect("bob", 0); await f.bot.tick();
+  assert.match(f.sent.at(-1).content, /has been gifted/);
+  assert.match(f.sent.at(-1).content, /Swear jar balance: \*\*0 LiDollcoins\*\*/);
+  assert.doesNotMatch(f.sent.at(-1).content, /Reserved lottery prizes/);
+});
+
+test("balance is refreshed after a slow AI response, and notice retries never charge again", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob");
+  let release, started;
+  const waiting = new Promise(resolve => { release = resolve; });
+  const generating = new Promise(resolve => { started = resolve; });
+  let first = true;
+  f.generate = async () => { if (first) { first = false; started(); await waiting; } return "Gentle words, sweetheart."; };
+  const message = f.bot.handleMessage(f.message()); await generating;
+  await f.bot.handleMessage(f.message("shit", { author: { id: "bob", bot: false } }));
+  release(); await message;
+  assert.ok(f.sent.every(message => message.content.includes("Swear jar balance: **2 LiDollcoins**")));
+  f.failSend = true; await f.bot.handleMessage(f.message()); f.failSend = false;
+  await f.restart(); await f.bot.tick();
+  assert.equal(f.calls.length, 3);
+  assert.match(f.sent.at(-1).content, /Swear jar balance: \*\*3 LiDollcoins\*\*/);
+});
+
+test("private swear jar payment retries include a balance even while payment is pending", async t => {
+  const f = fixture(t); f.link("alice"); f.lose = "debit";
+  await f.bot.handleMessage(f.message());
+  let response = await runWalletAction({ user: { id: "alice" } }, f.wallet, f.identities, "retry");
+  assert.match(response.content, /Swear jar balance: \*\*0 LiDollcoins\*\*/);
+  f.lose = null;
+  response = await runWalletAction({ user: { id: "alice" } }, f.wallet, f.identities, "retry");
+  assert.match(response.content, /Swear jar balance: \*\*1 LiDollcoins\*\*/);
+  assert.equal(f.balances.get("alice"), 9);
 });

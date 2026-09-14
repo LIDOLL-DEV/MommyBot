@@ -1,4 +1,5 @@
-import { swearJarPaymentText } from "./wallet/swearJar.js";
+import { swearJarPaymentText, swearJarBalanceText } from "./wallet/swearJar.js";
+import { generateSwearJarMessage } from "./graph/swearJarMessage.js";
 
 export const DEFAULT_SWEAR_WORDS = [
   "fuck", "fucks", "fucked", "fucking", "fucker", "fuckers", "motherfucker", "motherfuckers", "motherfucking",
@@ -23,7 +24,7 @@ export function swearJarStatus(env = process.env, { wallet = env.LIDOLLCOIN_ENAB
     "NO MATCHES: SWEAR_JAR_WORDS is empty. Remove that setting to use the built-in list.";
 } // Explain every configuration that can silently bypass swear detection without printing message content or account information.
 
-export function createSwearJar(client, wallet, identities, env = process.env) {
+export function createSwearJar(client, wallet, identities, env = process.env, { generateMessage = generateSwearJarMessage } = {}) {
   console.log(`[Swear jar] ${swearJarStatus(env, { wallet: Boolean(wallet), identities: Boolean(identities) })}`);
   if (!wallet || !identities) return null;
   const enabled = env.SWEAR_JAR_ENABLED !== "false";
@@ -36,6 +37,16 @@ export function createSwearJar(client, wallet, identities, env = process.env) {
     if ((job.notified && !paidFollowup) || notices.has(job.id)) return;
     notices.add(job.id);
     try {
+      const prose = await generateMessage(job.kind, { env }).catch(() => null);
+      let channel;
+      if (!message) {
+        if (job.kind === "credit" && env.SWEAR_JAR_CHANNEL_ID) {
+          channel = await client.channels.fetch(env.SWEAR_JAR_CHANNEL_ID).catch(() => null);
+        } // An unavailable lottery channel must not prevent fines from replying in their original channel.
+        if (channel?.guildId !== job.guild_id || job.kind === "debit") channel = await client.channels.fetch(job.channel_id);
+        if (!channel?.isTextBased() || channel.guildId !== job.guild_id) throw new Error("Swear jar channel unavailable");
+      }
+      job = jar.get(job.id); // Generation and channel lookup may outlast a payment; refresh facts immediately before sending.
       let content;
       if (job.kind === "debit") {
         content = "MommyBot asks you to put **1 coin in the swear jar** for swearing. ";
@@ -46,21 +57,16 @@ export function createSwearJar(client, wallet, identities, env = process.env) {
         content = paidFollowup ? `<@${job.user_id}>, ${swearJarPaymentText(job)}` :
           `The weekly swear jar lottery winner is <@${job.user_id}>! **${job.amount} LiDollcoins** ${job.state === "done" ? "have been gifted to your wallet!" : "are reserved for you. Use /lidollid login to connect your wallet, then /lidollid wallet retry to collect your prize."}`;
       }
+      content = `${prose ? `${prose}\n\n` : ""}${content}\n\n${swearJarBalanceText(jar.balance(job.guild_id))}`;
       const options = { content, allowedMentions: { parse: [], users: job.kind === "credit" ? [job.user_id] : [], repliedUser: true } };
       if (message) await message.reply(options);
       else {
-        let channel = null;
-        if (job.kind === "credit" && env.SWEAR_JAR_CHANNEL_ID) {
-          channel = await client.channels.fetch(env.SWEAR_JAR_CHANNEL_ID).catch(() => null);
-        } // An unavailable lottery channel must not prevent fines from replying in their original channel.
-        if (channel?.guildId !== job.guild_id || job.kind === "debit") channel = await client.channels.fetch(job.channel_id);
-        if (!channel?.isTextBased() || channel.guildId !== job.guild_id) throw new Error("Swear jar channel unavailable");
         await channel.send({ ...options, ...(job.message_id ? { reply: { messageReference: job.message_id, failIfNotExists: false } } : {}) });
       }
       jar.db.prepare("UPDATE swear_jar_jobs SET notified=1,paid_notified=? WHERE id=?").run(job.kind === "credit" && job.state === "done" ? 1 : 0, job.id);
     } catch { console.error(`[Swear jar] Could not send a notice in guild ${job.guild_id}; it remains saved for retry.`); }
     finally { notices.delete(job.id); }
-  } // Keep public replies free of balances, credentials and quoted profanity; retry unsent notices independently of payments.
+  } // Generate friendly replies with exact public jar totals; keep personal wallet balances and credentials private.
 
   async function handle(message) {
     if (stopped || !enabled || !message.guildId || message.author?.bot || message.webhookId || !matches(message.content)) return false;

@@ -6,6 +6,9 @@
   check your online currency privately. `/menu` opens the account and game tools.
 - A server message containing listed swearing costs **1 coin**, even with several
   swear words. MommyBot replies to explain the charge or account problem.
+- Each swear-jar notice includes an AI-written reminder or celebration and the
+  current server jar balance. Reserved lottery prizes are shown separately.
+  Standard wording and the balance still appear if the AI server is unavailable.
 - Every linked human member currently in the server enters its weekly swear jar
   lottery automatically. You do not need to swear or buy a ticket.
 - Look for the winner announcement after **Monday 00:00 UTC**. One winner receives

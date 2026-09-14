@@ -4,6 +4,20 @@ MommyBot takes **1 online LiDollcoin per message containing a listed swear word*
 and replies asking the author to put a coin in the swear jar. Several swear words
 in one message still cost one coin. Every server has its own jar.
 
+The AI server writes a short, warm reminder for swear-jar replies and a cheerful
+line for lottery announcements. MommyBot adds the confirmed payment details,
+required account guidance and **Swear jar balance** to every notice. The balance
+comes from the database immediately before sending, including after a slow AI
+response. It counts confirmed coins available for the next draw. Prizes already
+reserved for a winner appear separately as **Reserved lottery prizes** until the
+wallet confirms payment. Pending or declined fines never inflate either total.
+Private swear-jar payment retries show the same totals.
+
+If generation times out, fails or returns unusable text, MommyBot sends its
+standard factual message with the balance. Coin collection and lottery payouts
+do not depend on the AI being online. Only the notification type goes to the AI;
+it receives no original message, conversation history, account IDs or balances.
+
 The rule covers new human messages in all server channels MommyBot can read,
 including messages outside `CHANNEL_ID`. Direct messages, bots and webhooks are
 ignored. Message edits and historical messages missed while the bot was offline
@@ -55,6 +69,12 @@ An older deployed release may not include the feature at all. See
 | `SWEAR_JAR_ENABLED=false` | Pause new fines; saved payments, notices and weekly distribution still recover. |
 | `SWEAR_JAR_CHANNEL_ID` | Optional lottery announcement channel. It must belong to the jar's server; otherwise the last channel with a swear jar message is used. Fines always reply in their original channel. |
 | `SWEAR_JAR_WORDS` | Optional comma-separated replacement list. An explicitly empty value matches nothing. Omit it for the built-in list. |
+| `SWEAR_JAR_AI_ENABLED=false` | Use standard wording instead of requesting AI prose; balances, fines and lotteries continue. AI wording is enabled by default. |
+| `SWEAR_JAR_AI_TIMEOUT_MS` | AI wait limit, 1,000–15,000 milliseconds. Defaults to 8,000 if missing or invalid. |
+
+AI replies use the existing `LLAMA_BASE_URL`, `LLAMA_MODEL` and MommyBot system
+prompt. See [GENERATION_TUNING_GUIDE.md](GENERATION_TUNING_GUIDE.md) for wording
+and fallback behavior.
 
 The built-in list lives in `src/swearJar.js`. It uses whole-word matching,
 case folding and Unicode normalization, with explicitly listed inflections.

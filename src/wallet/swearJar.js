@@ -28,6 +28,12 @@ export class SwearJar {
   } // Load durable coin reservations before HTTP routes allow account changes or game purchases.
 
   get(id) { return this.db.prepare("SELECT * FROM swear_jar_jobs WHERE id=?").get(id); } // Read the latest payment state after asynchronous work.
+  balance(guild) {
+    return this.db.prepare(`SELECT
+      COALESCE(SUM(CASE WHEN kind='debit' AND state='done' AND allocation IS NULL THEN amount ELSE 0 END),0) AS available,
+      COALESCE(SUM(CASE WHEN kind='credit' AND state='pending' THEN amount ELSE 0 END),0) AS reserved
+      FROM swear_jar_jobs WHERE guild_id=?`).get(guild);
+  } // Show confirmed coins available for the next draw separately from prizes already reserved for winners.
   pending(user) {
     return this.db.prepare("SELECT * FROM swear_jar_jobs WHERE user_id=? AND state='pending' ORDER BY created,id LIMIT 1").get(user);
   } // Any unresolved fine or prize protects its original account from unlinking.
@@ -127,3 +133,8 @@ export function swearJarPaymentText(job) {
   if (job.kind === "credit") return job.state === "done" ? `Your swear jar lottery prize of **${job.amount} LiDollcoins** has been gifted to your wallet!` : "Your swear jar lottery prize is saved until your wallet payment completes.";
   return job.state === "done" ? "Your **1 LiDollcoin** has been put in the swear jar." : "Your wallet declined the swear jar coin. No coin was collected; check your balance and wallet permissions.";
 } // Share accurate payment confirmations between Discord's private menus and slash commands.
+
+export function swearJarBalanceText(balance) {
+  return `Swear jar balance: **${balance.available} LiDollcoins**` +
+    (balance.reserved ? `\nReserved lottery prizes: **${balance.reserved} LiDollcoins** (awaiting confirmed payment).` : "");
+} // Render actual journal totals, never a model-generated amount or an individual's wallet balance.

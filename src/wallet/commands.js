@@ -3,7 +3,7 @@ import { WalletError } from "./client.js";
 import { TraderError } from "../touhou/store.js";
 import { canAward } from "../permissions.js";
 import { HangmanError } from "../hangman/store.js";
-import { swearJarPaymentText } from "./swearJar.js";
+import { swearJarPaymentText, swearJarBalanceText } from "./swearJar.js";
 
 export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**. Diamonds: **${balance.diamonds??'reconnect to enable'}**.\nExchange diamonds for coins on Little Log's Stickers page (1 diamond = 50 coins).\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
 const giftText = gift => `Gift completed: **${gift.amount} ${gift.asset === "diamonds" ? "diamonds" : gift.asset === "stars" ? "stars" : "LiDollcoins"}** credited to <@${gift.user_id}>'s online wallet. They can check /lidollid wallet balance.`; // Confirm the gift without revealing the recipient's total balance.
@@ -55,7 +55,11 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       case "disconnect": await wallet.disconnect(user); response = { content: "Your wallet connection was revoked and removed. Your balances remain in Little Log." }; break;
       case "retry": {
         if (wallet.swearJar?.pending(user)) {
-          response = { content: swearJarPaymentText(await wallet.swearJar.retry(user)) };
+          const job = wallet.swearJar.pending(user);
+          let content;
+          try { content = swearJarPaymentText(await wallet.swearJar.retry(user)); }
+          catch (error) { if (!(error instanceof WalletError)) throw error; content = error.message; }
+          response = { content: `${content}\n\n${swearJarBalanceText(wallet.swearJar.balance(job.guild_id))}` };
           break;
         }
         if (wallet.hangman?.pending(user)) {

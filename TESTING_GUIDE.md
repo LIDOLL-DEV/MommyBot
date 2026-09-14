@@ -14,6 +14,14 @@ recovery. A model-list PASS does not prove successful text generation.
 
 ## Swear jar and weekly lottery
 
+`test/swear-jar-ai.test.js` verifies the chat endpoint and persona, notification
+prompts, reasoning cleanup, bounded requests, disabled generation, malformed
+output, HTTP failures and timeout fallback. The swear-jar integration tests
+inject generation so they never call live AI servers. They verify exact balances
+on fines, account warnings, refused payments, lottery notices, reserved prizes,
+private retries and recovered notices, including fresh totals after slow AI
+generation and fallback delivery during an AI outage.
+
 `node --test test/swear-jar.test.js` uses real disposable SQLite journals with
 fake Discord members, a controlled UTC clock and an idempotent wallet provider.
 It covers whole-word matching and customization, one coin per message, duplicate
