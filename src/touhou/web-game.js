@@ -56,11 +56,17 @@ export class TouhouWebGame {
       rows: (body.components || []).map(row => row.toJSON().components), modal: view.modal || null, notice: view.notice || "" };
   } // Convert only the existing display payload; never serialize store objects, wallet grants or attachment file paths.
   offers(guild, user) {
-    return this.store.db.prepare("SELECT id,sender_id,recipient_id,offered,requested,expires FROM trade_offers WHERE guild_id=? AND recipient_id=? AND status='pending' AND expires>? ORDER BY rowid DESC LIMIT 25").all(guild, user, this.store.now());
+    return this.store.db.prepare("SELECT id,from_id AS sender_id,to_id AS recipient_id,offered,requested,expires_at AS expires FROM trade_offers WHERE guild_id=? AND to_id=? AND status='pending' AND expires_at>? ORDER BY rowid DESC LIMIT 25").all(guild, user, this.store.now());
   } // Both Discord and web offers arrive in the recipient's private inbox and keep the existing expiry and consent rules.
   async state(session, guildId) {
     if (!guildId) return { guilds: await this.guilds.list(session.user_id), panel: null };
     const guild = await this.guilds.require(guildId, session.user_id), view = this.view(session, guild);
+    if (!view.busy && !view.modal) {
+      const control = view.body.components?.[0]?.toJSON().components[0]?.custom_id;
+      const menu = this.menus.sessions.get(control?.split(":")[1]);
+      if (menu) { menu.version++; view.body = this.menus.render(menu); }
+      else view.body = this.menus.open(guild.id, session.user_id);
+    } // Refresh shared Discord changes and invalidate older dropdown indices before displaying newly sorted choices.
     return { guild: { id: guild.id, name: guild.name }, panel: this.serialize(view), offers: this.offers(guild.id, session.user_id) };
   }
   async act(session, input) {
@@ -69,9 +75,13 @@ export class TouhouWebGame {
     view.busy = true; view.notice = "";
     try {
       if (input.action === "offer") {
-        if (!this.offers(guild.id, session.user_id).some(offer => offer.id === input.offer) || !["accept", "decline"].includes(input.decision)) throw new TraderError("This offer is no longer available.");
+        const offer = this.offers(guild.id, session.user_id).find(offer => offer.id === input.offer);
+        if (!offer || !["accept", "decline"].includes(input.decision)) throw new TraderError("This offer is no longer available.");
+        if (input.decision === "accept") await guild.members.fetch(offer.sender_id);
         const result = this.store.resolveOffer(guild.id, session.user_id, input.offer, input.decision === "accept", `web:${randomUUID()}`);
         view.notice = result.accepted ? "Trade complete! Both collections are updated." : "Trade declined.";
+      } else if (input.action === "cancel-modal") {
+        view.modal = null;
       } else if (input.action === "restart-menu") {
         view.body = this.menus.open(guild.id, session.user_id); view.modal = null;
       } else {

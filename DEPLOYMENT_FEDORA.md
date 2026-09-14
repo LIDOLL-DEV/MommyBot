@@ -159,3 +159,8 @@ release and at least one known-good release/backup. Backups contain private bot
 memory and credentials and are stored in a root-only directory.
 
 Package installation follows the [Fedora Node.js documentation](https://developer.fedoraproject.org/tech/languages/nodejs/nodejs.html).
+
+
+## Play through Little Log
+
+[Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.

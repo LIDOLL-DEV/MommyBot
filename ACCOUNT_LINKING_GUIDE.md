@@ -83,3 +83,8 @@ before moving it to another.
   role first. Successful linking or `/lidollid status` adds it back.
 - **Only want to disconnect the wallet?** Use `/lidollid wallet disconnect`.
   Your identity stays linked. `/lidollid login` reconnects them together.
+
+
+## Play through Little Log
+
+[Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.

@@ -154,3 +154,8 @@ Artwork and the seed were copied from `C:\Scripts\LumiBot\touhous` and
 `C:\Scripts\LumiBot\data\touhou-rarity-seed.json`. The attack seed comes from
 `C:\Scripts\LumiBot\data\touhou-attacks-seed.json`. Seeds retain their original
 source metadata. Do not substitute live account databases for these asset files.
+
+
+## Play through Little Log
+
+[Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.

@@ -329,3 +329,8 @@ authorization code + PKCE S256, state, nonce, ID-token signature checks and
 subject-checked UserInfo. See the library's
 [API reference](https://github.com/panva/openid-client/blob/main/docs/README.md)
 and omo-trainer's `AUTH_GUIDE.md` for the underlying contract.
+
+
+## Play through Little Log
+
+[Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.

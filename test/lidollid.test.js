@@ -14,6 +14,8 @@ import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { buildIdentityCommand, createIdentityHandler } from "../src/auth/index.js";
+import { createGameLogin } from "../src/games/login.js";
+import { GameSessions } from "../src/games/sessions.js";
 
 const identity = { issuer: "https://auth.example", subject: "stable-account", username: "Doll" };
 const values = { verifier: "verifier", state: "state", nonce: "nonce" };
@@ -185,6 +187,47 @@ test("OIDC validates real signed responses and rejects state, nonce, signature, 
     }
     assert.equal(fixture.discoveries(), 2, "Failed discovery retries; successful discovery is cached");
   } finally { await close(fixture.server); }
+});
+
+test("direct game SSO verifies signed identity, reuses the registered callback and never links or stages wallets", async () => {
+  const fixture = await providerFixture(), store = new IdentityStore(":memory:");
+  const config = { issuer: fixture.origin, clientId: "lidollbot", origin: "http://127.0.0.1" };
+  const games = Object.fromEntries(["diapers", "hangman", "touhou"].map(game => [game, { title: game, sessions: new GameSessions(store.db, store, { prefix: game === "diapers" ? "diaper" : game, command: "/lidollid login" }) }]));
+  const gameLogin = createGameLogin(config, store, createOidc(config, false, { statePrefix: "game." }), games);
+  const server = createAuthServer(config, store, {}, { stageIdentity: () => { throw Error("Must not stage wallet grants"); } }, gameLogin.route);
+  config.origin = await listen(server); config.callback = `${config.origin}/auth/callback`;
+  const start = async game => {
+    const page = await fetch(`${config.origin}/${game}/login`), html = await page.text();
+    assert.equal(page.status, 200);assert.equal(store.db.prepare("SELECT COUNT(*) n FROM game_logins").get().n, 0);
+    const csrf = html.match(/name="csrf" value="([a-f0-9]+)"/)[1], cookie = page.headers.getSetCookie()[0].split(";")[0];
+    const bad = await fetch(`${config.origin}/${game}/login`, { method: "POST", headers: { Origin: "https://evil.example", Cookie: cookie, "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ csrf }), redirect: "manual" });
+    assert.equal(bad.status, 403);
+    const response = await fetch(`${config.origin}/${game}/login`, { method: "POST", headers: { Origin: config.origin, Cookie: cookie, "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ csrf }), redirect: "manual" });
+    assert.equal(response.status, 303);const authorization = new URL(response.headers.get("location"));
+    assert.equal(authorization.searchParams.get("redirect_uri"), config.callback);assert.equal(authorization.searchParams.get("scope"), "openid profile");
+    assert.equal(authorization.searchParams.has("prompt"), false);fixture.setAuthorization(authorization);
+    return { state: authorization.searchParams.get("state"), cookie: response.headers.getSetCookie()[0].split(";")[0] };
+  };
+  const finish = (attempt, state = attempt.state) => fetch(`${config.callback}?code=test-code&state=${state}`, { redirect: "manual", headers: { Cookie: attempt.cookie } });
+  try {
+    const unlinked = await start("diapers");const denied = await finish(unlinked);
+    assert.equal(denied.status, 403);assert.match(await denied.text(), /not linked to Discord/);
+    assert.equal(store.db.prepare("SELECT COUNT(*) n FROM identity_links").get().n, 0);
+    store.db.prepare("INSERT INTO identity_links VALUES (?,?,?,?,?)").run("alice", fixture.origin, "stable-account", "Doll", 1000);
+    const discordTicket = store.begin("other-discord-user");
+    for (const key of Object.keys(games)) {
+      fixture.setMode("valid");const attempt = await start(key), response = await finish(attempt);
+      assert.equal(response.status, 303);assert.equal(response.headers.get("location"), `/${key}/`);
+      const sessionCookie = response.headers.getSetCookie().find(cookie => cookie.includes("_session="));
+      const token = sessionCookie.split(";")[0].split("=")[1];
+      assert.equal(games[key].sessions.get(token).user_id, "alice");
+      assert.equal(store.get("alice").linked_at, 1000);assert.ok(store.hasTicket(discordTicket));
+      assert.equal((await finish(attempt)).status, 400);
+    }
+    const invalid = await start("hangman");assert.equal((await finish(invalid, "game.foreign")).status, 503);assert.equal((await finish(invalid)).status, 400);
+    const revoked = await start("touhou");store.unlink("alice");assert.equal((await finish(revoked)).status, 403);
+    assert.equal(games.touhou.sessions.db.prepare("SELECT COUNT(*) n FROM identity_links").get().n, 0);
+  } finally { await close(server);await close(fixture.server);store.close(); }
 });
 
 test("browser handoff binds cookies, escapes profiles, consumes callbacks and waits for Discord confirmation", async () => {

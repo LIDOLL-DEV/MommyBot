@@ -86,3 +86,8 @@ to check Chrome at desktop and mobile sizes. Set `PUPPETEER_MODULE` to your
 installed `puppeteer-core` entry module and `CHROME_PATH` to your Chrome binary.
 Set `HANGMAN_SCREENSHOT_DIR` to a temporary directory to save screenshots.
 It never uses production coins or browser profiles.
+
+
+## Play through Little Log
+
+[Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.

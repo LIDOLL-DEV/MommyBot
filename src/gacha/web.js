@@ -60,7 +60,7 @@ export function createGachaWeb(config, game, sessions) {
       if (["/diapers", "/diapers/"].includes(url.pathname) && request.method === "GET") { send(response, 200, app); return true; }
       if (url.pathname.startsWith("/diapers/api/")) {
         const session = sessions.get(readCookie(request, sessionName));
-        if (!session) { json(response, 401, { error: "Run /diapers in Discord and open its private link to sign in." }); return true; }
+        if (!session) { json(response, 401, { error: "Use LiD0llID sign-in above, or run /diapers in Discord and open its private link." }); return true; }
         if (url.pathname === "/diapers/api/state" && request.method === "GET") {
           let coins = null, walletError = null;
           try { coins = (await game.wallet.balance(session.user_id)).coins; }

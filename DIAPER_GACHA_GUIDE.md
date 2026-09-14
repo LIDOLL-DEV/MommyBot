@@ -203,3 +203,8 @@ It checks opening the private link, rolling, revealing, selling, buying back,
 filtering, logout, mobile overflow and CSP errors. Optional screenshots contain
 fixture data only. A live Discord/HTTPS deployment still needs an operator check
 with a linked test account after deployment.
+
+
+## Play through Little Log
+
+[Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.

@@ -54,7 +54,7 @@ export function createHangmanWeb(config, game, sessions) {
       if (["/hangman", "/hangman/"].includes(url.pathname) && request.method === "GET") { send(response, 200, files.get("/hangman/index.html")); return true; }
       if (url.pathname.startsWith("/hangman/api/")) {
         const session = sessions.get(readCookie(request, sessionName));
-        if (!session) { json(response, 401, { error: "Run /hangman in Discord and open its private link to sign in." }); return true; }
+        if (!session) { json(response, 401, { error: "Use LiD0llID sign-in above, or run /hangman in Discord and open its private link." }); return true; }
         if (url.pathname === "/hangman/api/state" && request.method === "GET") {
           let coins = null, walletError = null;
           try { coins = (await game.wallet.balance(session.user_id)).coins; }

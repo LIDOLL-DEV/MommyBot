@@ -275,3 +275,8 @@ tooling settings. It starts temporary identity, wallet and bot callback servers,
 approves a synthetic account, simulates a lost exchange response, confirms via
 the Discord handler and exercises star access. It also checks consent denial.
 It never logs into Discord or spends live currency.
+
+
+## Web games and Touhou
+
+Run `npm test` for signed game SSO callbacks, replay/unlink behavior, Touhou web ownership and membership, both adoption currencies, shared-state refresh, market forms, gifts, swaps, lost-payment recovery and HTTP origin/CSRF/session checks. Set `PUPPETEER_MODULE` and `CHROME_PATH`, then run `node scripts/check-touhou-browser.mjs` for real Chrome controls, artwork, battles, potions, listing dialogs, mobile layout and logout. `TOUHOU_SCREENSHOT_DIR` optionally captures screenshots. Fixtures use fake accounts and balances. See [GAMES_GUIDE.md](GAMES_GUIDE.md) for the production handoff check.

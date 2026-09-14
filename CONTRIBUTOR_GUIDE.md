@@ -176,3 +176,8 @@ If startup's Discord-ready message changes, update the deployment readiness
 check. If shutdown handling changes, keep `KillSignal` in the systemd unit in
 sync. Any database migration needs a documented rollback strategy because code
 rollback alone does not restore older data.
+
+
+## Games in the PWA
+
+See [GAMES_GUIDE.md](GAMES_GUIDE.md) for direct LiD0llID game sign-in and the Touhou web adapter. Preserve issuer/subject identity binding, per-server collections, fresh Discord membership checks, menu revisions and shared payment journals. The PWA opens these games; all gameplay remains in MommyBot.
