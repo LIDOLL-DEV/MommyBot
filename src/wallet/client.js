@@ -25,7 +25,7 @@ function transportCode(error) {
 const messages = {
   invalid_client: "LiDollBot is not registered with Little Log's wallet API. Ask Doll to add the lidollbot wallet app.",
   invalid_token: "Your online wallet connection expired or was revoked. Use /lidollid wallet connect again.",
-  insufficient_scope: "Reconnect your online wallet and approve the requested star and coin permissions.",
+  insufficient_scope: "Reconnect your online wallet and approve the requested coin, star and diamond permissions.",
   authorization_pending: "Wallet approval is still waiting. Approve the code in Little Log, then press Check approval.",
   slow_down: "Please wait before checking wallet approval again.",
   access_denied: "Wallet permission was declined or the account is disabled. Start a new connection if needed.",
@@ -84,7 +84,7 @@ export class WalletClient {
     return data;
   } // Never follow redirects with credentials or log provider error bodies; timeouts remain uncertain outcomes for writes.
   async begin() {
-    const data = await this.request("device", { body: { scope: "wallet:read wallet:write stars:read stars:write" } });
+    const data = await this.request("device", { body: { scope: "wallet:read wallet:write stars:read stars:write diamonds:read diamonds:write" } });
     let verification;
     try { verification = new URL(data.verification_uri); } catch { /* The validation below rejects malformed verification URLs. */ }
     if (!/^[\w-]{20,100}$/.test(data.device_code || "") || !/^[A-Z0-9-]{6,32}$/.test(data.user_code || "") ||
@@ -99,14 +99,14 @@ export class WalletClient {
     const data = await this.request("token", { body: { grant_type: "urn:ietf:params:oauth:grant-type:device_code", device_code: deviceCode } });
     if (!/^[\w-]{20,100}$/.test(data.access_token || "") || data.token_type !== "Bearer" ||
         !Number.isInteger(data.expires_in) || data.expires_in < 1 || data.expires_in > 2592000 ||
-        !["wallet:read", "wallet:write", "stars:read", "stars:write"].every(scope => String(data.scope).split(" ").includes(scope))) {
-      throw new WalletError("invalid_response", "The wallet did not grant the required permissions. Reconnect and approve stars and coins.");
+        !["wallet:read", "wallet:write", "stars:read", "stars:write", "diamonds:read", "diamonds:write"].every(scope => String(data.scope).split(" ").includes(scope))) {
+      throw new WalletError("invalid_response", "The wallet did not grant the required permissions. Reconnect and approve coins, stars and diamonds.");
     }
     return data;
   }
   async exchange(proof) { // Use the internal API address; only a consented OIDC access token can authorize this exchange.
     const data=await this.request('exchange',{body:{grant_type:'urn:ietf:params:oauth:grant-type:token-exchange',subject_token_type:'urn:ietf:params:oauth:token-type:access_token',subject_token:proof}});
-    if(!/^[\w-]{20,100}$/.test(data.access_token||'')||data.token_type!=='Bearer'||!Number.isInteger(data.expires_in)||data.expires_in<1||data.expires_in>2592000||!['wallet:read','wallet:write','stars:read','stars:write'].every(s=>String(data.scope).split(' ').includes(s))||typeof data.identity?.issuer!=='string'||typeof data.identity?.subject!=='string')throw new WalletError('invalid_response','The login did not grant account and wallet access. Start /lidollid login again.');
+    if(!/^[\w-]{20,100}$/.test(data.access_token||'')||data.token_type!=='Bearer'||!Number.isInteger(data.expires_in)||data.expires_in<1||data.expires_in>2592000||!['wallet:read','wallet:write','stars:read','stars:write','diamonds:read','diamonds:write'].every(s=>String(data.scope).split(' ').includes(s))||typeof data.identity?.issuer!=='string'||typeof data.identity?.subject!=='string')throw new WalletError('invalid_response','The login did not grant account and wallet access. Start /lidollid login again.');
     return data;
   }
   async balance(token) {
@@ -114,7 +114,8 @@ export class WalletClient {
     if (!/^[\w-]{1,128}$/.test(data.account_id || "") || ![data.balance, data.stars].every(n => Number.isSafeInteger(n) && n >= 0 && n <= 2147483647) || data.stars_enabled !== true) {
       throw new WalletError("invalid_response", "The wallet did not return both star and coin balances with spending permission. Reconnect your wallet.");
     }
-    return { accountId: data.account_id, coins: data.balance, stars: data.stars };
+    if(data.diamonds!==undefined&&(!Number.isSafeInteger(data.diamonds)||data.diamonds<0||data.diamonds>2147483647||typeof data.diamonds_enabled!=='boolean'))throw new WalletError('invalid_response','The wallet returned an invalid diamond balance.');
+    return { accountId: data.account_id, coins: data.balance, stars: data.stars, diamonds:data.diamonds??null, diamondsEnabled:data.diamonds_enabled===true }; // Legacy grants keep working for coins/stars while clearly requiring consent to unlock diamonds.
   } // Return fresh balances without copying them into the local trader wallet.
   operation(token, body) { return this.request("operations", { token, body }); }
   revoke(token) { return this.request("revoke", { token, body: {} }); }

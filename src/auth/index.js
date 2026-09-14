@@ -24,12 +24,12 @@ export function buildIdentityCommand() {
     .addSubcommandGroup(g => g.setName("wallet").setDescription("Connect Little Log stars and LiDollcoins")
       .addSubcommand(c => c.setName("menu").setDescription("Open your account, wallet and admin gift buttons"))
       .addSubcommand(c => c.setName("connect").setDescription("Connect your LiD0llID account and wallet"))
-      .addSubcommand(c => c.setName("balance").setDescription("Privately check your online stars and LiDollcoins"))
+      .addSubcommand(c => c.setName("balance").setDescription("Privately check your online stars, diamonds and LiDollcoins"))
       .addSubcommand(c => c.setName("retry").setDescription("Finish your pending payment, gift, reward or refund"))
-      .addSubcommand(c => c.setName("gift").setDescription("(Admin) Give someone online LiDollcoins or stars")
+      .addSubcommand(c => c.setName("gift").setDescription("(Admin) Give someone online coins, stars or diamonds")
         .addUserOption(o => o.setName("user").setDescription("Recipient with a connected wallet").setRequired(true))
         .addStringOption(o => o.setName("currency").setDescription("Currency to give").setRequired(true)
-          .addChoices({ name: "LiDollcoins", value: "coins" }, { name: "Stars", value: "stars" }))
+          .addChoices({ name: "LiDollcoins", value: "coins" }, { name: "Stars", value: "stars" }, { name: "Diamonds", value: "diamonds" }))
         .addIntegerOption(o => o.setName("amount").setDescription("Amount to give").setMinValue(1).setMaxValue(1_000_000).setRequired(true)))
       .addSubcommand(c => c.setName("gift-retry").setDescription("(Admin) Finish a recipient's pending gift without paying twice")
         .addUserOption(o => o.setName("user").setDescription("Recipient of a pending gift in this server").setRequired(true)))
@@ -78,7 +78,7 @@ export async function runIdentityAction(interaction, store, config, wallet, gach
           const code=options.getString("code",true);
           if(combined)await wallet.confirmIdentity(discordId,store.pendingConfirmation(discordId,code),activate=>store.confirm(discordId,code,activate),()=>store.pendingConfirmation(discordId,code));
           else store.confirm(discordId,code);
-          content=combined?"Your LiD0llID account and wallet are connected. Use /lidollid wallet balance to check your stars and coins.":"Your LiD0llID account is now linked. Use /lidollid status to check it.";
+          content=combined?"Your LiD0llID account and wallet are connected. Use /lidollid wallet balance to check your stars, coins and diamonds.":"Your LiD0llID account is now linked. Use /lidollid status to check it.";
           content += `\n${await awardLinkedRole(interaction, () => Boolean(store.get(discordId)), config.linkedRoleId)}`;
           break;
         }

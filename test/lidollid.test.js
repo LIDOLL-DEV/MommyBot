@@ -210,7 +210,7 @@ test("direct game SSO admits non-Discord players, obtains wallet consent, and is
     assert.equal(bad.status, 403);
     const response = await fetch(`${config.origin}/${game}/login`, { method: "POST", headers: { Origin: config.origin, Cookie: cookie, "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ csrf }), redirect: "manual" });
     assert.equal(response.status, 303);const authorization = new URL(response.headers.get("location"));
-    assert.equal(authorization.searchParams.get("redirect_uri"), config.callback);assert.equal(authorization.searchParams.get("scope"), "openid profile wallet:read wallet:write stars:read stars:write");
+    assert.equal(authorization.searchParams.get("redirect_uri"), config.callback);assert.equal(authorization.searchParams.get("scope"), "openid profile wallet:read wallet:write stars:read stars:write diamonds:read diamonds:write");
     assert.equal(authorization.searchParams.get("prompt"), "consent");fixture.setAuthorization(authorization);
     return { state: authorization.searchParams.get("state"), cookie: response.headers.getSetCookie()[0].split(";")[0] };
   };

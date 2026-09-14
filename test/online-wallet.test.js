@@ -14,7 +14,7 @@ import { TouhouStore, MOMIJI_OWNER_ID } from "../src/touhou/store.js";
 import { createTouhouHandlers } from "../src/touhou/commands.js";
 import { createIdentityHandler } from "../src/auth/index.js";
 
-const scopes = "wallet:read wallet:write stars:read stars:write";
+const scopes = "wallet:read wallet:write stars:read stars:write diamonds:read diamonds:write";
 const catalog = ["Reimu Hakurei", "Marisa Kirisame", "Cirno", "Momiji Inubashiri", ...Array.from({ length: 8 }, (_, i) => `Extra ${i}`)]
   .map(name => ({ name, filename: `${name}.png`, baseRarity: 0 }));
 
@@ -97,7 +97,7 @@ test("online adoption spends exactly one star or 25 coins, preserving local bala
   assert.deepEqual(await f.adoptions.adopt("guild", "alice", "stars", "star-click"), stars);
   await assert.rejects(f.adoptions.adopt("guild", "alice", "coins", "star-click"), /already been used/);
   await f.adoptions.adopt("guild", "alice", "coins", "coin-click");
-  assert.deepEqual(await f.wallet.balance("alice"), { accountId: "account-a", stars: 9, coins: 75 });
+  assert.deepEqual(await f.wallet.balance("alice"), { accountId: "account-a", stars: 9, coins: 75, diamonds: null, diamondsEnabled: false });
   assert.deepEqual(f.store.wallet("guild", "alice"), { stars: 0, coins: 0 });
   assert.equal(f.store.character("guild", "Momiji Inubashiri").owner_id, MOMIJI_OWNER_ID);
   assert.equal(f.store.collection("guild", "alice").length, 2);

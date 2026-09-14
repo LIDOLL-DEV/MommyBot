@@ -311,3 +311,8 @@ bot integration is disabled.
 
 The offline test suite exercises API-shaped fixtures. Live registration,
 consent, balances and Fedora deployment require the operator setup above.
+
+
+## Diamonds
+
+Diamonds are now supported by the shared online wallet. Use /lidollid wallet balance to see them; administrators can use /lidollid wallet gift user:@Someone currency:diamonds amount:2 or Gift diamonds in /menu. Gifts use the same exact-receipt verification and pending recovery as coins/stars. Exchange diamonds for coins on Little Log's Stickers & market page at 1 diamond = 50 coins. Game prices remain unchanged. Existing coin/star connections still work; renew via /lidollid login and approve diamonds to enable the new balance and gifts.

@@ -164,3 +164,8 @@ Package installation follows the [Fedora Node.js documentation](https://develope
 ## Play through Little Log
 
 [Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.
+
+
+## Diamonds
+
+Deploy the identity service with diamonds:read/diamonds:write support, then Little Log market schema 9, then MommyBot. If the lidollbot identity client has an explicit scope allowlist, extend it with both diamond scopes while preserving existing scopes and registrations. The tracker wallet app accepts an optional diamondDailyLimit (default max(1, floor(dailyLimit / 50))). Back up tracker science/market databases and bot state before upgrading. After deployment, players renew consent with /lidollid login; bot startup registers the new diamond gift choice.

@@ -4,8 +4,8 @@ import { TraderError } from "../touhou/store.js";
 import { canAward } from "../permissions.js";
 import { HangmanError } from "../hangman/store.js";
 
-export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**.\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
-const giftText = gift => `Gift completed: **${gift.amount} ${gift.asset === "stars" ? "stars" : "LiDollcoins"}** credited to <@${gift.user_id}>'s online wallet. They can check /lidollid wallet balance.`; // Confirm the gift without revealing the recipient's total balance.
+export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**. Diamonds: **${balance.diamonds??'reconnect to enable'}**.\nExchange diamonds for coins on Little Log's Stickers page (1 diamond = 50 coins).\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
+const giftText = gift => `Gift completed: **${gift.amount} ${gift.asset === "diamonds" ? "diamonds" : gift.asset === "stars" ? "stars" : "LiDollcoins"}** credited to <@${gift.user_id}>'s online wallet. They can check /lidollid wallet balance.`; // Confirm the gift without revealing the recipient's total balance.
 
 export async function handleWalletInteraction(interaction, wallet, identities) {
   const button = interaction.customId?.startsWith("lw:finish:");
@@ -46,7 +46,7 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       case "connect": {
         if (!identities.get(user)) throw new WalletError("not_linked", "Use /lidollid login and confirm your identity first, then /lidollid wallet connect.");
         const approval = await wallet.begin(user);
-        response = { content: `Open ${approval.verificationUri}\nEnter your private code: **${approval.userCode}**\nApprove LiDollBot to read and spend stars and LiDollcoins, then press Check approval. Use your own Little Log account; its wallet will fund adoptions. The code expires in 10 minutes.`,
+        response = { content: `Open ${approval.verificationUri}\nEnter your private code: **${approval.userCode}**\nApprove LiDollBot to read, earn and spend stars, diamonds and LiDollcoins, then press Check approval. Use your own Little Log account; its wallet will fund adoptions. The code expires in 10 minutes.`,
           components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`lw:finish:${user}:${approval.generation}`).setLabel("Check approval").setStyle(ButtonStyle.Primary))] };
         break;
       }

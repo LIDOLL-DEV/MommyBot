@@ -181,3 +181,8 @@ rollback alone does not restore older data.
 ## Games in the PWA
 
 See [GAMES_GUIDE.md](GAMES_GUIDE.md) for direct LiD0llID game sign-in and the Touhou web adapter. Preserve issuer/subject identity binding, per-server collections, fresh Discord membership checks, menu revisions and shared payment journals. The PWA opens these games; all gameplay remains in MommyBot.
+
+
+## Diamonds
+
+Diamond support extends wallet client validation, explicit OIDC/device scopes, gift receipts, slash-command currency choices, and the private gift menu. Existing grants may omit diamonds; display reconnect-to-enable instead of inventing a zero balance or silently upgrading consent. Keep saved gift asset/request/account bindings during retries.

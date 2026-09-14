@@ -294,3 +294,8 @@ With PUPPETEER_MODULE and CHROME_PATH configured, run
 node scripts/check-public-games-browser.mjs for standalone Touhou adoption,
 battles, listing, mobile fit and logout. It uses in-memory databases, fake coins
 and loopback HTTP; it never contacts Discord or spends a real balance.
+
+
+## Diamonds
+
+Run npm test for diamond balance validation and legacy consent (test/diamonds.test.js), explicit scopes (online-wallet and lidollid tests), and administrator diamond gift idempotency (wallet-gifts tests). No real Discord messages or wallet payments are needed for these checks.

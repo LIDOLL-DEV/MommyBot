@@ -14,7 +14,7 @@ export function createOidc(config, combined = false, { statePrefix = "" } = {}) 
     async begin() {
       const provider = await configured();
       const values = { verifier: oidc.randomPKCECodeVerifier(), state: statePrefix + oidc.randomState(), nonce: oidc.randomNonce() };
-      const parameters = { redirect_uri: config.callback, ...(combined ? {prompt: "consent"} : {}), scope: combined ? "openid profile wallet:read wallet:write stars:read stars:write" : "openid profile",
+      const parameters = { redirect_uri: config.callback, ...(combined ? {prompt: "consent"} : {}), scope: combined ? "openid profile wallet:read wallet:write stars:read stars:write diamonds:read diamonds:write" : "openid profile",
         code_challenge: await oidc.calculatePKCECodeChallenge(values.verifier), code_challenge_method: "S256",
         state: values.state, nonce: values.nonce };
       const url = await authStep("authorization", () => oidc.buildAuthorizationUrl(provider, parameters));

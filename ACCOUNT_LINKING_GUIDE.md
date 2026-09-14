@@ -88,3 +88,8 @@ before moving it to another.
 ## Play through Little Log
 
 [Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.
+
+
+## Diamonds
+
+New login approvals request coin, star and diamond read/write permissions. Already connected players can renew through /lidollid login to add diamonds. Their existing coin/star connection remains usable until renewed; the wallet display marks diamonds as needing reconnection.

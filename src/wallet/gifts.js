@@ -24,8 +24,8 @@ export class WalletGifts {
 
   async gift(guild, actor, user, asset, amount, interactionId) {
     if (!guild || !actor || !user || !/^[0-9]{1,32}$/.test(interactionId ?? "") ||
-        !["coins", "stars"].includes(asset) || !Number.isSafeInteger(amount) || amount < 1 || amount > 1_000_000) {
-      throw new WalletError("invalid_gift", "Choose coins or stars and a whole-number amount from 1 to 1,000,000 in a server.");
+        !["coins", "stars", "diamonds"].includes(asset) || !Number.isSafeInteger(amount) || amount < 1 || amount > 1_000_000) {
+      throw new WalletError("invalid_gift", "Choose coins, stars or diamonds and a whole-number amount from 1 to 1,000,000 in a server.");
     }
     return this.wallet.exclusive(user, async () => {
       let job = this.db.prepare("SELECT * FROM wallet_gifts WHERE interaction_id=?").get(interactionId);
@@ -68,7 +68,7 @@ export class WalletGifts {
         request_id: job.id, kind: "credit", asset: job.asset, amount: job.amount,
       });
       if (receipt?.request_id !== job.id || receipt.kind !== "credit" || receipt.amount !== job.amount ||
-          receipt.currency !== (job.asset === "stars" ? "Stars" : "LiDollCoin") ||
+          receipt.currency !== (job.asset === "diamonds" ? "Diamonds" : job.asset === "stars" ? "Stars" : "LiDollCoin") ||
           (receipt.asset !== undefined && receipt.asset !== job.asset) ||
           !Number.isSafeInteger(receipt.balance) || receipt.balance < 0) {
         throw new WalletError("invalid_receipt", "The wallet returned an unconfirmed gift receipt.");

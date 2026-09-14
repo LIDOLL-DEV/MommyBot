@@ -14,7 +14,7 @@ function fixture(t) {
   const directory = mkdtempSync(path.join(os.tmpdir(), "mommybot-gifts-"));
   const filename = path.join(directory, "wallet.db");
   const api = { config: { baseUrl: "https://wallet.example/v1/", clientId: "lidollbot" },
-    coins: 0, stars: 0, receipts: new Map(), calls: [] };
+    coins: 0, stars: 0, diamonds: 0, receipts: new Map(), calls: [] };
   api.operation = async (token, body) => {
     assert.equal(token, "recipient-token");
     api.calls.push({ ...body });
@@ -23,7 +23,7 @@ function fixture(t) {
     if (!receipt) {
       assert.equal(body.kind, "credit");
       api[body.asset] += body.amount;
-      receipt = { ...body, balance: api[body.asset], currency: body.asset === "stars" ? "Stars" : "LiDollCoin" };
+      receipt = { ...body, balance: api[body.asset], currency: body.asset === "diamonds" ? "Diamonds" : body.asset === "stars" ? "Stars" : "LiDollCoin" };
       api.receipts.set(body.request_id, receipt);
     }
     if (api.loseResponse) throw new Error("PRIVATE provider data");
@@ -51,7 +51,7 @@ test("gift command registers both currencies, bounds and an administrator retry"
   const command = buildIdentityCommand().toJSON();
   const group = command.options.find(option => option.name === "wallet");
   const gift = group.options.find(option => option.name === "gift");
-  assert.deepEqual(gift.options.find(option => option.name === "currency").choices.map(choice => choice.value), ["coins", "stars"]);
+  assert.deepEqual(gift.options.find(option => option.name === "currency").choices.map(choice => choice.value), ["coins", "stars", "diamonds"]);
   const amount = gift.options.find(option => option.name === "amount");
   assert.equal(amount.min_value, 1); assert.equal(amount.max_value, 1_000_000);
   assert.ok(group.options.some(option => option.name === "gift-retry"));
@@ -59,7 +59,7 @@ test("gift command registers both currencies, bounds and an administrator retry"
 
 test("administrators give either currency privately without an administrator wallet or duplicate credit", async t => {
   const f = fixture(t);
-  for (const [currency, id] of [["coins", "100"], ["stars", "101"]]) {
+  for (const [currency, id] of [["coins", "100"], ["stars", "101"], ["diamonds", "102"]]) {
     const event = interaction("gift", { currency, id });
     await handleWalletInteraction(event, f.wallet, identities);
     assert.match(event.response.content, /Gift completed: \*\*12/);
@@ -68,7 +68,7 @@ test("administrators give either currency privately without an administrator wal
     await handleWalletInteraction(event, f.wallet, identities);
     assert.equal(f.api[currency], 12);
   }
-  assert.equal(f.api.calls.length, 2);
+  assert.equal(f.api.calls.length, 3);
   const rows = f.wallet.db.prepare("SELECT * FROM wallet_gifts").all();
   assert.ok(rows.every(row => row.actor_id === "admin" && row.guild_id === "guild" && row.user_id === "recipient" && row.state === "done"));
 });
@@ -130,7 +130,7 @@ test("administrator retry is restricted to the gift server and ordinary users ca
 test("invalid gifts and disconnected recipients never contact the provider", async t => {
   const f = fixture(t);
   for (const amount of [0, -1, 1.5, 1_000_001, NaN]) await assert.rejects(f.wallet.gifts.gift("guild", "admin", "recipient", "coins", amount, "100"), /whole-number/);
-  await assert.rejects(f.wallet.gifts.gift("guild", "admin", "recipient", "gems", 1, "100"), /coins or stars/);
+  await assert.rejects(f.wallet.gifts.gift("guild", "admin", "recipient", "gems", 1, "100"), /coins, stars or diamonds/);
   await assert.rejects(f.wallet.gifts.gift("guild", "admin", "missing", "coins", 1, "100"), /Connect your/);
   assert.equal(f.api.calls.length, 0);
 });

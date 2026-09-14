@@ -334,3 +334,8 @@ and omo-trainer's `AUTH_GUIDE.md` for the underlying contract.
 ## Play through Little Log
 
 [Games in Little Log](GAMES_GUIDE.md) documents the new PWA Games page, direct LiD0llID sign-in for all three games, Touhou browser controls, session behavior and deployment order. Existing Discord commands and saved collections remain available.
+
+
+## Diamonds
+
+Wallet-enabled sign-in now requests diamonds:read and diamonds:write alongside the existing coin/star scopes. Add these to any explicitly restricted identity client scope configuration. Existing grants are not silently upgraded.
