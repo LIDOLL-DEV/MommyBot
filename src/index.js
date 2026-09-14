@@ -11,6 +11,7 @@ import { initializeWallet } from "./wallet/index.js";
 import { createSwearJar } from "./swearJar.js";
 import { reportModelEndpoints } from "./graph/connection.js";
 import { readFileSync } from "node:fs";
+import { createMemberWelcome } from "./welcome.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -33,6 +34,8 @@ async function main() {
 
   // Create and login the Discord client
   const client = createClient();
+  const welcome = createMemberWelcome(client);
+  client.on(Events.GuildMemberAdd, member => { void welcome.handleMemberAdd(member); }); // Welcome new arrivals independently of chat-channel and wallet gates.
   const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
   const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
   const identity = await initializeIdentity(wallet, touhouTrader, client); // Load all pending game payments before exposing browser purchases.
@@ -88,6 +91,7 @@ async function main() {
     shuttingDown = true;
     console.log("\n🌸 Sakura is going to sleep... Sweet dreams!");
     stopGitHubWatcher();
+    await welcome.stop(); // Stop new greetings and finish any Discord send before destroying the client.
     await swearJar?.stop(); // Stop scheduled draws and finish replies before closing identity or wallet storage.
     await identity?.close(); // Finish browser callbacks before closing account storage.
     await client.destroy();

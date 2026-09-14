@@ -1,5 +1,9 @@
 # MommyBot player checklist
 
+- When you join, read MommyBot's welcome in the welcome channel and open its
+  **server rules** link. Complete LiD0llID registration and the Discord sign-in
+  code confirmation to receive the linked-account role for full server access.
+
 - Create a LiD0llID account if needed, then run `/lidollid login` in Discord.
 - Finish browser sign-in, approve wallet access and confirm the code in Discord.
 - Use `/lidollid status` to check your link and `/lidollid wallet balance` to
@@ -8,6 +12,13 @@
   Search all registered MommyBot players and compare their online coin balances.
   Missing or expired wallet access appears as **Unavailable**, not zero. Balances
   refresh at most once per minute; use **Refresh** to check again.
+- To send your own currency, open `/menu` in a server and choose **Send coins**
+  or **Send diamonds**, select another player, enter the amount, then review
+  **Confirm & send**. Stars cannot be sent. Both players need connected wallets
+  and diamond permission for diamonds. Cancel before confirming to spend nothing.
+- If a transfer is pending, either participant can use **Retry payment**. Do not
+  send a replacement. A definitively refused recipient credit refunds the sender;
+  uncertain payments and refunds retain their original IDs for recovery.
 - A server message containing listed swearing costs **1 coin**, even with several
   swear words. MommyBot replies to explain the charge or account problem.
 - Each swear-jar notice includes an AI-written reminder or celebration and the

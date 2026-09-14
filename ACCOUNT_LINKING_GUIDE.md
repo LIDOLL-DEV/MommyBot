@@ -5,6 +5,11 @@ Little Log stars and LiDollcoins for Touhou Trader. Here's our little walkthroug
 
 ## Prefer buttons?
 
+New members receive a tagged welcome in channel `1548848205092094034`. Read its
+rules link, then complete the browser sign-in and Discord code confirmation
+below so MommyBot can award the linked-account role for full server access.
+Signing in in the browser alone does not finish your Discord registration.
+
 Open `/menu` for Sakura's little account-and-wallet panel! Press **Connect /
 renew**, open your private browser link, and approve your account connection.
 Back in Discord, press **Enter sign-in code** and paste just the 32-character
@@ -16,6 +21,13 @@ Trader** opens the trader in its channel, and **Diaper Atelier** gives you your
 private game link. **Unlink account** has a confirmation screen for testing.
 Only you can use your buttons; reopen `/menu` if they expire after five minutes.
 `/lidollid menu` and `/lidollid wallet menu` open this same panel.
+
+To send your own currency to someone else, use **Send coins** or **Send diamonds**
+in a server menu. Choose a recipient, enter the amount, and review **Confirm &
+send**. Both of you need linked accounts and connected wallets; renew both wallet
+permissions if diamonds are unavailable. Stars cannot be sent. Either player
+can finish a pending transfer using **Retry payment**. See
+[ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md) for transfer and refund details.
 
 **Coin leaderboard** opens the public Coin Garden page, listing registered
 MommyBot usernames and online coin balances. It includes Discord and browser

@@ -22,6 +22,32 @@ with `/lidollid wallet retry`. No star balance is spent by this game.
 
 ## Clickable menu
 
+### Send currency to another player
+
+In a server, open `/menu` and choose **Send coins** or **Send diamonds**. Select
+the recipient, enter a whole-number amount from 1 to 1,000,000, review the
+recipient and amount, then press **Confirm & send**. **Cancel** leaves both
+balances alone. These transfers deduct from the sender's own online balance;
+ordinary players do not need administrator permissions. Stars cannot be sent.
+
+Both players must finish LiD0llID linking and have connected wallets. Diamond
+transfers require both players to approve diamond access with **Connect /
+renew**. You cannot send to yourself, a bot, or the same wallet account through
+another Discord registration. No extra transfer fee is charged.
+
+If a response is lost, either participant can use **Retry payment** or
+`/lidollid wallet retry` to finish the saved transfer. Do not create a replacement
+transfer. Both wallets remain reserved against account removal and new pending
+transactions until it settles. A definitively rejected recipient credit,
+including the provider's daily earning cap, triggers a full refund to the sender.
+An uncertain credit must be resolved before a refund can be considered safe.
+Refunds can also be retried after an outage. Replies show the transferred amount,
+not either player's total balance. The coin leaderboard reflects sends after
+its normal cache refresh.
+
+Administrator **Gift coins/stars/diamonds** controls remain separate reward
+issuance tools; **Send coins/diamonds** always spends the sending player's funds.
+
 [Cozy Hangman](HANGMAN_GUIDE.md) uses **1 LiDollcoin per round** and pays
 **1 coin for each newly revealed letter position**. Repeated letters within
 the word each count; repeated guesses do not. Its entry and rewards participate

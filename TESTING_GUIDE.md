@@ -1,5 +1,42 @@
 # Testing MommyBot
 
+## New-member welcomes
+
+`test/welcome.test.js` verifies `.250` model routing, shared persona, generic
+prompts without member data, safe fallback and sanitized diagnostics, exact
+rules-message links, required registration/confirmation steps, mention limits,
+duplicate joins, genuine rejoins, bot/foreign-server exclusion, Discord failures,
+shutdown draining and the conditional member Gateway intent. Fixtures never log
+into Discord or send real welcome messages. Run `npm test` before deployment.
+
+For live acceptance, enable Server Members Intent in Discord's developer portal
+and deploy/restart the bot. Join with a designated new human account and verify
+one message appears in channel `1548848205092094034`, tagging only that account.
+Open the rules link and confirm it reaches message `1548865939691405423` in the
+rules channel. Follow the LiD0llID flow through Discord code confirmation and
+verify the linked role reveals the server. A model outage must still produce a
+standard welcome with those same steps. Restart alone must not ping existing
+members. See [WELCOME_GUIDE.md](WELCOME_GUIDE.md).
+
+## Player coin and diamond transfers
+
+`test/wallet-transfers.test.js` uses disposable SQLite journals and an idempotent
+fake provider. It checks sender-funded coins/diamonds, untouched stars, invalid
+amounts, self/same-wallet transfers, missing diamond consent, insufficient funds,
+both participant locks, duplicate sends, restart recovery, lost debit/credit/
+refund responses, daily-cap refunds, malformed receipts, post-payment storage
+failures, original-account/API binding and recovery by either participant.
+`test/account-menu.test.js` covers ordinary-player access, review/cancel, stale
+confirmation, bot recipients and denial of forged administrator gift controls.
+Run `npm test`; these tests never spend live currency or message Discord users.
+
+After deployment, use two designated test accounts with connected wallets.
+Open `/menu`, choose **Send coins**, select the recipient, enter a small amount,
+and verify the final review before confirming. Compare both **Online balance**
+results. Repeat for diamonds after approving diamond access. Check Cancel and
+that there is no **Send stars** control. Use **Retry payment** for uncertain
+results, and never replace a pending send or delete its journal.
+
 ## Coin leaderboard
 
 `test/coin-leaderboard.test.js` checks all registered accounts, Discord/browser

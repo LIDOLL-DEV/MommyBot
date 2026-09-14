@@ -107,6 +107,33 @@ test("both gift currencies require a recipient, amount modal and final review be
   assert.deepEqual(calls.map(call => [call.action, call.target.id, call.asset, call.amount]), [["gift", "bob", "coins", 25], ["gift", "bob", "stars", 25]]);
 });
 
+test("ordinary players review sender-funded coins or diamonds, cancel safely and cannot send stars or admin gifts", async () => {
+  const { ui, calls } = fixture(); ui.admin = false;
+  await ui.invoke();
+  assert.equal(ui.find("send-stars"), undefined);
+  assert.equal(ui.find("gift-coins"), undefined);
+  for (const asset of ["coins", "diamonds"]) {
+    await ui.click(`send-${asset}`);
+    assert.match(ui.description(), /your own balance/);
+    await ui.click("recipient", { type: "select", value: "bot" });
+    assert.match(ui.description(), /Choose a person/);
+    await ui.click("recipient", { type: "select", value: "bob" });
+    await ui.click("amount"); await ui.submit("15");
+    assert.match(ui.description(), /deducted from your wallet/);
+    const send = ui.find("send-transfer").custom_id;
+    await ui.invoke(send.replace(/send-transfer$/, "send-gift"));
+    assert.match(ui.reply.content, /Manage Server/);
+    await ui.click("send-transfer"); await ui.invoke(send);
+    assert.match(ui.reply.content, /already changed/);
+  }
+  assert.deepEqual(calls.map(call => [call.action, call.user, call.target.id, call.asset, call.amount]), [
+    ["send", "alice", "bob", "coins", 15], ["send", "alice", "bob", "diamonds", 15],
+  ]);
+  await ui.click("send-coins"); await ui.click("recipient", { type: "select", value: "bob" });
+  await ui.click("amount"); await ui.submit("5"); await ui.click("home");
+  assert.equal(calls.length, 2);
+});
+
 test("forged, foreign, expired and role-revoked controls cannot gift currency", async () => {
   const { ui, calls, advance } = fixture();
   await ui.invoke();

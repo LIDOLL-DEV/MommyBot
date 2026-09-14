@@ -4,6 +4,7 @@ import { chmodSync } from "node:fs";
 import { WalletError } from "./client.js";
 import { WalletGifts } from "./gifts.js";
 import { SwearJar } from "./swearJar.js";
+import { WalletTransfers } from "./transfers.js";
 
 export class WalletService {
   constructor(filename, client, { now = Date.now } = {}) {
@@ -15,6 +16,7 @@ export class WalletService {
     if (filename !== ":memory:") chmodSync(filename, 0o600); // Restrict bearer grants on Fedora; the service also uses UMask=0077.
     this.db.pragma("journal_mode = WAL");
     this.gifts = new WalletGifts(this); // Load gift reservations before other games register their pending-payment guards.
+    this.transfers = new WalletTransfers(this); // Load player transfer guards before game journals and HTTP startup.
     this.db.exec(`CREATE TABLE IF NOT EXISTS online_wallets (
       discord_id TEXT PRIMARY KEY, token TEXT NOT NULL, expires INTEGER NOT NULL,
       account_id TEXT NOT NULL, base_url TEXT NOT NULL, client_id TEXT NOT NULL);

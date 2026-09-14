@@ -44,16 +44,18 @@ export class IdentityMenus {
     let description = s.banner ? `${s.banner}\n\n` : "";
     let components;
     if (s.screen === "recipient") {
-      description += s.intent === "gift-retry" ? "**Retry a pending gift**\nChoose its recipient. This resumes the saved reward." :
+      description += s.intent === "transfer" ? `**Send ${s.asset === "diamonds" ? "diamonds" : "LiDollcoins"}**\nChoose another player with a connected wallet. This comes from your own balance. Stars cannot be sent.` :
+        s.intent === "gift-retry" ? "**Retry a pending gift**\nChoose its recipient. This resumes the saved reward." :
         `**Gift ${s.asset === "diamonds" ? "diamonds" : s.asset === "stars" ? "stars" : "LiDollcoins"}**\nChoose someone with a connected wallet. This is an admin reward; your own balance is not charged.`;
       components = [row(new UserSelectMenuBuilder().setCustomId(this.id(s, "recipient"))
         .setPlaceholder("Choose a recipient").setMinValues(1).setMaxValues(1)), home()];
     } else if (s.screen === "amount") {
-      description += `**Gift ${s.asset === "diamonds" ? "diamonds" : s.asset === "stars" ? "stars" : "LiDollcoins"} to <@${s.recipient.id}>**\nEnter a whole-number amount from 1 to 1,000,000. You will review the gift before sending it.`;
+      description += `**${s.intent === "transfer" ? "Send" : "Gift"} ${s.asset === "diamonds" ? "diamonds" : s.asset === "stars" ? "stars" : "LiDollcoins"} to <@${s.recipient.id}>**\nEnter a whole-number amount from 1 to 1,000,000. You will review the amount before sending it.`;
       components = [row(this.button(s, "amount", "Enter amount", ButtonStyle.Primary)), home()];
     } else if (s.screen === "review") {
-      description += `**Review your gift**\nRecipient: <@${s.recipient.id}>\nAmount: **${s.amount} ${s.asset === "diamonds" ? "diamonds" : s.asset === "stars" ? "stars" : "LiDollcoins"}**\nThis adds currency to their online wallet. Little Log's daily earning limits apply.`;
-      components = [row(this.button(s, "send-gift", "Send gift", ButtonStyle.Success), this.button(s, "home", "Cancel", ButtonStyle.Secondary))];
+      const transfer = s.intent === "transfer";
+      description += `**Review your ${transfer ? "transfer" : "gift"}**\nRecipient: <@${s.recipient.id}>\nAmount: **${s.amount} ${s.asset === "diamonds" ? "diamonds" : s.asset === "stars" ? "stars" : "LiDollcoins"}**\n${transfer ? "This amount will be deducted from your wallet and sent to this player. If their wallet refuses it, your payment will be refunded." : "This adds currency to their online wallet. Little Log's daily earning limits apply."}`;
+      components = [row(this.button(s, transfer ? "send-transfer" : "send-gift", transfer ? "Confirm & send" : "Send gift", ButtonStyle.Success), this.button(s, "home", "Cancel", ButtonStyle.Secondary))];
     } else if (s.screen === "disconnect" || s.screen === "unlink") {
       description += s.screen === "unlink" ? "**Unlink your account?**\nThis removes your bot account link, revokes wallet access and closes your atelier sessions. Your balances, collections and awarded Discord role stay." :
         "**Disconnect your wallet?**\nThis revokes the bot's wallet access. Your account link and online balances stay.";
@@ -63,7 +65,8 @@ export class IdentityMenus {
       description += "**Your account & wallet**\nConnect LiD0llID, check your online coins, stars and diamonds, or finish a pending payment. Use **Enter sign-in code** after approving your browser sign-in.";
       components = [row(this.button(s, "login", "Connect / renew", ButtonStyle.Primary), this.button(s, "code", "Enter sign-in code"), this.button(s, "status", "Account status")),
         row(this.button(s, "balance", "Online balance", ButtonStyle.Success), this.button(s, "retry", "Retry payment"), this.button(s, "disconnect", "Disconnect wallet")),
-        row(this.button(s, "unlink", "Unlink account", ButtonStyle.Danger), this.button(s, "home", "Refresh menu"))];
+        row(this.button(s, "unlink", "Unlink account", ButtonStyle.Danger), this.button(s, "home", "Refresh menu"),
+          this.button(s, "send-coins", "Send coins"), this.button(s, "send-diamonds", "Send diamonds"))];
       const games = [];
       if (this.trader) games.push(this.button(s, "trader", "Touhou Trader"));
       if (this.atelier) games.push(this.button(s, "atelier", "Diaper Atelier"));
@@ -96,7 +99,7 @@ export class IdentityMenus {
       if (s.user !== interaction.user.id || s.guild !== (interaction.guildId ?? null)) throw new MenuError("Open your own /lidollid menu to use these controls.");
       if (extra || s.busy || String(s.version) !== revision) throw new MenuError("This menu already changed. Use its latest controls or reopen /menu.");
       if (!(interaction.isButton?.() || interaction.isUserSelectMenu?.() || interaction.isModalSubmit?.())) throw new MenuError("Use the buttons and selections in this menu.");
-      if ((s.intent || action.startsWith("gift-") || action === "send-gift") && !this.isAdmin(interaction) && action !== "home") {
+      if ((["gift", "gift-retry"].includes(s.intent) || action.startsWith("gift-") || action === "send-gift") && !this.isAdmin(interaction) && action !== "home") {
         throw new MenuError("You need Manage Server or the configured trader admin role to gift currency.");
       }
       s.busy = true; locked = true;
@@ -134,7 +137,7 @@ export class IdentityMenus {
   } // Owner, guild, revision and busy checks protect buttons, selections and forms against stale or concurrent requests.
 
   async dispatch(s, action, interaction) {
-    const homeActions = ["login", "status", "balance", "retry", "disconnect", "unlink", "atelier", "trader", "hangman", "gift-coins", "gift-stars", "gift-diamonds", "gift-retry", "code-submit"];
+    const homeActions = ["login", "status", "balance", "retry", "disconnect", "unlink", "atelier", "trader", "hangman", "gift-coins", "gift-stars", "gift-diamonds", "gift-retry", "code-submit", "send-coins", "send-diamonds"];
     if (homeActions.includes(action) && s.screen !== "home") throw new MenuError("Return to the main menu first.");
     if (action === "home") {
       s.screen = "home"; s.intent = null; s.recipient = null; s.amount = null;
@@ -157,6 +160,11 @@ export class IdentityMenus {
     } else if (action === "trader" && this.trader) {
       await interaction.followUp({ ...await this.trader(interaction), ...privateReply });
       s.banner = "Your Touhou Trader menu is open below.";
+    } else if (["send-coins", "send-diamonds"].includes(action)) {
+      if (!s.guild || interaction.user.bot) throw new MenuError("Open /menu in a server to send coins or diamonds to another player.");
+      s.screen = "recipient"; s.intent = "transfer";
+      s.asset = action === "send-diamonds" ? "diamonds" : "coins";
+      s.recipient = null; s.amount = null;
     } else if (["gift-coins", "gift-stars", "gift-diamonds", "gift-retry"].includes(action)) {
       s.screen = "recipient"; s.intent = action === "gift-retry" ? action : "gift";
       s.asset = action === "gift-diamonds" ? "diamonds" : action === "gift-stars" ? "stars" : "coins";
@@ -166,16 +174,23 @@ export class IdentityMenus {
       const id = interaction.values?.[0];
       const target = interaction.users?.get(id);
       if (!target || target.bot) throw new MenuError("Choose a person with a connected wallet.");
+      if (s.intent === "transfer" && target.id === s.user) throw new MenuError("Choose another player to receive your transfer.");
       s.recipient = { id: target.id, bot: false };
       if (s.intent === "gift-retry") {
         s.screen = "home"; s.intent = null;
         s.banner = (await this.walletAction(interaction, "gift-retry", { getUser: () => s.recipient })).content;
       } else s.screen = "amount";
     } else if (action === "amount-submit") {
-      if (s.screen !== "amount" || s.intent !== "gift") throw new MenuError("Choose a gift recipient first.");
+      if (s.screen !== "amount" || !["gift", "transfer"].includes(s.intent)) throw new MenuError("Choose a recipient first.");
       const text = interaction.fields.getTextInputValue("amount").trim();
       if (!/^[0-9]{1,7}$/.test(text) || Number(text) < 1 || Number(text) > 1_000_000) throw new MenuError("Enter a whole-number amount from 1 to 1,000,000.");
       s.amount = Number(text); s.screen = "review";
+    } else if (action === "send-transfer") {
+      if (s.screen !== "review" || s.intent !== "transfer" || !["coins", "diamonds"].includes(s.asset)) throw new MenuError("Review your coin or diamond transfer first.");
+      s.screen = "home"; s.intent = null; // Consume the reviewed send before awaiting payments; recover using Retry payment.
+      s.banner = (await this.walletAction(interaction, "send", {
+        getUser: () => s.recipient, getString: () => s.asset, getInteger: () => s.amount,
+      })).content;
     } else if (action === "send-gift") {
       if (s.screen !== "review" || s.intent !== "gift") throw new MenuError("Review the recipient and amount first.");
       s.screen = "home"; s.intent = null; // Recovery starts from Retry a gift; the send button cannot create a replacement credit.

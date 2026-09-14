@@ -1,5 +1,29 @@
 # MommyBot generation tuning
 
+## New-member welcome messages
+
+`src/graph/welcomeMessage.js` generates a brief greeting through
+`WELCOME_AI_BASE_URL`, defaulting specifically to `http://192.168.1.250:9090/v1`.
+It uses `LLAMA_MODEL` and the shared persona/address rule with temperature `0.8`,
+`max_tokens: 192`, and thinking disabled. No member names, IDs or history enter
+the request. The application appends the newcomer mention, verified rules link,
+LiD0llID browser approval and Discord confirmation instructions.
+
+`WELCOME_AI_TIMEOUT_MS` defaults to 8,000 and accepts 1,000–15,000 milliseconds.
+`WELCOME_AI_ENABLED=false` uses the standard welcome. Inference errors, empty or
+oversized text, incomplete reasoning, links, mentions and masculine address also
+use that fallback. Adjust warmth in the generation prompt; keep exact onboarding
+instructions and role-delivery claims in application code. See
+[WELCOME_GUIDE.md](WELCOME_GUIDE.md).
+
+## Player transfers
+
+Send-coin and send-diamond prompts are authored in `src/auth/menu.js`; outcomes
+come from `src/wallet/commands.js` and the durable transfer journal. The model
+does not choose recipients, approve transfers, calculate amounts or generate
+payment status. Keep review wording explicit that the sender pays from her own
+balance, and keep stars excluded from player transfers.
+
 ## Coin leaderboard
 
 The Coin Garden page in `src/leaderboard/web/` uses authored text and verified

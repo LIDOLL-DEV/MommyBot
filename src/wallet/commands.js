@@ -8,6 +8,10 @@ import { swearJarPaymentText, swearJarBalanceText } from "./swearJar.js";
 export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**. Diamonds: **${balance.diamonds??'reconnect to enable'}**.\nExchange diamonds for coins on Little Log's Stickers page (1 diamond = 50 coins).\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
 const giftText = gift => `Gift completed: **${gift.amount} ${gift.asset === "diamonds" ? "diamonds" : gift.asset === "stars" ? "stars" : "LiDollcoins"}** credited to <@${gift.user_id}>'s online wallet. They can check /lidollid wallet balance.`; // Confirm the gift without revealing the recipient's total balance.
 
+const transferText = job => job.state === "refunded"
+  ? `Transfer could not be delivered. **${job.amount} ${job.asset === "diamonds" ? "diamonds" : "LiDollcoins"}** was refunded to <@${job.sender_id}>. The recipient received nothing.`
+  : `Transfer completed: **${job.amount} ${job.asset === "diamonds" ? "diamonds" : "LiDollcoins"}** sent from <@${job.sender_id}> to <@${job.recipient_id}>.`; // Report the transfer amount without disclosing either wallet's total balance.
+
 export async function handleWalletInteraction(interaction, wallet, identities) {
   const button = interaction.customId?.startsWith("lw:finish:");
   const command = interaction.isChatInputCommand() && interaction.commandName === "lidollid" && interaction.options.getSubcommandGroup?.() === "wallet";
@@ -30,6 +34,18 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       if (!identities.get(user)) throw new WalletError("not_linked", "Use /lidollid login and confirm your identity before connecting a wallet.");
       response = { content: `Wallet connected!\n${balanceText(await wallet.finish(user, generation))}` };
     } else switch (action) {
+      case "send": {
+        const target = options.getUser("user", true);
+        if (!interaction.guildId || interaction.user.bot || !target || target.bot || target.id === user) {
+          throw new WalletError("invalid_transfer", "Choose another person in a server to receive coins or diamonds.");
+        }
+        if (!identities.get(user) || !identities.get(target.id)) {
+          throw new WalletError("not_linked", "Both players need to finish /lidollid login and connect their wallets first.");
+        }
+        response = { content: transferText(await wallet.transfers.send(interaction.guildId, user, target.id,
+          options.getString("currency", true), options.getInteger("amount", true), interaction.id)) };
+        break;
+      }
       case "gift":
       case "gift-retry": {
         if (!interaction.guildId || !canAward(interaction, process.env.TOUHOU_ADMIN_ROLE_ID || "")) {
@@ -54,6 +70,10 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       case "balance": response = { content: balanceText(await wallet.balance(user)) }; break;
       case "disconnect": await wallet.disconnect(user); response = { content: "Your wallet connection was revoked and removed. Your balances remain in Little Log." }; break;
       case "retry": {
+        if (wallet.transfers?.pending(user)) {
+          response = { content: transferText(await wallet.transfers.retry(user)) };
+          break;
+        }
         if (wallet.swearJar?.pending(user)) {
           const job = wallet.swearJar.pending(user);
           let content;

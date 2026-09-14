@@ -23,7 +23,11 @@ for Discord login, and enables startup on boot.
 
 Set `DISCORD_TOKEN` to your bot token. Set `CHANNEL_ID` to the channel the bot
 should answer in, or leave it empty to allow all channels. Enable the bot's
-Message Content intent in Discord's developer portal. Set `LLAMA_BASE_URL` and
+Message Content intent in Discord's developer portal. New-member welcomes also
+require **Server Members Intent** on the bot's application page; enable it before
+deploying this feature or set `WELCOME_ENABLED=false` to omit that intent and
+pause welcomes. See [WELCOME_GUIDE.md](WELCOME_GUIDE.md) for the default welcome
+channel, verified rules link and `.250` generation endpoint. Set `LLAMA_BASE_URL` and
 `ROUTER_LAMA_URL` to OpenAI-compatible servers reachable from Fedora, including
 the `/v1` suffix. The spelling `ROUTER_LAMA_URL` is intentional: it matches the
 existing code. Adjust `LLAMA_MODEL` if your server requires a model name.

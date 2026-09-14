@@ -5,6 +5,18 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+New-member onboarding lives in `src/welcome.js` and
+`src/graph/welcomeMessage.js`; see [WELCOME_GUIDE.md](WELCOME_GUIDE.md). Route
+`GuildMemberAdd` independently of chat and wallet gates and request `GuildMembers`
+unless welcomes are disabled. Verify the destination belongs to the joining
+member's server, skip bots, and permit mentions only for that member. Keep the
+rules jump link and complete browser-to-Discord registration steps authored in
+code. Generate only the welcome prose on the configured `.250` endpoint, with
+a bounded timeout, shared persona and factual fallback. Never pass member data
+to the model, assign roles from a welcome, backfill historical joins, or log
+Discord/provider bodies. Preserve join-event deduplication, nonce enforcement
+and shutdown draining. Welcome state is in memory; no database migration is needed.
+
 Build every member-facing model persona through `buildSystemPrompt` in
 `src/graph/prompt.js`, or use its shared `SYSTEM_PROMPT` export. The appended
 community rule addresses all members as girls with she/her pronouns, including
@@ -82,6 +94,22 @@ the Discord interaction ID and durable provider request ID. Load its pending
 guard in WalletService before game guards, validate credit receipts for both
 currencies, and never release an uncertain payment because a later retry fails.
 Gift replies must not expose total balances or provider error bodies.
+Player transfers live in `src/wallet/transfers.js`. Ordinary players send only
+coins or diamonds, funding the recipient from their own wallet after a private
+menu review. Never reuse administrator gift credits as transfers. Load transfer
+guards in `WalletService` before games and HTTP startup. Lock both participants
+before asynchronous validation and persist their original accounts, API settings,
+asset, amount and Discord interaction ID before debiting. Reject stars at both
+the service and database boundaries. Preserve stable debit/credit/refund IDs,
+receipt checks and attempted flags: a later rejection cannot erase an earlier
+uncertain payment. Refund only a definitively rejected first credit. Either
+participant may retry the same transfer; both stay reserved until settlement.
+
+`wallet_transfers` is an additive table in the existing wallet database. Finish
+all transfers before rolling back to older code, which cannot enforce these
+reservations. Preserve the table and provider receipts; do not restore balances
+or delete journals to recover payments. No new environment settings are needed.
+
 The private `/menu` hub and `/lidollid [wallet] menu` aliases live in
 `src/auth/menu.js`. Keep their owner/guild binding, five-minute expiry, bounded
 session count, revision checks and in-flight lock. Route menu actions through
