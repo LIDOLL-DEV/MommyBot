@@ -282,3 +282,7 @@ See [GAMES_GUIDE.md](GAMES_GUIDE.md) for direct LiD0llID game sign-in and the To
 ## Diamonds
 
 Diamond support extends wallet client validation, explicit OIDC/device scopes, gift receipts, slash-command currency choices, and the private gift menu. Existing grants may omit diamonds; display reconnect-to-enable instead of inventing a zero balance or silently upgrading consent. Keep saved gift asset/request/account bindings during retries.
+
+## Explicit report sharing
+
+The report client also accepts `source: manual` when `share_with_bot === 1`, set by Little Log's authenticated **Run and share with MommyBot** action. Bind document source/sharing metadata to the listed entry. Keep nightly captions unchanged for reconciliation; explicitly shared reports use the requested-report caption and the same durable delivery journal. See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).

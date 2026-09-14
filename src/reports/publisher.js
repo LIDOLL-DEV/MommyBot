@@ -5,7 +5,7 @@ import { ReportStore } from "./store.js";
 export function reportMessage(config, report) {
   const marker = createHash("sha256").update(JSON.stringify([config.url, config.channelId, report.id])).digest("hex");
   return {
-    content: `Little Log nightly report — ${report.day}\nReport ID: ${report.id}\nModel-authored report${report.incomplete ? " — may be incomplete (output limit reached)" : ""}.\nDelivery: ${marker}`,
+    content: `Little Log ${report.source === "manual" ? "requested" : "nightly"} report — ${report.day}\nReport ID: ${report.id}\nModel-authored report${report.incomplete ? " — may be incomplete (output limit reached)" : ""}.\nDelivery: ${marker}`,
     files: [{ attachment: Buffer.from(report.document, "utf8"), name: `little-log-${report.day}-${report.id}.md` }],
     allowedMentions: { parse: [], users: [], roles: [], repliedUser: false },
     nonce: marker.slice(0, 24), enforceNonce: true,
@@ -105,7 +105,7 @@ export function createReportPublisher(client, { env = process.env, config, store
     poll,
     start() {
       if (timer || stopped || halted) return;
-      logger.log("[Reports] Nightly report publisher enabled.");
+      logger.log("[Reports] Nightly and explicitly shared report publisher enabled.");
       void poll(); timer = setInterval(() => { void poll(); }, config.interval); timer.unref?.();
     },
     async stop() { stopped = true; clearInterval(timer); await active; store.close(); },

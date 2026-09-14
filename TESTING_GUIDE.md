@@ -419,3 +419,7 @@ and loopback HTTP; it never contacts Discord or spends a real balance.
 ## Diamonds
 
 Run npm test for diamond balance validation and legacy consent (test/diamonds.test.js), explicit scopes (online-wallet and lidollid tests), and administrator diamond gift idempotency (wallet-gifts tests). No real Discord messages or wallet payments are needed for these checks.
+
+## Shared on-demand reports
+
+`test/reports.test.js` covers an explicitly shared manual report passing through the real ReportClient and publisher with fake HTTP/Discord transports, posting once alongside a nightly report. Unshared/malformed manual flags and mismatched document source are rejected. No test posts live Discord messages.

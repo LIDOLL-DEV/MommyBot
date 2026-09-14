@@ -43,8 +43,8 @@ export function reportConfig(env = process.env) {
 function metadata(report) {
   return report && Number.isSafeInteger(report.cursor) && report.cursor > 0 &&
     typeof report.id === "string" && /^[a-zA-Z0-9_-]{1,100}$/.test(report.id) &&
-    /^\d{4}-\d{2}-\d{2}$/.test(report.day) && report.source === "daily";
-} // Reject malformed or non-nightly records before they can reach Discord.
+    /^\d{4}-\d{2}-\d{2}$/.test(report.day) && (report.source === "daily" || (report.source === "manual" && report.share_with_bot === 1));
+} // Accept nightly reports and explicit tracker-admin sharing; unshared manual records still cannot reach Discord.
 
 export class ReportClient {
   constructor(config, fetchImpl = fetch) { this.config = config; this.fetch = fetchImpl; }
@@ -73,7 +73,7 @@ export class ReportClient {
   } // Validate ascending completion cursors while allowing legitimate gaps.
   async document(report) {
     const result = await this.request(`${this.config.url}/${encodeURIComponent(report.id)}`);
-    if (!metadata(result) || result.id !== report.id || result.cursor !== report.cursor || result.day !== report.day || result.format !== "markdown" || typeof result.document !== "string" || !result.document.trim() || typeof result.incomplete !== "boolean") throw new ReportError("invalid_document");
+    if (!metadata(result) || result.id !== report.id || result.cursor !== report.cursor || result.day !== report.day || result.source !== report.source || (result.share_with_bot ?? 0) !== (report.share_with_bot ?? 0) || result.format !== "markdown" || typeof result.document !== "string" || !result.document.trim() || typeof result.incomplete !== "boolean") throw new ReportError("invalid_document");
     return result;
   } // Bind the full Markdown response to the exact listed report before journaling it.
 }

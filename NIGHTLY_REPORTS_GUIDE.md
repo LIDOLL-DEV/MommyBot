@@ -1,7 +1,8 @@
 # Little Log nightly reports
 
-MommyBot polls Little Log's read-only API and posts completed nightly reports as
-full UTF-8 Markdown attachments. Manual analyses are excluded. Reports do not
+MommyBot polls Little Log's read-only API and posts completed nightly reports and
+explicitly shared on-demand reports as full UTF-8 Markdown attachments. Ordinary
+manual analyses are excluded. Reports do not
 pass through MommyBot's model or trigger game actions.
 
 This installation requests channel `1549134762172481557`, including older
@@ -10,7 +11,7 @@ disabled until a dedicated report-read token is supplied and enabled.
 
 ## Setup
 
-1. In Little Log, open **Admin console → AI analysis → MommyBot nightly report
+1. In Little Log, open **Admin console → AI analysis → MommyBot report
    access**, create a report-read token, and copy the displayed full feed URL.
 2. Set these in `.env` locally or `/etc/mommybot/mommybot.env` on Fedora:
 
@@ -42,6 +43,21 @@ zero; `future` records the latest cursor on the first successful poll and sends
 only later completions. The choice applies only to a new feed/channel pair;
 changing it later does not rewind a saved cursor. A different destination has
 its own delivery history. The interval accepts 10,000–3,600,000 milliseconds.
+
+## Request an extra report
+
+In Little Log's admin console, save the desired prompt, choose the report date,
+then press **Run and share with MommyBot**. Once generation finishes, the bot
+picks up that report on its normal poll (one minute by default) and posts the
+full attachment in the existing configured channel. **Run now** stays private.
+Nightly reports continue automatically. No new token or configuration is needed.
+
+Deploy both the tracker and MommyBot updates before using this action. The bot
+accepts `source: manual` only with the tracker-saved `share_with_bot: 1` flag and
+binds the downloaded document to that listed sharing choice. On-demand captions
+say **Little Log requested report**. Nightly captions remain unchanged so pending
+nightly sends can still be reconciled after an upgrade. Existing per-report
+delivery receipts prevent repeated polls from reposting the same document.
 
 ## Delivery and recovery
 

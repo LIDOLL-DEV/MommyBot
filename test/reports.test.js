@@ -13,6 +13,26 @@ const config = { url: "https://tracker.example/tracker/api/ai-reports/v1/reports
 const makeReport = cursor => ({ cursor, id: `report-${cursor}`, day: "2026-09-14", source: "daily", format: "markdown", document: "# Nightly\n@everyone " + "Long report text. ".repeat(1000), incomplete: false });
 const page = (reports, after = 0, more = false, latest = reports.at(-1)?.cursor ?? after) => ({ reports, next_cursor: reports.at(-1)?.cursor ?? after, latest_cursor: latest, has_more: more });
 
+test("explicitly shared manual reports pass validation and publish once alongside nightly reports", async t => {
+  const reports = [makeReport(2), { ...makeReport(7), source: "manual", share_with_bot: 1 }];
+  const api = new ReportClient(config, async url => {
+    const request = new URL(url), id = request.pathname.split("/").at(-1);
+    const result = id === "reports" ? page(reports.filter(report => report.cursor > Number(request.searchParams.get("after"))), Number(request.searchParams.get("after")), false, 7) : reports.find(report => report.id === id);
+    return { ok: true, json: async () => result };
+  }); // Fake only HTTP and Discord transport, retaining the production validator and durable publisher.
+  const f = fixture(t, { api }); await f.publisher.poll(); await f.publisher.poll();
+  assert.equal(f.sends.length, 2); assert.equal(f.store.cursor(config), 7);
+  assert.match(f.sends[0].content, /Little Log nightly report/); assert.match(f.sends[1].content, /Little Log requested report/);
+  assert.equal(f.sends[1].files[0].attachment.toString("utf8"), reports[1].document);
+  assert.deepEqual(f.sends[1].allowedMentions.parse, []);
+  for (const share_with_bot of [undefined, 0, "1", true]) {
+    const rejected = new ReportClient(config, async () => ({ ok: true, json: async () => page([{ ...reports[1], share_with_bot }]) }));
+    await assert.rejects(rejected.list(0), /invalid_feed/);
+  }
+  const mismatch = new ReportClient(config, async () => ({ ok: true, json: async () => ({ ...reports[1], source: "daily" }) }));
+  await assert.rejects(mismatch.document(reports[1]), /invalid_document/);
+});
+
 function fixture(t, options = {}) {
   const store = options.store || new ReportStore(":memory:");
   const logs = [], sends = [], messages = new Map(), reads = [];

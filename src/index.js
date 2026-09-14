@@ -76,7 +76,7 @@ async function main() {
   client.once(Events.ClientReady, () => {
     console.log(`🌸 Sakura is online and ready to cuddle! (${client.user.tag})`);
     stopGitHubWatcher = startGitHubActivityWatcher(client);
-    reports?.start(); // Poll completed nightly reports independently of chat and wallet configuration.
+    reports?.start(); // Poll completed nightly and explicitly shared reports independently of chat and wallet configuration.
     swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
     void reportModelEndpoints().catch(() => console.error("[Brain] Startup probe could not finish; run scripts/check-runtime.mjs."));
     if (identity) for (const guild of client.guilds.cache.values()) void identity.registerGuild(guild);
