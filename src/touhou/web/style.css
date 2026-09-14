@@ -9,3 +9,5 @@
 .notice { background:#fff8df; border:1px solid #e7d5a6; border-radius:14px; padding:14px 18px; color:#75581b; }
 .offer { padding:16px; border-top:1px solid var(--line); } .offer button { margin-right:10px; } .dialog-actions { display:flex; gap:12px; margin-top:20px; justify-content:center; } #price { width:100%; padding:10px; } #sign-in { margin:20px 0 40px; }
 @media(max-width:750px) { .trader-card { grid-template-columns:1fr; } .portraits { flex-direction:row; min-height:100px; } .portraits img { max-width:45%; max-height:210px; } .portraits:empty::before { font-size:55px; } .trader-copy { padding:22px 18px; } .welcome { padding-top:30px; } }
+
+#player-id { overflow-wrap: anywhere; } /* Shared player IDs must fit narrow mobile screens. */

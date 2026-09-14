@@ -6,7 +6,7 @@ const hash = value => createHash("sha256").update(String(value || "")).digest("h
 const valid = value => /^[\w-]{43}$/.test(value || "");
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export function createGameLogin(config, identities, oidc, games, now = Date.now) {
+export function createGameLogin(config, identities, oidc, games, now = Date.now, wallet = null) {
   const db = identities.db, secure = config.origin.startsWith("https:"), prefix = secure ? "__Host-" : "";
   const loginCookie = `${prefix}lidollbot_game_login`, formCookie = `${prefix}lidollbot_game_form`;
   const cookie = (name, value, age) => `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${age}${secure ? "; Secure" : ""}`;
@@ -31,7 +31,7 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now)
         if (req.method === "GET") {
           const nonce = randomBytes(32).toString("base64url");
           res.setHeader("Set-Cookie", cookie(formCookie, nonce, 600)); res.setHeader("Referrer-Policy", "origin");
-          page(res, 200, `<h2>${escape(game.title)}</h2><p>Sign in with the LiD0llID account you already linked to Discord. Your collection, saved game and wallet stay the same.</p><form method="post" action="/${key}/login"><input type="hidden" name="csrf" value="${hash(`${key}:${nonce}`)}"><button type="submit">Sign in with LiD0llID</button></form><p>First visit? Run <strong>/lidollid login</strong> in Discord once and finish its confirmation, then return here.</p>`); return true;
+          page(res, 200, `<h2>${escape(game.title)}</h2><p>Sign in with LiD0llID to play. No Discord account or server membership is needed. You will be asked to approve wallet access for game purchases and rewards.</p><form method="post" action="/${key}/login"><input type="hidden" name="csrf" value="${hash(`${key}:${nonce}`)}"><button type="submit">Sign in with LiD0llID</button></form><p>First visit? Register on the LiD0llID sign-in page. Your progress is saved to your account. Existing Discord-linked players keep their collections.</p>`); return true;
         }
         if (req.method !== "POST") { res.setHeader("Allow", "GET, POST"); page(res, 405, "<p>Use the sign-in button.</p>"); return true; }
         const nonce = readCookie(req, formCookie);
@@ -61,10 +61,18 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now)
       })(); // Consume only the game flow's cookie-bound credentials, including failed callbacks.
       if (!attempt) { page(res, 400, '<p>This game sign-in expired or was already used. Open the game from Little Log again.</p>'); return true; }
       const identity = await oidc.finish(url, attempt), game = games[attempt.game];
-      const token = game?.sessions.openForIdentity(identity);
-      if (!token) {
-        page(res, 403, `<p>Signed in as <strong>${escape(identity.username)}</strong>, but this LiD0llID is not linked to Discord.</p><p>Run <strong>/lidollid login</strong> in Discord and finish the confirmation, then <a href="/${attempt.game}/login">try this game again</a>. This page cannot link or switch Discord accounts.</p>`); return true;
-      }
+      if (!game) throw new Error("Game is unavailable.");
+      const account = identities.gameAccount(identity);
+      if (wallet) {
+        const proof = { discord_id: account.player_id, generation: attempt.state, issuer: identity.issuer, subject: identity.subject, expires: attempt.expires };
+        const validate = () => {
+          const current = identities.gameIdentity(account.player_id);
+          if (now() >= proof.expires || !current || current.issuer !== identity.issuer || current.subject !== identity.subject || current.linked_at !== account.linked_at) throw new Error("Game sign-in expired or the account changed.");
+        }; // Recheck ownership around network requests, including concurrent Discord unlink.
+        await wallet.stageIdentity(proof, identity, validate);
+        await wallet.confirmIdentity(account.player_id, proof, activate => { validate(); activate(); }, validate);
+      } // Exchange only the explicitly consented OIDC wallet proof; games never accept a client-supplied wallet owner.
+      const token = game.sessions.openForIdentity(identity);
       res.writeHead(303, { Location: `/${attempt.game}/`, "Set-Cookie": [cookie(loginCookie, "", 0), cookie(`${prefix}${game.sessions.prefix}_session`, token, 8 * 3600)] }); res.end();
     } catch (error) {
       const diagnostic = authDiagnostic(error, "game-sign-in");
@@ -74,4 +82,4 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now)
     return true;
   };
   return { route, prune };
-} // Reuse the registered callback and PKCE verifier without creating identity links or refreshing/replacing wallet grants.
+} // Reuse the registered PKCE callback to connect a verified game account and its explicitly approved wallet.

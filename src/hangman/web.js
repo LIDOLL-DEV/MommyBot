@@ -83,5 +83,5 @@ export function createHangmanWeb(config, game, sessions) {
       else send(response, 400, page(`<p>${escape(message)}</p>`));
     }
     return true;
-  }; // Every mutation uses the confirmed Discord identity, exact origin and session CSRF; wallet grants never reach browsers.
+  }; // Every mutation uses the verified game identity, exact origin and session CSRF; wallet grants never reach browsers.
 }

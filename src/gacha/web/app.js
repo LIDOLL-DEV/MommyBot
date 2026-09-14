@@ -44,7 +44,7 @@ function controls() {
   const reason = busy ? "Your request is finishing. Please wait…"
     : !state.enabled ? "New rolls are paused by Doll. You can still browse your collection."
     : state.pending ? "Finish your saved payment with Retry payment above before rolling again."
-    : state.coins === null ? (state.walletError || "Your LiDollcoin balance is unavailable. Press Refresh, or reconnect with /lidollid login in Discord.")
+    : state.coins === null ? (state.walletError || "Your LiDollcoin balance is unavailable. Press Refresh, or sign in with LiD0llID again.")
     : state.coins < state.rollPrice ? `You need ${state.rollPrice} LiDollcoins to roll. Your connected wallet has ${number(state.coins)}. Earn coins or sell a diaper, then press Refresh. Stars cannot pay for diaper rolls.`
     : "";
   $("roll").disabled = Boolean(reason);

@@ -6,7 +6,7 @@ import { WalletError } from "../src/wallet/client.js";
 import { OnlineAdoptions } from "../src/wallet/adoptions.js";
 import { TouhouStore, MOMIJI_OWNER_ID } from "../src/touhou/store.js";
 import { createTouhouHandlers } from "../src/touhou/commands.js";
-import { TouhouWebGame } from "../src/touhou/web-game.js";
+import { TouhouWebGame, publicGameAccess } from "../src/touhou/web-game.js";
 import { loadCatalog } from "../src/touhou/catalog.js";
 import { IdentityStore } from "../src/auth/store.js";
 import { GameSessions } from "../src/games/sessions.js";
@@ -14,7 +14,12 @@ import { createTouhouWeb } from "../src/touhou/web.js";
 import { createServer } from "node:http";
 
 const alice="111111111111111111",bob="222222222222222222",guild="333333333333333333";
-function fixture(t) {
+function fixture(t, {publicPlayers = false} = {}) {
+  const identities = new IdentityStore(":memory:");
+  const alice = publicPlayers ? identities.gameAccount({issuer:"https://auth.example",subject:"alice",username:"Alice"}).player_id : "111111111111111111";
+  const bob = publicPlayers ? identities.gameAccount({issuer:"https://auth.example",subject:"bob",username:"Bob"}).player_id : "222222222222222222";
+  const guild = publicPlayers ? "public" : "333333333333333333";
+  t.after(()=>identities.close());
   const funds = { [alice]:{coins:1000,stars:5},[bob]:{coins:1000,stars:5} }, receipts=new Map();
   let lose=false, revoked=false;
   const wallet = new WalletService(":memory:", { config:{baseUrl:"https://wallet.example/",clientId:"lidollbot"},
@@ -32,7 +37,7 @@ function fixture(t) {
     if(revoked||id!==guild||![alice,bob].includes(user))throw Error("Denied membership");
     return {id,name:"Fixture server",members:{fetch:async user=>{if(![alice,bob].includes(user))throw Error("Not a member");return{user:{id:user,bot:false}};}}};
   }};
-  const game=new TouhouWebGame(handlers.webState,access);
+  const game=new TouhouWebGame(handlers.webState,publicPlayers ? publicGameAccess(identities,{list:async()=>{throw Error("No Discord lookup for web players");},require:async()=>{throw Error("Denied membership");}}) : access);
   t.after(async()=>{await wallet.close();store.close();});
   const ui = user => {
     const session={user_id:user,token:randomUUID()}; let state;
@@ -41,7 +46,7 @@ function fixture(t) {
       async click(action,value){const control=this.control(action);assert.ok(control,action);state=await game.act(session,{guild,control:control.custom_id,...(value===undefined?{}:{value})});return state;},
       async input(input){state=await game.act(session,{guild,...input});return state;} };
   };
-  return {game,store,wallet,funds,ui,lose:value=>{lose=value;},revoke:()=>{revoked=true;}};
+  return {game,store,wallet,funds,ui,identities,alice,bob,guild,lose:value=>{lose=value;},revoke:()=>{revoked=true;}};
 }
 
 test("web trader validates guild membership and displayed controls, and shares online adoption and battle rules", async t=>{
@@ -116,4 +121,36 @@ test("web HTTP sessions enforce origin, CSRF, linked identity and logout without
   assert.equal((await fetch(url("api/state"),{headers:{cookie}})).status,401);
   const next=sessions.openForIdentity({issuer:"https://auth.example",subject:"alice"});identities.unlink(alice);
   assert.equal((await fetch(url("api/state"),{headers:{cookie:`touhou_session=${next}`}})).status,401);
+});
+
+
+test("standalone LiD0llID players adopt, gift and swap in public without Discord or private-world access",async t=>{
+  const f=fixture(t,{publicPlayers:true}),a=f.ui(f.alice),b=f.ui(f.bob);
+  assert.deepEqual((await f.game.state(a.session)).guilds,[{id:"public",name:"Little Log community"}]);
+  await assert.rejects(f.game.state(a.session,guild),/Little Log community/);
+  await assert.rejects(f.game.state({user_id:"web_"+"0".repeat(32),token:"unknown"},"public"),/Sign in/);
+  await a.open();
+  const world=await f.game.guilds.require("public",f.alice);
+  await assert.rejects(world.members.fetch(f.bob),/open.*community/);
+  await b.open();assert.equal((await world.members.fetch(f.bob)).user.bot,false);
+  await a.click("adopt-stars");await b.click("adopt-stars");
+  assert.equal(f.funds[f.alice].stars,4);assert.equal(f.store.collection(guild,f.alice).length,0);
+  await a.click("shop");await a.click("trade");await a.click("pick","0");
+  await a.click("recipient","web_"+"f".repeat(32));assert.match(a.state.panel.text,/open.*community/);
+  await a.click("recipient",f.bob);await a.click("their-pick","0");await a.click("confirm");
+  await b.open();assert.equal(b.state.offers.length,1);
+  await b.input({action:"offer",offer:b.state.offers[0].id,decision:"accept"});
+  await a.click("send");await a.click("pick","0");await a.click("recipient",f.bob);await a.click("confirm");
+  assert.equal(f.store.collection("public",f.alice).length,0);assert.equal(f.store.collection("public",f.bob).length,2);
+  assert.equal(f.identities.db.prepare("SELECT COUNT(*) n FROM identity_links").get().n,0);
+});
+
+test("public access adds a world without granting linked players access to other Discord servers",async t=>{
+  const identities=new IdentityStore(":memory:");t.after(()=>identities.close());
+  identities.db.prepare("INSERT INTO identity_links VALUES (?,?,?,?,?)").run(alice,"https://auth.example","alice","Alice",1);
+  const access=publicGameAccess(identities,{list:async()=>[{id:guild,name:"Members only"}],require:async(id,user)=>{assert.equal(user,alice);if(id!==guild)throw Error("Denied membership");return{id};}});
+  assert.equal((await access.list(alice)).length,2);
+  assert.equal((await access.require(guild,alice)).id,guild);
+  await assert.rejects(access.require("999999999999999999",alice),/Denied membership/);
+  assert.equal((await access.require("public",alice)).id,"public");
 });

@@ -113,13 +113,13 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   fs.mkdirSync(fileURLToPath(new URL("../../data/", import.meta.url)), { recursive: true });
   if(wallet&&wallet.client.config.clientId!==config.clientId)throw new Error("Combined login requires matching LiD0llID and wallet client IDs.");
   const store = new IdentityStore(fileURLToPath(new URL("../../data/lidollid.db", import.meta.url)));
-  if(wallet)wallet.identityFor=id=>store.get(id);
+  if(wallet)wallet.identityFor=id=>store.gameIdentity(id);
   const gacha = initializeGacha(config, store, wallet);
   const hangman = initializeHangman(config, store, wallet);
   const touhouWeb = initializeTouhouWeb(config, store, trader, client);
   const games = Object.fromEntries([["diapers", gacha, "Diaper Atelier"], ["hangman", hangman, "Cozy Hangman"], ["touhou", touhouWeb, "Touhou Trader"]]
     .filter(([, game]) => game).map(([key, game, title]) => [key, { sessions: game.sessions, title }]));
-  const gameLogin = createGameLogin(config, store, createOidc(config, false, { statePrefix: "game." }), games);
+  const gameLogin = createGameLogin(config, store, createOidc(config, Boolean(wallet), { statePrefix: "game." }), games, Date.now, wallet);
   const gameWeb = async (request, response) => Boolean(await gameLogin.route(request, response) || await gacha?.web(request, response) || await hangman?.web(request, response) || await touhouWeb?.web(request, response));
   const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet,gameWeb);
   try {

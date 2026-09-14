@@ -10,6 +10,7 @@ export class IdentityStore {
     this.now = now;
     this.db = new Database(filename);
     this.db.pragma("journal_mode = WAL");
+    this.db.exec("CREATE TABLE IF NOT EXISTS web_game_accounts (player_id TEXT PRIMARY KEY, issuer TEXT NOT NULL, subject TEXT NOT NULL, username TEXT NOT NULL, linked_at INTEGER NOT NULL, UNIQUE(issuer, subject)); CREATE TABLE IF NOT EXISTS public_game_players (user_id TEXT PRIMARY KEY);"); // Standalone game players never become confirmed Discord links or receive Discord roles.
     this.db.exec(`CREATE TABLE IF NOT EXISTS identity_links (
       discord_id TEXT PRIMARY KEY, issuer TEXT NOT NULL, subject TEXT NOT NULL,
       username TEXT NOT NULL, linked_at INTEGER NOT NULL, UNIQUE(issuer, subject));
@@ -23,6 +24,25 @@ export class IdentityStore {
   prune() { this.db.prepare("DELETE FROM identity_attempts WHERE expires <= ?").run(this.now()); }
   get(discordId) { return this.db.prepare("SELECT * FROM identity_links WHERE discord_id = ?").get(discordId); }
   find(issuer, subject) { return this.db.prepare("SELECT * FROM identity_links WHERE issuer=? AND subject=?").get(issuer, subject); } // Resolve only verified issuer/subject pairs; names and caller-supplied Discord IDs cannot grant access.
+  gameIdentity(userId) {
+    const linked = this.get(userId);
+    return linked ? {...linked, player_id: linked.discord_id} : this.db.prepare("SELECT * FROM web_game_accounts WHERE player_id=?").get(userId);
+  } // Game ownership can use either a confirmed Discord link or a standalone LiD0llID account.
+  gameAccount(identity) {
+    if (!identity || typeof identity.issuer !== "string" || !identity.issuer || typeof identity.subject !== "string" || !identity.subject) throw new Error("Missing verified game identity.");
+    return this.db.transaction(() => {
+      const web = this.db.prepare("SELECT * FROM web_game_accounts WHERE issuer=? AND subject=?").get(identity.issuer, identity.subject);
+      if (web) {
+        this.db.prepare("UPDATE web_game_accounts SET username=? WHERE player_id=?").run(String(identity.username || web.username).slice(0,100), web.player_id);
+        return this.gameIdentity(web.player_id);
+      }
+      const linked = this.find(identity.issuer, identity.subject);
+      if (linked) return this.gameIdentity(linked.discord_id); // Existing Discord players retain their saves, collection and payment journal IDs.
+      const id = "web_" + randomBytes(16).toString("hex");
+      this.db.prepare("INSERT INTO web_game_accounts VALUES (?,?,?,?,?)").run(id, identity.issuer, identity.subject, String(identity.username || "LiD0llID player").slice(0,100), this.now());
+      return this.gameIdentity(id);
+    }).immediate();
+  } // Only verified OIDC issuer/subject pairs may create or resume a player; display names never grant ownership.
   hasTicket(ticket) {
     return Boolean(this.db.prepare("SELECT 1 FROM identity_attempts WHERE ticket = ? AND expires > ?").get(hash(ticket), this.now()));
   } // Reject fabricated tickets locally before making any provider requests.

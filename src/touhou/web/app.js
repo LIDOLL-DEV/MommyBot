@@ -17,9 +17,10 @@ function textDescription(text) {
 function render() {
   if(!data) return;
   $("sign-in").hidden=true;$("game").hidden=false;$("logout").hidden=false;
+  $("player-id").textContent = `Your player ID: ${data.playerId || ""}. Share it with friends for gifts and trades.`;
   $("greeting").textContent=`Welcome, ${data.username}.`;
   $("balance").textContent=data.balance ? `${data.balance.coins.toLocaleString()} LiDollcoins · ${data.balance.stars.toLocaleString()} stars` : "Wallet unavailable";
-  if(data.guilds) { $("guild").replaceChildren(new Option("Choose a server…",""));for(const guild of data.guilds) $("guild").append(new Option(guild.name,guild.id)); if(!data.guilds.length) notice("No shared Discord servers could be verified. Check your bot connection and try Refresh."); }
+  if(data.guilds) { $("guild").replaceChildren(new Option("Choose a play space…",""));for(const guild of data.guilds) $("guild").append(new Option(guild.name,guild.id)); if(!data.guilds.length) notice("No play spaces are available. Try Refresh."); }
   $("trader").hidden=!data.panel;$("offers-card").hidden=!data.panel;
   if(!data.panel) return;
   $("server-name").textContent=data.guild.name;$("trader-title").textContent=data.panel.title;textDescription(data.panel.text);
@@ -30,7 +31,7 @@ function render() {
     for(const item of items) {
       if(item.type===2) { const button=node("button",item.label,item.style===1?"primary":item.style===3?"primary success":item.style===4?"quiet danger":"quiet");button.type="button";button.disabled=Boolean(item.disabled);button.addEventListener("click",()=>act({control:item.custom_id}));row.append(button); }
       else if(item.type===3) { const select=node("select");select.setAttribute("aria-label",item.placeholder || "Choose an item");select.append(new Option(item.placeholder || "Choose…",""));for(const option of item.options) select.append(new Option(`${option.label}${option.description ? ` · ${option.description}` : ""}`,option.value));select.addEventListener("change",()=>{if(select.value)act({control:item.custom_id,value:select.value});});row.append(select); }
-      else if(item.type===5) { const form=node("form"),label=node("label","Recipient's Discord user ID"),input=node("input"),button=node("button","Choose player","primary");input.type="text";input.inputMode="numeric";input.pattern="[0-9]{17,20}";input.required=true;input.maxLength=20;label.append(input);button.type="submit";form.append(label,node("p","Copy their user ID from Discord with Developer Mode enabled.","muted fine"),button);form.addEventListener("submit",event=>{event.preventDefault();act({control:item.custom_id,value:input.value});});row.append(form); }
+      else if(item.type===5) { const form=node("form"),label=node("label",data.guild?.id === "public" ? "Recipient's player ID" : "Recipient's Discord user ID"),input=node("input"),button=node("button","Choose player","primary");input.type="text";input.pattern=data.guild?.id === "public" ? "(web_[a-f0-9]{32}|[0-9]{17,20})" : "[0-9]{17,20}";input.required=true;input.maxLength=36;label.append(input);button.type="submit";form.append(label,node("p",data.guild?.id === "public" ? "Ask your friend for the player ID shown in their trader. They must open this play space first." : "Copy their user ID from Discord with Developer Mode enabled.","muted fine"),button);form.addEventListener("submit",event=>{event.preventDefault();act({control:item.custom_id,value:input.value});});row.append(form); }
     }
     $("controls").append(row);
   }
@@ -42,7 +43,7 @@ function render() {
   if(modalControl) { $("price-title").textContent=data.panel.modal.title; if(!$("price-dialog").open) {$("price").value="";$("price-dialog").showModal();} }
   else $("price-dialog").close();
 } // Draw the validated server menu as native web controls, including battles, trade selection and price entry.
-async function refresh() {const guild=$("guild").value;const result=await api(`state${guild?`?guild=${encodeURIComponent(guild)}`:""}`);data={...data,...result};if(guild)delete data.guilds;render();if(data.walletError)notice(data.walletError);}
+async function refresh() {const guild=$("guild").value;const result=await api(`state${guild?`?guild=${encodeURIComponent(guild)}`:""}`);data={...data,...result};if(guild)delete data.guilds;render();if(data.walletError)notice(data.walletError);if(!guild&&result.guilds?.length===1&&result.guilds[0].id==="public") {$("guild").value="public";await refresh();}}
 async function act(input) {
   if(busy||!data)return;lock(true);notice();
   try { const result=await api("action",{...input,guild:$("guild").value});data={...data,...result};render();await refresh(); }

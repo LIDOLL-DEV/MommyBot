@@ -1,107 +1,88 @@
 # Games in Little Log
 
-Open **Games** beside Stickers at `https://lidoll.dev/tracker/#games`. Diaper
-Atelier, Cozy Hangman and Touhou Trader open in a separate browser tab. Press
-**Sign in with LiD0llID** using the account you linked to Discord. An existing
-LiD0llID browser session can be reused; a fresh private Discord game link is no
-longer necessary.
+Open **Games** at https://lidoll.dev/tracker/#games. Anyone with a LiD0llID
+account can play Diaper Atelier, Cozy Hangman and Touhou Trader. Discord
+membership is optional. Games open in a separate tab and require internet.
 
-For a first visit, run `/lidollid login` in Discord, finish browser consent and
-submit the returned confirmation command in Discord. Then return to Games.
-Signing in to a game cannot create or switch that Discord link. If the game says
-your account is unlinked, check `/lidollid status` and the LiD0llID account you
-used in the browser.
+Press **Sign in with LiD0llID**, register if needed, and approve wallet access
+on LiD0llID. The same verified account owns both the game session and the online
+wallet. Sign-in itself does not charge coins or stars. Game prices stay unchanged:
 
-| Game | Direct sign-in | Price |
+| Game | Sign-in path on bot.lidoll.dev | Price |
 | --- | --- | --- |
-| Diaper Atelier | `https://bot.lidoll.dev/diapers/login` | 3 LiDollcoins per roll |
-| Cozy Hangman | `https://bot.lidoll.dev/hangman/login` | 1 coin to start; 1 coin per newly revealed letter position |
-| Touhou Trader | `https://bot.lidoll.dev/touhou/login` | Random adoption: 1 star **or** 25 LiDollcoins; other payments/rewards use coins |
+| Diaper Atelier | /diapers/login | 3 coins per roll |
+| Cozy Hangman | /hangman/login | 1 coin per round; 1 coin earned per newly revealed letter position |
+| Touhou Trader | /touhou/login | 1 star or 25 coins per adoption |
 
-## Touhou in the browser
+## Saved progress and existing accounts
 
-Choose a Discord server first. Only servers you and the bot currently belong to
-are available. Your collection, market, potions and battles belong to that server,
-exactly as in Discord. Membership is checked before each selected-server request;
-a Discord outage can temporarily prevent access.
+New standalone players receive an opaque web player ID in the identity database.
+No Discord account, role or membership is created. Identity comes from the
+verified issuer and subject, never a display name or browser-supplied owner ID.
 
-The buttons offer adoption, your party, battles and difficulty selection, attacks,
-defense, potions, healing, player listings, buyback, gifts and swaps. Market prices
-and battle rewards use the existing online wallet rules. Momiji Inubashiri remains
-reserved for Discord ID `319254336402358272`.
+If an account already has a confirmed Discord link when first playing on the
+web, its existing player ID, collections, saves and payment journals are reused.
+Standalone web progress keeps its ID even if the account later links to Discord.
+There is no automatic merge between previously separate web and Discord saves;
+Discord commands continue to use their Discord player ID. Wallet balances remain
+with the same LiD0llID account. After removing an existing Discord link, a new
+standalone web session cannot claim the former Discord player's collections.
 
-To gift or propose a swap, enter the recipient's **Discord user ID** (enable
-Discord Developer Mode, then use Copy User ID). For swaps, choose your Touhou and
-theirs, then confirm the offer. The recipient selects the same server and presses
-**Refresh** to see their trade inbox. They must accept within one minute. Web
-offers do not send Discord notifications; tell your friend to check their inbox.
-Pending Discord offers can also be accepted in this inbox. Expired or already
-resolved offers cannot be accepted twice.
+Games have separate eight-hour sessions. Signing in again replaces that game's
+older sessions. Use the game's Sign out button on shared devices; signing out of
+Little Log does not close other game sessions. Discord unlink still invalidates
+sessions owned by the removed link. Standalone sessions are independent.
 
-Menus expire after five idle minutes. Use **Back to trader home** to reopen one.
-Battles keep their existing 90-second idle limit. Browser and Discord play share
-the same saved state; avoid playing the same battle in two tabs at once.
+## Touhou play spaces
 
-If a payment response is lost, press Refresh, return to trader home, then use
-**Retry pending payment**. It resumes the saved receipt rather than buying again.
-Do not start another adoption to recover a missing result. An expired/disconnected
-wallet still needs `/lidollid login` (or wallet connect) in Discord; game sign-in
-does not replace wallet consent.
+**Little Log community** is a shared public collection/market world for all
+signed-in players, including those without Discord. When it is your only play
+space, it opens automatically. Discord-linked players can also select their
+existing servers, with fresh membership checks on every request. Each play
+space keeps separate character stock, ownership, trades, potions and battles.
+The public world does not reveal or grant access to private servers.
 
-## Sessions and deployment
+To gift or swap in the public world, share the **player ID** displayed in your
+trader. Both players must first open that play space. Enter the recipient's ID,
+choose the character, and confirm. Swaps appear in the recipient's trade inbox;
+they must accept within one minute. Press Refresh to check the inbox. In private
+Discord worlds, recipient IDs remain Discord IDs. No web trade sends a Discord
+notification. Existing ownership, menu revision and payment checks still apply.
 
-Games have separate eight-hour cookies. A new sign-in replaces that game's older
-browser sessions. Signing out of Little Log does not sign out of an open game;
-use each game's Sign out button on shared devices. Discord unlink invalidates
-game sessions without deleting collections or balances. These pages require an
-internet connection and are opened directly, without an iframe.
+Battles retain the existing 90-second idle limit; menus expire after five idle
+minutes. Back to trader home reopens the menu. Momiji's existing reserved owner
+rule is unchanged.
 
-The bot keeps the game data and payment journals. No collection migration or
-duplicate PWA payment implementation is needed. New login/session tables are
-created automatically in the existing databases and included in normal backups.
+## Wallet consent and recovery
 
-After both repositories' changes have been committed and pushed, update the bot
-first on Fedora:
+Game login requests openid/profile and wallet/stars read/write scopes with an
+explicit consent prompt. The server exchanges the approved proof only after
+verifying the OIDC identity, and checks the returned wallet identity again.
+Tokens stay in the protected wallet database and never reach game JavaScript.
+A denied or mismatched approval cannot create an authenticated game session.
 
-```bash
-cd ~/MommyBot
-bash scripts/update-fedora.sh
-```
+For an expired wallet, use the game's LiD0llID sign-in link again. If a payment
+response is lost, use Refresh and Retry pending payment rather than buying again.
+Existing pending-payment guards, account pinning and durable receipts remain.
 
-Then update omo-trainer:
+## Deployment
 
-```bash
-sudo bash /opt/lidoll/current/deploy/fedora-update.sh
-```
+Back up the existing identity, wallet and game databases. The new
+web_game_accounts and public_game_players tables are created automatically in
+the identity database; no game records are rewritten. Include them in backups.
 
-The PWA defaults to `https://bot.lidoll.dev`. For another deployment, set
-`LIDOLLBOT_PUBLIC_ORIGIN` in the tracker service environment to the bot's HTTPS
-origin, with no path. This is separate from the bot's existing
-`LIDOLLID_PUBLIC_ORIGIN`. The bot still uses its registered `/auth/callback`,
-client ID and issuer: **no new OIDC client or callback registration is required**.
-Its existing wallet and identity features must be enabled.
+After reviewed changes are committed and pushed, update MommyBot first using
+its existing scripts/update-fedora.sh, then update omo-trainer using its
+existing deploy/fedora-update.sh. Restart through those normal service scripts.
+No deployment is performed by preparing this patch.
 
-Nginx must proxy `/diapers/`, `/hangman/`, `/touhou/` and `/auth/` to the bot's
-existing auth HTTP listener, preserving the paths. If the bot virtual host already
-proxies `location /`, nothing extra is needed. For a proxy restricted to individual
-paths, add `/touhou/` alongside the other game locations using the same upstream
-and proxy headers. Preserve the existing callback logging protections. The PWA
-`/tracker/games/` routes go to the tracker Node service, not a static-file alias.
+Existing LiD0llID and wallet features must be enabled with matching client IDs.
+The registered /auth/callback and existing consent scopes are reused; no new
+OIDC client or redirect URI is needed. Proxy /auth/, /diapers/, /hangman/ and
+/touhou/ to the bot's auth listener. Tracker game redirects continue using
+LIDOLLBOT_PUBLIC_ORIGIN (default https://bot.lidoll.dev).
 
-After updating, reload the PWA and open each game from Games. Check the expected
-account, Touhou server and balance. Local tests use fake accounts; live SSO,
-Discord membership and Fedora/Nginx routing still need this deployment check.
-
-## Implementation notes
-
-`src/games/login.js` namespaces OIDC state with `game.`, stores one-use
-cookie-bound attempts and reuses verified OIDC token/UserInfo checks. It resolves
-the exact issuer/subject against `identity_links`; no browser-supplied Discord
-account is trusted. Game login requests only identity scopes, not wallet grants.
-The original Discord ticket flow keeps its own cookies and callback handling.
-
-`src/touhou/web-game.js` adapts authenticated web controls to the existing
-`TouhouMenus` and shared rule/payment services. Displayed controls, menu revisions,
-ownership, recipient consent and current server membership are enforced by the
-server. `src/touhou/web.js` exposes only display data and same-origin, CSRF-checked
-actions; wallet tokens and database objects never reach the page.
+After deployment, check all three games with a real LiD0llID account that has
+never linked Discord, then check an existing linked player's old collection.
+Local fixtures use synthetic accounts and balances, so production consent and
+routing still require this deployment check.

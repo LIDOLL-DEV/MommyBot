@@ -91,5 +91,5 @@ export function createGachaWeb(config, game, sessions) {
       else send(response, 400, page(`<p>${escape(message)}</p><a href="/diapers/">Return to the atelier</a>`));
     }
     return true;
-  }; // No browser receives wallet credentials; authenticated same-origin actions use the confirmed Discord account only.
+  }; // No browser receives wallet credentials; authenticated same-origin actions use the verified game account only.
 }

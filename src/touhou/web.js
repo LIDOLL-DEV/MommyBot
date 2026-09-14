@@ -4,11 +4,11 @@ import { timingSafeEqual } from "node:crypto";
 import { GameSessions } from "../games/sessions.js";
 import { TraderError } from "./store.js";
 import { WalletError } from "../wallet/client.js";
-import { TouhouWebGame, discordGuildAccess } from "./web-game.js";
+import { TouhouWebGame, discordGuildAccess, publicGameAccess } from "./web-game.js";
 
 export function initializeTouhouWeb(config, identities, trader, client) {
   if (!trader?.webState.wallet || !client) return null;
-  const game = new TouhouWebGame(trader.webState, discordGuildAccess(client));
+  const game = new TouhouWebGame(trader.webState, publicGameAccess(identities, discordGuildAccess(client)));
   const sessions = new GameSessions(game.store.db, identities, { prefix: "touhou", command: "/lidollid login", ErrorClass: TraderError });
   return { sessions, web: createTouhouWeb(config, game, sessions), revoke: user => sessions.revoke(user), prune: () => { sessions.prune(); game.prune(); } };
 } // Reuse the trader's existing database; its existing shutdown closes this store after wallet actions drain.
@@ -35,12 +35,12 @@ export function createTouhouWeb(config, game, sessions) {
       }
       const cookie = (req.headers.cookie || "").split(";").map(value => value.trim()).find(value => value.startsWith(`${name}=`))?.slice(name.length + 1);
       const session = sessions.get(cookie);
-      if (!session) { send(res, 401, { error: "Sign in with LiD0llID to open your linked Discord collection." }); return true; }
+      if (!session) { send(res, 401, { error: "Sign in with LiD0llID to open your collection." }); return true; }
       if (req.method === "GET" && url.pathname === "/touhou/api/state") {
         const state = await game.state(session, url.searchParams.get("guild"));
         let balance = null, walletError = null;
         try { balance = await game.wallet.balance(session.user_id); } catch (error) { walletError = error instanceof WalletError ? error.message : "Your wallet is unavailable. Refresh to retry."; }
-        send(res, 200, { ...state, username: session.username, csrf: session.csrf, balance: balance ? { coins: balance.coins, stars: balance.stars } : null, walletError }); return true;
+        send(res, 200, { ...state, username: session.username, playerId: session.user_id, csrf: session.csrf, balance: balance ? { coins: balance.coins, stars: balance.stars } : null, walletError }); return true;
       }
       if (req.method === "POST") {
         const csrf = req.headers["x-csrf-token"];

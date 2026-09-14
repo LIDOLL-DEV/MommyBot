@@ -15,6 +15,7 @@ import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { buildIdentityCommand, createIdentityHandler } from "../src/auth/index.js";
 import { createGameLogin } from "../src/games/login.js";
+import { WalletService } from "../src/wallet/service.js";
 import { GameSessions } from "../src/games/sessions.js";
 
 const identity = { issuer: "https://auth.example", subject: "stable-account", username: "Doll" };
@@ -189,11 +190,16 @@ test("OIDC validates real signed responses and rejects state, nonce, signature, 
   } finally { await close(fixture.server); }
 });
 
-test("direct game SSO verifies signed identity, reuses the registered callback and never links or stages wallets", async () => {
+test("direct game SSO admits non-Discord players, obtains wallet consent, and isolates sessions", async () => {
   const fixture = await providerFixture(), store = new IdentityStore(":memory:");
   const config = { issuer: fixture.origin, clientId: "lidollbot", origin: "http://127.0.0.1" };
   const games = Object.fromEntries(["diapers", "hangman", "touhou"].map(game => [game, { title: game, sessions: new GameSessions(store.db, store, { prefix: game === "diapers" ? "diaper" : game, command: "/lidollid login" }) }]));
-  const gameLogin = createGameLogin(config, store, createOidc(config, false, { statePrefix: "game." }), games);
+  let wrongWallet = false, grants = 0;
+  const wallet = new WalletService(":memory:", {config:{baseUrl:"https://wallet.example/",clientId:"lidollbot"},
+    exchange:async proof=>{assert.equal(proof,"test-token");return {access_token:"grant-"+(++grants),expires_in:3600,identity:{issuer:fixture.origin,subject:wrongWallet?"foreign":"stable-account"}};},
+    balance:async()=>({accountId:"verified-wallet",stars:4,coins:40}),revoke:async()=>{}});
+  wallet.identityFor = id => store.gameIdentity(id);
+  const gameLogin = createGameLogin(config, store, createOidc(config, true, { statePrefix: "game." }), games, Date.now, wallet);
   const server = createAuthServer(config, store, {}, { stageIdentity: () => { throw Error("Must not stage wallet grants"); } }, gameLogin.route);
   config.origin = await listen(server); config.callback = `${config.origin}/auth/callback`;
   const start = async game => {
@@ -204,14 +210,17 @@ test("direct game SSO verifies signed identity, reuses the registered callback a
     assert.equal(bad.status, 403);
     const response = await fetch(`${config.origin}/${game}/login`, { method: "POST", headers: { Origin: config.origin, Cookie: cookie, "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ csrf }), redirect: "manual" });
     assert.equal(response.status, 303);const authorization = new URL(response.headers.get("location"));
-    assert.equal(authorization.searchParams.get("redirect_uri"), config.callback);assert.equal(authorization.searchParams.get("scope"), "openid profile");
-    assert.equal(authorization.searchParams.has("prompt"), false);fixture.setAuthorization(authorization);
+    assert.equal(authorization.searchParams.get("redirect_uri"), config.callback);assert.equal(authorization.searchParams.get("scope"), "openid profile wallet:read wallet:write stars:read stars:write");
+    assert.equal(authorization.searchParams.get("prompt"), "consent");fixture.setAuthorization(authorization);
     return { state: authorization.searchParams.get("state"), cookie: response.headers.getSetCookie()[0].split(";")[0] };
   };
   const finish = (attempt, state = attempt.state) => fetch(`${config.callback}?code=test-code&state=${state}`, { redirect: "manual", headers: { Cookie: attempt.cookie } });
   try {
-    const unlinked = await start("diapers");const denied = await finish(unlinked);
-    assert.equal(denied.status, 403);assert.match(await denied.text(), /not linked to Discord/);
+    const unlinked = await start("diapers");const admitted = await finish(unlinked);
+    assert.equal(admitted.status,303);
+    const player = store.gameAccount({issuer:fixture.origin,subject:"stable-account"}).player_id;
+    assert.match(player,/^web_[a-f0-9]{32}$/);
+    assert.equal((await wallet.balance(player)).coins,40);
     assert.equal(store.db.prepare("SELECT COUNT(*) n FROM identity_links").get().n, 0);
     store.db.prepare("INSERT INTO identity_links VALUES (?,?,?,?,?)").run("alice", fixture.origin, "stable-account", "Doll", 1000);
     const discordTicket = store.begin("other-discord-user");
@@ -220,14 +229,18 @@ test("direct game SSO verifies signed identity, reuses the registered callback a
       assert.equal(response.status, 303);assert.equal(response.headers.get("location"), `/${key}/`);
       const sessionCookie = response.headers.getSetCookie().find(cookie => cookie.includes("_session="));
       const token = sessionCookie.split(";")[0].split("=")[1];
-      assert.equal(games[key].sessions.get(token).user_id, "alice");
+      assert.equal(games[key].sessions.get(token).user_id, player);
       assert.equal(store.get("alice").linked_at, 1000);assert.ok(store.hasTicket(discordTicket));
       assert.equal((await finish(attempt)).status, 400);
     }
     const invalid = await start("hangman");assert.equal((await finish(invalid, "game.foreign")).status, 503);assert.equal((await finish(invalid)).status, 400);
-    const revoked = await start("touhou");store.unlink("alice");assert.equal((await finish(revoked)).status, 403);
+    const revoked = await start("touhou");store.unlink("alice");assert.equal((await finish(revoked)).status, 303);
+    const before=wallet.connection(player).token;
+    wrongWallet=true;const mismatch=await finish(await start("hangman"));assert.equal(mismatch.status,503);
+    assert.equal(wallet.connection(player).token,before,"A mismatched proof cannot replace this player's wallet");
+    assert.equal(mismatch.headers.getSetCookie().some(value=>value.includes("_session=")),false);
     assert.equal(games.touhou.sessions.db.prepare("SELECT COUNT(*) n FROM identity_links").get().n, 0);
-  } finally { await close(server);await close(fixture.server);store.close(); }
+  } finally { await close(server);await close(fixture.server);await wallet.close();store.close(); }
 });
 
 test("browser handoff binds cookies, escapes profiles, consumes callbacks and waits for Discord confirmation", async () => {

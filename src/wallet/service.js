@@ -42,9 +42,9 @@ export class WalletService {
   } // A configuration change must not send a stored bearer token to a different service.
   requireConnection(userId) {
     const connection = this.connection(userId);
-    if (!connection) throw new WalletError("not_connected", "Connect your Little Log wallet with /lidollid wallet connect to use your online stars and coins.");
+    if (!connection) throw new WalletError("not_connected", userId.startsWith("web_") ? "Sign in with LiD0llID again and approve wallet access to use your stars and coins." : "Connect your Little Log wallet with /lidollid wallet connect to use your online stars and coins.");
     this.assertServer(connection);
-    if (connection.expires <= this.now()) throw new WalletError("invalid_token", "Your wallet connection expired. Use /lidollid wallet connect again.");
+    if (connection.expires <= this.now()) throw new WalletError("invalid_token", userId.startsWith("web_") ? "Your wallet connection expired. Sign in with LiD0llID again." : "Your wallet connection expired. Use /lidollid wallet connect again.");
     const binding=this.db.prepare('SELECT * FROM wallet_identity_links WHERE discord_id=?').get(userId);
     if(this.identityFor&&binding){const identity=this.identityFor(userId);if(!identity||identity.issuer!==binding.issuer||identity.subject!==binding.subject)throw new WalletError('not_linked','Finish /lidollid login before using this wallet.');}
     return connection;

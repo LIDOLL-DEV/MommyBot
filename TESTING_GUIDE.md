@@ -280,3 +280,17 @@ It never logs into Discord or spends live currency.
 ## Web games and Touhou
 
 Run `npm test` for signed game SSO callbacks, replay/unlink behavior, Touhou web ownership and membership, both adoption currencies, shared-state refresh, market forms, gifts, swaps, lost-payment recovery and HTTP origin/CSRF/session checks. Set `PUPPETEER_MODULE` and `CHROME_PATH`, then run `node scripts/check-touhou-browser.mjs` for real Chrome controls, artwork, battles, potions, listing dialogs, mobile layout and logout. `TOUHOU_SCREENSHOT_DIR` optionally captures screenshots. Fixtures use fake accounts and balances. See [GAMES_GUIDE.md](GAMES_GUIDE.md) for the production handoff check.
+
+## Standalone PWA players
+
+Run npm test. The signed OIDC game regression checks wallet consent scopes,
+non-Discord sign-in, replay protection, mismatched wallet rejection and stable
+web ownership after later Discord linking. game-accounts.test.js covers restart,
+renames, issuer/subject isolation, session expiry and legacy unlink behavior.
+The Touhou web suite exercises public adoption, gifts and swaps while retaining
+private-server checks.
+
+With PUPPETEER_MODULE and CHROME_PATH configured, run
+node scripts/check-public-games-browser.mjs for standalone Touhou adoption,
+battles, listing, mobile fit and logout. It uses in-memory databases, fake coins
+and loopback HTTP; it never contacts Discord or spends a real balance.

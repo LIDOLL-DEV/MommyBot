@@ -4,6 +4,36 @@ import { TouhouMenus } from "./menu.js";
 import { TraderError } from "./store.js";
 import { runWalletAction } from "../wallet/commands.js";
 
+export const PUBLIC_GAME_WORLD = "public";
+
+export function publicGameAccess(identities, discord) {
+  const player = user => {
+    const identity = identities.gameIdentity(user);
+    if (!identity) throw new TraderError("Sign in with LiD0llID to play.");
+    return identity;
+  };
+  return {
+    async list(user) {
+      player(user);
+      const servers = identities.get(user) && /^\d{17,20}$/.test(user) ? await discord.list(user) : [];
+      return [{ id: PUBLIC_GAME_WORLD, name: "Little Log community" }, ...servers];
+    },
+    async require(world, user) {
+      player(user);
+      if (world !== PUBLIC_GAME_WORLD) {
+        if (!identities.get(user)) throw new TraderError("Choose the Little Log community to play.");
+        return discord.require(world, user); // Discord worlds still require fresh, verified membership.
+      }
+      identities.db.prepare("INSERT OR IGNORE INTO public_game_players VALUES (?)").run(user);
+      return { id: world, name: "Little Log community", members: { fetch: async id => {
+        if (!identities.db.prepare("SELECT 1 FROM public_game_players WHERE user_id=?").get(id)) throw new TraderError("Ask this player to open the Little Log community first.");
+        const identity = player(id);
+        return { user: { id, bot: false, username: identity.username } };
+      } } };
+    },
+  };
+} // All authenticated players may join; public stock, collections and trades stay separate from Discord worlds.
+
 export function discordGuildAccess(client) {
   const member = async (guildId, user) => {
     const guild = client.guilds.cache.get(guildId);
@@ -90,7 +120,7 @@ export class TouhouWebGame {
         const control = controls.find(item => item.custom_id === input.control);
         if ((!control && !modal) || control?.disabled) throw new TraderError("This menu changed. Refresh and use its latest controls.");
         if (control?.type === 3 && !control.options.some(option => option.value === input.value)) throw new TraderError("Choose an item from the displayed list.");
-        if (control?.type === 5 && !/^\d{17,20}$/.test(input.value || "")) throw new TraderError("Enter the recipient's Discord user ID.");
+        if (control?.type === 5 && !(guild.id === PUBLIC_GAME_WORLD ? /^(?:web_[a-f0-9]{32}|[0-9]{17,20})$/ : /^[0-9]{17,20}$/).test(input.value || "")) throw new TraderError("Enter the recipient's player ID.");
         if (modal && (typeof input.value !== "string" || !/^\d{1,7}$/.test(input.value))) throw new TraderError("Enter a whole-number price from 1 to 1,000,000.");
         const interaction = { customId: input.control, user: { id: session.user_id }, guildId: guild.id, guild,
           values: input.value === undefined ? [] : [input.value], fields: { getTextInputValue: () => input.value },
