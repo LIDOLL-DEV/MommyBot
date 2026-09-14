@@ -27,8 +27,8 @@ async function main() {
   // Create and login the Discord client
   const client = createClient();
   const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
-  const identity = await initializeIdentity(wallet); // Start the optional LiD0llID callback listener before logging in.
   const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
+  const identity = await initializeIdentity(wallet); // Load all pending game payments before exposing browser purchases.
   let stopGitHubWatcher = () => {};
 
   // Handle message events
@@ -75,6 +75,7 @@ async function main() {
     await identity?.close(); // Finish browser callbacks before closing account storage.
     await client.destroy();
     await wallet?.close(); // Finish payment journaling before closing trader storage.
+    identity?.closeGames(); // Keep the diaper journal open until every wallet action has drained.
     touhouTrader?.close(); // Flush and close trading state before the process exits.
     process.exit(0);
   });

@@ -5,7 +5,8 @@ import { WalletError } from "./client.js";
 export class OnlineAdoptions {
   constructor(store, wallet) {
     this.store = store; this.db = store.db; this.wallet = wallet;
-    wallet.hasPending = user => Boolean(this.pending(user));
+    const previousPending = wallet.hasPending;
+    wallet.hasPending = user => previousPending(user) || Boolean(this.pending(user)); // Preserve other games' payment reservations too.
     wallet.adoptions = this;
   } // Keep the payment journal and delivered character in the same SQLite transaction.
   pending(user) {

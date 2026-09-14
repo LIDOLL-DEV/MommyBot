@@ -7,6 +7,7 @@ import { createOidc } from "./oidc.js";
 import { createAuthServer } from "./server.js";
 import { handleWalletInteraction } from "../wallet/commands.js";
 import { awardLinkedRole } from "./linkedRole.js";
+import { initializeGacha } from "../gacha/index.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
@@ -22,8 +23,9 @@ export function buildIdentityCommand() {
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
 } // Add a dedicated command without replacing the trader or any other application's commands.
 
-export function createIdentityHandler(store, config, wallet = null) {
+export function createIdentityHandler(store, config, wallet = null, gacha = null) {
   return async interaction => {
+    if (gacha && await gacha.handleInteraction(interaction)) return true;
     const unlinkButton = interaction.isButton?.() && interaction.customId?.startsWith("lidollid:unlink:");
     const combined=Boolean(wallet?.stageIdentity);
     const walletLogin=combined&&interaction.isChatInputCommand()&&interaction.commandName==='lidollid'&&interaction.options.getSubcommandGroup?.()==='wallet'&&interaction.options.getSubcommand()==='connect';
@@ -63,6 +65,7 @@ export function createIdentityHandler(store, config, wallet = null) {
         case "unlink":
           await wallet?.disconnect(discordId); // Require wallet revocation and refuse unsettled payments before removing identity.
           store.unlink(discordId);
+          gacha?.revoke(discordId); // Invalidate every browser game session when its identity link is removed.
           content = "Your LiDollBot account link, wallet connection and pending sign-ins were removed. Your stars, LiDollcoins, Touhou collection and awarded Discord role stay. Your shared LiD0llID browser session remains signed in.\nReady to test again? Run /lidollid login for a fresh link. To choose a different LiD0llID, sign out in your browser first or open the fresh link in a private window.";
           break;
         default: content = "Unknown account command.";
@@ -82,18 +85,21 @@ export async function initializeIdentity(wallet = null) {
   if(wallet&&wallet.client.config.clientId!==config.clientId)throw new Error("Combined login requires matching LiD0llID and wallet client IDs.");
   const store = new IdentityStore(fileURLToPath(new URL("../../data/lidollid.db", import.meta.url)));
   if(wallet)wallet.identityFor=id=>store.get(id);
-  const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet);
+  const gacha = initializeGacha(config, store, wallet);
+  const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet,gacha?.web);
   try {
     await new Promise((resolve, reject) => { server.once("error", reject); server.listen(config.port, config.host, resolve); });
-  } catch (error) { store.close(); throw error; }
-  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();}, 60000);
+  } catch (error) { gacha?.close(); store.close(); throw error; }
+  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();gacha?.prune();}, 60000);
   cleanup.unref();
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
-    handleInteraction: createIdentityHandler(store, config, wallet),
+    handleInteraction: createIdentityHandler(store, config, wallet, gacha),
+    closeGames: () => gacha?.close(),
     async registerGuild(guild) {
       try { await guild.commands.create(buildIdentityCommand()); }
       catch { console.error(`[LiD0llID] Could not register /lidollid in guild ${guild.id}.`); }
+      await gacha?.registerGuild(guild);
     },
     async close() {
       clearInterval(cleanup);

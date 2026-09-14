@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff5fa">
+  <meta name="description" content="A little atelier for collectible diapers. Roll, collect, and visit the shared diaper bank with LiDollcoins.">
+  <title>Diaper Atelier · LiDollBot</title>
+  <link rel="stylesheet" href="/diapers/style.css">
+  <script src="/diapers/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to the atelier</a>
+  <header class="topbar">
+    <a class="brand" href="/diapers/"><span class="sigil" aria-hidden="true">✦</span><span>Diaper Atelier<small>a LiDollBot collection</small></span></a>
+    <div class="account-tools"><span class="wallet-pill"><span aria-hidden="true">✧</span> <strong id="balance">—</strong> <span>LiDollcoins</span></span><button id="refresh" class="quiet" type="button">Refresh</button><button id="logout" class="quiet" type="button" hidden>Sign out</button></div>
+  </header>
+  <main id="content" class="shell">
+    <section class="welcome">
+      <div><p class="eyebrow">THE LITTLE THINGS, COLLECTED.</p><h1>A drawer full<br>of <em>daydreams.</em></h1><p class="welcome-copy">Sweet prints, tiny bows, and a little bit of luck.<br>Find a new favorite. Give another a lovely home.</p><p id="greeting" class="greeting">Your little atelier is getting ready…</p></div>
+      <div class="hero-art" aria-hidden="true"><span class="orbit orbit-one">✧</span><span class="orbit orbit-two">✦</span><div class="hero-disc"><img src="/diapers/art/diapercover1.png" alt="" width="280" height="260"></div><span class="hero-tag">made for your collection ♡</span></div>
+    </section>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <section id="signed-out" class="sign-in-card" hidden><h2>Your collection is waiting</h2><p>In Discord, run <code>/lidollid login</code> and finish linking your account. Then run <code>/diapers</code>, open the private link, and press <strong>Open my atelier</strong>.</p><p class="muted">Already linked? Just use <code>/diapers</code>. Your collection stays with your Discord account.</p></section>
+    <div id="game" hidden>
+      <section class="summary" aria-label="Collection overview"><div><span>In your drawer</span><strong id="total">0</strong></div><div><span>Unique designs</span><strong id="unique">0 / 58</strong></div><div><span>Waiting at the bank</span><strong id="bank-total">0</strong></div></section>
+      <aside id="pending" class="pending" hidden><div><strong>A little payment is still finishing.</strong><p id="pending-copy"></p></div><button id="retry" class="primary" type="button">Retry payment</button></aside>
+      <nav class="tabs" aria-label="Atelier sections"><button type="button" data-tab="roll" aria-current="page">✦ The capsule machine</button><button type="button" data-tab="collection">♡ My collection</button><button type="button" data-tab="bank">⌂ Diaper bank</button><button type="button" data-tab="catalog">✧ Design book</button></nav>
+      <section id="roll-panel" class="panel">
+        <div class="machine-card"><div class="machine-art" aria-hidden="true"><div class="capsule"><img src="/diapers/art/diaper10b.png" alt="" width="220" height="200"></div><span class="machine-label">ONE LITTLE SURPRISE</span></div><div class="machine-copy"><p class="eyebrow">A NEW FAVORITE AWAITS</p><h2>What will you unwrap?</h2><p>Every roll adds one diaper to your drawer. Duplicates are welcome — keep a spare, or sell one to the bank.</p><button id="roll" class="primary roll-button" type="button">Roll for <span id="roll-price">3</span> LiDollcoins <span aria-hidden="true">✧</span></button><p class="muted fine">One roll, one collectible. No collection limit.</p></div></div>
+        <div class="section-heading"><div><p class="eyebrow">A LITTLE LUCK</p><h2>The rarity ribbon</h2></div><p>Cuter details, rarer discoveries.</p></div><div id="odds" class="odds"></div>
+        <p class="muted fine">Rarity is our playful art ranking: simple staples are common; intricate ribbons, sweet animals and dreamy prints are rarer. Each design within a rarity is equally likely. See exact design odds in the Design book.</p>
+        <section class="recent"><h2>Your recent little finds</h2><div id="history"></div></section>
+      </section>
+      <section id="gallery-panel" class="panel" hidden><div class="section-heading"><div><p id="gallery-eyebrow" class="eyebrow">YOUR LITTLE TREASURES</p><h2 id="gallery-title">My collection</h2></div><p id="gallery-copy"></p></div><div class="filters"><label>Find a design<input id="search" type="search" placeholder="Bunnies, ribbons, little clouds…" maxlength="80"></label><label>Rarity<select id="rarity"><option value="">All rarities</option><option value="common">Common</option><option value="uncommon">Uncommon</option><option value="rare">Rare</option><option value="epic">Epic</option><option value="legendary">Legendary</option></select></label><label id="duplicates-label"><input id="duplicates" type="checkbox"> Only duplicates</label></div><div id="gallery" class="gallery"></div></section>
+    </div>
+    <footer class="site-footer"><span>✦ Diaper Atelier · LiDollBot</span><span>Little collections. Lovely discoveries.</span></footer>
+  </main>
+  <dialog id="reveal" aria-labelledby="reveal-title"><button class="dialog-close quiet" id="close-reveal" type="button" aria-label="Close reveal">×</button><p class="eyebrow">A LITTLE SOMETHING FOR YOU</p><div id="reveal-art"></div><span id="reveal-rarity" class="rarity"></span><h2 id="reveal-title"></h2><p id="reveal-description"></p><p id="reveal-message" class="muted"></p><button id="reveal-done" class="primary" type="button">Tuck it into my drawer ♡</button></dialog>
+</body></html>

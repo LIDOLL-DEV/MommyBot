@@ -1,5 +1,20 @@
 # Testing MommyBot
 
+## Diaper Atelier
+
+`test/diaper-gacha.test.js` covers the reviewed catalog, tier boundaries, the
+three-coin default, stock-driven bank prices, stale quotes, duplicates, shared
+stock, last-copy contention, request replay, original-account pinning, lost debit
+and credit responses, SQLite delivery failures, restart recovery and pending
+payment guards across games. It also checks private browser handoff, CSRF,
+session expiry/unlink/logout, static file allowlisting and collection isolation.
+Fixtures use disposable databases and an idempotent fake online wallet.
+
+`scripts/check-diaper-browser.mjs` checks real Chrome navigation, rolls, reveals,
+selling, bank buyback, filtering and logout at desktop/mobile sizes. See
+[DIAPER_GACHA_GUIDE.md](DIAPER_GACHA_GUIDE.md) for tool variables and optional
+fixture screenshots. Never use live coins or production account data in tests.
+
 ## Local checks
 
 Use a separate checkout if a running Windows instance has its native SQLite

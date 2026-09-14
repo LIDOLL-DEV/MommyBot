@@ -30,6 +30,12 @@ Ready to adopt? Visit <#1548647250543251507> for Touhou Trader. Random adoption
 costs **1 star OR 25 LiDollcoins**. Other trader payments and rewards use your
 online LiDollcoins.
 
+## Visit the Diaper Atelier
+
+Want a little collectible surprise? Once linked, use `/diapers` to open the
+[Diaper Atelier](DIAPER_GACHA_GUIDE.md). Rolls cost **3 LiDollcoins**, and its
+shared bank lets you sell and buy collectible diapers at prices based on stock.
+
 ## Unlink or start a fresh test
 
 Run `/lidollid unlink`, or run `/lidollid status` and press **Unlink account**.

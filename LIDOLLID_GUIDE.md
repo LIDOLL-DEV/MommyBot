@@ -9,6 +9,10 @@ and exact callback URL. LiDollBot's default client ID is `lidollbot`.
 
 ## Player flow
 
+After linking, `/diapers` opens the web-based
+[Diaper Atelier](DIAPER_GACHA_GUIDE.md). Its private browser session is separate
+from the OIDC login session and is revoked by `/lidollid unlink`.
+
 The bot's landing, confirmation and error pages use the default pastel Little
 Tracker theme from `lidoll.dev/tracker/`. Styles ship with the bot and require
 no third-party asset requests or browser scripts. The separate LiD0llID

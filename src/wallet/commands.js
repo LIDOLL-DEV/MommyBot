@@ -30,6 +30,11 @@ export async function handleWalletInteraction(interaction, wallet, identities) {
       case "balance": response = { content: balanceText(await wallet.balance(user)) }; break;
       case "disconnect": await wallet.disconnect(user); response = { content: "Your wallet connection was revoked and removed. Your balances remain in Little Log." }; break;
       case "retry": {
+        if (wallet.gacha?.pending(user)) {
+          const result = await wallet.gacha.retry(user);
+          response = { content: `Diaper ${result.action} completed for ${result.amount} LiDollcoins. Use /diapers to see your collection and bank.` };
+          break;
+        }
         if (!wallet.adoptions) throw new WalletError("disabled", "Enable Touhou Trader to finish pending adoptions.");
         if (!wallet.adoptions.pending(user) && wallet.economy) { response = await wallet.economy.retry(user); break; }
         const result = await wallet.adoptions.retry(user);

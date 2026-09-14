@@ -5,7 +5,7 @@ import { authStyleSource, renderAuthPage } from "./page.js";
 
 const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export function createAuthServer(config, store, oidc, wallet = null) {
+export function createAuthServer(config, store, oidc, wallet = null, gameWeb = null) {
   const secure = config.origin.startsWith("https:");
   const cookieName = secure ? "__Host-lidollbot_login" : "lidollbot_login";
   const formCookieName = secure ? "__Host-lidollbot_form" : "lidollbot_form";
@@ -25,6 +25,7 @@ export function createAuthServer(config, store, oidc, wallet = null) {
     response.setHeader("Content-Security-Policy", `default-src 'none'; style-src ${authStyleSource}; frame-ancestors 'none'; base-uri 'none'; form-action 'self' ${issuerOrigin}`.trim());
     let stage = "login";
     try {
+      if (gameWeb && await gameWeb(request, response)) return;
       const url = new URL(request.url, config.origin);
       if (url.origin !== config.origin) return page(response, 400, "<p>Invalid request.</p>");
       const allowedMethods = url.pathname === "/auth/login" ? ["GET", "POST"] : ["GET"];

@@ -5,6 +5,20 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+Diaper Atelier lives in `src/gacha/`, with supplied art and the reviewed rarity
+manifest under `diaper-gacha/`. See [DIAPER_GACHA_GUIDE.md](DIAPER_GACHA_GUIDE.md).
+`/diapers` issues an ephemeral, one-use browser handoff; all play happens under
+the existing bot origin's `/diapers/` routes. Keep GET previews non-consuming,
+sessions bound to the confirmed identity, and mutations protected by exact
+Origin and session CSRF checks. Browser code never receives wallet tokens.
+Keep bank-copy reservations, pinned account/price, payment journal and delivery
+in the same game DB. Compose `wallet.hasPending` across games, and load all
+payment guards before opening the HTTP listener. Keep the game DB open until
+wallet actions drain at shutdown. Cuteness ranks are explicitly authored in the
+manifest. Bank prices use each design's stock; validate the displayed quote
+before reserving and retain it for retries. Sale quotes use the post-deposit
+stock and a spread so a buy/sell cycle cannot create coins.
+
 Little Log wallet support lives in `src/wallet/`; see
 [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md). Request explicit OIDC wallet
 consent for both currencies in the combined account login, and keep bearer grants

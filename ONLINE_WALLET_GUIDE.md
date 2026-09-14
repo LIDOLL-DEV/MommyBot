@@ -14,6 +14,12 @@ LiDollcoins. Gifts, swaps, listing/delisting, browsing and free recovery keep
 their existing zero cost. Legacy local balances are not spent or automatically
 converted into online currency.
 
+[Diaper Atelier](DIAPER_GACHA_GUIDE.md) uses the same consented coin wallet for
+three-coin rolls and its shared bank. Bank quotes decrease as more copies of a
+design enter bank inventory, with rarity setting the starting value. Its pending
+payments participate in the same reconnect/unlink guards and can be recovered
+with `/lidollid wallet retry`. No star balance is spent by this game.
+
 ## Operator setup
 
 Deploy the updated **omo-trainer identity and tracker services first**, then
