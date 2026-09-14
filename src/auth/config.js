@@ -1,3 +1,5 @@
+import { DEFAULT_LINKED_ROLE_ID } from "./linkedRole.js";
+
 export function authConfig(env = process.env) {
   if (env.LIDOLLID_ENABLED !== "true") return null;
   const checked = (value, label) => {
@@ -19,6 +21,8 @@ export function authConfig(env = process.env) {
   if (!/^[a-z0-9_-]{1,80}$/.test(clientId)) throw new Error("Invalid LIDOLLID_CLIENT_ID.");
   const port = Number(env.LIDOLLID_PORT || 4190);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Invalid LIDOLLID_PORT.");
-  return { origin: origin.origin, issuer: issuer.href, clientId, port,
+  const linkedRoleId = env.LIDOLLID_LINKED_ROLE_ID?.trim() || DEFAULT_LINKED_ROLE_ID;
+  if (!/^\d{17,20}$/.test(linkedRoleId)) throw new Error("LIDOLLID_LINKED_ROLE_ID must be a Discord role ID.");
+  return { origin: origin.origin, issuer: issuer.href, clientId, port, linkedRoleId,
     host: env.LIDOLLID_HOST || "127.0.0.1", callback: `${origin.origin}/auth/callback` };
 } // Keep SSO opt-in so existing deployments work until their callback is registered.

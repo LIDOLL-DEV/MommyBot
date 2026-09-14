@@ -6,6 +6,7 @@ import { IdentityStore } from "./store.js";
 import { createOidc } from "./oidc.js";
 import { createAuthServer } from "./server.js";
 import { handleWalletInteraction } from "../wallet/commands.js";
+import { awardLinkedRole } from "./linkedRole.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
@@ -42,11 +43,13 @@ export function createIdentityHandler(store, config, wallet = null) {
           if(combined)await wallet.confirmIdentity(discordId,store.pendingConfirmation(discordId,code),activate=>store.confirm(discordId,code,activate),()=>store.pendingConfirmation(discordId,code));
           else store.confirm(discordId,code);
           content=combined?"Your LiD0llID account and wallet are connected. Use /lidollid wallet balance to check your stars and coins.":"Your LiD0llID account is now linked. Use /lidollid status to check it.";
+          content += `\n${await awardLinkedRole(interaction, () => Boolean(store.get(discordId)), config.linkedRoleId)}`;
           break;
         }
         case "status": {
           const account = store.get(discordId);
           content = account ? `Linked LiD0llID username: ${account.username}\nVerified at: ${new Date(account.linked_at).toISOString()}` : "No LiD0llID linked. Use /lidollid login to sign in.";
+          if (account) content += `\n${await awardLinkedRole(interaction, () => Boolean(store.get(discordId)), config.linkedRoleId)}`;
           break;
         }
         case "unlink":

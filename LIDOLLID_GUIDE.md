@@ -16,7 +16,9 @@ and exact callback URL. LiDollBot's default client ID is `lidollbot`.
    press **Connect account and wallet** once.
 3. Check the username on the returned page. Copy its `/lidollid confirm code:…`
    command into Discord using the same Discord account that started sign-in.
-4. Run `/lidollid status` to see the linked username and verification time.
+4. Successful confirmation awards role `1548848979754614857` in its server.
+   Run `/lidollid status` to see the linked username and verification time and
+   retry role delivery if needed. Already-linked members can use status too.
    `/lidollid unlink` removes the link and cancels pending sign-ins.
 
 All command replies are ephemeral. Links and codes expire ten minutes after
@@ -32,7 +34,17 @@ One Discord account can link one LiD0llID; one LiD0llID can link one Discord
 account in this bot, across all guilds. Unlink the original account before
 switching. Usernames are display labels; the verified issuer and subject identify
 the account. Existing Discord IDs continue to own memories, collections and
-wallets. SSO does not grant Discord roles or administrator permissions.
+wallets. The bot awards only the operator-configured linked-account role; OIDC
+profile claims cannot select additional roles or grant administrator permissions.
+
+`LIDOLLID_LINKED_ROLE_ID` defaults to `1548848979754614857`. Give the bot **Manage
+Roles** and place its highest role above that role in Server Settings. Role
+assignment runs after the identity (and wallet, when enabled) is committed.
+Missing permissions or Discord outages leave the account linked and provide a
+`/lidollid status` retry instruction. No role is granted for starting login or
+an invalid confirmation. A DM confirmation can locate the role in a server the
+bot belongs to; the user must also be a member there. This is an award on linking,
+not continuous membership verification: unlinking does not remove an awarded role.
 
 This is account linking for a Discord application: Discord authenticates each
 command, and LiD0llID authenticates the identity being linked. There is no public

@@ -40,6 +40,11 @@ Keep issuer/subject as identity keys, final confirmation bound to the initiating
 Discord user, callback cookies host-only, and responses ephemeral. Only stage the short-lived provider access token in the protected wallet database
 until exchange/expiry; never retain it in the identity database. Do not grant roles
 from profile claims or infer wallet permission from an identity-only token. The new `data/lidollid.db` participates in state backups.
+The linked-account role is an explicit operator setting, defaulting to
+`1548848979754614857`. Award it only after successful Discord confirmation, or
+on `/lidollid status` for a stored link. Use a single-role add so other roles
+are preserved. Role assignment failures must not undo identity/wallet activation
+or expose Discord error bodies. Keep role IDs out of OIDC profile claims.
 `openid-client` is pinned to omo-trainer's tested version; preserve its signature,
 state, nonce, PKCE and UserInfo-subject checks when upgrading.
 `auth/diagnostics.js` reports only allowlisted stages/codes and HTTP statuses.

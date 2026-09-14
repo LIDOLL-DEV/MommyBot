@@ -55,3 +55,16 @@ test('failed wallet activation rolls back identity and retains the grant for rec
  assert.equal(f.wallet.db.prepare('SELECT candidate FROM combined_wallets').get().candidate,'candidate');
  f.wallet.db.exec('DROP TRIGGER fail_wallet');await f.confirm(a);assert.equal(f.exchanges(),1);assert.equal(f.identities.get(a.user).subject,'alice');
 });
+
+test('linked role waits for combined wallet activation and is not granted when activation fails',async t=>{
+ const f=fixture(t),a=f.attempt();await f.stage(a);let granted=0,release;
+ const roleId='1548848979754614857';
+ const guild={id:'guild',roles:{cache:new Map([[roleId,{}]]),fetch:async()=>({id:roleId})},members:{fetch:async()=>({roles:{cache:new Map(),add:async id=>{assert.equal(id,roleId);assert.ok(f.identities.get(a.user));assert.ok(f.wallet.connection(a.user));granted++;}}})}};
+ const handler=createIdentityHandler(f.identities,{origin:'https://bot.example'},f.wallet);
+ const interaction=code=>({guild,user:{id:a.user},commandName:'lidollid',isChatInputCommand:()=>true,options:{getSubcommand:()=> 'confirm',getString:()=>code},deferReply:async()=>{},editReply:async()=>{}});
+ const balance=f.client.balance;f.client.balance=()=>new Promise(resolve=>{release=resolve;});
+ const confirming=handler(interaction(a.code));await new Promise(resolve=>setImmediate(resolve));assert.equal(granted,0);
+ release({accountId:'alice-wallet',stars:0,coins:0});await confirming;assert.equal(granted,1);
+ f.client.balance=balance;const renew=f.attempt();await f.stage(renew);f.client.exchange=async()=>{throw Error('synthetic exchange failure');};
+ await handler(interaction(renew.code));assert.equal(granted,1);
+});

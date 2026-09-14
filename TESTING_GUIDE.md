@@ -30,6 +30,14 @@ static checks on Fedora: install `ShellCheck` and run
 
 ## Fedora acceptance checks
 
+`test/linked-role.test.js` checks role delivery after committed confirmation,
+retries for linked users, invalid confirmations, DM resolution, missing members
+and permission failures without exposing Discord error bodies. Combined-login
+tests verify the role waits for wallet activation and is not granted after a
+failed exchange. On Discord, give the bot Manage Roles and place its role above
+`1548848979754614857`; confirm a test account and verify the role, then check that
+`/lidollid status` can deliver it to an already-linked member.
+
 Online wallet coverage in `test/online-wallet.test.js` uses disposable SQLite
 databases and a simulated Little Log API. It checks both fixed prices, private
 balances, explicit consent/backoff, saved grants, account pinning, revocation,
