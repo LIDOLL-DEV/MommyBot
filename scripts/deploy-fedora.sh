@@ -143,9 +143,11 @@ import dotenv from 'dotenv';
 import { authConfig } from './src/auth/config.js';
 import { walletConfig } from './src/wallet/client.js';
 import { gachaConfig, loadDiaperCatalog } from './src/gacha/catalog.js';
+import { hangmanConfig } from './src/hangman/words.js';
 const settings = dotenv.parse(fs.readFileSync(process.argv[2])); // Read configuration without executing it.
 authConfig({ ...settings, NODE_ENV: 'production' }); // Reject invalid SSO settings before stopping the active release.
 gachaConfig(settings);
+hangmanConfig(settings);
 loadDiaperCatalog(); // Check every collectible asset before swapping releases.
 if (walletConfig({ ...settings, NODE_ENV: 'production' }) && settings.LIDOLLID_ENABLED !== 'true') {
     throw new Error('Online wallets require LIDOLLID_ENABLED=true for their Discord commands.');

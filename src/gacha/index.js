@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { MessageFlags, SlashCommandBuilder } from "discord.js";
-import { gachaConfig, loadDiaperCatalog } from "./catalog.js";
+import { AttachmentBuilder, EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { assetRoot, gachaConfig, loadDiaperCatalog, tiers } from "./catalog.js";
 import { DiaperStore, GachaError } from "./store.js";
+import { WalletError } from "../wallet/client.js";
 import { GachaSessions } from "./sessions.js";
 import { createGachaWeb } from "./web.js";
 
@@ -15,12 +17,22 @@ export function initializeGacha(config, identities, wallet) {
     revoke: user => sessions.revoke(user),
     prune: () => sessions.prune(),
     close: () => game.close(),
-    ...createGachaCommands(config, sessions),
+    ...createGachaCommands(config, sessions, game),
   };
 }
 
-export function createGachaCommands(config, sessions) {
+const rarityColors = { common: 0xf4c2d7, uncommon: 0x9fd8b8, rare: 0x8fb8f0, epic: 0xc39bf0, legendary: 0xf5c45e };
+
+export function createGachaCommands(config, sessions, game = null) {
   const names = ["diaper", "diapers"];
+  const rollMessage = async user => {
+    const { amount, item } = await game.act(user, "roll", null, randomUUID());
+    const embed = new EmbedBuilder().setColor(rarityColors[item.rarity]).setTitle(item.name).setDescription(item.description)
+      .addFields({ name: "Rarity", value: tiers[item.rarity].label, inline: true }, { name: "Paid", value: `${amount} LiDollcoin${amount === 1 ? "" : "s"}`, inline: true })
+      .setImage(`attachment://${item.image}`).setFooter({ text: "Added to your collection · /diapers opens your atelier" });
+    return { content: `The capsule pops open... you got **${item.name}**! ✦`, embeds: [embed],
+      files: [new AttachmentBuilder(fileURLToPath(new URL(item.image, assetRoot)), { name: item.image })] };
+  }; // Rolls journal and settle through the website's store, so odds, payment and recovery stay identical.
   const linkMessage = user => {
     const ticket = sessions.begin(user);
     return `Open your Diaper Atelier: ${config.origin}/diapers/open?ticket=${ticket}\nRoll for cute diapers, view your collection, and buy or sell at the shared diaper bank using LiDollcoins. Open the link and press Open my atelier. This private link expires in 10 minutes and signs your browser in for 8 hours. Do not share it.`;
@@ -39,6 +51,18 @@ export function createGachaCommands(config, sessions) {
       }
     },
     async handleMessage(message) {
+      if (!message.author.bot && game && /^\s*!diaper\s*$/i.test(message.content || "")) {
+        message.channel?.sendTyping?.()?.catch(() => {});
+        let response;
+        try { response = await rollMessage(message.author.id); }
+        catch (error) {
+          response = { content: error instanceof GachaError || error instanceof WalletError ? error.message
+            : "The capsule machine is temporarily unavailable. Use /lidollid wallet retry to finish any pending payment; do not roll again." };
+        }
+        try { await message.reply({ ...response, allowedMentions: { parse: [], repliedUser: false } }); }
+        catch { console.warn("[Diaper Gacha] Could not send a roll result; the prize stays in the collection."); }
+        return true;
+      } // !diaper rolls one capsule in the channel; only locally authored game and wallet errors are shown.
       if (message.author.bot || !/^\s*!diapers\s*$/i.test(message.content || "")) return false;
       const reply = async content => {
         try { await message.reply({ content, allowedMentions: { parse: [], repliedUser: false } }); }

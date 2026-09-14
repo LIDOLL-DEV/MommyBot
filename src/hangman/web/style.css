@@ -1,0 +1,29 @@
+.welcome { grid-template-columns: 1.35fr .8fr; padding-top: 42px; }
+.rules-card { position: relative; background: #fffdf4; border: 1px solid #e8d9b6; border-radius: 24px; padding: 30px 32px 18px; transform: rotate(2deg); box-shadow: 0 5px 0 #e7d6ed50; }
+.rules-card h2 { font-size: 30px; } .rules-flower { position: absolute; right: 20px; top: 14px; font-size: 44px; color: #d6a2be; }
+.word-card { display: grid; grid-template-columns: .78fr 1.4fr; border: 1px solid var(--line); background: #fffdfd; border-radius: 26px; box-shadow: 0 5px 0 #e7d6ed70; overflow: hidden; }
+.garden { padding: 34px 24px 22px; background: radial-gradient(ellipse at 50% 35%,#fae9f3,#f6f2fb 75%); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.garden .eyebrow { font-size: 10px; } .flower { width: min(100%,270px); height: 290px; }
+.flower ellipse.spent { opacity: .12; } .flower ellipse { transition: opacity .3s; }
+.chance-pill { padding: 7px 16px; border: 1px solid #d9c5df; border-radius: 24px; font-size: 13px; background: #fffafc; }
+.word-play { padding: 32px; min-width: 0; } .word-play h2 { font-size: 29px; }
+.clue { color: var(--muted); min-height: 30px; }
+.letters { display: flex; flex-wrap: wrap; gap: 7px; min-height: 62px; margin: 23px 0 18px; }
+.letter { display: grid; place-items: center; width: 42px; height: 52px; border: 1px solid #d8c2df; border-bottom: 4px solid #d8c2df; border-radius: 10px; background: #f6f0fb; font: 700 24px var(--display); }
+.letter.revealed { background: #edf7ef; border-color: #bdd6c3; color: #476b53; }
+.keyboard { display: grid; grid-template-columns: repeat(9,minmax(0,1fr)); gap: 7px; margin: 22px 0; }
+.keyboard button { min-width: 0; border: 1px solid #d8c5df; background: #fffafd; border-radius: 10px; color: var(--ink); padding: 8px 0; font-weight: 700; }
+.keyboard button:not(:disabled):hover { background: #f6c8dd; transform: translateY(-2px); }
+.keyboard button.hit { background: #dfeee2; color: #486c51; opacity: 1; border-color: #b9d1bf; }
+.keyboard button.miss { background: #eee9f1; text-decoration: line-through; opacity: .6; }
+.earnings { display: inline-block; padding: 5px 12px; background: #fff6d6; border: 1px solid #ead9a4; border-radius: 20px; font-size: 13px; color: #735e25; }
+.play-button { display: block; margin: 14px 0; } .control-note { color: #75581b; background: #fff8df; border: 1px solid #e7d5a6; border-radius: 12px; padding: 10px 14px; font-size: 13px; }
+.board-bottom { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 18px; }
+.notice, .payment-note { border: 1px solid #e5c3a3; border-radius: 16px; background: #fff7e5; color: #745527; padding: 16px 20px; margin-bottom: 20px; }
+.payment-note { display: flex; align-items: center; justify-content: space-between; gap: 20px; } .payment-note p { margin: 4px 0 0; }
+.how-to { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; padding: 16px 12px 32px; } .how-to h3 { margin: 10px 0; } .how-to p { font-size: 14px; color: var(--muted); }
+.step { font: 700 15px var(--display); color: #b980a4; } .dialog-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+@media (max-width: 750px) { .welcome { grid-template-columns: 1fr; gap: 20px; } .rules-card { transform: none; padding: 20px 24px; } .rules-card h2 { font-size: 24px; } .rules-card br { display: none; } .word-card { grid-template-columns: 1fr; } .garden { padding: 20px 16px 12px; } .flower { height: 165px; } .garden .fine { display: none; } .garden .eyebrow { margin-bottom: 0; } .chance-pill { margin: 2px 0 8px; } .word-play { padding: 24px 18px; } .how-to { grid-template-columns: 1fr; gap: 8px; } .payment-note { flex-direction: column; align-items: stretch; } }
+@media (max-width: 430px) { .shell { padding: 0 14px; } .topbar { padding: 16px; } .keyboard { grid-template-columns: repeat(7,minmax(0,1fr)); } .letter { width: 34px; height: 44px; font-size: 20px; } .letters { gap: 5px; } .board-bottom { align-items: start; flex-direction: column; } .summary { gap: 7px; } .summary > div { padding: 12px 8px; flex-direction: column; } .summary span { font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .flower ellipse { transition: none; } .keyboard button:hover { transform: none; } }
+@media (max-width: 750px) { .rules-card .eyebrow, .rules-card h2 { display: none; } .rules-card { padding: 18px 22px 6px; } .rules-flower { font-size: 30px; top: 8px; right: 12px; } }

@@ -22,6 +22,12 @@ with `/lidollid wallet retry`. No star balance is spent by this game.
 
 ## Clickable menu
 
+[Cozy Hangman](HANGMAN_GUIDE.md) uses **1 LiDollcoin per round** and pays
+**1 coin for each newly revealed letter position**. Repeated letters within
+the word each count; repeated guesses do not. Its entry and rewards participate
+in the same pending-payment recovery and unlink guards as the other games.
+Open it with `/hangman`, `!hangman` (private DM) or the **Cozy Hangman** menu button.
+
 Open `/menu`, `/lidollid menu` or `/lidollid wallet menu` for the same private
 pastel panel, styled like Touhou Trader. Use **Connect / renew**, **Enter sign-in
 code**, **Account status**, **Online balance**, **Retry payment**, **Disconnect

@@ -152,7 +152,7 @@ export class WalletService {
   } // Pin purchases to the approved opaque wallet account, which the wallet API scopes to this app.
   async disconnect(userId) {
     return this.exclusive(userId, async () => {
-      if (this.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending adoption, trader, diaper or gift payment with /lidollid wallet retry before disconnecting.");
+      if (this.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending game or gift payment with /lidollid wallet retry before disconnecting.");
       const attempt = this.db.prepare("SELECT * FROM wallet_approvals WHERE discord_id = ?").get(userId);
       const connection = this.connection(userId);
       const combined=this.db.prepare('SELECT * FROM combined_wallets WHERE discord_id=?').get(userId);

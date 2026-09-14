@@ -63,3 +63,45 @@ test("prefix routing ignores bots and unrelated text, and safely handles unlinke
   assert.equal(await commands.handleMessage(message), true);
   assert.doesNotMatch(logs.join(" "), /PRIVATE/);
 });
+
+test("!diaper rolls one capsule and posts its art without touching the private !diapers handoff", async () => {
+  const acts = [], replies = [], begins = [];
+  const item = { id: "royal-rose", name: "Royal Rose", image: "TQ_Clothing_Knickers_Diaper_1.png", rarity: "legendary", description: "Pink hearts." };
+  const game = { act: async (...args) => { acts.push(args); return { action: "roll", amount: 3, item, id: "job" }; } };
+  const commands = createGachaCommands({ origin: "https://bot.example" }, { begin: user => { begins.push(user); return "PRIVATE-TICKET"; } }, game);
+  const message = { content: " !Diaper ", guild: {}, channel: { sendTyping: async () => {} },
+    author: { id: "alice", bot: false, send: async () => {} }, reply: async response => replies.push(response) };
+  assert.equal(await commands.handleMessage(message), true);
+  assert.equal(acts.length, 1);
+  const [user, action, design, request, amount] = acts[0];
+  assert.deepEqual([user, action, design, amount], ["alice", "roll", null, undefined]);
+  assert.match(request, /^[\w-]{16,80}$/);
+  assert.match(replies[0].content, /Royal Rose/);
+  assert.equal(replies[0].files[0].name, item.image);
+  const embed = replies[0].embeds[0].toJSON();
+  assert.equal(embed.image.url, `attachment://${item.image}`);
+  assert.deepEqual(embed.fields.map(field => field.value), ["Legendary", "3 LiDollcoins"]);
+  assert.deepEqual(replies[0].allowedMentions, { parse: [], repliedUser: false });
+  for (const content of ["!diaper roll", "!diaperss", "hello !diaper"]) assert.equal(await commands.handleMessage({ ...message, content }), false);
+  assert.equal(await commands.handleMessage({ ...message, author: { ...message.author, bot: true } }), false);
+  assert.equal(await commands.handleMessage({ ...message, content: "!diapers" }), true);
+  assert.equal(acts.length, 1); assert.deepEqual(begins, ["alice"]);
+  assert.equal(await createGachaCommands({}, {}).handleMessage(message), false);
+});
+
+test("!diaper shows safe game errors, hides unexpected ones, and survives reply failures", async t => {
+  const replies = [], logs = []; let failure;
+  t.mock.method(console, "warn", text => logs.push(text));
+  const commands = createGachaCommands({}, {}, { act: async () => { throw failure; } });
+  const message = { content: "!diaper", author: { id: "alice", bot: false }, reply: async response => replies.push(response) };
+  failure = new GachaError("Finish your pending payment first.");
+  assert.equal(await commands.handleMessage(message), true);
+  assert.equal(replies[0].content, "Finish your pending payment first.");
+  failure = new Error("PRIVATE database path");
+  assert.equal(await commands.handleMessage(message), true);
+  assert.match(replies[1].content, /wallet retry/);
+  assert.doesNotMatch(JSON.stringify(replies), /PRIVATE/);
+  message.reply = async () => { throw new Error("PRIVATE permission response"); };
+  assert.equal(await commands.handleMessage(message), true);
+  assert.equal(logs.length, 1); assert.doesNotMatch(logs.join(" "), /PRIVATE/);
+});

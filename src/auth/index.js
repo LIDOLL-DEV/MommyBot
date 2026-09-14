@@ -9,6 +9,7 @@ import { handleWalletInteraction, runWalletAction } from "../wallet/commands.js"
 import { awardLinkedRole } from "./linkedRole.js";
 import { initializeGacha } from "../gacha/index.js";
 import { IdentityMenus } from "./menu.js";
+import { initializeHangman } from "../hangman/index.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
@@ -33,14 +34,15 @@ export function buildIdentityCommand() {
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
 } // Add a dedicated command without replacing the trader or any other application's commands.
 
-export function createIdentityHandler(store, config, wallet = null, gacha = null, trader = null) {
-  const accountAction = (interaction, action, options) => runIdentityAction(interaction, store, config, wallet, gacha, action, options);
+export function createIdentityHandler(store, config, wallet = null, gacha = null, trader = null, hangman = null) {
+  const accountAction = (interaction, action, options) => runIdentityAction(interaction, store, config, wallet, gacha, action, options, hangman);
   const menus = new IdentityMenus({
     accountAction, walletAction: (interaction, action, options) => runWalletAction(interaction, wallet, store, action, options),
-    atelier: gacha?.linkMessage, trader: trader?.openMenu,
+    atelier: gacha?.linkMessage, trader: trader?.openMenu, hangman: hangman?.linkMessage,
   }); // Menus share the slash-command actions, including linked-role assignment and payment recovery.
   return async interaction => {
     if (await menus.handleInteraction(interaction)) return true;
+    if (hangman && await hangman.handleInteraction(interaction)) return true;
     if (gacha && await gacha.handleInteraction(interaction)) return true;
     const unlinkButton = interaction.isButton?.() && interaction.customId?.startsWith("lidollid:unlink:");
     const combined=Boolean(wallet?.stageIdentity);
@@ -58,7 +60,7 @@ export function createIdentityHandler(store, config, wallet = null, gacha = null
   }; // Only Discord's authenticated interaction user can read, confirm or remove their link; replies stay private.
 }
 
-export async function runIdentityAction(interaction, store, config, wallet, gacha, action, options = interaction.options) {
+export async function runIdentityAction(interaction, store, config, wallet, gacha, action, options = interaction.options, hangman = null) {
     const combined = Boolean(wallet?.stageIdentity);
     let content;
     let components = [];
@@ -91,6 +93,7 @@ export async function runIdentityAction(interaction, store, config, wallet, gach
           await wallet?.disconnect(discordId); // Require wallet revocation and refuse unsettled payments before removing identity.
           store.unlink(discordId);
           gacha?.revoke(discordId); // Invalidate every browser game session when its identity link is removed.
+          hangman?.revoke(discordId);
           content = "Your LiDollBot account link, wallet connection and pending sign-ins were removed. Your stars, LiDollcoins, Touhou collection and awarded Discord role stay. Your shared LiD0llID browser session remains signed in.\nReady to test again? Run /lidollid login for a fresh link. To choose a different LiD0llID, sign out in your browser first or open the fresh link in a private window.";
           break;
         default: content = "Unknown account command.";
@@ -109,23 +112,26 @@ export async function initializeIdentity(wallet = null, trader = null) {
   const store = new IdentityStore(fileURLToPath(new URL("../../data/lidollid.db", import.meta.url)));
   if(wallet)wallet.identityFor=id=>store.get(id);
   const gacha = initializeGacha(config, store, wallet);
-  const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet,gacha?.web);
+  const hangman = initializeHangman(config, store, wallet);
+  const gameWeb = async (request, response) => Boolean(await gacha?.web(request, response) || await hangman?.web(request, response));
+  const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet,gameWeb);
   try {
     await new Promise((resolve, reject) => { server.once("error", reject); server.listen(config.port, config.host, resolve); });
-  } catch (error) { gacha?.close(); store.close(); throw error; }
-  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();gacha?.prune();}, 60000);
+  } catch (error) { gacha?.close(); hangman?.close(); store.close(); throw error; }
+  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();gacha?.prune();hangman?.prune();}, 60000);
   cleanup.unref();
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
-    handleInteraction: createIdentityHandler(store, config, wallet, gacha, trader),
-    handleMessage: message => gacha?.handleMessage(message) || false,
-    closeGames: () => gacha?.close(),
+    handleInteraction: createIdentityHandler(store, config, wallet, gacha, trader, hangman),
+    handleMessage: async message => Boolean(await gacha?.handleMessage(message) || await hangman?.handleMessage(message)),
+    closeGames: () => { gacha?.close(); hangman?.close(); }, // Both journals remain open until wallet actions drain at shutdown.
     async registerGuild(guild) {
       try { await guild.commands.create(buildIdentityCommand()); }
       catch { console.error(`[LiD0llID] Could not register /lidollid in guild ${guild.id}.`); }
       try { await guild.commands.create(new SlashCommandBuilder().setName("menu").setDescription("Open LiDollBot's account, wallet, games and admin gift menu")); }
       catch { console.error(`[LiD0llID] Could not register /menu in guild ${guild.id}.`); }
       await gacha?.registerGuild(guild);
+      await hangman?.registerGuild(guild);
     },
     async close() {
       clearInterval(cleanup);

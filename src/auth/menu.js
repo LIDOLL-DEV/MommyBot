@@ -5,6 +5,7 @@ import { canAward } from "../permissions.js";
 import { WalletError } from "../wallet/client.js";
 import { TraderError } from "../touhou/store.js";
 import { GachaError } from "../gacha/store.js";
+import { HangmanError } from "../hangman/store.js";
 
 const row = (...components) => new ActionRowBuilder().addComponents(...components);
 const privateReply = { flags: MessageFlags.Ephemeral, allowedMentions: { parse: [] } };
@@ -12,9 +13,9 @@ const IDLE_MS = 5 * 60_000;
 class MenuError extends Error {}
 
 export class IdentityMenus {
-  constructor({ accountAction, walletAction, atelier, trader, now = Date.now }) {
+  constructor({ accountAction, walletAction, atelier, trader, hangman, now = Date.now }) {
     this.accountAction = accountAction; this.walletAction = walletAction;
-    this.atelier = atelier; this.trader = trader; this.now = now;
+    this.atelier = atelier; this.trader = trader; this.hangman = hangman; this.now = now;
     this.sessions = new Map();
   } // Store only short-lived menu selections; account links and gift receipts stay in their existing databases.
 
@@ -65,6 +66,7 @@ export class IdentityMenus {
       const games = [];
       if (this.trader) games.push(this.button(s, "trader", "Touhou Trader"));
       if (this.atelier) games.push(this.button(s, "atelier", "Diaper Atelier"));
+      if (this.hangman) games.push(this.button(s, "hangman", "Cozy Hangman"));
       if (games.length) components.push(row(...games));
       if (this.isAdmin(interaction)) components.push(row(this.button(s, "gift-coins", "Gift coins", ButtonStyle.Primary),
         this.button(s, "gift-stars", "Gift stars", ButtonStyle.Primary), this.button(s, "gift-retry", "Retry a gift")));
@@ -118,7 +120,7 @@ export class IdentityMenus {
       s.expires = this.now() + IDLE_MS;
       await interaction.editReply(this.render(s, interaction));
     } catch (error) {
-      const content = error instanceof MenuError || error instanceof WalletError || error instanceof TraderError || error instanceof GachaError ? error.message :
+      const content = error instanceof MenuError || error instanceof WalletError || error instanceof TraderError || error instanceof GachaError || error instanceof HangmanError ? error.message :
         "The menu could not finish. Use Retry payment for an uncertain payment, or reopen /menu.";
       if (locked && interaction.deferred) {
         s.banner = content;
@@ -129,7 +131,7 @@ export class IdentityMenus {
   } // Owner, guild, revision and busy checks protect buttons, selections and forms against stale or concurrent requests.
 
   async dispatch(s, action, interaction) {
-    const homeActions = ["login", "status", "balance", "retry", "disconnect", "unlink", "atelier", "trader", "gift-coins", "gift-stars", "gift-retry", "code-submit"];
+    const homeActions = ["login", "status", "balance", "retry", "disconnect", "unlink", "atelier", "trader", "hangman", "gift-coins", "gift-stars", "gift-retry", "code-submit"];
     if (homeActions.includes(action) && s.screen !== "home") throw new MenuError("Return to the main menu first.");
     if (action === "home") {
       s.screen = "home"; s.intent = null; s.recipient = null; s.amount = null;
@@ -147,6 +149,8 @@ export class IdentityMenus {
       s.banner = (await (intent === "unlink" ? this.accountAction : this.walletAction)(interaction, intent)).content;
     } else if (action === "atelier" && this.atelier) {
       s.banner = this.atelier(s.user);
+    } else if (action === "hangman" && this.hangman) {
+      s.banner = this.hangman(s.user);
     } else if (action === "trader" && this.trader) {
       await interaction.followUp({ ...await this.trader(interaction), ...privateReply });
       s.banner = "Your Touhou Trader menu is open below.";

@@ -1,5 +1,22 @@
 # Testing MommyBot
 
+## Cozy Hangman
+
+`test/hangman.test.js` covers one-coin entry, per-occurrence letter rewards,
+duplicate and wrong guesses, wins/losses, forfeits, account pinning, replay,
+insufficient funds, lost debit/credit responses, restart and storage recovery,
+daily earning caps, shared pending-payment guards and Discord recovery. HTTP
+tests exercise private handoff, CSRF, masked words, user isolation, separate
+game sessions and logout. Command tests check slash registration, private DMs,
+the main menu launcher and unlink revocation.
+
+`scripts/check-hangman-browser.mjs` runs real Chrome against disposable stores
+and a fake wallet. It checks keyboard and touch controls, immediate board display
+before wallet refresh, saved games, exact coin rewards, pending recovery,
+low funds, wallet errors, request preparation failures, win/forfeit, logout,
+desktop/mobile overflow and CSP errors. See [HANGMAN_GUIDE.md](HANGMAN_GUIDE.md)
+for tool variables. Never use real accounts or coins in these fixtures.
+
 ## Private command menu
 
 `test/account-menu.test.js` serializes real Discord builders and checks the

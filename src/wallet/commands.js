@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from "disc
 import { WalletError } from "./client.js";
 import { TraderError } from "../touhou/store.js";
 import { canAward } from "../permissions.js";
+import { HangmanError } from "../hangman/store.js";
 
 export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**.\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
 const giftText = gift => `Gift completed: **${gift.amount} ${gift.asset === "stars" ? "stars" : "LiDollcoins"}** credited to <@${gift.user_id}>'s online wallet. They can check /lidollid wallet balance.`; // Confirm the gift without revealing the recipient's total balance.
@@ -52,6 +53,11 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       case "balance": response = { content: balanceText(await wallet.balance(user)) }; break;
       case "disconnect": await wallet.disconnect(user); response = { content: "Your wallet connection was revoked and removed. Your balances remain in Little Log." }; break;
       case "retry": {
+        if (wallet.hangman?.pending(user)) {
+          const result = await wallet.hangman.retry(user);
+          response = { content: result.action === "start" ? "Your hangman entry is paid. Use /hangman to continue the same word." : `Your ${result.amount}-coin hangman letter reward is paid. Use /hangman to continue.` };
+          break;
+        }
         if (wallet.gifts?.pending(user)) {
           response = { content: giftText(await wallet.gifts.retry(user)) };
           break;
@@ -70,7 +76,7 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       default: throw new WalletError("unknown", "Use /lidollid wallet connect or balance.");
     }
   } catch (error) {
-    response = { content: error instanceof WalletError || error instanceof TraderError ? error.message : "Wallet storage is unavailable. Try again; pending payments are saved for /lidollid wallet retry." };
+    response = { content: error instanceof WalletError || error instanceof TraderError || error instanceof HangmanError ? error.message : "Wallet storage is unavailable. Try again; pending payments are saved for /lidollid wallet retry." };
   }
   return response;
 } // Use authenticated Discord IDs and private replies for approval codes, account balances and recovery.

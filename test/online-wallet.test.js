@@ -129,7 +129,7 @@ for (const asset of ["stars", "coins"]) test(`${asset}: lost debit response surv
   assert.equal(f.store.collection("guild", "alice").length, 0);
   assert.ok(!f.store.market("guild").some(c => c.name === pending.name));
   assert.throws(() => f.store.adopt("guild", "alice", "stars", "local-fallback"), /online wallet/);
-  await assert.rejects(f.wallet.disconnect("alice"), /pending adoption/);
+  await assert.rejects(f.wallet.disconnect("alice"), { code: "pending_purchase" }); // The shared guard covers every game and gift, not only adoptions.
   await f.reopen();
   await assert.rejects(f.adoptions.adopt("guild", "alice", "coins", "another"), /earlier adoption/);
   const result = await f.adoptions.retry("alice");

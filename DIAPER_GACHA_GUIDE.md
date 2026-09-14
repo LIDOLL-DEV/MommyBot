@@ -14,6 +14,9 @@ All purchases and sales use the connected **online LiDollcoin wallet**.
    closed, use either slash command for an ephemeral reply instead.
 3. Visit **The capsule machine** to roll for **3 LiDollcoins**. Every successful
    roll delivers one copy; a reveal shows the design and rarity.
+   For a quick roll without the website, type `!diaper` in Discord. It spends the
+   same roll price, adds the copy to your collection, and posts the design's art,
+   rarity and price as a reply in that channel. Everyone there can see it.
 4. Open **My collection** to see all your copies, search names/descriptions,
    filter by rarity, or show only duplicates. Collections have no capacity limit.
 5. Use **Sell 1** to sell one copy to the diaper bank. The displayed quote is

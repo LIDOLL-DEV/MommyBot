@@ -5,6 +5,18 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+Cozy Hangman lives in `src/hangman/`; see [HANGMAN_GUIDE.md](HANGMAN_GUIDE.md).
+Charge exactly one online coin before exposing a playable word. Credit one
+coin per newly revealed position, recording the guess and credit reservation
+atomically. Duplicate guesses never earn again. Keep answers server-side until
+the round ends, bind every round to its original wallet, and compose its pending
+guard with the other games. Register and route `/hangman`, `!hangman` and the
+private menu button through the same handoff. `src/games/sessions.js` shares the
+identity-bound browser session logic while preserving existing atelier table
+names and sessions. Each game retains independent cookies and CSRF values.
+Load all journals before opening HTTP routes, revoke all game sessions on
+unlink, and leave journals open until wallet actions drain during shutdown.
+
 Diaper Atelier lives in `src/gacha/`, with supplied art and the reviewed rarity
 manifest under `diaper-gacha/`. See [DIAPER_GACHA_GUIDE.md](DIAPER_GACHA_GUIDE.md).
 `/diaper` and `/diapers` issue the same ephemeral, one-use browser handoff; all play happens under
