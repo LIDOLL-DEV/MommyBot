@@ -1,0 +1,177 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { ReportClient, reportConfig } from "../src/reports/client.js";
+import { ReportStore } from "../src/reports/store.js";
+import { createReportPublisher, reportMessage } from "../src/reports/publisher.js";
+
+const config = { url: "https://tracker.example/tracker/api/ai-reports/v1/reports", token: "secret", channelId: "1549134762172481557", initial: "history", interval: 60000 };
+const makeReport = cursor => ({ cursor, id: `report-${cursor}`, day: "2026-09-14", source: "daily", format: "markdown", document: "# Nightly\n@everyone " + "Long report text. ".repeat(1000), incomplete: false });
+const page = (reports, after = 0, more = false, latest = reports.at(-1)?.cursor ?? after) => ({ reports, next_cursor: reports.at(-1)?.cursor ?? after, latest_cursor: latest, has_more: more });
+
+function fixture(t, options = {}) {
+  const store = options.store || new ReportStore(":memory:");
+  const logs = [], sends = [], messages = new Map(), reads = [];
+  const reports = options.reports || [makeReport(2), makeReport(7)];
+  const channel = { guildId: "guild", isTextBased: () => true, messages: { fetch: async () => messages }, send: async payload => {
+    sends.push(payload);
+    const id = String(1549134762172481600n + BigInt(sends.length));
+    messages.set(id, { id, author: { id: "bot" }, content: payload.content, attachments: new Map([["file", { name: payload.files[0].name }]]), createdTimestamp: Date.now() });
+    return { id };
+  } };
+  const api = options.api || { list: async after => { reads.push(after); return page(reports.filter(r => r.cursor > after), after); }, document: async report => report };
+  const publisher = createReportPublisher({ user: { id: "bot" }, channels: { fetch: async () => channel } }, { config: { ...config, ...options.config }, store, api, logger: { log: line => logs.push(line), error: line => logs.push(line) } });
+  t.after(() => publisher.stop());
+  return { store, publisher, channel, logs, sends, messages, reads };
+} // Use only disposable journals and fake Discord/API clients; tests never post live messages.
+
+test("configuration requires explicit activation, destination and initial history policy", () => {
+  assert.equal(reportConfig({}), null);
+  const env = { MOMMYBOT_REPORTS_ENABLED: "true", MOMMYBOT_REPORTS_URL: config.url, MOMMYBOT_REPORTS_TOKEN: "secret", MOMMYBOT_REPORTS_CHANNEL_ID: config.channelId, MOMMYBOT_REPORTS_INITIAL: "history" };
+  assert.equal(reportConfig(env).initial, "history");
+  for (const values of [{ MOMMYBOT_REPORTS_INITIAL: "" }, { MOMMYBOT_REPORTS_CHANNEL_ID: "" }, { MOMMYBOT_REPORTS_TOKEN: "" }, { MOMMYBOT_REPORTS_URL: "http://external.example/reports" }, { MOMMYBOT_REPORTS_URL: `${config.url}?token=secret` }, { MOMMYBOT_REPORTS_URL: "https://user:secret@tracker.example/reports" }]) assert.throws(() => reportConfig({ ...env, ...values }), /invalid_configuration/);
+});
+
+test("API uses bounded authenticated GET without redirects and validates nightly documents", async () => {
+  const report = makeReport(3), calls = [];
+  const api = new ReportClient(config, async (url, init) => { calls.push({ url, init }); return { ok: true, json: async () => url.includes("?") ? page([report]) : report }; });
+  assert.equal((await api.list(0)).next_cursor, 3);
+  assert.equal((await api.document(report)).document, report.document);
+  assert.equal(calls[0].init.redirect, "error");
+  assert.equal(calls[0].init.headers.Authorization, "Bearer secret");
+  assert.ok(calls[0].init.signal instanceof AbortSignal);
+  assert.ok(calls[0].url.endsWith("?after=0&limit=20"));
+  for (const bad of [page([{ ...report, source: "manual" }]), page([report, report]), { ...page([report]), next_cursor: 10 }, page([], 0, true), { ...page([report]), latest_cursor: 0 }]) {
+    await assert.rejects(new ReportClient(config, async () => ({ ok: true, json: async () => bad })).list(0), /invalid_feed/);
+  }
+  await assert.rejects(new ReportClient(config, async () => ({ ok: true, json: async () => ({ ...report, id: "different" }) })).document(report), /invalid_document/);
+  await assert.rejects(new ReportClient(config, async () => { throw new Error("secret provider body"); }).list(0), /^Error: api_unavailable$/);
+});
+
+test("historical reports send full attachments once, with mentions disabled", async t => {
+  const f = fixture(t);
+  await f.publisher.poll(); await f.publisher.poll();
+  assert.equal(f.sends.length, 2);
+  assert.equal(f.store.cursor(config), 7);
+  assert.equal(f.sends[0].files[0].attachment.toString(), makeReport(2).document);
+  assert.deepEqual(f.sends[0].allowedMentions.parse, []);
+  assert.ok(!f.sends[0].content.includes("@everyone"));
+  assert.equal(f.sends[0].enforceNonce, true);
+  assert.match(reportMessage(config, { ...makeReport(3), incomplete: true }).content, /may be incomplete/);
+});
+
+test("future-only initialization skips history once then picks up late completions", async t => {
+  const reports = [makeReport(5)], f = fixture(t, { reports, config: { initial: "future" } });
+  await f.publisher.poll(); assert.equal(f.sends.length, 0);
+  reports.push(makeReport(9)); await f.publisher.poll();
+  assert.equal(f.sends.length, 1); assert.equal(f.store.cursor(config), 9);
+});
+
+test("pagination follows delivered cursors rather than the feed latest cursor", async t => {
+  const reads = [];
+  const api = { list: async after => { reads.push(after); return after === 0 ? page([makeReport(2)], 0, true, 99) : page([makeReport(99)], after); }, document: async r => r };
+  const f = fixture(t, { api }); await f.publisher.poll();
+  assert.deepEqual(reads, [0, 2]); assert.equal(f.sends.length, 2);
+});
+
+test("401/403 halt publication until restart and sanitize provider errors", async t => {
+  for (const status of [401, 403]) {
+    let calls = 0;
+    const api = new ReportClient(config, async () => { calls++; return { ok: false, status, json: async () => ({ secret: "provider-body" }) }; });
+    const f = fixture(t, { api }); await f.publisher.poll(); await f.publisher.poll();
+    assert.equal(calls, 1); assert.equal(f.sends.length, 0); assert.equal(f.store.cursor(config), undefined);
+    assert.ok(f.logs.some(line => line.includes("access_denied"))); assert.ok(!f.logs.join().includes("provider-body"));
+  }
+});
+
+test("transient document failures preserve the cursor for the next poll", async t => {
+  let failed = false;
+  const f = fixture(t, { api: { list: async after => page(after ? [] : [makeReport(2)], after), document: async r => { if (!failed) { failed = true; throw new Error("token-secret"); } return r; } } });
+  await f.publisher.poll(); assert.equal(f.store.cursor(config), 0);
+  await f.publisher.poll(); assert.equal(f.sends.length, 1); assert.equal(f.store.cursor(config), 2);
+  assert.ok(!f.logs.join().includes("token-secret"));
+});
+
+test("uncertain sends reconcile the saved Discord message without resending", async t => {
+  const f = fixture(t, { reports: [makeReport(2)] }), send = f.channel.send;
+  f.channel.send = async payload => { await send(payload); throw new Error("response lost"); };
+  await f.publisher.poll(); assert.equal(f.store.cursor(config), 0);
+  await f.publisher.poll(); assert.equal(f.sends.length, 1); assert.equal(f.store.cursor(config), 2);
+  assert.ok(f.store.get(config, "report-2").message_id);
+});
+
+test("missing or forged reconciliation evidence blocks automatic resend", async t => {
+  const f = fixture(t, { reports: [makeReport(2)] });
+  let attempts = 0;
+  f.channel.send = async () => { attempts++; throw new Error("uncertain"); };
+  await f.publisher.poll();
+  const payload = reportMessage(config, makeReport(2));
+  f.messages.set("forged", { author: { id: "other" }, content: payload.content, createdTimestamp: Date.now(), attachments: new Map([["file", { name: payload.files[0].name }]]) });
+  await f.publisher.poll(); await f.publisher.poll();
+  assert.equal(attempts, 1); assert.equal(f.store.cursor(config), 0);
+  assert.ok(f.logs.some(line => line.includes("delivery_uncertain")));
+});
+
+test("restart preserves snapshots and receipts; destinations have separate cursors", async t => {
+  const dir = mkdtempSync(path.join(tmpdir(), "mommy-reports-")), filename = path.join(dir, "reports.db");
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  let store = new ReportStore(filename);
+  store.initialize(config, 0);
+  const record = store.prepare(config, makeReport(2));
+  store.attempt(config, record.id, Date.now()); store.close();
+  store = new ReportStore(filename);
+  assert.ok(store.pending(config).attempted);
+  store.complete(config, record, "1549134762172481601"); store.close();
+  store = new ReportStore(filename);
+  assert.equal(store.cursor(config), 2); assert.equal(store.pending(config), undefined);
+  assert.equal(store.cursor({ ...config, channelId: "1549134762172481558" }), undefined);
+  store.close();
+});
+
+test("overlapping polls coalesce and shutdown drains a pending Discord receipt", async () => {
+  let release, sending;
+  const started = new Promise(resolve => { sending = resolve; });
+  const store = new ReportStore(":memory:"); let closed = false;
+  const close = store.close.bind(store); store.close = () => { closed = true; close(); };
+  const publisher = createReportPublisher({ user: { id: "bot" }, channels: { fetch: async () => ({ guildId: "guild", isTextBased: () => true, messages: { fetch() {} }, send: async () => { sending(); return new Promise(resolve => { release = resolve; }); } }) } }, { config, store, api: { list: async () => page([makeReport(2)]), document: async r => r } });
+  const first = publisher.poll(); assert.equal(publisher.poll(), first);
+  await started;
+  const stopping = publisher.stop(); assert.equal(closed, false);
+  release({ id: "1549134762172481601" }); await stopping; assert.equal(closed, true);
+  await publisher.poll();
+});
+
+test("a restarted publisher reconciles a saved attempt before advancing the feed", async t => {
+  const dir = mkdtempSync(path.join(tmpdir(), "mommy-report-recovery-"));
+  const filename = path.join(dir, "reports.db");
+  let store = new ReportStore(filename);
+  store.initialize(config, 0); store.prepare(config, makeReport(2));
+  store.attempt(config, "report-2", Date.now()); store.close();
+  store = new ReportStore(filename);
+  const f = fixture(t, { store, reports: [makeReport(2)] });
+  const payload = reportMessage(config, makeReport(2));
+  const id = "1549134762172481601";
+  f.messages.set(id, { id, author: { id: "bot" }, content: payload.content, attachments: new Map([["file", { name: payload.files[0].name }]]), createdTimestamp: Date.now() });
+  await f.publisher.poll();
+  assert.equal(f.sends.length, 0); assert.equal(store.cursor(config), 2);
+  assert.equal(store.get(config, "report-2").message_id, id);
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+});
+
+test("a changed feed cannot deliver an existing pending document", async t => {
+  const f = fixture(t, { config: { url: "https://other.example/reports" } });
+  f.store.initialize(config, 0); f.store.prepare(config, makeReport(2));
+  await f.publisher.poll();
+  assert.equal(f.sends.length, 0);
+  assert.ok(f.logs.some(line => line.includes("pending_feed_changed")));
+});
+
+test("revoked API access also blocks publishing an already-saved document", async t => {
+  const api = new ReportClient(config, async () => ({ ok: false, status: 403 }));
+  const f = fixture(t, { api });
+  f.store.initialize(config, 0); f.store.prepare(config, makeReport(2));
+  await f.publisher.poll();
+  assert.equal(f.sends.length, 0); assert.equal(f.store.cursor(config), 0);
+});

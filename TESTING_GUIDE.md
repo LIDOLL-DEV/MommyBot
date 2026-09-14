@@ -1,5 +1,14 @@
 # Testing MommyBot
 
+## Little Log nightly reports
+
+`test/reports.test.js` checks explicit history/future configuration, safe API
+requests, nightly-only validation, pagination with cursor gaps, full Markdown,
+disabled mentions, revocation, failures, uncertain-send reconciliation, durable
+receipts, concurrent polls and shutdown. Fixtures never post to Discord. Run
+`node scripts/check-reports.mjs` with protected configuration for a read-only
+probe. See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md) for setup and recovery.
+
 ## New-member welcomes
 
 `test/welcome.test.js` verifies `.250` model routing, shared persona, generic

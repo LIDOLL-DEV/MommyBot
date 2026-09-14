@@ -1,5 +1,12 @@
 # Fedora deployment and updates
 
+For Little Log nightly reports, set the `MOMMYBOT_REPORTS_*` settings in
+`/etc/mommybot/mommybot.env`, including the separate report-read token, destination
+and explicit `history`/`future` choice. Releases include `scripts/check-reports.mjs`
+for a read-only connection check. The default `data/reports.db` participates in
+existing state backups. Local `.env` changes do not update service configuration.
+See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md) before enabling publication.
+
 These scripts deploy MommyBot/Sakura on a conventional Fedora host with DNF,
 systemd and sudo. They install Node.js and native SQLite build tools, then run
 the bot as the unprivileged `mommybot` account. Node.js 22 or newer is required.

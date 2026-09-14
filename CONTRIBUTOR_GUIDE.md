@@ -5,6 +5,16 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+Nightly Little Log publication lives in `src/reports/`; see
+[NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md). Keep report-read tokens
+separate from wallet credentials. Validate daily completion metadata and attach
+full Markdown with mentions disabled. Persist channel/report documents before
+sending and commit receipts with cursors after success. Never advance normal
+polling to `latest_cursor` or blindly resend uncertain deliveries. Start on
+Discord readiness and drain before disconnecting. Include the read-only
+`scripts/check-reports.mjs` in releases and private `data/reports.db` in backups.
+Run one publisher process per journal.
+
 New-member onboarding lives in `src/welcome.js` and
 `src/graph/welcomeMessage.js`; see [WELCOME_GUIDE.md](WELCOME_GUIDE.md). Route
 `GuildMemberAdd` independently of chat and wallet gates and request `GuildMembers`

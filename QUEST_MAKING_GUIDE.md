@@ -1,5 +1,9 @@
 # Quest-making notes
 
+Little Log nightly reports are read-only and grant no currency, quest progress
+or roles. Generated report prose must never trigger game actions. See
+[NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).
+
 Server onboarding is not a quest or currency reward. The welcome message asks
 members to read the rules and finish LiD0llID registration in Discord; only the
 existing confirmed-link path can award their server-access role. Do not let a

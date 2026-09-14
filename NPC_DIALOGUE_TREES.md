@@ -1,5 +1,10 @@
 # NPC dialogue notes
 
+Little Log nightly reports are upstream model-authored Markdown attachments
+with a fixed date/ID and completeness caption in `src/reports/publisher.js`.
+Report text never controls bot actions or mentions. See
+[NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).
+
 New-member welcomes are a single generated greeting followed by fixed rules and
 LiD0llID onboarding instructions, not an NPC dialogue tree. Greeting generation
 lives in `src/graph/welcomeMessage.js`; the authoritative steps live in

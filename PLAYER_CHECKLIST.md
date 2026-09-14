@@ -1,5 +1,10 @@
 # MommyBot player checklist
 
+- Nightly Little Log reports appear in the configured reports channel after
+  generation completes. Open the `.md` attachment for the full report; its caption
+  warns if generation reached its output limit. Manual analyses are not posted.
+  Initial setup may also deliver older nightly reports.
+
 - When you join, read MommyBot's welcome in the welcome channel and open its
   **server rules** link. Complete LiD0llID registration and the Discord sign-in
   code confirmation to receive the linked-account role for full server access.

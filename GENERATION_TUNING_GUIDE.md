@@ -1,5 +1,13 @@
 # MommyBot generation tuning
 
+## Little Log nightly reports
+
+Nightly report Markdown is generated upstream and attached in full by
+`src/reports/publisher.js`. Tune prompts and output limits in Little Log's admin
+console. MommyBot does not rewrite reports or invoke its chat model; its fixed
+caption marks model authorship and output-limit status. Manual analyses never
+enter the feed. See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).
+
 ## New-member welcome messages
 
 `src/graph/welcomeMessage.js` generates a brief greeting through

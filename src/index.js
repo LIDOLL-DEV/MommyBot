@@ -12,6 +12,7 @@ import { createSwearJar } from "./swearJar.js";
 import { reportModelEndpoints } from "./graph/connection.js";
 import { readFileSync } from "node:fs";
 import { createMemberWelcome } from "./welcome.js";
+import { createReportPublisher } from "./reports/publisher.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -35,6 +36,7 @@ async function main() {
   // Create and login the Discord client
   const client = createClient();
   const welcome = createMemberWelcome(client);
+  const reports = createReportPublisher(client); // Open durable report delivery storage before Discord starts.
   client.on(Events.GuildMemberAdd, member => { void welcome.handleMemberAdd(member); }); // Welcome new arrivals independently of chat-channel and wallet gates.
   const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
   const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
@@ -74,6 +76,7 @@ async function main() {
   client.once(Events.ClientReady, () => {
     console.log(`🌸 Sakura is online and ready to cuddle! (${client.user.tag})`);
     stopGitHubWatcher = startGitHubActivityWatcher(client);
+    reports?.start(); // Poll completed nightly reports independently of chat and wallet configuration.
     swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
     void reportModelEndpoints().catch(() => console.error("[Brain] Startup probe could not finish; run scripts/check-runtime.mjs."));
     if (identity) for (const guild of client.guilds.cache.values()) void identity.registerGuild(guild);
@@ -91,6 +94,7 @@ async function main() {
     shuttingDown = true;
     console.log("\n🌸 Sakura is going to sleep... Sweet dreams!");
     stopGitHubWatcher();
+    await reports?.stop(); // Finish report receipts before closing storage or disconnecting Discord.
     await welcome.stop(); // Stop new greetings and finish any Discord send before destroying the client.
     await swearJar?.stop(); // Stop scheduled draws and finish replies before closing identity or wallet storage.
     await identity?.close(); // Finish browser callbacks before closing account storage.

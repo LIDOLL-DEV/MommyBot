@@ -120,7 +120,7 @@ trap 'exit 143' TERM
 
 install -d -o mommybot -g mommybot -m 0755 "$release"
 # Copy only application inputs, so local credentials, databases and node_modules stay out.
-tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs | tar -C "$release" -xf -
+tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs | tar -C "$release" -xf -
 revision=$(git -c safe.directory="$source_dir" -C "$source_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)
 modified=$(git -c safe.directory="$source_dir" -C "$source_dir" status --porcelain 2>/dev/null || true)
 node --input-type=module - "$release/release.json" "$revision" "$stamp" "$modified" <<'NODE'
