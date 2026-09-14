@@ -1,8 +1,10 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from "discord.js";
 import { WalletError } from "./client.js";
 import { TraderError } from "../touhou/store.js";
+import { canAward } from "../permissions.js";
 
 export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**.\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
+const giftText = gift => `Gift completed: **${gift.amount} ${gift.asset === "stars" ? "stars" : "LiDollcoins"}** credited to <@${gift.user_id}>'s online wallet. They can check /lidollid wallet balance.`; // Confirm the gift without revealing the recipient's total balance.
 
 export async function handleWalletInteraction(interaction, wallet, identities) {
   const button = interaction.customId?.startsWith("lw:finish:");
@@ -20,6 +22,20 @@ export async function handleWalletInteraction(interaction, wallet, identities) {
       if (!identities.get(user)) throw new WalletError("not_linked", "Use /lidollid login and confirm your identity before connecting a wallet.");
       response = { content: `Wallet connected!\n${balanceText(await wallet.finish(user, generation))}` };
     } else switch (interaction.options.getSubcommand()) {
+      case "gift":
+      case "gift-retry": {
+        if (!interaction.guildId || !canAward(interaction, process.env.TOUHOU_ADMIN_ROLE_ID || "")) {
+          throw new WalletError("forbidden", "You need Manage Server or the configured trader admin role to gift currency in a server.");
+        }
+        const target = interaction.options.getUser("user", true);
+        if (target.bot) throw new WalletError("invalid_gift", "Choose a person, not a bot, to receive this gift.");
+        const retry = interaction.options.getSubcommand() === "gift-retry";
+        if (!retry && !identities.get(target.id)) throw new WalletError("not_linked", "The recipient needs to finish /lidollid login and connect their wallet first.");
+        const gift = retry ? await wallet.gifts.retry(target.id, interaction.guildId) :
+          await wallet.gifts.gift(interaction.guildId, user, target.id, interaction.options.getString("currency", true), interaction.options.getInteger("amount", true), interaction.id);
+        response = { content: giftText(gift) };
+        break;
+      }
       case "connect": {
         if (!identities.get(user)) throw new WalletError("not_linked", "Use /lidollid login and confirm your identity first, then /lidollid wallet connect.");
         const approval = await wallet.begin(user);
@@ -30,6 +46,10 @@ export async function handleWalletInteraction(interaction, wallet, identities) {
       case "balance": response = { content: balanceText(await wallet.balance(user)) }; break;
       case "disconnect": await wallet.disconnect(user); response = { content: "Your wallet connection was revoked and removed. Your balances remain in Little Log." }; break;
       case "retry": {
+        if (wallet.gifts?.pending(user)) {
+          response = { content: giftText(await wallet.gifts.retry(user)) };
+          break;
+        }
         if (wallet.gacha?.pending(user)) {
           const result = await wallet.gacha.retry(user);
           response = { content: `Diaper ${result.action} completed for ${result.amount} LiDollcoins. Use /diapers to see your collection and bank.` };

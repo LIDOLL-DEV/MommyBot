@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { IdentityStore } from "../src/auth/store.js";
 import { createAuthServer } from "../src/auth/server.js";
 import { WalletService } from "../src/wallet/service.js";
+import { WalletError } from "../src/wallet/client.js";
 import { DiaperStore } from "../src/gacha/store.js";
 import { loadDiaperCatalog } from "../src/gacha/catalog.js";
 import { GachaSessions } from "../src/gacha/sessions.js";
@@ -14,17 +15,23 @@ import { createGachaWeb } from "../src/gacha/web.js";
 if (!process.env.PUPPETEER_MODULE || !process.env.CHROME_PATH) throw new Error("Set PUPPETEER_MODULE and CHROME_PATH to your local browser tools.");
 const puppeteer = (await import(pathToFileURL(process.env.PUPPETEER_MODULE).href)).default;
 const identities = new IdentityStore(":memory:"), receipts = new Map();
-let coins = 1000, browser, server, game, wallet;
+let coins = 1000, browser, server, game, wallet, balanceFailure = false, holdBalance = null, loseResponse = false, releaseBalance;
 try {
   const ticket = identities.begin("fixture-user"), callback = identities.start(ticket, { verifier: "v", state: "s", nonce: "n" });
   identities.confirm("fixture-user", identities.verified(identities.take(callback), { issuer: "https://auth.example", subject: "fixture", username: "Doll (preview)" }));
   wallet = new WalletService(":memory:", { config: { baseUrl: "https://fixture.invalid/", clientId: "lidollbot" },
-    balance: async () => ({ accountId: "fixture-wallet", coins, stars: 9 }),
+    balance: async () => {
+      if (balanceFailure) throw new WalletError("unavailable", "The wallet is unavailable (NETWORK_ERROR). Press Refresh to try again.");
+      if (holdBalance) await holdBalance();
+      return { accountId: "fixture-wallet", coins, stars: 9 };
+    },
     operation: async (_token, body) => {
       if (receipts.has(body.request_id)) return receipts.get(body.request_id);
       coins += body.kind === "credit" ? body.amount : -body.amount;
       const receipt = { ...body, currency: "LiDollCoin", balance: coins };
-      receipts.set(body.request_id, receipt); return receipt;
+      receipts.set(body.request_id, receipt);
+      if (loseResponse) throw new WalletError("unavailable", "Response lost. Retry the saved payment.");
+      return receipt;
     } });
   wallet.db.prepare("INSERT INTO online_wallets VALUES (?,?,?,?,?,?)").run("fixture-user", "fixture-token", Date.now() + 3600000, "fixture-wallet", "https://fixture.invalid/", "lidollbot");
   const catalog = loadDiaperCatalog();
@@ -46,6 +53,30 @@ try {
   await Promise.all([page.waitForNavigation(), page.click("button[type=submit]")]);
   await page.waitForFunction(() => !document.getElementById("game").hidden);
   assert.equal(await page.$eval("#balance", node => node.textContent), "1,000");
+  const refresh = async () => {
+    await page.click("#refresh");
+    await page.waitForFunction(() => !document.getElementById("refresh").disabled);
+  };
+  coins = 2; await refresh();
+  assert.equal(await page.$eval("#roll", node => node.disabled), true);
+  assert.match(await page.$eval("#roll-status", node => node.textContent), /wallet has 2/);
+  assert.equal(await page.$eval("#roll", node => getComputedStyle(node).cursor), "not-allowed");
+  await page.click("#roll"); assert.equal(receipts.size, 0);
+  balanceFailure = true; await refresh();
+  assert.equal(await page.$eval("#balance", node => node.textContent), "—");
+  assert.match(await page.$eval("#roll-status", node => node.textContent), /NETWORK_ERROR/);
+  balanceFailure = false; coins = 1000; game.config.enabled = false; await refresh();
+  assert.match(await page.$eval("#roll-status", node => node.textContent), /paused by Doll/);
+  game.config.enabled = true; await refresh();
+  await page.evaluate(() => {
+    window.fixtureUUID = crypto.randomUUID;
+    crypto.randomUUID = () => { throw new Error("Fixture request preparation failure"); };
+  });
+  await page.click("#roll");
+  await page.waitForFunction(() => !document.getElementById("refresh").disabled && document.getElementById("notice").textContent.includes("No payment was sent"));
+  assert.equal(receipts.size, 0); assert.equal(await page.$eval("#roll", node => node.disabled), false);
+  await page.evaluate(() => { crypto.randomUUID = undefined; }); // Older browser support must fall back to cryptographically random bytes.
+  await refresh();
   const folder = process.env.DIAPER_SCREENSHOT_DIR;
   if (folder) await mkdir(folder, { recursive: true });
   const capture = async (name, width) => {
@@ -56,8 +87,16 @@ try {
     if (folder) await page.screenshot({ path: join(folder, `${name}-${width}.png`), fullPage: true });
   }; // Screenshots and gameplay use only generated fixture identities, in-memory inventory and a simulated wallet.
   await capture("machine", 1360);
+  let balanceEntered;
+  const checkingBalance = new Promise(resolve => { balanceEntered = resolve; });
+  holdBalance = () => new Promise(resolve => { releaseBalance = resolve; balanceEntered(); });
   await page.click("#roll"); await page.waitForSelector("#reveal[open]");
+  await checkingBalance;
+  assert.equal(await page.$eval("#roll", node => node.getAttribute("aria-busy")), "true");
   assert.equal(coins, 997); assert.equal(receipts.size, 1);
+  holdBalance = null; releaseBalance();
+  await page.waitForFunction(() => !document.getElementById("refresh").disabled);
+  await page.evaluate(() => { crypto.randomUUID = window.fixtureUUID; delete window.fixtureUUID; });
   await capture("reveal", 390); await page.click("#reveal-done");
   await page.click('[data-tab="collection"]');
   await capture("collection", 1360); await capture("collection", 390);
@@ -75,11 +114,24 @@ try {
   await page.select("#rarity", "legendary");
   assert.equal(await page.$$eval(".diaper-card", cards => cards.length), 3);
   await capture("legendary", 1360);
+  await page.click('[data-tab="roll"]');
+  loseResponse = true;
+  await page.click("#roll");
+  await page.waitForFunction(() => !document.getElementById("refresh").disabled && !document.getElementById("pending").hidden);
+  assert.match(await page.$eval("#roll-status", node => node.textContent), /Retry payment/);
+  assert.equal(await page.$eval("#roll", node => getComputedStyle(node).cursor), "not-allowed");
+  const charged = coins, operationCount = receipts.size;
+  loseResponse = false; await page.click("#retry"); await page.waitForSelector("#reveal[open]");
+  await page.waitForFunction(() => !document.getElementById("refresh").disabled);
+  assert.equal(coins, charged); assert.equal(receipts.size, operationCount);
+  await page.click("#reveal-done");
   await page.click("#logout"); await page.waitForFunction(() => !document.getElementById("signed-out").hidden);
   assert.deepEqual(errors, []); assert.deepEqual(violations, []);
   console.log("PASS: Private handoff, paid roll, reveal, sale, bank buyback, rarity filters and logout work in Chrome.");
   console.log("PASS: Mobile/desktop pages fit their viewports with no script errors or CSP violations. No real coins were spent.");
+  console.log("PASS: Low funds, unavailable balances, paused rolls and saved payments explain disabled controls; request preparation errors recover and paid reveals do not wait for balance refresh.");
 } finally {
+  holdBalance = null; releaseBalance?.(); // Release the deliberately stalled fixture even when an assertion fails.
   await browser?.close();
   if (server?.listening) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   await wallet?.close(); game?.close(); identities.close();

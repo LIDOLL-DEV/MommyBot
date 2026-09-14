@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import { randomUUID } from "node:crypto";
 import { chmodSync } from "node:fs";
 import { WalletError } from "./client.js";
+import { WalletGifts } from "./gifts.js";
 
 export class WalletService {
   constructor(filename, client, { now = Date.now } = {}) {
@@ -12,6 +13,7 @@ export class WalletService {
     this.db = new Database(filename);
     if (filename !== ":memory:") chmodSync(filename, 0o600); // Restrict bearer grants on Fedora; the service also uses UMask=0077.
     this.db.pragma("journal_mode = WAL");
+    this.gifts = new WalletGifts(this); // Load gift reservations before other games register their pending-payment guards.
     this.db.exec(`CREATE TABLE IF NOT EXISTS online_wallets (
       discord_id TEXT PRIMARY KEY, token TEXT NOT NULL, expires INTEGER NOT NULL,
       account_id TEXT NOT NULL, base_url TEXT NOT NULL, client_id TEXT NOT NULL);
@@ -150,7 +152,7 @@ export class WalletService {
   } // Pin purchases to the approved opaque wallet account, which the wallet API scopes to this app.
   async disconnect(userId) {
     return this.exclusive(userId, async () => {
-      if (this.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending adoption, trader or diaper payment with /lidollid wallet retry before disconnecting.");
+      if (this.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending adoption, trader, diaper or gift payment with /lidollid wallet retry before disconnecting.");
       const attempt = this.db.prepare("SELECT * FROM wallet_approvals WHERE discord_id = ?").get(userId);
       const connection = this.connection(userId);
       const combined=this.db.prepare('SELECT * FROM combined_wallets WHERE discord_id=?').get(userId);

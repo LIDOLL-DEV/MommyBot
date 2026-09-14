@@ -20,11 +20,24 @@ wallet actions drain at shutdown. Cuteness ranks are explicitly authored in the
 manifest. Bank prices use each design's stock; validate the displayed quote
 before reserving and retain it for retries. Sale quotes use the post-deposit
 stock and a spread so a buy/sell cycle cannot create coins.
+Explain disabled Roll controls next to the button; reserve waiting cursors for
+in-flight requests. Keep request preparation inside try/finally, and show a
+confirmed prize before refreshing the balance. A failed refresh must not suggest
+that a completed purchase needs to be repeated.
 
 Little Log wallet support lives in `src/wallet/`; see
 [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md). Request explicit OIDC wallet
 consent for both currencies in the combined account login, and keep bearer grants
-out of Discord replies and logs. Never set local balances from remote snapshots. Online adoption pins an
+out of Discord replies and logs. Administrator gifts live in `src/wallet/gifts.js`;
+the shared `src/permissions.js` policy requires Manage Server or
+`TOUHOU_ADMIN_ROLE_ID` on gift creation and administrator retries. Recipients may
+only retry their own already-approved gift. Keep its original guild, actor,
+recipient, asset, amount and account/API binding in `wallet_gifts`, along with
+the Discord interaction ID and durable provider request ID. Load its pending
+guard in WalletService before game guards, validate credit receipts for both
+currencies, and never release an uncertain payment because a later retry fails.
+Gift replies must not expose total balances or provider error bodies.
+Never set local balances from remote snapshots. Online adoption pins an
 opaque wallet account and API registration to a persistent reservation before
 debiting; delivery and its receipt commit together in the trader database.
 Every retry reuses the original payment ID and currency. Failed delivery refunds

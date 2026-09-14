@@ -8,7 +8,10 @@ const element = (tag, className, text) => {
   if (text !== undefined) node.textContent = text;
   return node;
 }; // Render account and catalog text as text nodes, never executable HTML.
-function notice(message = "") { $("notice").hidden = !message; $("notice").textContent = message; }
+function notice(message = "", show = false) {
+  $("notice").hidden = !message; $("notice").textContent = message;
+  if (message && show) $("notice").scrollIntoView({ block: "nearest" });
+} // Bring failures into view on phones instead of leaving them above the roll button off-screen.
 function art(item) {
   const frame = element("div", `art${item.sprite ? " sprite" : ""}`), image = element("img");
   image.src = `/diapers/art/${encodeURIComponent(item.image)}`;
@@ -38,7 +41,17 @@ async function refresh() {
 function controls() {
   $("refresh").disabled = busy; $("logout").disabled = busy; $("retry").disabled = busy;
   if (!state) return;
-  $("roll").disabled = busy || !state.enabled || Boolean(state.pending) || state.coins === null || state.coins < state.rollPrice;
+  const reason = busy ? "Your request is finishing. Please wait…"
+    : !state.enabled ? "New rolls are paused by Doll. You can still browse your collection."
+    : state.pending ? "Finish your saved payment with Retry payment above before rolling again."
+    : state.coins === null ? (state.walletError || "Your LiDollcoin balance is unavailable. Press Refresh, or reconnect with /lidollid login in Discord.")
+    : state.coins < state.rollPrice ? `You need ${state.rollPrice} LiDollcoins to roll. Your connected wallet has ${number(state.coins)}. Earn coins or sell a diaper, then press Refresh. Stars cannot pay for diaper rolls.`
+    : "";
+  $("roll").disabled = Boolean(reason);
+  $("roll").setAttribute("aria-busy", String(busy));
+  $("roll").title = reason;
+  $("roll-status").textContent = reason;
+  $("roll-status").hidden = !reason;
   document.querySelectorAll("[data-purchase]").forEach(button => {
     button.disabled = busy || !state.enabled || Boolean(state.pending) || (button.dataset.purchase === "buy" && (state.coins === null || state.coins < Number(button.dataset.amount)));
   });
@@ -127,18 +140,25 @@ function reveal(result) {
 async function transact(action, design, amount) {
   if (busy || !state) return;
   busy = true; controls(); notice();
-  const request = crypto.randomUUID();
+  let submitted = false;
   try {
+    const request = typeof crypto.randomUUID === "function" ? crypto.randomUUID()
+      : Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, "0")).join("");
+    submitted = true; // Request preparation belongs inside try/finally so a browser failure cannot leave busy stuck forever.
     const result = await api("action", { action, design, amount, request });
-    await refresh();
     if (result.action === "sell") notice(`Sold ${result.item.name} to the bank for ${result.amount} LiDollcoins. Thank you for giving it a new home!`);
     else reveal(result);
+    try { await refresh(); }
+    catch { notice("Your diaper transaction completed, but the updated balance could not be loaded. Press Refresh to update your collection and wallet."); }
   } catch (error) {
-    const message = error.message || "The request was interrupted. Refresh and retry any pending payment.";
+    const message = !submitted ? "This browser could not start the transaction. No payment was sent. Refresh or try an up-to-date browser."
+      : error.name === "TimeoutError" || error.name === "AbortError" ? "The request timed out. Checking for a saved payment; use Retry payment if one appears."
+      : error.message || "The request was interrupted. Refresh and retry any pending payment.";
+    notice(message, true);
     try { await refresh(); } catch { /* Keep the original failure visible while the service recovers. */ }
     notice(message);
   } finally { busy = false; controls(); }
-} // Reconcile after interrupted requests; a saved job is retried explicitly rather than issuing a second payment.
+} // Show confirmed prizes before refreshing the wallet; reconcile interrupted requests without issuing a replacement payment.
 document.querySelectorAll("[data-tab]").forEach(button => button.addEventListener("click", () => tab(button.dataset.tab)));
 for (const id of ["search", "rarity", "duplicates"]) $(id).addEventListener("input", () => { if (state && activeTab !== "roll") gallery(); });
 $("roll").addEventListener("click", () => transact("roll", undefined, state.rollPrice));

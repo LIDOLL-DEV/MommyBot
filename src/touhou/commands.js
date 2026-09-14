@@ -1,7 +1,7 @@
 import path from "node:path";
 import {
   ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder,
-  MessageFlags, PermissionFlagsBits, SlashCommandBuilder,
+  MessageFlags, SlashCommandBuilder,
 } from "discord.js";
 import { IMAGE_DIRECTORY, rarity } from "./catalog.js";
 import { TraderError } from "./store.js";
@@ -11,6 +11,8 @@ import { RARITIES } from "./battleRules.js";
 import { WalletError } from "../wallet/client.js";
 import { balanceText } from "../wallet/commands.js";
 import { OnlineEconomy } from "../wallet/economy.js";
+import { canAward } from "../permissions.js";
+export { canAward } from "../permissions.js";
 
 const PAGE_SIZE = 10;
 const noMentions = { parse: [], repliedUser: false };
@@ -69,12 +71,6 @@ export function buildTouhouCommand() {
     .addBooleanOption((o) => o.setName("confirm").setDescription("Confirm buyback and reset this character's battle levels").setRequired(true)));
   return command.toJSON();
 } // Register only the trader's own command instead of replacing unrelated bot commands.
-
-export function canAward(interaction, adminRoleId = "") {
-  if (interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return true;
-  const roles = interaction.member?.roles;
-  return Boolean(adminRoleId && (roles?.cache?.has(adminRoleId) || (Array.isArray(roles) && roles.includes(adminRoleId))));
-} // Check trusted Discord permission/role data on every reward request, including uncached guild members.
 
 function button(id, label, style = ButtonStyle.Secondary) {
   return new ButtonBuilder().setCustomId(id).setLabel(label).setStyle(style);

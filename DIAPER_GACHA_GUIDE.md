@@ -145,6 +145,16 @@ services enabled during recovery.
 
 ## Payments, persistence and recovery
 
+If Roll looks disabled, read the message directly below it. The game shows the
+reason: fewer than three LiDollcoins, an unavailable wallet balance, a pending
+payment, or paused rolls. A waiting cursor is used only while a request is
+running. Stars do not fund diaper rolls. After earning coins or selling a copy,
+press **Refresh** to load the current online balance.
+
+Confirmed prizes appear immediately after payment delivery, before the balance
+refresh finishes. If the refresh fails, the completed purchase remains saved;
+refresh the collection instead of purchasing a replacement.
+
 `data/diaper-gacha.db` holds designs, collectible copies, payment jobs, hashed
 handoff tickets and hashed sessions. Fedora keeps it in
 `/var/lib/mommybot/data/diaper-gacha.db`, included in existing stopped-state backups.

@@ -19,7 +19,14 @@ export function buildIdentityCommand() {
     .addSubcommandGroup(g => g.setName("wallet").setDescription("Connect Little Log stars and LiDollcoins")
       .addSubcommand(c => c.setName("connect").setDescription("Connect your LiD0llID account and wallet"))
       .addSubcommand(c => c.setName("balance").setDescription("Privately check your online stars and LiDollcoins"))
-      .addSubcommand(c => c.setName("retry").setDescription("Finish a pending trader payment, reward or refund"))
+      .addSubcommand(c => c.setName("retry").setDescription("Finish your pending payment, gift, reward or refund"))
+      .addSubcommand(c => c.setName("gift").setDescription("(Admin) Give someone online LiDollcoins or stars")
+        .addUserOption(o => o.setName("user").setDescription("Recipient with a connected wallet").setRequired(true))
+        .addStringOption(o => o.setName("currency").setDescription("Currency to give").setRequired(true)
+          .addChoices({ name: "LiDollcoins", value: "coins" }, { name: "Stars", value: "stars" }))
+        .addIntegerOption(o => o.setName("amount").setDescription("Amount to give").setMinValue(1).setMaxValue(1_000_000).setRequired(true)))
+      .addSubcommand(c => c.setName("gift-retry").setDescription("(Admin) Finish a recipient's pending gift without paying twice")
+        .addUserOption(o => o.setName("user").setDescription("Recipient of a pending gift in this server").setRequired(true)))
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
 } // Add a dedicated command without replacing the trader or any other application's commands.
 

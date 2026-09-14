@@ -4,7 +4,8 @@ body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 1px 1
 button, input, select { font: inherit; }
 button, a { touch-action: manipulation; }
 button { cursor: pointer; }
-button:disabled { cursor: wait; opacity: .55; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+button[aria-busy=true] { cursor: wait; }
 button, select, input:not([type=checkbox]) { min-height: 44px; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #866211; outline-offset: 4px; }
 [hidden] { display: none !important; }
@@ -60,6 +61,7 @@ h1 em { font-style: normal; color: var(--pink); }
 .primary { padding: 12px 22px; border-radius: 14px; border: 1px solid #cf8db0; box-shadow: 0 3px 0 #e7accb; background: #f6c8dd; color: #66334e; font-weight: 700; min-height: 48px; }
 .primary:hover { background: #f9dce9; }
 .roll-button { margin: 6px 0 16px; width: 100%; }
+.machine-copy .roll-status { padding: 12px 14px; border: 1px solid #e7d5a6; border-radius: 12px; background: #fff8df; color: #75581b; font-size: 13px; }
 .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin: 36px 0 20px; }
 .section-heading h2 { margin-bottom: 0; }
 .section-heading p:not(.eyebrow) { color: var(--muted); font-size: 13px; max-width: 420px; margin-bottom: 2px; }

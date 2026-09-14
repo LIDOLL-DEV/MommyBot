@@ -1,5 +1,15 @@
 # Testing MommyBot
 
+## Administrator wallet gifts
+
+`test/wallet-gifts.test.js` uses disposable SQLite databases and a fake idempotent
+wallet. It covers coin and star credits, command bounds, permission and recipient
+checks, replayed Discord interactions, original-server admin retries, recipient
+recovery, daily caps, malformed receipts, account/API pinning, lost responses,
+restart recovery, SQLite completion failures and unlink guards. No live gifts
+are sent. Run `npm test` before deploying; ordinary users must retain access to
+login and balance even though gift subcommands enforce administrator permissions.
+
 ## Diaper Atelier
 
 `test/diaper-gacha.test.js` covers the reviewed catalog, tier boundaries, the
@@ -19,6 +29,11 @@ slash-command instructions when DMs are blocked, and ignores unrelated messages.
 selling, bank buyback, filtering and logout at desktop/mobile sizes. See
 [DIAPER_GACHA_GUIDE.md](DIAPER_GACHA_GUIDE.md) for tool variables and optional
 fixture screenshots. Never use live coins or production account data in tests.
+The Chrome check also exercises insufficient coins, unavailable balances,
+paused rolls and pending payments, verifies that disabled controls explain the
+reason without a waiting cursor, and injects request-ID preparation failures.
+It checks the secure fallback when `crypto.randomUUID` is unavailable, immediate
+prize display during a delayed balance refresh, and lost-payment recovery.
 
 ## Local checks
 

@@ -20,6 +20,41 @@ design enter bank inventory, with rarity setting the starting value. Its pending
 payments participate in the same reconnect/unlink guards and can be recovered
 with `/lidollid wallet retry`. No star balance is spent by this game.
 
+## Administrator gifts
+
+Use these commands in your Discord server after deploying and restarting the bot:
+
+```text
+/lidollid wallet gift user:@Someone currency:coins amount:100
+/lidollid wallet gift user:@Someone currency:stars amount:5
+```
+
+Only members with **Manage Server** (including Administrator) or the role in
+`TOUHOU_ADMIN_ROLE_ID` can give rewards. Both commands credit the recipient's
+online Little Log wallet; they do not debit the administrator or change a local
+game balance. The administrator does not need a connected wallet. The recipient
+must finish `/lidollid login` and connect their wallet first. Amounts must be
+whole numbers from 1 to 1,000,000; bot recipients are rejected. Command replies
+are private and do not show the recipient's total balance or send them a DM.
+Recipients can check `/lidollid wallet balance` to see the result.
+
+If confirmation is pending, use:
+
+```text
+/lidollid wallet gift-retry user:@Someone
+```
+
+An administrator in the original server can retry the saved gift. The recipient
+can also use `/lidollid wallet retry`. Recovery keeps the original recipient,
+currency, amount and payment ID, including after restarts. Do not issue a new gift
+to replace an uncertain one: a new command after completion creates another reward.
+Pending gifts block other wallet transactions and unlinking until settled.
+Little Log's existing per-recipient app limits apply: `dailyLimit` for coins and
+`starDailyLimit` for stars. A capped gift stays pending for retry when permitted.
+
+The bot registers these subcommands at startup; no Discord Developer Portal
+changes are needed. Existing `/touhou award` continues to award coins only.
+
 ## Operator setup
 
 Deploy the updated **omo-trainer identity and tracker services first**, then
