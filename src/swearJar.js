@@ -14,7 +14,17 @@ export function swearMatcher(words = DEFAULT_SWEAR_WORDS) {
   return content => Boolean(pattern?.test(String(content ?? "").normalize("NFKC").toLowerCase()));
 } // Match explicit whole words without charging innocent substrings such as class, Scunthorpe or hello.
 
+export function swearJarStatus(env = process.env, { wallet = env.LIDOLLCOIN_ENABLED === "true", identities = env.LIDOLLID_ENABLED === "true" } = {}) {
+  if (!wallet || !identities) return "OFF: requires LIDOLLID_ENABLED=true and LIDOLLCOIN_ENABLED=true.";
+  if (env.SWEAR_JAR_ENABLED === "false") return "PAUSED: SWEAR_JAR_ENABLED=false; saved payments and weekly lotteries still recover.";
+  const words = env.SWEAR_JAR_WORDS === undefined ? DEFAULT_SWEAR_WORDS : env.SWEAR_JAR_WORDS.split(",");
+  const count = words.filter(word => word.trim()).length;
+  return count ? `ON: 1 coin per matching server message; ${count} configured words; all server channels; lottery Monday 00:00 UTC.` :
+    "NO MATCHES: SWEAR_JAR_WORDS is empty. Remove that setting to use the built-in list.";
+} // Explain every configuration that can silently bypass swear detection without printing message content or account information.
+
 export function createSwearJar(client, wallet, identities, env = process.env) {
+  console.log(`[Swear jar] ${swearJarStatus(env, { wallet: Boolean(wallet), identities: Boolean(identities) })}`);
   if (!wallet || !identities) return null;
   const enabled = env.SWEAR_JAR_ENABLED !== "false";
   const matches = swearMatcher(env.SWEAR_JAR_WORDS === undefined ? DEFAULT_SWEAR_WORDS : env.SWEAR_JAR_WORDS.split(","));

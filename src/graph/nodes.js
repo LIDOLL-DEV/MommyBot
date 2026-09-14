@@ -2,6 +2,7 @@ import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import process from "process";
 import { SYSTEM_PROMPT } from "./prompt.js";
 import { completionText } from "./completion.js";
+import { modelEndpoint, modelFailure } from "./connection.js";
 
 /**
  * Router Node
@@ -39,7 +40,7 @@ export async function routerNode(state) {
  * Returns "sakura_llm" to respond, or "__end__" to skip.
  */
 async function shouldRespond(userMessage) {
-  const baseUrl = process.env.ROUTER_LAMA_URL || "http://192.168.1.250:9091/v1";
+  let baseUrl = "invalid configuration";
   const model = process.env.LLAMA_MODEL || "default";
 
   const payload = {
@@ -74,16 +75,17 @@ Respond with ONLY one word: "respond" or "skip". Do not add punctuation or expla
   };
 
   try {
+    baseUrl = modelEndpoint("router");
     console.log(`🌸 [ROUTER] Fetching classification from ${baseUrl}...`);
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(15000), // Bound classification delays when its server is unavailable.
       body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      console.error(`🌸 [ROUTER] ❌ Router HTTP ${response.status}: ${await response.text()}`);
-      throw new Error(`Router HTTP ${response.status}`);
+      throw Object.assign(new Error("Router request failed"), { status: response.status });
     }
 
     const data = await response.json();
@@ -100,7 +102,7 @@ Respond with ONLY one word: "respond" or "skip". Do not add punctuation or expla
     return "sakura_llm";
 
   } catch (err) {
-    console.error(`🌸 [ROUTER] ❌ Fetch failed: ${err.message}. Defaulting to respond.`);
+    console.error(`[Brain] Router request to ${baseUrl} failed (${modelFailure(err)}). Check ROUTER_LAMA_URL and the model server's network access. Defaulting to respond.`);
     return "sakura_llm";
   }
 }
@@ -112,7 +114,7 @@ Respond with ONLY one word: "respond" or "skip". Do not add punctuation or expla
 export async function sakuraLLMNode(state) {
   console.log("🌸 [LLM NODE] Starting execution! (This means routing works!)");
   
-  const baseUrl = process.env.LLAMA_BASE_URL || "http://192.168.1.250:9090/v1";
+  let baseUrl = "invalid configuration";
   const model = process.env.LLAMA_MODEL || "default";
   
   const systemMsg = { role: "system", content: SYSTEM_PROMPT };
@@ -129,19 +131,19 @@ export async function sakuraLLMNode(state) {
     stop: ["\nUser", "\nHuman", "User:", "Human:"]
   };
 
-  console.log(`📤 [LLM NODE] POSTing to ${baseUrl}/chat/completions`);
-
   try {
+    baseUrl = modelEndpoint("chat");
+    console.log(`📤 [LLM NODE] POSTing to ${baseUrl}/chat/completions`);
     // Direct fetch to Llama.cpp OpenAI-compatible endpoint
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(300000), // Bound stalled requests while allowing the configured long answers time to generate.
       body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errText}`);
+      throw Object.assign(new Error("Model request failed"), { status: response.status });
     }
 
     const data = await response.json();
@@ -163,7 +165,7 @@ export async function sakuraLLMNode(state) {
     return { messages: [new AIMessage(content)] };
 
   } catch (error) {
-    console.error(`🌸 [LLM NODE] ❌ Fetch failed:`, error.message);
+    console.error(`[Brain] Chat request to ${baseUrl} failed (${modelFailure(error)}). Check LLAMA_BASE_URL and the model server's network access.`);
     if (error.code === "EMPTY_MODEL_RESPONSE") {
       return { messages: [new AIMessage("Sakura's model returned no answer text. Please try again. 💕")] }; // Give an accurate retry message without posting reasoning-only output.
     }

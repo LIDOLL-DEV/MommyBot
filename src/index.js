@@ -9,6 +9,8 @@ import { initializeTouhouTrader } from "./touhou/index.js";
 import { initializeIdentity } from "./auth/index.js";
 import { initializeWallet } from "./wallet/index.js";
 import { createSwearJar } from "./swearJar.js";
+import { reportModelEndpoints } from "./graph/connection.js";
+import { readFileSync } from "node:fs";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -19,6 +21,10 @@ if (!DISCORD_TOKEN) {
 }
 
 async function main() {
+  try {
+    const release = JSON.parse(readFileSync(new URL("../release.json", import.meta.url), "utf8"));
+    console.log(`[Release] ${release.revision}${release.modified ? " (local changes)" : ""}; deployed ${release.deployment}`);
+  } catch { console.log("[Release] Checkout or older deployment without release metadata."); } // Identify stale releases directly in the same startup log as feature readiness.
   console.log("🌸 Sakura is waking up...");
   console.log(`🔒 Channel gate set to: ${CHANNEL_ID || "unlocked (all channels)"}`);
 
@@ -66,6 +72,7 @@ async function main() {
     console.log(`🌸 Sakura is online and ready to cuddle! (${client.user.tag})`);
     stopGitHubWatcher = startGitHubActivityWatcher(client);
     swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
+    void reportModelEndpoints().catch(() => console.error("[Brain] Startup probe could not finish; run scripts/check-runtime.mjs."));
     if (identity) for (const guild of client.guilds.cache.values()) void identity.registerGuild(guild);
     if (touhouTrader) {
       for (const guild of client.guilds.cache.values()) void touhouTrader.registerGuild(guild);

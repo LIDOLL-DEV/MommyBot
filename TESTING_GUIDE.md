@@ -1,5 +1,17 @@
 # Testing MommyBot
 
+## Runtime and deployment diagnostics
+
+`test/runtime-diagnostics.test.js` verifies endpoint normalization, nested network
+error reporting without provider details, separate read-only model probes,
+timeouts, malformed/empty API responses and swear-jar configuration statuses.
+It also checks chat/router failure logging and existing fallback behavior.
+`scripts/check-runtime.mjs` can inspect real production settings as the bot user;
+it sends only GET model-list requests and never opens live payment databases.
+Run the full test suite and check the deploy script's Bash syntax after changes.
+See [DEPLOYMENT_FEDORA.md](DEPLOYMENT_FEDORA.md) for stale-release and model-IP
+recovery. A model-list PASS does not prove successful text generation.
+
 ## Swear jar and weekly lottery
 
 `node --test test/swear-jar.test.js` uses real disposable SQLite journals with

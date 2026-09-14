@@ -5,6 +5,13 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+`src/graph/connection.js` supplies shared model URLs, bounded read-only probes
+and sanitized nested network error codes. Keep probes consistent with the chat
+and router endpoints. `scripts/check-runtime.mjs` reports model reachability and
+swear-jar configuration without printing secrets or touching account databases.
+Deployments record source revision metadata and preserve the production dotenv
+file; changing the checkout `.env` never repairs Fedora's service settings.
+
 The swear jar uses `src/swearJar.js` for message matching, Discord notices and
 weekly scheduling, and `src/wallet/swearJar.js` for the durable coin journal.
 See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md). Charge exactly one online coin per

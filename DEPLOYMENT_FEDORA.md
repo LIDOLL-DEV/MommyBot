@@ -66,6 +66,62 @@ checks the new systemd invocation's Discord-ready log. Failed activation restore
 the previous code and unit and restarts the previous service if it was running.
 Readiness confirms Discord login; test an actual reply to verify model access.
 
+Each new release records its source revision in `release.json` and logs it at
+startup. The deployer and startup also report `[Swear jar] ON`, `OFF`, `PAUSED`
+or `NO MATCHES`, plus independent `[Brain]` checks of both model servers. A model
+probe failure warns without disabling Discord or wallet features. The probes
+GET `/v1/models`; they do not generate text or prove inference works.
+
+Run the same read-only diagnostics against the active release and production
+settings, without printing the secrets file:
+
+```bash
+sudo -u mommybot node /opt/mommybot/current/scripts/check-runtime.mjs /etc/mommybot/mommybot.env
+```
+
+If the active release predates that diagnostic script, run it from a newly
+updated checkout or redeploy first. A deployment finishing before the feature
+commit cannot include that feature unless its changes were already in the local
+checkout. Pull and deploy again after the commit has reached the server's branch.
+
+### September 14 model-address and swear-jar recovery
+
+The reported `20260914T165459Z-54038` release started before the swear-jar commit
+`da2b659` at 16:56:33 UTC. Its log routes `fuck` into the LLM instead of the swear
+jar. Deploy a checkout containing `da2b659` or newer. For an existing installation:
+
+```bash
+cd ~/MommyBot
+bash scripts/update-fedora.sh
+sudoedit /etc/mommybot/mommybot.env
+```
+
+The same logs target `192.168.1.188:9090` and `:9091`, which timed out during
+investigation. Both model servers at `192.168.1.250` returned model lists and
+generated synthetic test answers from the development machine. Set the Fedora
+configuration to these verified endpoints if these are still the intended
+servers, then verify connectivity from Fedora itself:
+
+```dotenv
+LLAMA_BASE_URL=http://192.168.1.250:9090/v1
+ROUTER_LAMA_URL=http://192.168.1.250:9091/v1
+```
+
+```bash
+curl --fail --max-time 5 http://192.168.1.250:9090/v1/models
+curl --fail --max-time 5 http://192.168.1.250:9091/v1/models
+sudo systemctl restart mommybot
+sudo journalctl -u mommybot -n 40 --no-pager
+```
+
+If Fedora cannot reach those addresses, check its route to the model host and
+the host's listeners/firewall. A reachable Discord connection does not test that
+LAN route. The swear jar requires `LIDOLLID_ENABLED=true` and
+`LIDOLLCOIN_ENABLED=true`; remove `SWEAR_JAR_ENABLED=false` or an empty
+`SWEAR_JAR_WORDS` override to restore default detection. Do not copy the checkout
+`.env` over the production file: edit only the intended settings in
+`/etc/mommybot/mommybot.env`. Deployments deliberately preserve that file.
+
 Deployments also copy the Touhou trader's `assets/` directory. Its wallets and
 collections live in `data/touhou-trader.db` and are included in state backups.
 See [TOUHOU_TRADER_GUIDE.md](TOUHOU_TRADER_GUIDE.md) for commands, reward permissions

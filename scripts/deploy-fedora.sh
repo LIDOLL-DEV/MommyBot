@@ -120,7 +120,14 @@ trap 'exit 143' TERM
 
 install -d -o mommybot -g mommybot -m 0755 "$release"
 # Copy only application inputs, so local credentials, databases and node_modules stay out.
-tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha scripts/check-lidollid.mjs scripts/check-wallet.mjs | tar -C "$release" -xf -
+tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs | tar -C "$release" -xf -
+revision=$(git -c safe.directory="$source_dir" -C "$source_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)
+modified=$(git -c safe.directory="$source_dir" -C "$source_dir" status --porcelain 2>/dev/null || true)
+node --input-type=module - "$release/release.json" "$revision" "$stamp" "$modified" <<'NODE'
+import fs from 'node:fs';
+fs.writeFileSync(process.argv[2], JSON.stringify({ revision: process.argv[3], deployment: process.argv[4], modified: Boolean(process.argv[5]) }) + '\n');
+NODE
+# Record which checkout supplied the running code, including manually deployed local changes.
 if [[ -d "$source_dir/test" ]]; then
     tar -C "$source_dir" -cf - test | tar -C "$release" -xf -
 fi
@@ -160,6 +167,9 @@ if (!settings.DISCORD_TOKEN?.trim() || settings.DISCORD_TOKEN === 'your_discord_
     process.exit(1);
 }
 NODE
+if ! runuser -u mommybot -- node scripts/check-runtime.mjs "$config"; then
+    echo 'WARNING: Model connectivity checks failed. Discord/wallet features can still run; fix the model endpoints in /etc/mommybot/mommybot.env.' >&2
+fi
 chown -R root:root "$release"
 chmod -R u=rwX,go=rX "$release" # Keep code readable even when the checkout used a private umask.
 ln -s -- "$state/data" "$release/data"
@@ -198,5 +208,6 @@ done
 systemctl enable "$service"
 changed=0
 echo "Deployment ready: $release"
+echo "Source revision: $revision"
 echo "Backup: $backup"
 echo 'Logs: sudo journalctl -u mommybot -f'

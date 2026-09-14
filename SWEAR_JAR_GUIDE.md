@@ -44,6 +44,12 @@ The feature starts automatically when `LIDOLLID_ENABLED=true` and
 `LIDOLLCOIN_ENABLED=true`, using the existing online wallet registration and
 permissions. Restart MommyBot after changing settings.
 
+Startup now prints `[Swear jar] ON`, `OFF`, `PAUSED` or `NO MATCHES`, including
+the relevant configuration reason. If a listed swear reaches normal AI chat,
+check that status and the deployed source revision before changing the matcher.
+An older deployed release may not include the feature at all. See
+[DEPLOYMENT_FEDORA.md](DEPLOYMENT_FEDORA.md) for diagnostics and update commands.
+
 | Setting | Behavior |
 | --- | --- |
 | `SWEAR_JAR_ENABLED=false` | Pause new fines; saved payments, notices and weekly distribution still recover. |
