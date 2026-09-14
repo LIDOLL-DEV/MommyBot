@@ -12,6 +12,7 @@ import { IdentityMenus } from "./menu.js";
 import { initializeHangman } from "../hangman/index.js";
 import { initializeTouhouWeb } from "../touhou/web.js";
 import { createGameLogin } from "../games/login.js";
+import { CoinLeaderboard, createLeaderboardWeb } from "../leaderboard/web.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
@@ -41,6 +42,7 @@ export function createIdentityHandler(store, config, wallet = null, gacha = null
   const menus = new IdentityMenus({
     accountAction, walletAction: (interaction, action, options) => runWalletAction(interaction, wallet, store, action, options),
     atelier: gacha?.linkMessage, trader: trader?.openMenu, hangman: hangman?.linkMessage,
+    leaderboardUrl: wallet ? `${config.origin}/leaderboard/` : null,
   }); // Menus share the slash-command actions, including linked-role assignment and payment recovery.
   return async interaction => {
     if (await menus.handleInteraction(interaction)) return true;
@@ -120,7 +122,8 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   const games = Object.fromEntries([["diapers", gacha, "Diaper Atelier"], ["hangman", hangman, "Cozy Hangman"], ["touhou", touhouWeb, "Touhou Trader"]]
     .filter(([, game]) => game).map(([key, game, title]) => [key, { sessions: game.sessions, title }]));
   const gameLogin = createGameLogin(config, store, createOidc(config, Boolean(wallet), { statePrefix: "game." }), games, Date.now, wallet);
-  const gameWeb = async (request, response) => Boolean(await gameLogin.route(request, response) || await gacha?.web(request, response) || await hangman?.web(request, response) || await touhouWeb?.web(request, response));
+  const leaderboardWeb = wallet ? createLeaderboardWeb(config, new CoinLeaderboard(store, wallet)) : null;
+  const gameWeb = async (request, response) => Boolean(await leaderboardWeb?.(request, response) || await gameLogin.route(request, response) || await gacha?.web(request, response) || await hangman?.web(request, response) || await touhouWeb?.web(request, response));
   const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet,gameWeb);
   try {
     await new Promise((resolve, reject) => { server.once("error", reject); server.listen(config.port, config.host, resolve); });

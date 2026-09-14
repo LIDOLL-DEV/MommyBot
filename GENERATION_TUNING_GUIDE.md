@@ -1,5 +1,12 @@
 # MommyBot generation tuning
 
+## Coin leaderboard
+
+The Coin Garden page in `src/leaderboard/web/` uses authored text and verified
+online coin reads. It does not call the model. Adjust its HTML/CSS for wording
+and appearance; keep player names, balances and rankings out of AI prompts.
+Ranks and unavailable-wallet states are calculated by application code.
+
 ## Swear-jar replies
 
 `src/graph/swearJarMessage.js` calls the existing chat AI server for a warm,

@@ -17,6 +17,12 @@ private game link. **Unlink account** has a confirmation screen for testing.
 Only you can use your buttons; reopen `/menu` if they expire after five minutes.
 `/lidollid menu` and `/lidollid wallet menu` open this same panel.
 
+**Coin leaderboard** opens the public Coin Garden page, listing registered
+MommyBot usernames and online coin balances. It includes Discord and browser
+players once per account. If your balance says **Unavailable**, use **Connect /
+renew** to restore wallet access, then refresh after a minute. See
+[COIN_LEADERBOARD_GUIDE.md](COIN_LEADERBOARD_GUIDE.md).
+
 ## Link your account
 
 1. In Discord, type `/lidollid login` and send the command.

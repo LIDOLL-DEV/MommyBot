@@ -87,6 +87,18 @@ The private `/menu` hub and `/lidollid [wallet] menu` aliases live in
 session count, revision checks and in-flight lock. Route menu actions through
 `runIdentityAction` and `runWalletAction` so slash and button permissions,
 linked-role assignment, unlink guards and gift journaling stay identical.
+
+The **Coin leaderboard** link opens the public `/leaderboard/` page when online
+wallets are enabled. `src/leaderboard/` lists confirmed Discord and standalone
+browser registrations once per issuer/subject, including unavailable wallets.
+Publish only usernames, online coins, ranks and read timestamps. Keep unknown
+balances unranked, equal balances tied, provider reads limited to four at once,
+and snapshots cached in memory for one minute. `WalletService.readBalance`
+rechecks account/grant binding after its read without locking out purchases.
+Re-read the registration roster after network awaits and render names through
+DOM text nodes. Never persist snapshots as spendable local balances. See
+[COIN_LEADERBOARD_GUIDE.md](COIN_LEADERBOARD_GUIDE.md).
+
 Gift entry uses a user select, amount modal and final review; recheck admin
 permissions on every step. Clear the send screen before awaiting a credit and
 recover pending rewards through the existing retry path. Never put codes or

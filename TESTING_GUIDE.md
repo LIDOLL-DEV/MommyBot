@@ -1,5 +1,24 @@
 # Testing MommyBot
 
+## Coin leaderboard
+
+`test/coin-leaderboard.test.js` checks all registered accounts, Discord/browser
+deduplication, tied ranks, zero versus unavailable balances, one-minute caching,
+concurrent visitors, bounded provider reads, account/grant changes during reads,
+unlink during refresh and public HTTP routing without tokens or payment actions.
+`test/account-menu.test.js` checks the direct link across aliases and Discord
+component limits, including the full administrator menu with all games.
+
+Set `PUPPETEER_MODULE` to the local puppeteer-core entry file and `CHROME_PATH`
+to Chrome, then run `node scripts/check-leaderboard-browser.mjs`. It verifies
+desktop/mobile fit, search, literal HTML-like names, top cards, failed refresh,
+unavailable balances and empty states. `LEADERBOARD_SCREENSHOT_DIR` optionally
+saves fixture screenshots. All checks use synthetic accounts and fake coins.
+
+After deploying, open a fresh `/menu` and use **Coin leaderboard**. Check that
+the public page opens at the bot origin's `/leaderboard/`, search a registered
+name, and compare its coin count with **Online balance** after one cache minute.
+
 ## Runtime and deployment diagnostics
 
 `test/runtime-diagnostics.test.js` verifies endpoint normalization, nested network

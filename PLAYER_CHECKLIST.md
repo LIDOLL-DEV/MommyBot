@@ -4,6 +4,10 @@
 - Finish browser sign-in, approve wallet access and confirm the code in Discord.
 - Use `/lidollid status` to check your link and `/lidollid wallet balance` to
   check your online currency privately. `/menu` opens the account and game tools.
+- Press **Coin leaderboard** in `/menu` to open the public Coin Garden webpage.
+  Search all registered MommyBot players and compare their online coin balances.
+  Missing or expired wallet access appears as **Unavailable**, not zero. Balances
+  refresh at most once per minute; use **Refresh** to check again.
 - A server message containing listed swearing costs **1 coin**, even with several
   swear words. MommyBot replies to explain the charge or account problem.
 - Each swear-jar notice includes an AI-written reminder or celebration and the

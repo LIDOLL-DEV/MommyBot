@@ -52,13 +52,17 @@ export class WalletService {
     return connection;
   }
   async balance(userId) {
-    return this.exclusive(userId, async () => {
-      const connection = this.requireConnection(userId);
-      const balance = await this.client.balance(connection.token);
-      if (balance.accountId !== connection.account_id) throw new WalletError("account_changed", "The wallet account did not match its saved connection.");
-      return balance;
-    });
-  }
+    return this.exclusive(userId, () => this.readBalance(userId));
+  } // Keep interactive balance checks serialized with account changes and payments.
+  async readBalance(userId) {
+    const connection = this.requireConnection(userId);
+    const balance = await this.client.balance(connection.token);
+    const current = this.requireConnection(userId);
+    if (balance.accountId !== connection.account_id || current.account_id !== connection.account_id || current.token !== connection.token) {
+      throw new WalletError("account_changed", "The wallet account did not match its saved connection.");
+    }
+    return balance;
+  } // Read without holding a payment lock, then reject grants disconnected or replaced during the request.
   async stageIdentity(attempt, identity, validateAttempt = () => {}) { // Stage the short-lived proof in the protected wallet database, never in browser storage or the identity database.
     if(!identity.walletAccessToken)throw new WalletError('insufficient_scope','Start a fresh /lidollid login and approve wallet access.');
     return this.exclusive(attempt.discord_id,async()=>{

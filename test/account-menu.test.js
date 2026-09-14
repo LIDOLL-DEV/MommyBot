@@ -12,7 +12,10 @@ function validate(body) {
   assert.ok(rows.length <= 5);
   for (const row of rows) {
     assert.ok(row.components.length <= 5);
-    for (const component of row.components) assert.ok(component.custom_id.length <= 100);
+    for (const component of row.components) {
+      if (component.style === 5) assert.ok(component.url.startsWith("https://"));
+      else assert.ok(component.custom_id.length <= 100);
+    }
   }
   for (const embed of body.embeds || []) assert.ok(embed.toJSON().description.length <= 4096);
   assert.deepEqual(body.allowedMentions, { parse: [] });
@@ -37,7 +40,7 @@ function driver(handler, { admin = true, command = "menu", group = null } = {}) 
     return event;
   };
   ui.controls = () => ui.body.components.flatMap(row => row.toJSON().components);
-  ui.find = action => ui.controls().find(component => component.custom_id.endsWith(`:${action}`));
+  ui.find = action => ui.controls().find(component => component.custom_id?.endsWith(`:${action}`));
   ui.click = async (action, options) => {
     const control = ui.find(action); assert.ok(control, `Missing ${action}`);
     return ui.invoke(control.custom_id, options);
@@ -73,6 +76,18 @@ test("account menu aliases show private pastel controls and hide administrator g
   const command = buildIdentityCommand().toJSON();
   assert.ok(command.options.some(option => option.name === "menu"));
   assert.ok(command.options.find(option => option.name === "wallet").options.some(option => option.name === "menu"));
+});
+
+test("coin leaderboard opens directly from every account menu alias within Discord component limits", async () => {
+  const { menus } = fixture({ leaderboardUrl: "https://bot.example/leaderboard/", hangman: () => "Hangman" });
+  for (const admin of [false, true]) for (const command of ["menu", "lidollid"]) for (const group of [null, "wallet"]) {
+    const ui = driver(event => menus.handleInteraction(event), { admin, command, group });
+    await ui.invoke();
+    const link = ui.controls().find(component => component.label === "Coin leaderboard");
+    assert.equal(link.style, 5); assert.equal(link.url, "https://bot.example/leaderboard/");
+    assert.equal(link.custom_id, undefined); assert.equal(ui.reply.flags, 64);
+    assert.ok(ui.find("hangman")); assert.ok(ui.find("balance"));
+  }
 });
 
 test("both gift currencies require a recipient, amount modal and final review before payment", async () => {

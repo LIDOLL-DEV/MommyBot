@@ -40,6 +40,12 @@ slash command. Menus expire after five minutes idle; reopen one to continue.
 collection and using the bank. All game prices and channel restrictions still
 apply. The panel and all balance and login responses are visible only to you.
 
+**Coin leaderboard** opens the public [Coin Garden](COIN_LEADERBOARD_GUIDE.md)
+webpage on the bot's `/leaderboard/` path. It shows registered MommyBot usernames
+and online coin balances across Discord and browser players, with search and
+tied ranks. Unreadable wallets show **Unavailable**. Snapshots refresh at most
+once per minute; stars, diamonds and wallet credentials are excluded.
+
 Administrators also see **Gift coins**, **Gift stars** and **Retry a gift**.
 Choose a currency, select the recipient, press **Enter amount**, then review
 the recipient and amount before pressing **Send gift**. Use **Retry a gift**

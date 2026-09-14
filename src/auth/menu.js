@@ -13,10 +13,11 @@ const IDLE_MS = 5 * 60_000;
 class MenuError extends Error {}
 
 export class IdentityMenus {
-  constructor({ accountAction, walletAction, atelier, trader, hangman, now = Date.now }) {
+  constructor({ accountAction, walletAction, atelier, trader, hangman, leaderboardUrl, now = Date.now }) {
     this.accountAction = accountAction; this.walletAction = walletAction;
     this.atelier = atelier; this.trader = trader; this.hangman = hangman; this.now = now;
     this.sessions = new Map();
+    this.leaderboardUrl = leaderboardUrl; // A public read-only link opens the coin page directly from Discord.
   } // Store only short-lived menu selections; account links and gift receipts stay in their existing databases.
 
   isAdmin(interaction) {
@@ -67,6 +68,8 @@ export class IdentityMenus {
       if (this.trader) games.push(this.button(s, "trader", "Touhou Trader"));
       if (this.atelier) games.push(this.button(s, "atelier", "Diaper Atelier"));
       if (this.hangman) games.push(this.button(s, "hangman", "Cozy Hangman"));
+      if (this.leaderboardUrl) games.push(new ButtonBuilder().setStyle(ButtonStyle.Link)
+        .setLabel("Coin leaderboard").setEmoji("🏆").setURL(this.leaderboardUrl));
       if (games.length) components.push(row(...games));
       if (this.isAdmin(interaction)) components.push(row(this.button(s, "gift-coins", "Gift coins", ButtonStyle.Primary),
         this.button(s, "gift-stars", "Gift stars", ButtonStyle.Primary), this.button(s, "gift-diamonds", "Gift diamonds", ButtonStyle.Primary), this.button(s, "gift-retry", "Retry a gift")));
