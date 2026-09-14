@@ -5,6 +5,12 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+Build every member-facing model persona through `buildSystemPrompt` in
+`src/graph/prompt.js`, or use its shared `SYSTEM_PROMPT` export. The appended
+community rule addresses all members as girls with she/her pronouns, including
+when custom persona text is configured. Preserve the swear-jar masculine-wording
+guard and feminine fallback notices when editing generation.
+
 `src/graph/connection.js` supplies shared model URLs, bounded read-only probes
 and sanitized nested network error codes. Keep probes consistent with the chat
 and router endpoints. `scripts/check-runtime.mjs` reports model reachability and

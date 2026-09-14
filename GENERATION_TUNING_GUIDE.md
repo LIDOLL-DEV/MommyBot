@@ -7,6 +7,14 @@ playful reminder or a lottery celebration. `LLAMA_BASE_URL` selects the chat
 server, `LLAMA_MODEL` selects the model, and `SYSTEM_PROMPT` supplies MommyBot's
 established voice. The router server does not generate these notices.
 
+All member-facing AI prompts append a shared rule from `src/graph/prompt.js`:
+members are girls, groups are addressed as girls, and member pronouns are she/her.
+The rule follows any custom `SYSTEM_PROMPT`, so an existing Fedora persona does
+not remove it. It applies to ordinary chat, GitHub announcements and swear-jar
+generation. Swear-jar output containing masculine address or pronouns is rejected
+and uses the standard feminine notice instead. Both the reminder and lottery
+fallbacks address the recipient as a sweet girl.
+
 The request uses temperature `0.8`, a `192`-token output limit and
 `chat_template_kwargs.enable_thinking=false`. It requests one or two short
 sentences and sends only whether this is a swear reminder or a lottery notice.

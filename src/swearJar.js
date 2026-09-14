@@ -49,13 +49,13 @@ export function createSwearJar(client, wallet, identities, env = process.env, { 
       job = jar.get(job.id); // Generation and channel lookup may outlast a payment; refresh facts immediately before sending.
       let content;
       if (job.kind === "debit") {
-        content = "MommyBot asks you to put **1 coin in the swear jar** for swearing. ";
+        content = "Sweet girl, MommyBot asks you to put **1 coin in the swear jar** for swearing. ";
         content += job.reason === "unlinked" ? "You need to make a **LiD0llID account** if you don't have one, then register it with MommyBot using /lidollid login. No coin was collected." :
           job.reason === "wallet" ? "Please use /lidollid login to connect your wallet. No coin was collected." :
           job.state === "pending" ? "Your 1-coin payment is pending. Use /lidollid wallet retry if needed; MommyBot will retry automatically." : swearJarPaymentText(job);
       } else {
         content = paidFollowup ? `<@${job.user_id}>, ${swearJarPaymentText(job)}` :
-          `The weekly swear jar lottery winner is <@${job.user_id}>! **${job.amount} LiDollcoins** ${job.state === "done" ? "have been gifted to your wallet!" : "are reserved for you. Use /lidollid login to connect your wallet, then /lidollid wallet retry to collect your prize."}`;
+          `The weekly swear jar lottery winner is <@${job.user_id}>! Congratulations, sweet girl! **${job.amount} LiDollcoins** ${job.state === "done" ? "have been gifted to your wallet!" : "are reserved for you. Use /lidollid login to connect your wallet, then /lidollid wallet retry to collect your prize."}`;
       }
       content = `${prose ? `${prose}\n\n` : ""}${content}\n\n${swearJarBalanceText(jar.balance(job.guild_id))}`;
       const options = { content, allowedMentions: { parse: [], users: job.kind === "credit" ? [job.user_id] : [], repliedUser: true } };

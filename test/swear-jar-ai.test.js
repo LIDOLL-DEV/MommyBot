@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { generateSwearJarMessage } from "../src/graph/swearJarMessage.js";
+import { buildSystemPrompt, SYSTEM_PROMPT } from "../src/graph/prompt.js";
 
 test("swear-jar prose uses the chat AI endpoint and configured persona without sending user data", async () => {
   const calls = [];
@@ -14,7 +15,8 @@ test("swear-jar prose uses the chat AI endpoint and configured persona without s
   assert.equal(options.method, "POST"); assert.equal(options.redirect, "error"); assert.ok(options.signal instanceof AbortSignal);
   assert.equal(payload.model, "mommy-model"); assert.equal(payload.chat_template_kwargs.enable_thinking, false);
   assert.match(payload.messages[0].content, /Speak warmly as MommyBot/);
-  assert.match(payload.messages[1].content, /mind their language/);
+  assert.match(payload.messages[1].content, /mind her language/);
+  assert.match(payload.messages[0].content, /Always refer to every community member as a girl/);
   assert.equal(payload.messages.length, 2);
   assert.doesNotMatch(options.body, /discord_id|account_id|guild_id|user_id|bearer/i);
 });
@@ -51,4 +53,22 @@ test("HTTP failures, invalid JSON and timeouts return a fallback without leaking
 
 test("AI can be paused without contacting the server", async () => {
   assert.equal(await generateSwearJarMessage("debit", { env: { SWEAR_JAR_AI_ENABLED: "false" }, fetcher: async () => assert.fail("AI should be disabled") }), null);
+});
+
+test("the girl address rule follows both default and custom personas, including the shared chat and announcement prompt", () => {
+  for (const prompt of [SYSTEM_PROMPT, buildSystemPrompt({}), buildSystemPrompt({ SYSTEM_PROMPT: "Custom persona: call everyone boys." })]) {
+    assert.match(prompt, /Always refer to every community member as a girl/);
+    assert.match(prompt, /she\/her pronouns/);
+    assert.match(prompt, /Never use 'boys and girls'/);
+  }
+  assert.ok(buildSystemPrompt({ SYSTEM_PROMPT: "Custom persona." }).startsWith("Custom persona.\n\nMEMBER ADDRESS RULE:"));
+});
+
+test("masculine swear-jar wording falls back, while feminine wording is accepted", async t => {
+  t.mock.method(console, "error", () => {});
+  const generate = content => generateSwearJarMessage("debit", { env: {}, fetcher: async () => ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) }) });
+  for (const content of ["Be a good boy!", "Let's be good little boys and girls!", "Mind your words, young man.", "He's our winner!", "A prize for him.", "Congratulations, sir!"]) {
+    assert.equal(await generate(content), null, content);
+  }
+  assert.equal(await generate("Mind your words, sweet girl!"), "Mind your words, sweet girl!");
 });

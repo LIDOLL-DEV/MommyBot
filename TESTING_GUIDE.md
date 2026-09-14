@@ -14,6 +14,10 @@ recovery. A model-list PASS does not prove successful text generation.
 
 ## Swear jar and weekly lottery
 
+The AI tests also cover the shared girl/she-her address rule after custom persona
+text, masculine-output rejection (including “boys and girls”), and accepted
+feminine wording. Existing payment tests exercise the feminine fallback notices.
+
 `test/swear-jar-ai.test.js` verifies the chat endpoint and persona, notification
 prompts, reasoning cleanup, bounded requests, disabled generation, malformed
 output, HTTP failures and timeout fallback. The swear-jar integration tests

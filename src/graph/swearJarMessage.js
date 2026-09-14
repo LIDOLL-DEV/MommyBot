@@ -1,4 +1,4 @@
-import { SYSTEM_PROMPT } from "./prompt.js";
+import { buildSystemPrompt } from "./prompt.js";
 import { modelEndpoint, modelFailure } from "./connection.js";
 
 export async function generateSwearJarMessage(kind, { env = process.env, fetcher = fetch } = {}) {
@@ -12,8 +12,8 @@ export async function generateSwearJarMessage(kind, { env = process.env, fetcher
         model: env.LLAMA_MODEL || "default", temperature: 0.8, max_tokens: 192,
         chat_template_kwargs: { enable_thinking: false },
         messages: [
-          { role: "system", content: `${env.SYSTEM_PROMPT || SYSTEM_PROMPT}\nYou are writing a short MommyBot swear-jar notification. Write one or two warm, playful sentences in your established voice. Be gently encouraging, never humiliating. Output only the message, without reasoning, quotes, headings or code fences. The application appends the exact payment status, account instructions, winner mention and current jar balance. Do not include numbers, balances, payment claims, commands, links, mentions or account details. Do not claim a payment succeeded or failed. Do not use swear words.` },
-          { role: "user", content: kind === "credit" ? "Congratulate the weekly swear-jar lottery winner with a cheerful little celebration. /no_think" : "Gently remind someone who swore to mind their language and remember Mommy's swear jar. /no_think" },
+          { role: "system", content: `${buildSystemPrompt(env)}\nYou are writing a short MommyBot swear-jar notification. Write one or two warm, playful sentences in your established voice. Be gently encouraging, never humiliating. Output only the message, without reasoning, quotes, headings or code fences. The application appends the exact payment status, account instructions, winner mention and current jar balance. Do not include numbers, balances, payment claims, commands, links, mentions or account details. Do not claim a payment succeeded or failed. Do not use swear words.` },
+          { role: "user", content: kind === "credit" ? "Congratulate the girl who is the weekly swear-jar lottery winner with a cheerful little celebration. /no_think" : "Gently remind a girl who swore to mind her language and remember Mommy's swear jar. /no_think" },
         ],
       }),
     });
@@ -23,6 +23,9 @@ export async function generateSwearJarMessage(kind, { env = process.env, fetcher
     if (typeof raw !== "string") throw new Error("No message text");
     const text = raw.replace(/<think\b[^>]*>[\s\S]*?<\/think>/gi, "").trim().replace(/^(["'])|(["'])$/g, "").trim();
     if (!text || text.length > 500 || /<\/?think\b|```|@|https?:|\d|\/lidollid/i.test(text)) throw new Error("Unusable message text");
+    if (/\b(?:boys?|men|man|guys?|dudes?|sons?|sir|mister|mr|gentlem[ae]n|lads?|bros?|brothers?|prince|king|male|he|him|his|himself)\b/i.test(text)) {
+      throw new Error("Incorrect member address");
+    } // Reject masculine wording in these short member-directed notices and let the feminine factual fallback send instead.
     return text;
   } catch (error) {
     console.error(`[Swear jar] AI message unavailable (${modelFailure(error)}); using the saved payment's standard message.`);
