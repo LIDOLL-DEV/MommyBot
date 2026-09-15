@@ -13,7 +13,7 @@ export async function drawDoll(canvas, state) {
   const generation = (canvas.generation || 0) + 1; canvas.generation = generation;
   const hairBack = player.hair.replace(/\.png$/, "_Back.png"), splitHair = /TQ_Hair_4_/.test(player.hair);
   const backLayers = [...new Set([top, ...Object.values(outfit)].filter(Boolean).flatMap(item => item.backParts || []))].map(image => ({ image }));
-  const layers = [...backLayers, splitHair ? { image: hairBack } : null, { image: base }, { image: player.face },
+  const layers = [...backLayers, splitHair ? { image: hairBack } : null, { image: base }, ...(state.bodyLayers || []), { image: player.face },
     outfit.socks, diaper, outfit.bra, outfit.bottom, outfit.shoes, top, outfit.corset,
     outfit.belt, outfit.gloves, outfit.accessory, outfit.hand, outfit.bag,
     { image: splitHair ? player.hair.replace(/\.png$/, "_Front.png") : player.hair }, outfit.head].filter(Boolean)
@@ -21,7 +21,7 @@ export async function drawDoll(canvas, state) {
   const loaded = await Promise.all(layers.map(layer => loadImage(layer.image)));
   if (canvas.generation !== generation) return;
   const context = canvas.getContext("2d"); context.clearRect(0, 0, 387, 875);
-  layers.forEach((layer, index) => context.drawImage(loaded[index], ...(layer.rect || [0, 0, 387, 875])));
+  layers.forEach((layer, index) => context.drawImage(loaded[index], ...(layer.sourceRect || []), ...(layer.rect || [0, 0, 387, 875])));
   canvas.setAttribute("aria-label", `${player.name}, ${state.stance === "wide" ? "wide-legged" : "regular"} stance, wearing ${top?.name || outfit.corset?.name || outfit.bra?.name || "starter shirt"}`);
 } // Load the full outfit before replacing the canvas, and discard stale asynchronous renders.
 

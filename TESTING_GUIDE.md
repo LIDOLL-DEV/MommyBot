@@ -505,6 +505,18 @@ Run npm test for diamond balance validation and legacy consent (test/diamonds.te
 
 ## Littlepottchi wetting and timed care
 
+`littlepottchi-appearance.test.js` checks supported assets, independent anatomy
+and camera selection, layer order, clothing coverage, defaults, older clients,
+invalid IDs and preservation of care clocks. The Chrome check verifies separate
+style/color controls, unsaved previews, unchanged inventory and saved selections
+after reload. Use **Preview character anatomy** in the editor to inspect fits.
+
+`littlepottchi-excitement.test.js` covers zero-value migration, passive buildup,
+the 255 cap, elapsed relief, stop behavior, duplicate activation, restart/offline
+completion, single completion credit, and independent gender persistence.
+The Chrome fixture exercises toy activation, partial relief, stop/restart,
+completion, gender editing and mobile layout with synthetic accounts and clocks.
+
 LAN bridge checks cover analysis upload, event polling and acknowledgement at
 `10.1.1.23:4190`, rejection of public plain-HTTP endpoints, and bearer-authenticated
 HTTP requests while the game's configured browser origin remains public HTTPS.

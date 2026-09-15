@@ -3,6 +3,8 @@ import { drawDoll, thumbnail } from "./doll.js";
 const $ = id => document.getElementById(id), shopPage = location.pathname.startsWith("/clothes");
 let state, view = "owned", busy = false, galleryPage = 0;
 let petGeneration = 0;
+let appearanceDirty = false;
+const anatomyKeys = ["chest", "nipples", "genitals", "pubes"];
 const pageSize = 36;
 const labels = { diaper: "Diaper", head: "Headwear", top: "Tops & dresses", bottom: "Bottoms", shoes: "Shoes", socks: "Socks",
   bra: "Bras", corset: "Corsets", belt: "Belts & suspenders", gloves: "Gloves", accessory: "Accessories", bag: "Bags", hand: "Handhelds" };
@@ -27,12 +29,18 @@ async function refresh() {
   $("roll-status").textContent = state.walletError || (!state.shop.enabled ? "New purchases are paused." : state.shop.pending ? "Finish your saved payment first." : state.coins < state.shop.rollPrice ? "You need more coins to roll." : "Each design within a rarity has the same chance.");
   $("odds").replaceChildren(...Object.values(state.shop.tiers).map(tier => node("span", `${tier.label} ${tier.chance}%`)));
   $("name").value = state.doll.player.name; $("shape").value = state.doll.player.shape;
+  $("gender").value = state.doll.player.gender;
   for (const key of ["hair", "face"]) {
     $(key).replaceChildren(...state.catalog[key === "hair" ? "hair" : "faces"].map(name => {
       const option = node("option", name.replace(/^TQ_(Hair|Face)_/, "").replace(/\.png$/, "").replaceAll("_", " ")); option.value = name; return option;
     }));
     $(key).value = state.doll.player[key];
   }
+  for (const key of anatomyKeys) {
+    $(key).replaceChildren(...state.catalog.appearance[key].map(choice => { const option = node("option", choice.name); option.value = choice.id; return option; }));
+    $(key).value = state.doll.player.anatomy[key];
+  }
+  syncHairChoices(); appearanceDirty = false;
   renderDoll(); renderGallery(); updateButtons();
 } // Refresh the wallet, ownership, care and appearance together so every view uses the same snapshot.
 
@@ -47,9 +55,31 @@ function renderDoll() {
     progress.max = 100; progress.value = doll.player[key]; el.append(label, progress); return el;
   }));
   $("outfit-note").textContent = doll.removed.length ? "Unavailable or incompatible pieces returned to your wardrobe. Starter pieces fill any gaps." : "Outfit saved. Larger diapers choose their matching base automatically.";
-  drawDoll($("doll"), doll).catch(error => notice(error.message));
+  renderAppearance();
   renderCare();
 } // Let the server choose the matching base and effective owned outfit.
+
+function syncHairChoices() {
+  const hair = state.catalog.appearance.hair, selected = hair.find(choice => choice.image === $("hair").value);
+  $("hair-style").replaceChildren(...[...new Set(hair.map(choice => choice.style))].map(style => { const option = node("option", `Style ${style}`); option.value = style; return option; }));
+  $("hair-style").value = selected.style;
+  $("hair-color").replaceChildren(...hair.filter(choice => choice.style === selected.style).map(choice => { const option = node("option", choice.color); option.value = choice.color; return option; }));
+  $("hair-color").value = selected.color;
+} // Separate hairstyle and color without changing the saved, validated asset ID.
+
+function renderAppearance() {
+  if (!state) return;
+  let doll = state.doll;
+  if (appearanceDirty || $("preview-body").checked) {
+    const player = { ...doll.player, shape: $("shape").value, hair: $("hair").value, face: $("face").value };
+    const bare = $("preview-body").checked, stance = bare ? "narrow" : doll.stance;
+    const groups = ["chest", "nipples", "pubes", "genitals"].filter(key => bare || (["chest", "nipples"].includes(key) ? !(doll.top || doll.outfit.bra || doll.outfit.corset) : !(doll.diaper || doll.outfit.bottom)));
+    const bodyLayers = groups.flatMap(key => state.catalog.appearance[key].find(choice => choice.id === $(key).value)?.layers || []);
+    doll = { ...doll, player, stance, base: state.catalog.bases[player.shape][stance], bodyLayers,
+      ...(bare ? { diaper: null, outfit: {}, top: null } : {}) };
+  }
+  drawDoll($("doll"), doll).catch(error => notice(error.message));
+} // Draft appearance is local until saved; the optional bare preview never unequips owned clothing or changes care state.
 
 const countdown = (due, now) => {
   const seconds = Math.max(0, Math.ceil((due - now) / 1000));
@@ -58,6 +88,12 @@ const countdown = (due, now) => {
 
 function renderCare() {
   const d = state.doll, c = d.player.care, bulk = d.diaper?.bulk || 0;
+  $("excitement").max = d.excitementRules.max; $("excitement").value = d.player.excitement;
+  $("excitement-label").textContent = `${Math.round(d.player.excitement)} / ${d.excitementRules.max}`;
+  $("excitement-rhythm").textContent = `Builds by ${d.excitementRules.gainPerHour} per hour. Buildup pauses while a toy is active.`;
+  const selectedToy = $("toy").value;
+  $("toy").replaceChildren(...d.excitementRules.toys.map(toy => { const option = node("option", `${toy.name} · ${toy.duration / 60000} min · up to ${toy.relief} relief`); option.value = toy.id; return option; }));
+  if (d.excitementRules.toys.some(toy => toy.id === selectedToy)) $("toy").value = selectedToy;
   $("wetness").max = bulk || 1; $("wetness").value = Math.min(d.usedBulk, bulk || 1);
   $("wetness-label").textContent = `${d.usedBulk} / ${bulk} bulk`;
   $("accident-counts").textContent = `${c.wetness} wetting${c.wetness === 1 ? "" : "s"} · ${c.mess} messy accident${c.mess === 1 ? "" : "s"}. Each messy accident uses ${d.messyRules.bulkPerAccident} bulk.`;
@@ -91,6 +127,7 @@ function renderFood() {
 
 function renderTimers() {
   const d = state.doll, c = d.player.care;
+  $("toy-status").textContent = c.toy ? `${c.toy.name} active · ${countdown(c.toy.finishesAt, d.now)} remaining` : c.completedToy ? `${c.completedToy.name} session complete.` : "Choose a toy when you want to lower the meter.";
   $("wetting-clock").textContent = c.nextWettingAt === null ? "No wettings scheduled: the latest report recorded a zero rate." : `Next wetting in ${countdown(c.nextWettingAt, d.now)}`;
   $("messy-clock").textContent = c.messyMode ? `Next messy accident in ${countdown(c.nextMessAt, d.now)}` : "Messy mode is off. Its timer is paused; any existing mess still needs a fresh change.";
   $("activity-status").textContent = c.task ? `${c.task.kind === "play" ? "Playing" : "Resting"} · ${countdown(c.task.finishesAt, d.now)} remaining` : c.completed ? "Activity finished! Your care rewards are saved." : "Choose an activity to start its timer.";
@@ -105,6 +142,9 @@ function updateButtons() {
       (!!state.doll.player.care.task && ["play", "rest"].includes(button.dataset.care)) || (button.dataset.care === "change" && state.doll.player.care.needsWipe); });
     $("pet-reminders").disabled = busy;
     $("messy-mode").disabled = busy;
+    $("activate-toy").disabled = busy || !!state.doll.player.care.toy || state.doll.player.excitement <= 0;
+    $("stop-toy").disabled = busy || !state.doll.player.care.toy;
+    $("toy").disabled = busy || !!state.doll.player.care.toy;
   }
 } // Keep duplicate clicks out of the UI; the payment journal also enforces idempotency on the server.
 
@@ -227,6 +267,8 @@ document.querySelectorAll("[data-care]").forEach(button => button.addEventListen
 $("food").addEventListener("change", renderFood);
 $("remove-diaper").addEventListener("click", () => run(() => dollAction({ action: "equip", slot: "diaper", design: null })));
 $("use-wipe").addEventListener("click", () => run(() => dollAction({ action: "wipe" })));
+$("activate-toy").addEventListener("click", () => run(() => dollAction({ action: "toy", toy: $("toy").value })));
+$("stop-toy").addEventListener("click", () => run(() => dollAction({ action: "stop-toy" })));
 $("messy-mode").addEventListener("change", () => run(async () => {
   try { await dollAction({ action: "messy-mode", enabled: $("messy-mode").checked }); }
   finally { $("messy-mode").checked = state.doll.player.care.messyMode; }
@@ -239,7 +281,19 @@ document.querySelectorAll("[data-view]").forEach(button => button.addEventListen
   view = button.dataset.view; galleryPage = 0; document.querySelectorAll("[data-view]").forEach(other => other.setAttribute("aria-pressed", String(other === button))); renderGallery();
 }));
 for (const id of ["search", "slot", "rarity"]) $(id).addEventListener("input", () => { galleryPage = 0; if (state) renderGallery(); });
-$("appearance").addEventListener("submit", event => { event.preventDefault(); run(() => dollAction({ action: "appearance", name: $("name").value, shape: $("shape").value, hair: $("hair").value, face: $("face").value })); });
+$("hair").addEventListener("change", () => { syncHairChoices(); appearanceDirty = true; renderAppearance(); });
+for (const id of ["hair-style", "hair-color"]) $(id).addEventListener("change", () => {
+  const hair = state.catalog.appearance.hair;
+  $("hair").value = (hair.find(choice => choice.style === $("hair-style").value && choice.color === $("hair-color").value) || hair.find(choice => choice.style === $("hair-style").value)).image;
+  syncHairChoices(); appearanceDirty = true; renderAppearance();
+});
+for (const id of ["shape", "face", ...anatomyKeys]) $(id).addEventListener("change", () => { appearanceDirty = true; renderAppearance(); });
+$("preview-body").addEventListener("change", renderAppearance);
+$("appearance").addEventListener("submit", event => { event.preventDefault(); run(async () => {
+  await dollAction({ action: "appearance", name: $("name").value, gender: $("gender").value, shape: $("shape").value, hair: $("hair").value, face: $("face").value,
+    anatomy: Object.fromEntries(anatomyKeys.map(key => [key, $(key).value])) });
+  appearanceDirty = false; renderAppearance();
+}); });
 for (const id of ["close-reveal", "prize-done"]) $(id).addEventListener("click", () => $("reveal").close());
 let polling = false;
 setInterval(() => { if (state) { state.doll.now += 1000; updateButtons(); renderTimers(); } }, 1000);

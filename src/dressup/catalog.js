@@ -12,6 +12,24 @@ export function loadDressupCatalog() {
     if (!image(data.bases?.[shape]?.[stance])) throw new Error("Missing doll base.");
   }
   for (const name of [...data.faces, ...data.hair]) if (!image(name)) throw new Error("Invalid appearance image.");
+  for (const [key, defaultId] of Object.entries({ chest: "base", nipples: "none", genitals: "neutral", pubes: "none" })) {
+    const choices = data.appearance?.[key], ids = new Set();
+    if (!Array.isArray(choices) || !choices.some(choice => choice.id === defaultId)) throw new Error("Missing default anatomy choice.");
+    for (const choice of choices) {
+      if (!/^[a-z0-9-]+$/.test(choice.id) || ids.has(choice.id) || !choice.name || !Array.isArray(choice.layers)) throw new Error("Invalid anatomy choice.");
+      ids.add(choice.id);
+      if (key === "genitals" && (!image(choice.camera) || !data.provenance[choice.camera])) throw new Error("Missing anatomy camera.");
+      for (const layer of choice.layers) {
+        if (!image(layer.image) || !data.provenance[layer.image]) throw new Error("Missing anatomy layer.");
+        for (const [rect, size] of [[layer.sourceRect, data.provenance[layer.image].size], [layer.rect, data.canvas]]) {
+          if (rect && (!Array.isArray(rect) || rect.length !== 4 || rect.some(n => !Number.isInteger(n) || n < 0) || rect[2] < 1 || rect[3] < 1 || rect[0] + rect[2] > size[0] || rect[1] + rect[3] > size[1])) throw new Error("Invalid anatomy crop.");
+        }
+        if (layer.sourceRect && !layer.rect) throw new Error("Anatomy crops need a destination rectangle.");
+      }
+    }
+  } // Modded anatomical layers remain allowlisted, registered to the doll canvas and independent of gender.
+  if (!Array.isArray(data.appearance.hair) || data.appearance.hair.length !== data.hair.length || new Set(data.appearance.hair.map(choice => choice.image)).size !== data.hair.length ||
+      data.appearance.hair.some(choice => !data.hair.includes(choice.image) || !choice.style || !choice.color)) throw new Error("Invalid hairstyle/color choices.");
   for (const group of [data.clothes, data.diapers]) {
     const ids = new Set();
     for (const item of group) {

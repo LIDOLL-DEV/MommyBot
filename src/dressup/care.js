@@ -1,5 +1,6 @@
 import { randomInt, randomUUID } from "node:crypto";
 import { GachaError } from "../gacha/store.js";
+import { advanceExcitement, useToy } from "./excitement.js";
 
 export const HOUR = 3600000;
 const DAY = 24 * HOUR;
@@ -119,6 +120,7 @@ export class PetCare {
       c.nextWettingAt = profile.interval === null ? null : now + Math.max(1, Math.round(remaining * profile.interval));
       c.reportId = profile.reportId; c.interval = profile.interval;
     } // A new analysis changes future rhythm without replaying elapsed time using a different rate.
+    advanceExcitement(p, now);
     p.updated = now;
   }
 
@@ -139,6 +141,7 @@ export class PetCare {
 
   act(p, input) {
     const c = p.care, action = input.action, now = this.now();
+    if (["toy", "stop-toy"].includes(action)) { useToy(p, input, now); return; }
     if (action === "messy-mode") {
       if (typeof input.enabled !== "boolean") throw new GachaError("Choose whether to enable messy mode.");
       if (input.enabled !== c.messyMode) {

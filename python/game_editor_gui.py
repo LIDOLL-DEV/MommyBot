@@ -55,6 +55,8 @@ class WardrobeEditor:
         self.messy_preview = tk.BooleanVar(value=False)
         ttk.Checkbutton(form, text="Messy mode camera preview", variable=self.messy_preview).pack(anchor="w", pady=(10, 0))
         ttk.Button(form, text="Preview rear camera", command=self.preview_camera).pack(fill="x")
+        ttk.Button(form, text="View excitement & toy rules", command=self.show_toy_rules).pack(fill="x", pady=(8, 0))
+        ttk.Button(form, text="Preview character anatomy", command=self.preview_anatomy).pack(fill="x", pady=(8, 0))
         ttk.Label(form, text="Diaper fit selects the stance automatically.\nBulk holds both wettings and messy accidents.\nMessy mode uses the shared care rules in\nsrc/dressup/care.js. Preview stance is only\na comparison tool; source art stays fixed.", wraplength=240).pack(pady=20)
         self.status = ttk.Label(form, wraplength=240)
         self.status.pack(fill="x")
@@ -63,6 +65,60 @@ class WardrobeEditor:
         self.list.selection_set(0)
         self.select()
         self.search.trace_add("write", self.filter_rows)
+
+    def preview_anatomy(self):
+        window = tk.Toplevel(self.root)
+        window.title("Adult character anatomy preview")
+        controls = ttk.Frame(window, padding=12)
+        controls.pack(side="left", fill="y")
+        canvas = tk.Canvas(window, width=310, height=700, bg="#fff5ef", highlightthickness=0)
+        canvas.pack(side="left", padx=12, pady=12)
+        choices = {"shape": [(x, x.title()) for x in ["soft", "angular"]],
+                   "stance": [(x, x.title()) for x in ["narrow", "wide"]]}
+        choices.update({key: [(item["id"], item["name"]) for item in self.data["appearance"][key]]
+                        for key in ["chest", "nipples", "genitals", "pubes"]})
+        fields = {}
+
+        def redraw(*_):
+            selected = {key: choices[key][field.current()][0] for key, field in fields.items()}
+            art = Image.open(ART / self.data["bases"][selected["shape"]][selected["stance"]]).convert("RGBA")
+            layers = []
+            for key in ["chest", "nipples", "pubes", "genitals"]:
+                layers += next(item["layers"] for item in self.data["appearance"][key] if item["id"] == selected[key])
+            for layer in layers:
+                overlay = Image.open(ART / layer["image"]).convert("RGBA")
+                if layer.get("sourceRect"):
+                    x, y, width, height = layer["sourceRect"]
+                    overlay = overlay.crop((x, y, x + width, y + height))
+                x, y, width, height = layer.get("rect", [0, 0, 387, 875])
+                art.alpha_composite(overlay.resize((width, height)), (x, y))
+            canvas.preview_image = ImageTk.PhotoImage(art.resize((310, 700)))
+            canvas.delete("all")
+            canvas.create_image(0, 0, anchor="nw", image=canvas.preview_image)
+            # Match the browser's registered layers, including the larger original pubic-hair canvases.
+
+        for key, options in choices.items():
+            ttk.Label(controls, text=key.title()).pack(anchor="w", pady=(10, 3))
+            field = ttk.Combobox(controls, values=[label for _, label in options], state="readonly")
+            field.pack(fill="x")
+            field.current(0)
+            field.bind("<<ComboboxSelected>>", redraw)
+            fields[key] = field
+        ttk.Label(controls, text="Preview only. Gender is independent.\nThe game hides covered anatomy.\nSource PNG files are never changed.", wraplength=230).pack(pady=16)
+        redraw()  # Keep modding previews separate from player saves and financial inventory.
+
+    def show_toy_rules(self):
+        result = subprocess.run(["node", "--input-type=module", "-e",
+            "import {excitementRules} from './src/dressup/excitement.js'; console.log(JSON.stringify(excitementRules));"],
+            cwd=ROOT, capture_output=True, text=True, check=False)
+        if result.returncode:
+            messagebox.showerror("Toy rules", "Could not load src/dressup/excitement.js.")
+            return
+        rules = json.loads(result.stdout)
+        lines = [f"Adult dolls of every gender use the same rules.", f"Maximum: {rules['max']}; buildup: {rules['gainPerHour']}/hour."]
+        lines += [f"{toy['name']}: {toy['duration'] / 60000:g} min, up to {toy['relief']} relief." for toy in rules["toys"]]
+        lines += ["Tune src/dressup/excitement.js; restart the server to apply.", "Existing sessions retain their saved duration and relief."]
+        messagebox.showinfo("Excitement & toy rules", "\n".join(lines))  # Read the shipping rules so the modding tool cannot drift from gameplay.
 
     def filter_rows(self, *args):
         term = self.search.get().casefold()

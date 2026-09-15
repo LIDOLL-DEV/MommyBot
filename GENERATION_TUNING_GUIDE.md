@@ -151,6 +151,20 @@ reachability; it does not validate the quality of generated text.
 
 ## Littlepottchi wetting and timed care
 
+The creator's supported anatomy comes from `CW/Body`: chest overlay, two nipple
+styles, five penis styles and three pubic-hair styles, plus the vulva region in
+Base_1. Catalog `appearance` entries hold validated layers and bare camera IDs.
+Keep the supplied 387×875 registration (pubic hair scales down from 1548×3500).
+Covered chest/genital regions are suppressed to prevent clothing clipping.
+Use the editor's **Preview character anatomy** window to check both body shapes
+and stances. Gender remains independent and never changes these mappings.
+
+Excitement tuning lives in `src/dressup/excitement.js`: maximum 255, buildup
+12/hour, and per-toy duration/relief. Each session pauses buildup and gradually
+applies relief; stopping grants only elapsed relief. All adult dolls use the
+same rules regardless of gender. The editor's **View excitement & toy rules**
+button reads these shipping values. Restart the server after editing them.
+
 `BABYWIPES_PRICE` controls the per-wipe coin price (default 1); new purchases pin
 their price before payment. Each wipe clears all body cleanup from diaper-free
 accidents and leaks. Tune diaper camera arrays in the catalog; first frame stays

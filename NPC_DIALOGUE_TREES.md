@@ -58,6 +58,14 @@ completed before its journal confirms it. See [ONLINE_WALLET_GUIDE.md](ONLINE_WA
 
 ## Littlepottchi wetting and timed care
 
+Gender, physique and genital appearance are separate creator preferences.
+Do not infer pronouns or gender from body shape, chest or genital choices.
+Creator status text should explain saving and previews without narrating anatomy.
+
+Littlepottchi characters are adults. Describe toy actions through plain status
+text such as “Wand active” and “Session complete.” Use neutral wording for every
+gender; player-entered gender is text, not a dialogue command or body restriction.
+
 For leaks and diaper-free accidents, explain that one baby wipe cleans everything
 before redressing. Do not imply multiple accidents need multiple wipes. The fixed
 `cleanup` reminder takes priority over leak/mess/wet messages until the doll is clean.

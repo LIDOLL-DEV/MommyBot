@@ -52,6 +52,14 @@ from repeated transfer receipts. Stars remain excluded from player transfers.
 
 ## Littlepottchi wetting and timed care
 
+Appearance editing and unclothed previews do not count as care, grant inventory,
+reset accident timers or satisfy cleanup requirements. Keep quests independent
+of anatomy, hairstyle, gender and body shape.
+
+Toy sessions are optional adult-character care actions. Do not gate ordinary
+quests on gender or toy use. A finished session adds one care moment; starting,
+repeating activation, or stopping does not grant completion credit.
+
 Diaper removal preserves accident clocks. A cleanup task completes only after an
 owned baby wipe is consumed atomically; one wipe clears all current body accidents.
 Contained diaper accidents do not require this task. Never grant wipes from a

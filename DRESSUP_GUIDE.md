@@ -2,6 +2,23 @@
 
 ## Play
 
+Your doll is an adult of any gender. Set optional gender text in **Make this doll
+your own**, independently of body shape. Choose hair style and color separately,
+plus face, chest, nipple detail, genital appearance and pubic hair. Available
+genital choices are no added anatomy, vulva, and five penis styles. The bare
+camera follows this choice independently of gender and body shape; the five
+penis styles share one supplied rear view.
+
+Changes preview locally. **Preview body without clothing** shows anatomy without
+removing anything from the wardrobe or changing care state. Press **Save my doll**
+to keep your choices. Covered anatomy is hidden to prevent clipping through clothes.
+The clothed doll's leg stance continues to follow the equipped diaper.
+
+**Excitement** uses a 0–255 meter and
+builds gradually. Choose a reusable toy from the menu and press **Activate toy**
+to lower it over a 1–3 minute session; **Stop toy** ends the session early and
+retains earned relief. Toys are free and their timers continue offline.
+
 Open `/littlepottchi/` or `/clothes/` on the MommyBot host, or use the matching
 Discord slash command. Sign in with LiD0llID. An existing Diaper Atelier browser
 session works across all three games, including sign-out and account revocation.

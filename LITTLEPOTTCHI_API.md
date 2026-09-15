@@ -7,6 +7,26 @@ the same design, supplies a fresh one; Cloud Tapes is also a free starter supply
 
 ## Simulation
 
+- **Adult character:** the doll is an adult of the player's chosen gender.
+  Gender is optional text (up to 32 characters), separate from body shape, and
+  does not change care rules, clothes or toy availability.
+  `player.anatomy` stores independent `chest`, `nipples`, `genitals` and `pubes`
+  catalog IDs. Old saves default to base chest/detail, no added anatomy and no
+  pubic hair; the bare camera now follows anatomy rather than body shape.
+  Appearance updates may include a partial `anatomy` object. Unknown IDs and
+  keys are rejected; omitting it preserves existing choices. The browser splits
+  hairstyle and color into controls but continues saving the validated `hair`
+  image ID. Snapshots include server-resolved `bodyLayers` beneath clothing.
+  Draft and unclothed previews are local only, with no care or inventory effects.
+- **Excitement:** a saved 0–255 stat, initially zero, increases by 12 per hour.
+  The toy menu offers reusable Pocket toy (1 minute, 85 relief), Wand (2 minutes,
+  170 relief), and Dual-mode toy (3 minutes, 255 relief), all free. One toy runs
+  at a time. Relief accrues over elapsed time and buildup pauses during a session;
+  after completion, buildup resumes from the completion time, including offline.
+  Stop retains only earned relief. Completion adds one care moment, once.
+  Toys do not change accident schedules or cleanup requirements.
+  Tune `src/dressup/excitement.js`; in-progress sessions retain their saved rules.
+
 - **Remove diaper** deliberately switches to diaper-free care and its bare camera.
   Accident clocks keep running. Diaper-free wettings/messes and leaks set a saved
   cleanup requirement. Both **Fresh change** and equipping a diaper are blocked
@@ -140,6 +160,16 @@ Little Log subscriptions are respected. Notification clicks open Little Log's
 Games page, which links to Littlepottchi and Clothes Emporium.
 
 ## API v1
+
+The authenticated browser endpoint `/littlepottchi/api/doll` accepts
+`{"action":"toy","toy":"pocket"}` (also `wand` or `dual`) and
+`{"action":"stop-toy"}` with the existing session, Origin and CSRF checks.
+Only the server chooses duration and relief. Activating the same running toy
+preserves its deadline; switching requires stopping first. Zero-level starts
+are rejected. Snapshots expose `excitementRules`, `player.excitement`,
+`player.care.toy` and `player.care.completedToy`. Appearance updates may include
+`gender`; older clients that omit it preserve the saved value. These browser
+actions are separate from the bearer-authenticated bridge paths below.
 
 All paths below are relative to `/littlepottchi/integration/v1/` and require
 `Authorization: Bearer <LITTLEPOTTCHI_BRIDGE_TOKEN>`. POST bodies require

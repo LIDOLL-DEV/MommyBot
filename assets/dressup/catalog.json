@@ -19996,6 +19996,345 @@
     "soft": "DQ_Base_ButtCam_1a.png",
     "angular": "DQ_Base_ButtCam_2.png"
   },
+  "appearance": {
+    "chest": [
+      {
+        "id": "base",
+        "name": "Base chest",
+        "layers": []
+      },
+      {
+        "id": "breasts",
+        "name": "Breasts",
+        "layers": [
+          {
+            "image": "TQ_Breasts_1.png"
+          }
+        ]
+      }
+    ],
+    "nipples": [
+      {
+        "id": "none",
+        "name": "Base detail",
+        "layers": []
+      },
+      {
+        "id": "style-1",
+        "name": "Style 1",
+        "layers": [
+          {
+            "image": "TQ_Nipples_1.png"
+          }
+        ]
+      },
+      {
+        "id": "style-2",
+        "name": "Style 2",
+        "layers": [
+          {
+            "image": "TQ_Nipples_2.png"
+          }
+        ]
+      }
+    ],
+    "genitals": [
+      {
+        "id": "neutral",
+        "name": "No added anatomy",
+        "layers": [],
+        "camera": "DQ_Base_ButtCam_1a.png"
+      },
+      {
+        "id": "vulva",
+        "name": "Vulva",
+        "layers": [
+          {
+            "image": "TQ_Base_1.png",
+            "sourceRect": [
+              177,
+              443,
+              13,
+              25
+            ],
+            "rect": [
+              177,
+              443,
+              13,
+              25
+            ]
+          }
+        ],
+        "camera": "DQ_Base_ButtCam_1b.png"
+      },
+      {
+        "id": "penis-1",
+        "name": "Penis \u00b7 style 1",
+        "layers": [
+          {
+            "image": "TQ_Penis_1.png"
+          }
+        ],
+        "camera": "DQ_Base_ButtCam_1c.png"
+      },
+      {
+        "id": "penis-2",
+        "name": "Penis \u00b7 style 2",
+        "layers": [
+          {
+            "image": "TQ_Penis_2.png"
+          }
+        ],
+        "camera": "DQ_Base_ButtCam_1c.png"
+      },
+      {
+        "id": "penis-3",
+        "name": "Penis \u00b7 style 3",
+        "layers": [
+          {
+            "image": "TQ_Penis_3.png"
+          }
+        ],
+        "camera": "DQ_Base_ButtCam_1c.png"
+      },
+      {
+        "id": "penis-4",
+        "name": "Penis \u00b7 style 4",
+        "layers": [
+          {
+            "image": "TQ_Penis_4.png"
+          }
+        ],
+        "camera": "DQ_Base_ButtCam_1c.png"
+      },
+      {
+        "id": "penis-5",
+        "name": "Penis \u00b7 style 5",
+        "layers": [
+          {
+            "image": "TQ_Penis_5.png"
+          }
+        ],
+        "camera": "DQ_Base_ButtCam_1c.png"
+      }
+    ],
+    "pubes": [
+      {
+        "id": "none",
+        "name": "None",
+        "layers": []
+      },
+      {
+        "id": "style-1",
+        "name": "Style 1",
+        "layers": [
+          {
+            "image": "TQ_Pubes_1.png"
+          }
+        ]
+      },
+      {
+        "id": "style-2",
+        "name": "Style 2",
+        "layers": [
+          {
+            "image": "TQ_Pubes_2.png"
+          }
+        ]
+      },
+      {
+        "id": "style-3",
+        "name": "Style 3",
+        "layers": [
+          {
+            "image": "TQ_Pubes_3.png"
+          }
+        ]
+      }
+    ],
+    "hair": [
+      {
+        "image": "TQ_Hair_1_Black.png",
+        "style": "1",
+        "color": "Black"
+      },
+      {
+        "image": "TQ_Hair_1_Blonde.png",
+        "style": "1",
+        "color": "Blonde"
+      },
+      {
+        "image": "TQ_Hair_1_Brown.png",
+        "style": "1",
+        "color": "Brown"
+      },
+      {
+        "image": "TQ_Hair_1_Pink.png",
+        "style": "1",
+        "color": "Pink"
+      },
+      {
+        "image": "TQ_Hair_1_Purple.png",
+        "style": "1",
+        "color": "Purple"
+      },
+      {
+        "image": "TQ_Hair_1_Red.png",
+        "style": "1",
+        "color": "Red"
+      },
+      {
+        "image": "TQ_Hair_1_Silver.png",
+        "style": "1",
+        "color": "Silver"
+      },
+      {
+        "image": "TQ_Hair_1_UltraPink.png",
+        "style": "1",
+        "color": "UltraPink"
+      },
+      {
+        "image": "TQ_Hair_1_UltraRed.png",
+        "style": "1",
+        "color": "UltraRed"
+      },
+      {
+        "image": "TQ_Hair_2_Black.png",
+        "style": "2",
+        "color": "Black"
+      },
+      {
+        "image": "TQ_Hair_2_Blonde.png",
+        "style": "2",
+        "color": "Blonde"
+      },
+      {
+        "image": "TQ_Hair_2_Brown.png",
+        "style": "2",
+        "color": "Brown"
+      },
+      {
+        "image": "TQ_Hair_2_Pink.png",
+        "style": "2",
+        "color": "Pink"
+      },
+      {
+        "image": "TQ_Hair_2_Purple.png",
+        "style": "2",
+        "color": "Purple"
+      },
+      {
+        "image": "TQ_Hair_2_Red.png",
+        "style": "2",
+        "color": "Red"
+      },
+      {
+        "image": "TQ_Hair_2_Silver.png",
+        "style": "2",
+        "color": "Silver"
+      },
+      {
+        "image": "TQ_Hair_2_UltraPink.png",
+        "style": "2",
+        "color": "UltraPink"
+      },
+      {
+        "image": "TQ_Hair_2_UltraRed.png",
+        "style": "2",
+        "color": "UltraRed"
+      },
+      {
+        "image": "TQ_Hair_3_Black.png",
+        "style": "3",
+        "color": "Black"
+      },
+      {
+        "image": "TQ_Hair_3_Blonde.png",
+        "style": "3",
+        "color": "Blonde"
+      },
+      {
+        "image": "TQ_Hair_3_Brown.png",
+        "style": "3",
+        "color": "Brown"
+      },
+      {
+        "image": "TQ_Hair_3_Pink.png",
+        "style": "3",
+        "color": "Pink"
+      },
+      {
+        "image": "TQ_Hair_3_Purple.png",
+        "style": "3",
+        "color": "Purple"
+      },
+      {
+        "image": "TQ_Hair_3_Red.png",
+        "style": "3",
+        "color": "Red"
+      },
+      {
+        "image": "TQ_Hair_3_Silver.png",
+        "style": "3",
+        "color": "Silver"
+      },
+      {
+        "image": "TQ_Hair_3_UltraPink.png",
+        "style": "3",
+        "color": "UltraPink"
+      },
+      {
+        "image": "TQ_Hair_3_UltraRed.png",
+        "style": "3",
+        "color": "UltraRed"
+      },
+      {
+        "image": "TQ_Hair_4_Black.png",
+        "style": "4",
+        "color": "Black"
+      },
+      {
+        "image": "TQ_Hair_4_Blonde.png",
+        "style": "4",
+        "color": "Blonde"
+      },
+      {
+        "image": "TQ_Hair_4_Brown.png",
+        "style": "4",
+        "color": "Brown"
+      },
+      {
+        "image": "TQ_Hair_4_Pink.png",
+        "style": "4",
+        "color": "Pink"
+      },
+      {
+        "image": "TQ_Hair_4_Purple.png",
+        "style": "4",
+        "color": "Purple"
+      },
+      {
+        "image": "TQ_Hair_4_Red.png",
+        "style": "4",
+        "color": "Red"
+      },
+      {
+        "image": "TQ_Hair_4_Silver.png",
+        "style": "4",
+        "color": "Silver"
+      },
+      {
+        "image": "TQ_Hair_4_UltraPink.png",
+        "style": "4",
+        "color": "UltraPink"
+      },
+      {
+        "image": "TQ_Hair_4_UltraRed.png",
+        "style": "4",
+        "color": "UltraRed"
+      }
+    ]
+  },
   "wipeImage": "pocketwipes1.png",
   "provenance": {
     "TQ_Base_3.png": {
@@ -44020,6 +44359,188 @@
         22,
         253,
         217
+      ]
+    },
+    "DQ_Base_ButtCam_1b.png": {
+      "source": "CharWins/DQWin/Buttcams/DQ_Base_ButtCam_1b.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "DQ_Base_ButtCam_1c.png": {
+      "source": "CharWins/DQWin/Buttcams/DQ_Base_ButtCam_1c.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "TQ_Base_1.png": {
+      "source": "CW/Body/TQ_Base_1.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        22,
+        55,
+        362,
+        858
+      ]
+    },
+    "TQ_Breasts_1.png": {
+      "source": "CW/Body/TQ_Breasts_1.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        135,
+        226,
+        266,
+        329
+      ]
+    },
+    "TQ_Nipples_1.png": {
+      "source": "CW/Body/TQ_Nipples_1.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        149,
+        267,
+        250,
+        275
+      ]
+    },
+    "TQ_Nipples_2.png": {
+      "source": "CW/Body/TQ_Nipples_2.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        149,
+        267,
+        250,
+        275
+      ]
+    },
+    "TQ_Penis_1.png": {
+      "source": "CW/Body/TQ_Penis_1.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        160,
+        431,
+        207,
+        455
+      ]
+    },
+    "TQ_Penis_2.png": {
+      "source": "CW/Body/TQ_Penis_2.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        161,
+        433,
+        208,
+        460
+      ]
+    },
+    "TQ_Penis_3.png": {
+      "source": "CW/Body/TQ_Penis_3.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        161,
+        434,
+        208,
+        477
+      ]
+    },
+    "TQ_Penis_4.png": {
+      "source": "CW/Body/TQ_Penis_4.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        151,
+        424,
+        219,
+        492
+      ]
+    },
+    "TQ_Penis_5.png": {
+      "source": "CW/Body/TQ_Penis_5.png",
+      "size": [
+        387,
+        875
+      ],
+      "bounds": [
+        153,
+        425,
+        216,
+        499
+      ]
+    },
+    "TQ_Pubes_1.png": {
+      "source": "CW/Body/TQ_Pubes_1.png",
+      "size": [
+        1548,
+        3500
+      ],
+      "bounds": [
+        707,
+        1750,
+        748,
+        1862
+      ]
+    },
+    "TQ_Pubes_2.png": {
+      "source": "CW/Body/TQ_Pubes_2.png",
+      "size": [
+        1548,
+        3500
+      ],
+      "bounds": [
+        670,
+        1750,
+        789,
+        1865
+      ]
+    },
+    "TQ_Pubes_3.png": {
+      "source": "CW/Body/TQ_Pubes_3.png",
+      "size": [
+        1548,
+        3500
+      ],
+      "bounds": [
+        637,
+        1735,
+        830,
+        1886
       ]
     },
     "pocketwipes1.png": {

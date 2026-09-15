@@ -339,6 +339,18 @@ The report client also accepts `source: manual` when `share_with_bot === 1`, set
 
 ## Littlepottchi wetting and timed care
 
+Adult appearance choices are imported by `python/appearance_catalog.py` and
+validated in the catalog loader. `src/dressup/appearance.js` resolves layers and
+the anatomy-specific bare camera; gender and physique cannot override the chosen
+anatomy. Preserve original PNG bytes and full-canvas registration. CW pubic-hair
+images use a 4× canvas and must scale to 387×875. The vulva uses a source rectangle
+from the supplied Base_1 rather than replacing the player's chosen physique.
+
+Adult-doll excitement is a separate abstract stat in `src/dressup/excitement.js`.
+Advance it before updating `player.updated`; split offline time at toy completion.
+Persist each session's duration and relief so tuning does not rewrite an active
+timer. Gender is optional self-description, independent of body shape and rules.
+
 The Little Log bridge can use private LAN HTTP for backend calls independently of
 the public browser origin. Keep redirects disabled and bearer authentication
 required; do not change OIDC callbacks to fix bridge hairpin NAT.

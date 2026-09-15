@@ -83,6 +83,16 @@ See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for the word list and full rules,
 
 ## Littlepottchi wetting and timed care
 
+- In **Make this doll your own**, choose hair style/color, body, face, chest,
+  nipple detail, genital appearance and pubic hair independently of gender.
+- Try the optional unclothed preview, then **Save my doll**. The preview does not
+  remove clothes, consume items or change care timers. Covered details stay hidden.
+
+- Set your adult doll's optional gender in the character builder.
+- Watch **Excitement** (0–255); select a free reusable toy and activate its timer.
+- Stop whenever you like. Relief takes time, survives reloads, and does not clear
+  wetness, mess or cleanup needs. One toy can run at a time.
+
 Use **Remove diaper** for diaper-free care; accidents still happen. Buy baby wipes
 in Diaper Atelier, then use **Use 1 baby wipe** after a leak or diaper-free accident
 before dressing again. One wipe cleans every accumulated body accident. The rear
