@@ -88,7 +88,7 @@ in Diaper Atelier, then use **Use 1 baby wipe** after a leak or diaper-free acci
 before dressing again. One wipe cleans every accumulated body accident. The rear
 camera shows messy frames only while messy mode is on; turning it off does not clean.
 
-Turn on **Enable messy mode** if desired. Its 12-hour countdown runs while enabled;
+Turn on **Enable messy mode** if desired. Each countdown is randomly set to 10–14 hours and runs while enabled;
 turning it off pauses it. Messy accidents use two bulk units. A fresh diaper clears
 both wetness and mess; disabling the mode does not clean an already messy diaper.
 

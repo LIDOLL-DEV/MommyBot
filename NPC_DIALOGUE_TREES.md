@@ -62,6 +62,8 @@ For leaks and diaper-free accidents, explain that one baby wipe cleans everythin
 before redressing. Do not imply multiple accidents need multiple wipes. The fixed
 `cleanup` reminder takes priority over leak/mess/wet messages until the doll is clean.
 
+Messy-mode timing varies between 10 and 14 hours per accident; dialogue should not
+promise a fixed 12-hour schedule.
 Use gentle, factual messy-care copy: the diaper needs a fresh change. Avoid
 shaming the player. The fixed `mess` reminder is superseded by a leak reminder
 when shared capacity is reached; neither message includes personal tracker data.

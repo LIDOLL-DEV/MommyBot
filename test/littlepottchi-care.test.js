@@ -30,6 +30,33 @@ test("messy mode starts off, migrates old care state safely, and preserves its c
   assert.equal(f.doll.snapshot(f.user).player.care.mess,1);
 });
 
+test("messy intervals include 10 and 14 hours, vary per accident and persist across offline catch-up and restart", t => {
+  const f = fixture(t), delays = [10, 14, 11, 13]; let draws = 0;
+  f.doll.care.random = (min, max) => {
+    assert.equal(min, 10 * HOUR); assert.equal(max, 14 * HOUR + 1);
+    assert.ok(draws < delays.length, "Existing countdowns must not be rerolled.");
+    return delays[draws++] * HOUR;
+  };
+  f.doll.care.importAnalysis(report(f.now,0)); f.seed(f.diapers,"ribbon-bouquet");
+  f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
+  let d = f.doll.act(f.user,{action:"messy-mode",enabled:true});
+  const first = f.now + 10 * HOUR;
+  assert.equal(d.player.care.nextMessAt,first);
+  f.now = first - 1; assert.equal(f.doll.snapshot(f.user).player.care.mess,0); assert.equal(draws,1);
+  f.now++; d = f.doll.snapshot(f.user);
+  assert.equal(d.player.care.mess,1); assert.equal(d.player.care.nextMessAt,first + 14 * HOUR);
+  f.now = first + 25 * HOUR; d = f.doll.snapshot(f.user);
+  assert.equal(d.player.care.mess,3); assert.equal(d.player.care.nextMessAt,f.now + 13 * HOUR); assert.equal(draws,4);
+  const deadline = d.player.care.nextMessAt;
+  assert.equal(f.doll.snapshot(f.user).player.care.mess,3); assert.equal(draws,4);
+  f.doll = new LittlepottchiStore(f.clothes,f.diapers,f.catalog,() => f.now);
+  f.doll.care.random = () => { throw Error("An existing countdown must survive restart and changes."); };
+  assert.equal(f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"}).player.care.nextMessAt,deadline);
+  f.doll.act(f.user,{action:"messy-mode",enabled:false}); f.now += 100 * HOUR;
+  d = f.doll.act(f.user,{action:"messy-mode",enabled:true});
+  assert.equal(d.player.care.nextMessAt,f.now + 13 * HOUR); assert.equal(d.player.care.messings,3);
+});
+
 test("wet and messy accidents share bulk; fresh replacement clears both and preserves both clocks", t => {
   const f = fixture(t); f.doll.care.importAnalysis(report(f.now,0)); f.seed(f.diapers,"ribbon-bouquet");
   let d = f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
@@ -53,13 +80,13 @@ test("offline messy accidents catch up once and current messy reminders are canc
   f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
   f.doll.act(f.user,{action:"reminders",enabled:true});
   const started = f.doll.act(f.user,{action:"messy-mode",enabled:true});
-  f.now = started.player.care.nextMessAt + messyRules.interval; f.doll.tick();
+  f.now = started.player.care.nextMessAt + 12 * HOUR; f.doll.tick();
   let d = f.doll.snapshot(f.user); assert.equal(d.player.care.mess,2); assert.equal(d.usedBulk,4); assert.equal(d.player.care.leaking,false);
   const events = () => f.doll.care.events(user => f.identities.gameIdentity(user),user => f.doll.player(user)).events;
   const first = events().filter(e => e.kind === "mess"); assert.equal(first.length,1);
   f.doll.tick(); assert.equal(events().filter(e => e.kind === "mess")[0].id,first[0].id);
   f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"}); assert.equal(events().some(e => e.kind === "mess"),false);
-  f.now += 1000 * messyRules.interval; d = f.doll.snapshot(f.user); assert.equal(d.player.care.mess,1000);
+  f.now += 1000 * 12 * HOUR; d = f.doll.snapshot(f.user); assert.equal(d.player.care.mess,1000);
   assert.equal(d.player.care.leaking,true); assert.equal(f.doll.snapshot(f.user).player.care.mess,1000);
   assert.equal(events().filter(e => e.kind === "cleanup").length,1); assert.equal(events().some(e => e.kind === "mess"),false);
 });

@@ -140,7 +140,7 @@ No live deployment or real-wallet purchase is part of the local verification.
 
 ## Littlepottchi wetting and timed care
 
-Optional **messy mode** adds a saved 12-hour game timer. Each messy accident uses
+Optional **messy mode** adds a saved timer randomly set to 10–14 hours for each accident. Each messy accident uses
 two bulk units alongside wettings. Disabling pauses the timer; a fresh change
 clears both conditions. The UI labels this as game timing because the AI analysis
 currently contains no bowel-event counts. Messy reminders use the existing opt-in.

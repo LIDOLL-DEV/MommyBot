@@ -58,6 +58,7 @@ Contained diaper accidents do not require this task. Never grant wipes from a
 purchase animation or count a pending supply payment as delivered inventory.
 
 Messy accidents are optional care events, not rewards or quest completions.
+Their intervals vary from 10 to 14 hours; quests must not assume a fixed deadline.
 Fresh changes clear wetness and mess together; toggling the mode grants nothing
 and preserves the remaining countdown. Do not require messy mode for ordinary care.
 

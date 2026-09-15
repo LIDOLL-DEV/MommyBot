@@ -156,8 +156,10 @@ their price before payment. Each wipe clears all body cleanup from diaper-free
 accidents and leaks. Tune diaper camera arrays in the catalog; first frame stays
 clean and all later frames require messy mode. The editor previews these frames.
 
-Tune `messyRules` in `src/dressup/care.js`: default interval 12 hours and bulk cost
-2 per messy accident. Update its UI label when changing the interval. This is
+Tune `messyRules` in `src/dressup/care.js`: `minInterval` is 10 hours, `maxInterval`
+is 14 hours, and bulk cost is 2 per messy accident. Each interval is sampled uniformly
+in milliseconds, including both endpoints. Existing deadlines are preserved.
+Update its UI label when changing the range. This is
 authored timing; the current saved AI input does not include bowel-event counts.
 
 Diaper bulk is a separate integer capacity (1�100 wettings) in assets/dressup/catalog.json; the wardrobe editor can tune it without changing the reviewed stance. The asset importer preserves edited bulk. Care durations and need periods are in src/dressup/care.js; pantry fullness/joy values are in the catalog. Rhythm comes from the latest saved community AI counts, with a labeled four-hour fallback. See LITTLEPOTTCHI_API.md.

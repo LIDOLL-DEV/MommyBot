@@ -348,7 +348,9 @@ Never publicly serve the camera PNGs or use wetting count to select messy frames
 Baby wipes use the clothing payment journal and `care_supplies` in the pet database;
 consume stock and save cleanup together. Preserve recovery of already-paid jobs.
 
-Messy mode defaults off. Preserve paused countdowns across toggles, lifetime
+Messy mode defaults off. Sample a new 10–14-hour interval for each accident,
+including offline catch-up; preserve existing deadlines across reads and restarts.
+Preserve paused countdowns across toggles, lifetime
 totals across changes, and old wetting state during migration. Both accident
 types share bulk. Keep the bridge and service worker's `mess` notification aligned.
 

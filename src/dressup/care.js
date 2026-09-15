@@ -1,9 +1,9 @@
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 import { GachaError } from "../gacha/store.js";
 
 export const HOUR = 3600000;
 const DAY = 24 * HOUR;
-export const messyRules = { interval: 12 * HOUR, bulkPerAccident: 2, label: "Game timer · one messy accident every 12 hours while enabled" };
+export const messyRules = { minInterval: 10 * HOUR, maxInterval: 14 * HOUR, bulkPerAccident: 2, label: "Game timer · messy accidents every 10–14 hours while enabled" };
 export const careRules = {
   feed: { every: 4 * HOUR }, water: { every: 2 * HOUR },
   play: { every: 3 * HOUR, duration: 120000, rewards: { joy: 25, energy: -10, hunger: -5 } },
@@ -38,8 +38,8 @@ export function analysisProfile(input, now) {
 } // Derive a rate from the report's saved counts, including potty wettings and excluding random game rolls.
 
 export class PetCare {
-  constructor(db, catalog, now) {
-    this.db = db; this.catalog = catalog; this.now = now;
+  constructor(db, catalog, now, random = randomInt) {
+    this.db = db; this.catalog = catalog; this.now = now; this.random = random;
     db.exec(`CREATE TABLE IF NOT EXISTS littlepottchi_analysis(id INTEGER PRIMARY KEY CHECK(id=1),data TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS littlepottchi_events(id INTEGER PRIMARY KEY AUTOINCREMENT,token TEXT UNIQUE NOT NULL,
       user_id TEXT NOT NULL,kind TEXT NOT NULL,episode TEXT NOT NULL,created INTEGER NOT NULL,acked INTEGER NOT NULL DEFAULT 0,
@@ -47,6 +47,8 @@ export class PetCare {
   } // Keep simulation, source metadata and delivery receipts in the same durable pet database.
 
   profile() { const row = this.db.prepare("SELECT data FROM littlepottchi_analysis WHERE id=1").get(); return row ? JSON.parse(row.data) : fallback; }
+
+  messyInterval() { return this.random(messyRules.minInterval, messyRules.maxInterval + 1); } // Choose a fresh, uniform delay in milliseconds, including both the 10-hour and 14-hour endpoints.
 
   importAnalysis(input) {
     const profile = analysisProfile(input, this.now()), old = this.profile();
@@ -72,7 +74,7 @@ export class PetCare {
     c.bodyWetness ??= 0; c.bodyMess ??= 0;
     c.cleanupRevision ??= randomUUID();
     c.needsWipe ??= Boolean(c.leaking); // Existing leaked diapers migrate with one cleanup requirement, regardless of accident count.
-    c.nextMessAt ??= null; c.messRemaining ??= messyRules.interval;
+    c.nextMessAt ??= null; c.messRemaining ??= this.messyInterval();
     // Older saves start with messy mode off; migration preserves wetness, activities and the wetting clock.
     let decayFrom = p.updated;
     const decayUntil = time => {
@@ -96,12 +98,13 @@ export class PetCare {
       c.nextWettingAt += count * c.interval;
     } // Catch up in constant time, even after a long absence; refreshing never restarts the wetting clock.
     if (c.messyMode && c.nextMessAt !== null && now >= c.nextMessAt) {
-      const count = Math.floor((now - c.nextMessAt) / messyRules.interval) + 1;
-      messCount = count;
-      if (diaper) c.mess = Math.min(1000000, c.mess + count);
-      c.messings = Math.min(Number.MAX_SAFE_INTEGER, c.messings + count);
-      c.nextMessAt += count * messyRules.interval;
-    } // Catch up only time spent in messy mode; pausing does not invent accidents during the disabled period.
+      do {
+        messCount++;
+        c.nextMessAt += this.messyInterval();
+      } while (now >= c.nextMessAt); // Schedule from each due time so offline catch-up uses a new random delay per accident.
+      if (diaper) c.mess = Math.min(1000000, c.mess + messCount);
+      c.messings = Math.min(Number.MAX_SAFE_INTEGER, c.messings + messCount);
+    } // Persist the next deadline; reads, restarts, changes and pause/resume never reroll an existing countdown.
     const usedBulk = c.wetness + c.mess * messyRules.bulkPerAccident;
     if (diaper && usedBulk > 0 && usedBulk >= diaper.bulk) c.leaking = true;
     if ((!diaper || c.leaking) && (wetCount || messCount)) {

@@ -29,7 +29,10 @@ the same design, supplies a fresh one; Cloud Tapes is also a free starter supply
   training pants may fill this slot; ordinary underwear is unavailable. Removing clothing, changing appearance, selling an item or
   refreshing does not clean the doll. Replacements preserve the next wetting time.
 - **Messy mode** is optional and off for new and migrated saves. While enabled,
-  a saved 12-hour game timer causes messy accidents; each uses two bulk units.
+  each messy accident is scheduled after a randomly chosen 10–14 hours; each uses two bulk units.
+  The first interval and every subsequent interval are sampled independently.
+  Saved deadlines, including existing 12-hour countdowns, survive updates, restarts
+  and diaper changes. Offline catch-up samples each elapsed interval separately.
   Little Log's saved analysis currently has no bowel-event counts, so this timer
   is explicitly authored game timing and does not use the community wetting mean.
   The doll displays wet and messy counts separately, with one combined capacity
@@ -38,7 +41,7 @@ the same design, supplies a fresh one; Cloud Tapes is also a free starter supply
   enabling resumes it. Repeated settings requests do not restart the timer.
   Fresh replacements clear both counts while preserving both accident clocks and
   lifetime totals. Offline accidents catch up once, without a notification storm.
-  Tune `messyRules` in `src/dressup/care.js` (interval and bulk per accident).
+  Tune `messyRules` in `src/dressup/care.js` (`minInterval`, `maxInterval` and bulk per accident).
 - Bulk is an integer from 1–100, independently editable from the diaper's visual
   stance in `python/game_editor_gui.py`. The initial values are authored for this
   game, using lidollquest's bulk concept: Small 2, Medium 3, Large 4, Huge 5,
