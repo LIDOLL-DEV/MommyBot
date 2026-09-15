@@ -15,6 +15,10 @@ Saved hits drive sparks, gold pickup labels and result summaries. Cosmetic
 randomness cannot change rewards. Keep landing returns, peg bonuses and pending
 payment wording distinct and accurate.
 
+Sound effects are locally synthesized in `src/balldrop/web/sound.js`. The saved
+collision type selects each cue; no generated speech, remote media or model
+call is involved. Tune note frequencies, envelopes and the master gain there.
+
 ## Little Log nightly reports
 
 Nightly report Markdown is generated upstream and attached in full by

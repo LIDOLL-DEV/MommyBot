@@ -12,7 +12,7 @@ export function createBallDropWeb(config, game, sessions) {
   const sessionName = `${prefix}balldrop_session`, formName = `${prefix}balldrop_form`;
   const cookie = (name, value, age) => `${name}=${value}; Path=/; Max-Age=${age}; HttpOnly; SameSite=Lax${secure ? "; Secure" : ""}`;
   const readCookie = (request, name) => (request.headers.cookie || "").split(";").map(part => part.trim()).find(part => part.startsWith(`${name}=`))?.slice(name.length + 1);
-  const files = new Map(["app.js", "style.css", "index.html"].map(name => [`/balldrop/${name}`, readFileSync(new URL(`./web/${name}`, import.meta.url))]));
+  const files = new Map(["app.js", "sound.js", "style.css", "index.html"].map(name => [`/balldrop/${name}`, readFileSync(new URL(`./web/${name}`, import.meta.url))]));
   files.set("/balldrop/atelier.css", readFileSync(new URL("../gacha/web/style.css", import.meta.url))); // Reuse the established pastel theme without requiring an atelier session.
   const send = (response, status, body, type = "text/html") => { response.writeHead(status, { "Content-Type": `${type}; charset=utf-8` }); response.end(body); };
   const json = (response, status, data) => send(response, status, JSON.stringify(data), "application/json");

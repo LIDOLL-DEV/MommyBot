@@ -34,6 +34,20 @@ the result immediately. Controls are keyboard accessible and results have text
 announcements. Free **Replay** and recent-drop buttons never charge or reroll.
 The most recent eight settled drops are visible only to their owner.
 
+## Sound
+
+Prism Drop plays a drop swoop, musical peg taps, block knocks, bomb booms,
+coin chimes and landing melodies. **Sound: on/off** above the field remembers
+your preference in this browser and stays available during animation. Sound
+starts only after a click or tap; loading or refreshing the page is silent.
+Replays include sound without spending or earning coins. Reduced motion uses
+only the final landing cue. Hidden tabs stop existing sounds and skip hits.
+
+`src/balldrop/web/sound.js` synthesizes the effects with Web Audio; it needs no
+audio downloads or new service settings. Tune notes and envelopes there, and
+keep effects quiet, short and tied to saved collisions. Audio/device or storage
+failures must never stop a wager or interfere with payment recovery.
+
 ## Payments and recovery
 
 The board contains 11 striped blocked pegs, nine orange bombs and eight gold

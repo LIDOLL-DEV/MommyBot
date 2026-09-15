@@ -25,6 +25,11 @@ and paths, all entry pins, and unchanged layouts after duplicate wagers and
 restart recovery. Chrome also checks the tracker pastel theme, successive
 random fields and their saved replay/reload state.
 
+Chrome checks real Web Audio samples and all collision cues, silent initial
+loads, mute during replay, remembered preferences, reduced-motion landing audio
+and playable wagers when audio devices or browser storage fail. Manually listen
+with your preferred speakers/headphones to check the mix.
+
 The Fedora installer copies `scripts/fixtures/` alongside `test/` before running
 the release tests. Keep shared fixture files in that package; omitting the
 ball-drop layout causes the entire test file to fail during module loading.

@@ -18,6 +18,9 @@ Generate each new layout with `randomObstacles()` using server randomness.
 Keep the 11 blocks, nine bombs and eight coins in distinct cells, with the entry
 row clear. The fixed collision fixture belongs only in tests. Follow the
 tracker pastel palette in both CSS and canvas; label saved fields as history.
+The browser sound engine is `src/balldrop/web/sound.js`, served alongside the
+other game assets. Initialize it from player gestures, preserve mute, release
+audio nodes and keep audio exceptions outside the wallet flow.
 Save each special-peg layout, full trajectory and rolled coin bonus before
 debiting. Blocks deflect two columns; bombs launch in eight directions once per
 drop; coin pegs award 1-5 coins once each. Combine landing return and bonus in

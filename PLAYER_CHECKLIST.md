@@ -12,6 +12,10 @@
   drop. The pastel board shows your saved field after playing; the next field
   is revealed when you drop. Replay earns nothing and preserves that field.
 
+- Use **Sound: on/off** above the Prism Drop field to mute or enable effects.
+  Your browser remembers the setting. Sounds begin after a click or tap; free
+  replays play sounds too. Reduced motion keeps only the landing cue.
+
 - Nightly Little Log reports appear in the configured reports channel after
   generation completes. Open the `.md` attachment for the full report; its caption
   warns if generation reached its output limit. Manual analyses are not posted.

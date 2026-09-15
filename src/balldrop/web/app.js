@@ -73,7 +73,7 @@ function render() {
     const button = document.createElement("button"), number = document.createElement("strong"), text = document.createElement("small");
     button.style.setProperty("--color", colors[round.landing - 1]); number.textContent = round.landing; text.textContent = `${round.payout} returned`;
     button.setAttribute("aria-label", `Replay landing ${round.landing}, ${money(round.payout)} returned. Free replay.`);
-    button.append(number, text); button.addEventListener("click", () => { if (!busy && !animating) void animate(round); }); $("recent").append(button);
+    button.append(number, text); button.addEventListener("click", () => { if (!busy && !animating) { prismSound.unlock(); void animate(round); } }); $("recent").append(button);
   }
   if (!$("recent").children.length) { const empty = document.createElement("p"); empty.className = "muted"; empty.textContent = "Your settled drops will appear here."; $("recent").append(empty); }
   if (!data) { displayed = null; ball = null; terrainRound = null; usedPegs.clear(); $("peg-bonus").textContent = "0"; $("result-title").textContent = "A pocketful of possibility."; $("result-copy").textContent = "Sign in to play with your LiDollcoins."; $("result-value").textContent = ""; $("peg-reset").textContent = "A fresh field of blocks, bombs and coins is shuffled when you drop."; }
@@ -157,6 +157,8 @@ function drawField() {
 
 async function animate(round) {
   if (animating) return;
+  prismSound.stop();
+  if (!motion.matches) prismSound.play("drop"); // Reduced motion skips straight to a single landing cue instead of a burst of skipped hits.
   if (!motion.matches) canvas.scrollIntoView({ block: "center", behavior: "smooth" }); // Keep the drop visible when mobile betting controls sit below the tall field.
   animating = true; displayed = null; terrainRound = round; usedPegs.clear(); particles = []; impacts = []; $("peg-bonus").textContent = "0"; controls();
   $("peg-reset").textContent = "Playing this drop's saved field. Each bomb and coin peg works once.";
@@ -179,6 +181,7 @@ async function animate(round) {
           if (hit.coins) { collected += hit.coins; $("peg-bonus").textContent = collected; }
         } // Account for every saved pickup even if a backgrounded tab skips animation frames.
         previousSegment = segment;
+        if (segment > 0 && elapsed - ends[segment] < 120) prismSound.play(from.hit || "peg", from); // Do not play a backlog of hits after a stalled or backgrounded frame.
         const color = from.hit === "coin" ? "#94641c" : from.hit === "bomb" ? "#db7357" : from.hit === "block" ? "#9674c0" : colors[Math.max(0, round.path[Math.max(0, segment - 1)] - 1)];
         impacts.push({ ...from, life: 1, color, type: from.hit, coins: from.coins });
         if (from.hit) {
@@ -194,18 +197,19 @@ async function animate(round) {
     }; raf = requestAnimationFrame(frame);
   });
   ball = { x: x(round.landing), y: 852 }; animating = false; particles = []; impacts = []; showResult(round);
+  prismSound.play("landing", round);
 } // Replay the authoritative path with colorful trails and pin rings; reduced motion reveals the result immediately.
 
 for (let value = 1; value <= 10; value++) {
   const button = document.createElement("button"); button.type = "button"; button.dataset.value = value; button.textContent = value; button.style.setProperty("--color", colors[value - 1]); button.setAttribute("aria-label", `Guess pocket ${value}`);
-  button.addEventListener("click", () => { guess = value; select(); }); $("pockets").append(button);
+  button.addEventListener("click", () => { prismSound.unlock(); guess = value; select(); }); $("pockets").append(button);
 }
 for (const value of [1, 5, 10, 25, 50, 100]) {
   const button = document.createElement("button"); button.type = "button"; button.dataset.value = value; button.textContent = value; button.setAttribute("aria-label", `Bet ${money(value)}`);
-  button.addEventListener("click", () => { bet = value; select(); }); $("bets").append(button);
+  button.addEventListener("click", () => { prismSound.unlock(); bet = value; select(); }); $("bets").append(button);
 } // Native buttons support touch, keyboard focus and screen-reader selection announcements.
-$("drop").addEventListener("click", () => { void act(); }); $("retry").addEventListener("click", () => { void act(true); });
-$("replay").addEventListener("click", () => { if (displayed && !busy && !animating) void animate(displayed); });
+$("drop").addEventListener("click", () => { prismSound.unlock(); void act(); }); $("retry").addEventListener("click", () => { prismSound.unlock(); void act(true); });
+$("replay").addEventListener("click", () => { if (displayed && !busy && !animating) { prismSound.unlock(); void animate(displayed); } });
 $("refresh").addEventListener("click", async () => { if (busy || animating) return; busy = true; controls(); try { await refresh(); notice(data.walletError || ""); } catch (error) { if (data) data.coins = null; notice(error.message); } finally { busy = false; controls(); } });
 $("logout").addEventListener("click", async () => { if (busy || animating) return; busy = true; controls(); try { await api("logout", {}); saveRequest(null); location.reload(); } catch (error) { notice(error.message); } finally { busy = false; controls(); } });
 select(); refresh().then(() => { if (data.walletError) notice(data.walletError); }).catch(error => notice(error.message));

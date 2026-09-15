@@ -11,6 +11,9 @@ round and peg coordinates rather than reacting to animation or replay events.
 Layouts reshuffle each wager, so a coordinate is only a peg identity within its
 saved round; it must never be treated as a persistent collectible.
 
+Sound cues, including replayed coin chimes and landing melodies, are cosmetic
+and must never grant quest progress or currency.
+
 Little Log nightly reports are read-only and grant no currency, quest progress
 or roles. Generated report prose must never trigger game actions. See
 [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).

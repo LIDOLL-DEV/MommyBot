@@ -11,6 +11,9 @@ A replayed gold sparkle is not a newly earned coin. Field captions distinguish
 a new shuffled wager from a saved field; do not describe the displayed history
 as a preview of the next drop. Keep the gentle tracker-inspired voice.
 
+Prism Drop now has nonverbal synthesized sounds. Keep text results and pending
+payment notices complete for muted players; a sound never replaces a notice.
+
 Little Log nightly reports are upstream model-authored Markdown attachments
 with a fixed date/ID and completeness caption in `src/reports/publisher.js`.
 Report text never controls bot actions or mentions. See
