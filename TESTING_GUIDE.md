@@ -25,6 +25,10 @@ and paths, all entry pins, and unchanged layouts after duplicate wagers and
 restart recovery. Chrome also checks the tracker pastel theme, successive
 random fields and their saved replay/reload state.
 
+The Fedora installer copies `scripts/fixtures/` alongside `test/` before running
+the release tests. Keep shared fixture files in that package; omitting the
+ball-drop layout causes the entire test file to fail during module loading.
+
 ## Little Log nightly reports
 
 `test/reports.test.js` checks explicit history/future configuration, safe API

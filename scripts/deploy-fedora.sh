@@ -129,8 +129,9 @@ fs.writeFileSync(process.argv[2], JSON.stringify({ revision: process.argv[3], de
 NODE
 # Record which checkout supplied the running code, including manually deployed local changes.
 if [[ -d "$source_dir/test" ]]; then
-    tar -C "$source_dir" -cf - test | tar -C "$release" -xf -
+    tar -C "$source_dir" -cf - test scripts/fixtures | tar -C "$release" -xf -
 fi
+# Include shared collision fixtures so release tests load the same inputs as checkout tests.
 chown -R mommybot:mommybot "$release"
 cd -- "$release"
 runuser -u mommybot -- env HOME="$state" npm ci --omit=dev --no-audit --no-fund
