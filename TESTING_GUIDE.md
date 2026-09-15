@@ -1,5 +1,29 @@
 # Testing MommyBot
 
+## Littlepottchi and Clothes Emporium
+
+The expanded-catalog regressions cover more than 1,000 designs, all 13 wearable
+slots, complete alternate hems, back sections, opaque `d` color variants,
+underwear/diaper replacement, and visibility of bras/corsets without the starter
+shirt. `py -3.11 python/test_wardrobe_catalog.py` checks discovery using synthetic
+PNGs, without requiring the external source archive. The browser check verifies
+36-item pagination, next-page contents and filters for newly supported slots.
+
+Run `node --test test/dressup.test.js test/diaper-gacha.test.js test/diaper-commands.test.js`
+for native asset registration, Atelier mappings, automatic wide/narrow transitions
+for both bodies, wrong-slot/unowned rejection, incompatible garments, sale
+reservations, care cooldowns, wallet recovery, shared sessions and CSRF.
+`npm test` runs the complete suite (`npm.cmd test` on restricted PowerShell hosts).
+
+Set `PUPPETEER_MODULE` to a local puppeteer-core entry point and `CHROME_PATH` to a
+local Chrome/Edge executable; run `node scripts/check-dressup-browser.mjs`. It uses
+in-memory accounts and fake coins to check dressing, stance changes, split hair,
+care, clothing rolls, lost-response recovery across reload, mobile width and logout.
+Screenshots and contact sheets live in ignored `data/dressup-review/`.
+Run `py -3.11 python/game_editor_gui.py --validate` after tuning the manifest.
+Visually inspect both body shapes and complete A/B/C garment sections whenever
+adding new assets. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
+
 ## Conversational routing
 
 Run `node --test test/router.test.js test/conversation-memory.test.js` for

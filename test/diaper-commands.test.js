@@ -12,7 +12,7 @@ test("singular and plural diaper commands register independently and failures lo
     const value = command.toJSON(); attempts.push(value.name);
     if (value.name === "diaper") throw Object.assign(new Error("PRIVATE RESPONSE"), { code: 50001 });
   } } });
-  assert.deepEqual(attempts, ["diaper", "diapers"]);
+  assert.deepEqual(attempts, ["diaper", "diapers", "clothes", "littlepottchi"]);
   assert.match(logs.join("\n"), /Discord code 50001/);
   assert.match(logs.join("\n"), /\/diapers ready/);
   assert.doesNotMatch(logs.join("\n"), /PRIVATE RESPONSE/);

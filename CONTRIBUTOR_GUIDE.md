@@ -1,5 +1,21 @@
 # Contributing to MommyBot
 
+## Littlepottchi wardrobe
+
+The catalog now covers 1,080 wearable items. Maintain folder-based discovery in
+`python/wardrobe_catalog.py`, its per-source import report, 36-item browser pages,
+and all 13 garment/accessory slots. Preserve opaque color variants, rejoin shared
+bodices with alternate hems, and draw back sections behind the body. Run
+`py -3.11 python/test_wardrobe_catalog.py` when changing import classification.
+
+`src/dressup/` connects Clothes Emporium and Littlepottchi to Atelier sessions and
+inventory. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md). Preserve automatic diaper-to-base
+selection, complete A/B/C garment layers, live ownership checks and separate
+clothing payment recovery. Art and fit metadata live in `assets/dressup/catalog.json`;
+update `python/game_editor_gui.py` with any schema changes. Python tools belong
+under `python/`, PowerShell tools under `ps/`. Run the dress-up tests and browser
+check after changing outfit layers, fit rules or transactions.
+
 ## Chat routing
 
 Keep routing policy in `src/graph/router.js` and bounded Discord context in

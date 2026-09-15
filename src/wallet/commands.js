@@ -97,6 +97,11 @@ export async function runWalletAction(interaction, wallet, identities, action, o
           response = { content: giftText(await wallet.gifts.retry(user)) };
           break;
         }
+        if (wallet.clothes?.pending(user)) {
+          const result = await wallet.clothes.retry(user);
+          response = { content: `Clothes Emporium payment completed: **${result.item.name}** for **${result.amount} LiDollcoins**.` };
+          break;
+        } // Resume the saved clothing operation without drawing or charging twice.
         if (wallet.gacha?.pending(user)) {
           const result = await wallet.gacha.retry(user);
           response = { content: `Diaper ${result.action} completed for ${result.amount} LiDollcoins. Use /diapers to see your collection and bank.` };

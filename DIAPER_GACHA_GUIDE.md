@@ -1,5 +1,11 @@
 # Diaper Atelier
 
+Owned designs now also dress your doll in **Littlepottchi** (`/littlepottchi/`).
+**Clothes Emporium** (`/clothes/`) supplies individually rolled clothing pieces.
+All three share the Atelier login session. The equipped diaper automatically
+chooses the regular or wide-legged base; clothing fit and care are explained in
+[DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
+
 A web-based diaper collection game for LiDollBot, inspired by LumiBot's cigarette
 gacha: weighted random discoveries, collectible copies and rarity tiers. The
 atelier uses Little Tracker's pastel theme and the supplied `diaper-gacha/` art.

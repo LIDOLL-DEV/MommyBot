@@ -124,7 +124,7 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   const hangman = initializeHangman(config, store, wallet);
   const balldrop = initializeBallDrop(config, store, wallet); // Register pending bet guards before opening the shared listener.
   const touhouWeb = initializeTouhouWeb(config, store, trader, client);
-  const games = Object.fromEntries([["diapers", gacha, "Diaper Atelier"], ["hangman", hangman, "Cozy Hangman"], ["balldrop", balldrop, "Prism Drop"], ["touhou", touhouWeb, "Touhou Trader"]]
+  const games = Object.fromEntries([["diapers", gacha, "Diaper Atelier"], ["clothes", gacha, "Clothes Emporium"], ["littlepottchi", gacha, "Littlepottchi"], ["hangman", hangman, "Cozy Hangman"], ["balldrop", balldrop, "Prism Drop"], ["touhou", touhouWeb, "Touhou Trader"]]
     .filter(([, game]) => game).map(([key, game, title]) => [key, { sessions: game.sessions, title }]));
   const gameLogin = createGameLogin(config, store, createOidc(config, Boolean(wallet), { statePrefix: "game." }), games, Date.now, wallet);
   const leaderboardWeb = wallet ? createLeaderboardWeb(config, new CoinLeaderboard(store, wallet)) : null;

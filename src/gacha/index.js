@@ -6,18 +6,21 @@ import { DiaperStore, GachaError } from "./store.js";
 import { WalletError } from "../wallet/client.js";
 import { GachaSessions } from "./sessions.js";
 import { createGachaWeb } from "./web.js";
+import { initializeDressup } from "../dressup/index.js";
 
 export function initializeGacha(config, identities, wallet) {
   const settings = gachaConfig();
   if (!wallet) return null;
   const game = new DiaperStore(fileURLToPath(new URL("../../data/diaper-gacha.db", import.meta.url)), loadDiaperCatalog(), wallet, settings);
   const sessions = new GachaSessions(game.db, identities);
+  const dressup = initializeDressup(config, game, sessions);
+  const atelierWeb = createGachaWeb(config, game, sessions);
   return {
     sessions,
-    web: createGachaWeb(config, game, sessions),
+    web: async (request, response) => Boolean(await dressup.web(request, response) || await atelierWeb(request, response)),
     revoke: user => sessions.revoke(user),
     prune: () => sessions.prune(),
-    close: () => game.close(),
+    close: () => { dressup.close(); game.close(); },
     ...createGachaCommands(config, sessions, game),
   };
 }
@@ -25,7 +28,7 @@ export function initializeGacha(config, identities, wallet) {
 const rarityColors = { common: 0xf4c2d7, uncommon: 0x9fd8b8, rare: 0x8fb8f0, epic: 0xc39bf0, legendary: 0xf5c45e };
 
 export function createGachaCommands(config, sessions, game = null) {
-  const names = ["diaper", "diapers"];
+  const names = ["diaper", "diapers", "clothes", "littlepottchi"];
   const rollMessage = async user => {
     const { amount, item } = await game.act(user, "roll", null, randomUUID());
     const embed = new EmbedBuilder().setColor(rarityColors[item.rarity]).setTitle(item.name).setDescription(item.description)
@@ -43,7 +46,7 @@ export function createGachaCommands(config, sessions, game = null) {
     async registerGuild(guild) {
       for (const name of names) {
         try {
-          await guild.commands.create(new SlashCommandBuilder().setName(name).setDescription("Open your Diaper Gacha collection, rolls and bank in your browser"));
+          await guild.commands.create(new SlashCommandBuilder().setName(name).setDescription(name === "clothes" ? "Open Clothes Emporium to roll for wearable clothing" : name === "littlepottchi" ? "Dress and care for your Littlepottchi doll" : "Open your Diaper Gacha collection, rolls and bank in your browser"));
           console.log(`[Diaper Gacha] /${name} ready in guild ${guild.id}.`);
         } catch (error) {
           const code = Number.isSafeInteger(error.code) ? ` (Discord code ${error.code})` : "";
@@ -89,7 +92,9 @@ export function createGachaCommands(config, sessions, game = null) {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       let content;
       try {
-        content = linkMessage(interaction.user.id);
+        content = ["clothes", "littlepottchi"].includes(interaction.commandName)
+          ? `Open ${interaction.commandName === "clothes" ? "Clothes Emporium" : "Littlepottchi"}: ${config.origin}/${interaction.commandName}/\nSign in with LiD0llID, or open /diapers first to use your existing browser session.`
+          : linkMessage(interaction.user.id);
       } catch (error) { content = error instanceof GachaError ? error.message : "The atelier is unavailable. Please try again shortly."; }
       await interaction.editReply({ content, allowedMentions: { parse: [] }, flags: MessageFlags.SuppressEmbeds });
       return true;

@@ -1,5 +1,16 @@
 # Quest-making notes
 
+## Littlepottchi
+
+Count complete design IDs, not individual A/B/C or back-section PNGs, for future
+collection quests. The expanded 1,080-item wardrobe has 13 clothing/accessory slots;
+switching between underwear and a diaper is an equipment change only.
+
+Care moments currently count companionship actions only; they grant no coins,
+items or quest completion. Future clothing quests must reference a unique settled
+clothing job, never a reveal animation or a wardrobe render. Equipping and fresh
+changes do not consume or award collectible copies. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
+
 ## Ordinary conversation
 
 Chat categorization is not a quest event. A respond/skip decision grants no

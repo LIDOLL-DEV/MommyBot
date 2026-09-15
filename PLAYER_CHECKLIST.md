@@ -1,5 +1,21 @@
 # MommyBot player checklist
 
+## Dress and care for your doll
+
+- Browse the **1,080-piece** clothing catalog using slot filters, search, and
+  Previous/Next. Gloves, bags, bras, underwear, corsets, belts and accessories have
+  their own slots. Equipping underwear replaces the diaper; equipping a diaper
+  restores that diaper's automatic stance.
+
+- Open `/clothes` or `/littlepottchi` in Discord, or visit the matching browser
+  pages. Sign in with LiD0llID or use your existing Atelier browser session.
+- Roll for individual clothing pieces, wear owned pieces, and equip Atelier
+  diapers from **My diapers**. Large diapers automatically spread the doll's legs;
+  smaller diapers switch them back. Incompatible clothes stay in your collection.
+- Customize the doll's name, body, face and hair. Feed, play, rest or change for
+  free; care buttons have a short cooldown. Retry saved payments before rolling
+  again. Full instructions: [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
+
 - To address Sakura directly, mention her, begin with **Sakura, ...**, or use
   Discord **Reply** on her message. Reply works even with the reply ping off.
   Short answers can continue a recent exchange; you do not need to tag every

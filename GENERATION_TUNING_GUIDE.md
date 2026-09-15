@@ -1,5 +1,18 @@
 # MommyBot generation tuning
 
+## Clothing rolls and care
+
+Expanded clothing rarity defaults are assigned by the importer; existing edited
+rarities remain preserved by ID. Tier probabilities remain fixed as new designs
+join the pool, so per-design odds decrease within growing tiers. The import report
+distinguishes wearable designs from faded previews and shared garment sections.
+
+Littlepottchi has authored UI and care rules, with no generated dialogue or image
+generation at runtime. Clothes Emporium draws rarity then a uniform design using
+server randomness. Tune rarity and fit in `assets/dressup/catalog.json` or
+`python/game_editor_gui.py`, keeping every tier populated. A diaper's saved stance
+selects the actual body base automatically. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
+
 ## Conversational routing
 
 `src/graph/router.js` decides whether ordinary chat merits a reply. Direct

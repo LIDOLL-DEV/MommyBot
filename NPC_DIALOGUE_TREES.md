@@ -1,5 +1,17 @@
 # NPC dialogue notes
 
+## Littlepottchi and Clothes Emporium
+
+Wardrobe copy should refer to complete garments and accessories across the expanded
+catalog. Underwear and diapers replace one another when equipped; describe the
+resulting stance without implying either collectible was consumed.
+
+These games use fixed care labels, outfit notices and purchase results in
+`src/dressup/web/app.js`; there are no NPC dialogue trees yet. Explain that the
+diaper chooses the leg stance and incompatible clothing stays in the wardrobe.
+Keep fresh-change wording matter-of-fact and payment-retry wording tied to the
+saved operation. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
+
 ## Sakura conversation turns
 
 Sakura's router distinguishes an invitation to speak from a conversation

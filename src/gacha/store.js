@@ -23,7 +23,7 @@ export class DiaperStore {
     this.db.transaction(() => { for (const item of catalog) seed.run(item.id, JSON.stringify(item)); })();
     const previous = wallet.hasPending;
     wallet.hasPending = user => previous(user) || Boolean(this.pending(user));
-    wallet.gacha = this;
+    wallet[config.walletKey === "clothes" ? "clothes" : "gacha"] = this; // Separate journals share the existing wallet lock and recovery guard.
   } // Keep reservations, payment receipts and ownership together; compose with every other game's pending-payment guard.
 
   pending(user) { return this.db.prepare("SELECT * FROM diaper_jobs WHERE user_id=? AND state IN ('pending','paid') ORDER BY created LIMIT 1").get(user); }
