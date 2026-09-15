@@ -62,6 +62,17 @@ Gender, physique and genital appearance are separate creator preferences.
 Do not infer pronouns or gender from body shape, chest or genital choices.
 Creator status text should explain saving and previews without narrating anatomy.
 
+Keep the game dashboard terse: action names, meters and short timer status.
+Put choice descriptions and care instructions inside their relevant menus. Fresh
+Change copy names the selected design, bulk, stance and availability. When cleanup
+is required, explain the single wipe requirement beside the confirmation control.
+Closing a menu is silent and does not imply that the selected action happened.
+
+Use “Full and uncomfortable — no leak yet” at capacity. Do not announce a leak
+until the server records one. The displayed probability describes the next new
+accident, not a continuous chance while waiting. On a leak, explain that one baby
+wipe is required before changing; contained accidents do not require cleanup.
+
 Littlepottchi characters are adults. Describe toy actions through plain status
 text such as “Wand active” and “Session complete.” Use neutral wording for every
 gender; player-entered gender is text, not a dialogue command or body restriction.

@@ -12,19 +12,28 @@
 <p id="notice" role="status" aria-live="polite" hidden></p>
 <section id="signin" class="card" hidden><h2>Your wardrobe is waiting</h2><p>Sign in to share your Atelier collection, clothing and wallet.</p><a id="login" class="primary" href="/littlepottchi/login">Sign in with LiD0llID →</a></section>
 <div id="game" hidden>
-<div class="layout"><aside class="doll-card"><div class="doll-heading"><span class="eyebrow">YOUR LITTLE COMPANION</span><h2 id="doll-name">Littlepottchi</h2><p id="stance">Regular stance</p></div><div class="stage"><span class="sparkle left">✧</span><canvas id="doll" width="387" height="875" role="img" aria-label="Your dressed doll"></canvas><span class="sparkle right">✧</span><div class="rug"></div></div><p id="outfit-note">Your outfit is saved automatically.</p><a class="text-link" id="other-game" href="/clothes/">Find something lovely at the Emporium →</a></aside>
+<div class="layout"><aside class="doll-card"><div class="doll-heading"><span class="eyebrow">YOUR LITTLE COMPANION</span><h2 id="doll-name">Littlepottchi</h2><p id="stance">Regular stance</p></div><div class="stage"><span class="sparkle left">✧</span><canvas id="doll" width="387" height="875" role="img" aria-label="Your dressed doll"></canvas><span class="sparkle right">✧</span><div class="rug"></div></div><p id="outfit-note">Your outfit is saved automatically.</p><button id="edit-character" data-menu="character" class="small-action">Edit character</button><a class="text-link" id="other-game" href="/clothes/">Find something lovely at the Emporium →</a></aside>
 <div class="workspace">
-<section id="care-panel" class="card"><div class="section-title"><div><p class="eyebrow">A MOMENT TOGETHER</p><h2>How are you feeling?</h2></div><span id="bond" class="pill">0 care moments</span></div><div id="needs" class="needs"></div>
-<section class="excitement-care" aria-labelledby="excitement-heading"><h3 id="excitement-heading">Excitement</h3><label for="excitement">Current level <strong id="excitement-label">0 / 255</strong></label><progress id="excitement" max="255" value="0"></progress><p id="excitement-rhythm" class="fine"></p><div class="care-picker"><label>Toy menu<select id="toy"></select></label><button id="activate-toy">Activate toy</button><button id="stop-toy">Stop toy</button></div><p id="toy-status" role="status"></p><p class="fine">Reusable toys are free. Relief builds over the session; you can stop at any time.</p></section>
-<div class="diaper-care"><label for="wetness">Diaper capacity used <strong id="wetness-label"></strong></label><progress id="wetness" max="3" value="0"></progress><p id="accident-counts" class="fine"></p><p id="leak-status" role="status"></p><p id="wetting-clock" class="fine"></p><p id="rhythm" class="fine"></p><label class="reminder-choice"><input id="messy-mode" type="checkbox"> Enable messy mode</label><p id="messy-clock" class="fine"></p><p id="messy-rhythm" class="fine"></p><div class="care-picker"><label>Fresh diaper<select id="replacement"></select></label><button data-care="change">Fresh change</button></div></div>
-<div class="camera-care"><figure><img id="buttcam" width="256" height="256" alt="Diaper camera" hidden><figcaption id="buttcam-note"></figcaption></figure><div><h3>Cleanup & changes</h3><p id="cleanup-status" role="status"></p><p id="wipe-stock"></p><div class="care-actions"><button id="remove-diaper">Remove diaper</button><button id="use-wipe">Use 1 baby wipe</button></div><a href="/diapers/#supplies">Buy baby wipes at Diaper Atelier</a><p class="fine">One wipe cleans all diaper-free accidents and leaks. Contained accidents do not require a wipe.</p></div></div>
-<h3>Something to eat & drink</h3><div class="care-picker"><img id="food-art" width="64" height="64" alt=""><label>Pantry<select id="food"></select></label><button data-care="feed">Feed</button><button data-care="water">Give water</button></div>
-<h3>A little routine</h3><div class="care-actions"><button data-care="play">Play · 2 minutes</button><button data-care="rest">Rest · 5 minutes</button></div><p id="activity-status" role="status"></p><ul id="care-timers" class="fine"></ul>
-<label class="reminder-choice"><input id="pet-reminders" type="checkbox"> Receive pet reminders through Little Log</label><p class="fine">Enable push notifications in Little Log using the same LiD0llID account. Its quiet hours apply. Food and water are free; buy baby wipes in Diaper Atelier. Changing reuses an unlocked diaper design. Timers continue while you are away.</p></section>
+<section id="care-panel" class="card game-dashboard">
+<div class="section-title"><h2>Your day</h2><span id="bond" class="pill">0 care moments</span></div><div id="needs" class="needs"></div>
+<div class="status-grid"><div class="diaper-care"><label for="wetness">Diaper <strong id="wetness-label"></strong></label><progress id="wetness" max="3" value="0"></progress><p id="leak-status" role="status"></p><p id="overflow-status" class="fine"></p><p id="wetting-clock" class="fine"></p><p id="messy-clock" class="fine"></p></div>
+<div class="excitement-care"><label for="excitement">Excitement <strong id="excitement-label">0 / 255</strong></label><progress id="excitement" max="255" value="0"></progress><p id="toy-status" role="status"></p><button id="stop-toy" class="small-action">Stop toy</button></div></div>
+<nav class="action-dock" aria-label="Doll actions">
+<button id="fresh-change" data-menu="change"><span aria-hidden="true">♡</span>Fresh Change</button>
+<button id="open-food" data-menu="food"><span aria-hidden="true">◒</span>Food</button>
+<button data-care="water"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2C9 7 5 11 5 15a7 7 0 0 0 14 0c0-4-4-8-7-13Z"/><path d="M8 15a4 4 0 0 0 4 4"/></svg>Water</button>
+<button data-menu="routine"><span aria-hidden="true">☾</span>Play &amp; Rest</button>
+<button id="open-toys" data-menu="toys"><span aria-hidden="true">✦</span>Toys</button>
+<button id="open-wardrobe" data-menu="wardrobe"><span aria-hidden="true">♙</span>Wardrobe</button>
+<button id="open-character" data-menu="character"><span aria-hidden="true">✧</span>Character</button>
+<button id="open-settings" data-menu="settings"><span aria-hidden="true">⚙</span>Care &amp; Settings</button>
+</nav>
+<div class="day-status"><p id="activity-status" role="status"></p><button id="use-wipe">Use 1 wipe</button><span id="wipe-stock" class="fine"></span></div>
+</section>
 <section id="roll-panel" class="card machine" hidden><div class="capsule" aria-hidden="true">✿</div><div><p class="eyebrow">THE CLOTHES EMPORIUM</p><h2>A surprise for your wardrobe.</h2><p>One roll, one wearable piece. Keep duplicates or trade them at the bank.</p><button id="roll" class="primary">Roll for 3 coins</button><p id="roll-status" class="fine"></p></div><div id="odds" class="odds"></div></section>
 <section id="pending" class="card pending" hidden><h3>Your payment is saved</h3><p>Finish this payment to receive your item. Retrying uses the same purchase.</p><button id="retry" class="primary">Retry payment</button></section>
-<section id="builder" class="card"><details><summary>✧ Make this doll your own <span>name · gender · body · hair · face · anatomy</span></summary>
-<p class="fine">Your doll is an adult. Gender, body shape and anatomy are independent choices.</p>
+<section id="builder" class="creator-panel"><div class="creator-stage"><canvas id="creator-doll" width="387" height="875" role="img" aria-label="Character preview"></canvas></div><div>
+<p class="fine">Adult doll · choose gender, body and anatomy independently.</p>
 <form id="appearance">
 <label>Doll name<input id="name" maxlength="32" required></label><label>Gender (optional)<input id="gender" maxlength="32" placeholder="Your choice"></label>
 <label>Body<select id="shape"><option value="soft">Soft</option><option value="angular">Angular</option></select></label>
@@ -33,13 +42,27 @@
 <label>Genital appearance<select id="genitals"></select></label><label>Pubic hair<select id="pubes"></select></label>
 <button class="primary" type="submit">Save my doll</button></form>
 <label class="reminder-choice"><input id="preview-body" type="checkbox"> Preview body without clothing</label>
-<p id="creator-note" class="fine">Changes appear in the preview. Save to keep them. Clothing covers anatomical details; a shared bare camera represents the five genital styles.</p>
-</details></section>
-<section class="card wardrobe"><div class="section-title"><div><p class="eyebrow">MIX, MATCH, MAKE IT YOURS</p><h2 id="gallery-title">Your wardrobe</h2></div><span id="collection-count" class="pill"></span></div>
+<p id="creator-note" class="fine">Preview your changes, then Save. Covered details stay hidden.</p>
+</div></section>
+<section id="wardrobe-panel" class="card wardrobe"><div class="section-title"><div><p class="eyebrow">MIX, MATCH, MAKE IT YOURS</p><h2 id="gallery-title">Your wardrobe</h2></div><span id="collection-count" class="pill"></span></div>
 <nav class="tabs" aria-label="Collection views"><button data-view="owned" aria-pressed="true">My wardrobe</button><button data-view="diapers" aria-pressed="false">My diapers</button><button data-view="catalog" aria-pressed="false">Design book</button><button data-view="bank" aria-pressed="false">Clothing bank</button></nav>
 <div class="filters"><label>Find a favorite<input id="search" type="search" placeholder="A bonnet, a blouse, a bow…"></label><label>Slot<select id="slot"><option value="">Every piece</option value="top">Tops & dresses</option><option value="bottom">Bottoms</option><option value="shoes">Shoes</option><option value="socks">Socks</option><option value="head">Headwear</option></select></label><label>Rarity<select id="rarity"><option value="">All rarities</option><option>common</option><option>uncommon</option><option>rare</option><option>epic</option><option>legendary</option></select></label></div>
 <div id="equipped" class="equipped"></div><nav class="tabs" aria-label="Wardrobe pages"><button id="previous-page" type="button">← Previous</button><span id="gallery-status" class="pill" role="status"></span><button id="next-page" type="button">Next →</button></nav><div id="gallery" class="gallery"></div></section>
 </div></div></div>
 <footer>Littlepottchi · Clothes Emporium · Diaper Atelier <span>Little things. Lots of possibility.</span></footer></main>
 <dialog id="reveal"><button id="close-reveal" class="close" aria-label="Close reveal">×</button><p class="eyebrow">LOOK WHAT FOUND YOU</p><canvas id="prize-art" width="160" height="150"></canvas><p id="prize-rarity" class="pill"></p><h2 id="prize-name"></h2><p id="prize-copy"></p><button id="prize-done" class="primary">Into my wardrobe ♡</button></dialog>
+<dialog id="game-menu" class="game-menu" aria-labelledby="menu-title">
+<div class="menu-heading"><h2 id="menu-title"></h2><button id="close-menu" aria-label="Close menu">×</button></div>
+<p id="menu-notice" role="alert" hidden></p>
+<div id="picker-panel"><p id="menu-hint" class="fine"></p><input id="menu-search" type="search" aria-label="Find a diaper" placeholder="Find a diaper…" hidden><div id="menu-choices" class="picture-grid"></div>
+<div id="change-cleanup" hidden><p id="change-cleanup-text"></p><button id="menu-wipe">Use 1 baby wipe</button><a href="/diapers/#supplies">Buy wipes ↗</a></div>
+<div class="menu-footer"><p id="selection-label"></p><button id="confirm-choice" class="primary">Use selected</button></div></div>
+<div id="menu-content"></div>
+<section id="settings-panel" hidden>
+<div class="camera-care"><figure><img id="buttcam" width="256" height="256" alt="Diaper camera" hidden><figcaption id="buttcam-note"></figcaption></figure><div><h3>Care status</h3><p id="cleanup-status" role="status"></p><p id="accident-counts" class="fine"></p><button id="remove-diaper">Remove diaper</button></div></div>
+<label class="reminder-choice"><input id="messy-mode" type="checkbox"> Messy mode</label><p id="messy-rhythm" class="fine"></p>
+<label class="reminder-choice"><input id="pet-reminders" type="checkbox"> Little Log push reminders</label><p class="fine">Enable push in Little Log with the same account. Quiet hours apply.</p>
+<details><summary>Timers &amp; rules</summary><ul id="care-timers" class="fine"></ul><p id="rhythm" class="fine"></p><p id="excitement-rhythm" class="fine"></p><p class="fine">One wipe clears all cleanup after leaks or diaper-free accidents. Fresh changes reuse unlocked diapers. Timers continue offline.</p></details>
+</section>
+</dialog>
 </body></html>

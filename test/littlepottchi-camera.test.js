@@ -48,12 +48,12 @@ test("contained accidents change freely; leaks retain cleanup after removal and 
   let d = f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
   f.now = d.player.care.nextWettingAt; d = f.doll.act(f.user,{action:"change",design:"cloud-tapes"});
   assert.equal(d.player.care.needsWipe,false); assert.equal(f.receipts.size,0);
-  f.now = d.player.care.nextWettingAt + d.player.care.interval; d = f.doll.snapshot(f.user);
+  f.now = d.player.care.nextWettingAt + 2 * d.player.care.interval; d = f.doll.snapshot(f.user);
   assert.equal(d.player.care.leaking,true); assert.equal(d.player.care.needsWipe,true);
   await buy(f); d = f.doll.act(f.user,{action:"wipe"}); assert.equal(d.player.care.leaking,true);
   assert.equal(f.doll.snapshot(f.user).player.care.needsWipe,false);
   d = f.doll.act(f.user,{action:"change",design:"cloud-tapes"}); assert.equal(d.player.care.leaking,false);
-  f.now = d.player.care.nextWettingAt + d.player.care.interval; f.doll.snapshot(f.user);
+  f.now = d.player.care.nextWettingAt + 2 * d.player.care.interval; f.doll.snapshot(f.user);
   d = f.doll.act(f.user,{action:"equip",slot:"diaper",design:null}); assert.equal(d.player.care.needsWipe,true);
   assert.throws(() => f.doll.act(f.user,{action:"change",design:"cloud-tapes"}),/baby wipe/);
 });

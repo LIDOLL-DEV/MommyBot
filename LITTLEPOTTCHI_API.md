@@ -44,24 +44,35 @@ the same design, supplies a fresh one; Cloud Tapes is also a free starter supply
   server chooses the current frame and ignores client frame parameters. They are
   excluded from the public artwork allowlist. `buttcam` metadata is in pet snapshots.
 
-- Each wetting adds **1 wetness**. At `wetness + (mess × 2) >= diaper.bulk`, the doll leaks until
-  a fresh diaper is equipped or selected with **Fresh change**. Only diapers and
+- Each wet or messy accident uses **1 bulk**, matching lidollquest's
+  `_handle_diaper_overflow` in `scripts/scrAccidentSystem/scrAccidentSystem.gml`.
+  At `wetness + mess >= diaper.bulk`, the doll becomes uncomfortable (comfort
+  capped at 35), without an automatic leak. After each new accident above capacity,
+  leak chance is `min(100, (wetness + mess - diaper.bulk) * 10)` percent.
+  Only an actual leak requires one baby wipe before a fresh diaper; one wipe clears
+  all accumulated body cleanup. A previous leak stays marked until replacement,
+  but subsequent contained accidents do not soil the cleaned doll again.
+  Offline events resolve chronologically (wet first on ties). No refresh, restart
+  or rejected action rerolls elapsed accidents. Existing saved leaks and pending
+  cleanup remain; historical accidents are not rerolled during migration.
+  Snapshots include `overflow` (`usedBulk`, `full`, `excess`, `nextLeakChance`),
+  `overflowRules`, and `player.care.uncomfortable`. Only diapers and
   training pants may fill this slot; ordinary underwear is unavailable. Removing clothing, changing appearance, selling an item or
   refreshing does not clean the doll. Replacements preserve the next wetting time.
 - **Messy mode** is optional and off for new and migrated saves. While enabled,
-  each messy accident is scheduled after a randomly chosen 10–14 hours; each uses two bulk units.
+  each messy accident is scheduled after a randomly chosen 10–14 hours; each uses one bulk unit.
   The first interval and every subsequent interval are sampled independently.
   Saved deadlines, including existing 12-hour countdowns, survive updates, restarts
   and diaper changes. Offline catch-up samples each elapsed interval separately.
   Little Log's saved analysis currently has no bowel-event counts, so this timer
   is explicitly authored game timing and does not use the community wetting mean.
   The doll displays wet and messy counts separately, with one combined capacity
-  meter. A messy diaper reduces comfort and needs a fresh change even before it leaks.
+  meter. Discomfort begins at capacity; a messy diaper can be changed before then.
   Disabling the mode pauses its remaining time without clearing mess or leaks;
   enabling resumes it. Repeated settings requests do not restart the timer.
   Fresh replacements clear both counts while preserving both accident clocks and
   lifetime totals. Offline accidents catch up once, without a notification storm.
-  Tune `messyRules` in `src/dressup/care.js` (`minInterval`, `maxInterval` and bulk per accident).
+  Tune `messyRules` in `src/dressup/care.js` (`minInterval` and `maxInterval`).
 - Bulk is an integer from 1–100, independently editable from the diaper's visual
   stance in `python/game_editor_gui.py`. The initial values are authored for this
   game, using lidollquest's bulk concept: Small 2, Medium 3, Large 4, Huge 5,

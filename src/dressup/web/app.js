@@ -1,4 +1,5 @@
 import { drawDoll, thumbnail } from "./doll.js";
+import { createGameMenu } from "./menu.js";
 
 const $ = id => document.getElementById(id), shopPage = location.pathname.startsWith("/clothes");
 let state, view = "owned", busy = false, galleryPage = 0;
@@ -9,13 +10,13 @@ const pageSize = 36;
 const labels = { diaper: "Diaper", head: "Headwear", top: "Tops & dresses", bottom: "Bottoms", shoes: "Shoes", socks: "Socks",
   bra: "Bras", corset: "Corsets", belt: "Belts & suspenders", gloves: "Gloves", accessory: "Accessories", bag: "Bags", hand: "Handhelds" };
 const requestKey = () => `clothes-pending-request:${state.csrf}`; // A different signed-in account must never replay another browser session's request.
-const notice = message => { $("notice").textContent = message; $("notice").hidden = !message; };
+const notice = message => { for (const id of ["notice", "menu-notice"]) { $(id).textContent = message; $(id).hidden = !message; } };
 const node = (tag, text, className) => { const el = document.createElement(tag); if (text) el.textContent = text; if (className) el.className = className; return el; };
 
 async function api(path, input) {
   const response = await fetch(path, { credentials: "same-origin", ...(input ? { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": state.csrf }, body: JSON.stringify(input) } : {}) });
   const data = await response.json();
-  if (response.status === 401) { $("signin").hidden = false; $("game").hidden = true; $("logout").hidden = true; }
+  if (response.status === 401) { menus.close(); $("signin").hidden = false; $("game").hidden = true; $("logout").hidden = true; }
   if (!response.ok) throw Object.assign(new Error(data.error || "The game could not complete that action."), { retryable: data.retryable });
   return data;
 } // Only authenticated, same-origin requests can change the shared wardrobe.
@@ -28,6 +29,11 @@ async function refresh() {
   $("roll").textContent = `Roll for ${state.shop.rollPrice} coins`;
   $("roll-status").textContent = state.walletError || (!state.shop.enabled ? "New purchases are paused." : state.shop.pending ? "Finish your saved payment first." : state.coins < state.shop.rollPrice ? "You need more coins to roll." : "Each design within a rarity has the same chance.");
   $("odds").replaceChildren(...Object.values(state.shop.tiers).map(tier => node("span", `${tier.label} ${tier.chance}%`)));
+  fillAppearance();
+  renderDoll(); renderGallery(); updateButtons();
+} // Refresh account and care state together; picture menus use the same ownership snapshot.
+
+function fillAppearance() {
   $("name").value = state.doll.player.name; $("shape").value = state.doll.player.shape;
   $("gender").value = state.doll.player.gender;
   for (const key of ["hair", "face"]) {
@@ -41,8 +47,7 @@ async function refresh() {
     $(key).value = state.doll.player.anatomy[key];
   }
   syncHairChoices(); appearanceDirty = false;
-  renderDoll(); renderGallery(); updateButtons();
-} // Refresh the wallet, ownership, care and appearance together so every view uses the same snapshot.
+} // Opening the creator starts a fresh draft from the saved doll.
 
 function renderDoll() {
   const doll = state.doll;
@@ -54,7 +59,7 @@ function renderDoll() {
     progress.id = `need-${key}`; label.htmlFor = progress.id; label.append(node("span", Math.round(doll.player[key]).toString()));
     progress.max = 100; progress.value = doll.player[key]; el.append(label, progress); return el;
   }));
-  $("outfit-note").textContent = doll.removed.length ? "Unavailable or incompatible pieces returned to your wardrobe. Starter pieces fill any gaps." : "Outfit saved. Larger diapers choose their matching base automatically.";
+  $("outfit-note").textContent = doll.removed.length ? "Some pieces need a different stance." : "Outfit saved";
   renderAppearance();
   renderCare();
 } // Let the server choose the matching base and effective owned outfit.
@@ -78,7 +83,8 @@ function renderAppearance() {
     doll = { ...doll, player, stance, base: state.catalog.bases[player.shape][stance], bodyLayers,
       ...(bare ? { diaper: null, outfit: {}, top: null } : {}) };
   }
-  drawDoll($("doll"), doll).catch(error => notice(error.message));
+  drawDoll($("doll"), state.doll).catch(error => notice(error.message));
+  if (menus.isCharacter()) drawDoll($("creator-doll"), doll).catch(error => notice(error.message));
 } // Draft appearance is local until saved; the optional bare preview never unequips owned clothing or changes care state.
 
 const countdown = (due, now) => {
@@ -91,23 +97,14 @@ function renderCare() {
   $("excitement").max = d.excitementRules.max; $("excitement").value = d.player.excitement;
   $("excitement-label").textContent = `${Math.round(d.player.excitement)} / ${d.excitementRules.max}`;
   $("excitement-rhythm").textContent = `Builds by ${d.excitementRules.gainPerHour} per hour. Buildup pauses while a toy is active.`;
-  const selectedToy = $("toy").value;
-  $("toy").replaceChildren(...d.excitementRules.toys.map(toy => { const option = node("option", `${toy.name} · ${toy.duration / 60000} min · up to ${toy.relief} relief`); option.value = toy.id; return option; }));
-  if (d.excitementRules.toys.some(toy => toy.id === selectedToy)) $("toy").value = selectedToy;
   $("wetness").max = bulk || 1; $("wetness").value = Math.min(d.usedBulk, bulk || 1);
   $("wetness-label").textContent = `${d.usedBulk} / ${bulk} bulk`;
   $("accident-counts").textContent = `${c.wetness} wetting${c.wetness === 1 ? "" : "s"} · ${c.mess} messy accident${c.mess === 1 ? "" : "s"}. Each messy accident uses ${d.messyRules.bulkPerAccident} bulk.`;
-  $("leak-status").textContent = !d.diaper ? "Diaper-free. Accidents will need a baby wipe." : c.leaking ? c.needsWipe ? `${c.mess ? "Messy and leaking" : "Leaking"} — clean up before a fresh diaper.` : "Diaper full — ready for a fresh change." : c.mess ? "Messy — ready for a fresh change." : c.wetness ? "Wet, with room left. You can change whenever you like." : "Fresh and comfortable.";
+  $("leak-status").textContent = !d.diaper ? "Diaper-free. Accidents will need a baby wipe." : c.leaking ? c.needsWipe ? "Leaking — use one baby wipe before changing." : "Cleaned up — ready for a fresh change." : c.uncomfortable ? "Full and uncomfortable — no leak yet." : c.mess ? "Messy — ready for a fresh change." : c.wetness ? "Wet, with room left. You can change whenever you like." : "Fresh and comfortable.";
+  $("overflow-status").textContent = d.diaper && d.overflow.full ? `${d.overflow.excess} over capacity · ${d.overflow.nextLeakChance}% leak chance on the next accident` : "";
   $("leak-status").className = c.leaking ? "leaking" : "";
   $("rhythm").textContent = d.rhythm.reportId ? `${d.rhythm.label}: ${d.rhythm.rate.toFixed(2)} recorded wettings per active participant-day.${d.rhythm.limited ? " Game timing is limited to 30 minutes–24 hours." : ""}` : d.rhythm.label;
-  const selected = $("replacement").value;
-  const available = new Set(d.ownedDiapers.filter(item => item.available > 0).map(item => item.design)); available.add("cloud-tapes");
-  $("replacement").replaceChildren(...state.catalog.diapers.filter(item => available.has(item.id)).map(item => {
-    const option = node("option", `${state.diapers.find(row => row.id === item.id)?.name || item.id} · bulk ${item.bulk}`); option.value = item.id; return option;
-  }));
-  $("replacement").value = available.has(selected) ? selected : d.diaper && available.has(d.diaper.id) ? d.diaper.id : "cloud-tapes";
-  if (!$("food").options.length) $("food").replaceChildren(...state.catalog.foods.map(food => { const option = node("option", `${food.name} · +${food.fullness} fullness`); option.value = food.id; return option; }));
-  renderFood(); $("pet-reminders").checked = c.reminders; $("messy-mode").checked = c.messyMode;
+  $("pet-reminders").checked = c.reminders; $("messy-mode").checked = c.messyMode;
   $("messy-rhythm").textContent = d.messyRules.label; renderTimers();
   $("cleanup-status").textContent = c.needsWipe ? `Cleanup needed: ${c.bodyWetness} wet and ${c.bodyMess} messy accident${c.bodyWetness + c.bodyMess === 1 ? "" : "s"}. Use one wipe before dressing.` : "No body cleanup needed.";
   $("wipe-stock").textContent = `${d.supplies.wipes} baby wipe${d.supplies.wipes === 1 ? "" : "s"} available`;
@@ -120,17 +117,12 @@ function renderCare() {
   camera.alt = d.buttcam.label; $("buttcam-note").textContent = [d.buttcam.label,d.buttcam.note].filter(Boolean).join(" · ");
 } // Show actual capacity and only replacement designs currently available to this account.
 
-function renderFood() {
-  const food = state.catalog.foods.find(food => food.id === $("food").value);
-  $("food-art").src = `/clothes/art/${food.image}`; $("food-art").alt = food.name;
-}
-
 function renderTimers() {
   const d = state.doll, c = d.player.care;
-  $("toy-status").textContent = c.toy ? `${c.toy.name} active · ${countdown(c.toy.finishesAt, d.now)} remaining` : c.completedToy ? `${c.completedToy.name} session complete.` : "Choose a toy when you want to lower the meter.";
-  $("wetting-clock").textContent = c.nextWettingAt === null ? "No wettings scheduled: the latest report recorded a zero rate." : `Next wetting in ${countdown(c.nextWettingAt, d.now)}`;
-  $("messy-clock").textContent = c.messyMode ? `Next messy accident in ${countdown(c.nextMessAt, d.now)}` : "Messy mode is off. Its timer is paused; any existing mess still needs a fresh change.";
-  $("activity-status").textContent = c.task ? `${c.task.kind === "play" ? "Playing" : "Resting"} · ${countdown(c.task.finishesAt, d.now)} remaining` : c.completed ? "Activity finished! Your care rewards are saved." : "Choose an activity to start its timer.";
+  $("toy-status").textContent = c.toy ? `${c.toy.name} active · ${countdown(c.toy.finishesAt, d.now)}` : c.completedToy ? "Toy session complete" : "Settled · no active toy";
+  $("wetting-clock").textContent = c.nextWettingAt === null ? "Wetting paused" : `Wetting · ${countdown(c.nextWettingAt, d.now)}`;
+  $("messy-clock").textContent = c.messyMode ? `Messy · ${countdown(c.nextMessAt, d.now)}` : "Messy mode off";
+  $("activity-status").textContent = c.task ? `${c.task.kind === "play" ? "Playing" : "Resting"} · ${countdown(c.task.finishesAt, d.now)}` : c.completed ? "Activity finished" : "Ready to play";
   $("care-timers").replaceChildren(...Object.entries({ feed: "Food", water: "Water", play: "Play", rest: "Rest" }).map(([kind, label]) => node("li", `${label}: ${c.task?.kind === kind ? "in progress" : c.due[kind] <= d.now ? "ready now" : `in ${countdown(c.due[kind], d.now)}`}`)));
 } // Count down between server snapshots; only the server applies wettings and completion rewards.
 
@@ -142,9 +134,9 @@ function updateButtons() {
       (!!state.doll.player.care.task && ["play", "rest"].includes(button.dataset.care)) || (button.dataset.care === "change" && state.doll.player.care.needsWipe); });
     $("pet-reminders").disabled = busy;
     $("messy-mode").disabled = busy;
-    $("activate-toy").disabled = busy || !!state.doll.player.care.toy || state.doll.player.excitement <= 0;
     $("stop-toy").disabled = busy || !state.doll.player.care.toy;
-    $("toy").disabled = busy || !!state.doll.player.care.toy;
+    $("stop-toy").hidden = !state.doll.player.care.toy;
+    menus.update(busy);
   }
 } // Keep duplicate clicks out of the UI; the payment journal also enforces idempotency on the server.
 
@@ -250,6 +242,11 @@ $("slot").replaceChildren(node("option", "Every piece"), ...Object.entries(label
 $("slot").options[0].value = "";
 for (const [id, delta] of [["previous-page", -1], ["next-page", 1]]) $(id).addEventListener("click", () => { galleryPage += delta; renderGallery(); });
 $(shopPage ? "shop-link" : "pet-link").setAttribute("aria-current", "page");
+document.body.classList.toggle("pet-game", !shopPage);
+const menus = createGameMenu({ getState:()=>state, act:dollAction, execute:run, error:notice, shopPage,
+  characterOpen:()=>{ fillAppearance(); renderAppearance(); },
+  characterClose:()=>{ $("preview-body").checked=false; appearanceDirty=false; renderAppearance(); },
+});
 $("roll-panel").hidden = !shopPage; $("care-panel").hidden = shopPage;
 if (shopPage) {
   document.title = "Clothes Emporium · Littlepottchi";
@@ -262,12 +259,9 @@ $("refresh").addEventListener("click", () => run(refresh));
 $("roll").addEventListener("click", () => run(() => purchase("roll")));
 $("retry").addEventListener("click", () => run(() => purchase("retry")));
 $("logout").addEventListener("click", () => run(async () => { await api("/clothes/api/logout", {}); location.reload(); }));
-document.querySelectorAll("[data-care]").forEach(button => button.addEventListener("click", () => run(() => dollAction({ action: button.dataset.care,
-  ...(button.dataset.care === "feed" ? { food: $("food").value } : {}), ...(button.dataset.care === "change" ? { design: $("replacement").value } : {}) }))));
-$("food").addEventListener("change", renderFood);
+document.querySelectorAll("[data-care]").forEach(button => button.addEventListener("click", () => run(() => dollAction({ action: button.dataset.care }))));
 $("remove-diaper").addEventListener("click", () => run(() => dollAction({ action: "equip", slot: "diaper", design: null })));
 $("use-wipe").addEventListener("click", () => run(() => dollAction({ action: "wipe" })));
-$("activate-toy").addEventListener("click", () => run(() => dollAction({ action: "toy", toy: $("toy").value })));
 $("stop-toy").addEventListener("click", () => run(() => dollAction({ action: "stop-toy" })));
 $("messy-mode").addEventListener("change", () => run(async () => {
   try { await dollAction({ action: "messy-mode", enabled: $("messy-mode").checked }); }
@@ -292,7 +286,7 @@ $("preview-body").addEventListener("change", renderAppearance);
 $("appearance").addEventListener("submit", event => { event.preventDefault(); run(async () => {
   await dollAction({ action: "appearance", name: $("name").value, gender: $("gender").value, shape: $("shape").value, hair: $("hair").value, face: $("face").value,
     anatomy: Object.fromEntries(anatomyKeys.map(key => [key, $(key).value])) });
-  appearanceDirty = false; renderAppearance();
+  appearanceDirty = false; menus.close(); renderAppearance();
 }); });
 for (const id of ["close-reveal", "prize-done"]) $(id).addEventListener("click", () => $("reveal").close());
 let polling = false;

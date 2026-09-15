@@ -29,6 +29,7 @@ export function dressupFixture() {
   f.clothes = new DiaperStore(":memory:", f.catalog.clothes, f.wallet, { price: 3, enabled: true, walletKey: "clothes" }, () => 0);
   f.doll = new LittlepottchiStore(f.clothes, f.diapers, f.catalog, () => f.now);
   f.doll.care.random = () => 12 * 3600000; // Keep broad care/browser scenarios deterministic; interval tests supply varying boundary draws.
+  f.doll.care.leakRandom = () => 0; // Broad scenarios leak on their first overflow; dedicated tests exercise failed rolls and rising odds.
   f.sessions = new GachaSessions(f.diapers.db, f.identities);
   f.token = f.sessions.openForIdentity(f.identity);
   f.seed = (store, id, owner = f.user) => store.db.prepare("INSERT INTO diaper_items VALUES (?,?,?,NULL,?)").run(randomUUID(), id, owner, Date.now());

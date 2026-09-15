@@ -1,6 +1,6 @@
 import { GachaError } from "../gacha/store.js";
 import { slots } from "./catalog.js";
-import { PetCare, careRules, messyRules } from "./care.js";
+import { PetCare, careRules, messyRules, overflowRules, diaperCondition } from "./care.js";
 import { selectButtcam } from "./camera.js";
 import { excitementRules } from "./excitement.js";
 import { anatomyDefaults, anatomyLayers, updateAnatomy } from "./appearance.js";
@@ -56,14 +56,15 @@ export class LittlepottchiStore {
   snapshot(user) {
     const player = this.player(user), resolved = this.resolve(user, player);
     return { player, ...resolved, bodyLayers: anatomyLayers(this.catalog, player, resolved.diaper, resolved.outfit, resolved.top), now: this.now(), careRules, messyRules, excitementRules, buttcam: selectButtcam(this.catalog, player, resolved.diaper),
-      supplies: this.clothes.supplySnapshot(user), usedBulk: player.care.wetness + player.care.mess * messyRules.bulkPerAccident, rhythm: this.care.profile(),
+      supplies: this.clothes.supplySnapshot(user), usedBulk: diaperCondition(player.care, resolved.diaper).usedBulk,
+      overflow: diaperCondition(player.care, resolved.diaper), overflowRules, rhythm: this.care.profile(),
       ownedClothes: this.clothes.snapshot(user).owned, ownedDiapers: this.diapers.snapshot(user).owned };
   }
 
   act(user, input) {
     if (!input || typeof input !== "object" || Array.isArray(input)) throw new GachaError("Invalid doll action.");
+    const player = this.player(user); // Commit elapsed accidents before validating an action: rejected changes must not reroll leaks.
     return this.db.transaction(() => {
-      const player = this.player(user);
       if (input.action === "appearance") {
         if (input.gender !== undefined && (typeof input.gender !== "string" || input.gender.trim().length > 32 || /[\x00-\x1f]/.test(input.gender))) throw new GachaError("Use up to 32 characters for the doll's gender.");
         if (typeof input.name !== "string" || !input.name.trim() || input.name.trim().length > 32 || /[\x00-\x1f]/.test(input.name) ||

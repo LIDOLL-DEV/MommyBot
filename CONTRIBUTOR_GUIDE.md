@@ -367,3 +367,22 @@ totals across changes, and old wetting state during migration. Both accident
 types share bulk. Keep the bridge and service worker's `mess` notification aligned.
 
 Care simulation lives in src/dressup/care.js; browser, background ticks and the Little Log API all use the same saved state. Preserve collectible ownership, server timing and identity-bound reminder opt-in. See LITTLEPOTTCHI_API.md for bridge installation and protocol.
+
+### Littlepottchi picture menus
+
+`src/dressup/web/menu.js` owns the native dialog for Fresh Change, Food, Toys,
+Play & Rest, Wardrobe, Character, and Care & Settings. The dashboard keeps the
+doll, meters and action buttons together. Picker cards use catalog artwork and
+current ownership; selecting a card is local until its confirmation button is
+pressed. Recheck cleanup and availability on every state update. Keep Close and
+Escape available, restore focus to the opener, and show failures inside the menu.
+Character drafts render on their own canvas; the dashboard shows the saved doll.
+The shared shop page retains its inline collection and payment recovery controls.
+
+Overflow uses one capacity unit per wet or messy accident, as in lidollquest's
+`_handle_diaper_overflow`. Full diapers cause discomfort; only subsequent accidents
+roll 10% per excess unit, capped at 100%. Resolve mixed offline events in timestamp
+order and keep leak randomness separate from messy interval sampling. Batch only
+guaranteed outcomes. `LittlepottchiStore.act` persists elapsed care before starting
+the action transaction so a rejected change cannot reroll its newly due leak.
+Wipe consumption and the resulting cleaned state still commit atomically.

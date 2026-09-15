@@ -3,10 +3,6 @@
 .excitement-care>label{display:flex;justify-content:space-between;gap:12px}.excitement-care progress{width:100%;height:16px;margin:8px 0;accent-color:#8061a2}
 .diaper-care progress{display:block;width:100%;height:16px;margin:8px 0;accent-color:var(--rose)}
 .diaper-care label{display:flex;justify-content:space-between;gap:12px}
-.care-picker{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:12px 0 20px}
-.care-picker label{display:block;flex:1 1 150px;min-width:0}
-.care-picker select{max-width:100%}
-#food-art{object-fit:contain;align-self:center}
 .leaking{font-weight:bold;color:#90354a}
 .reminder-choice{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:13px}
 .reminder-choice input{display:inline-block;width:20px;height:20px;flex:none;margin:0}
@@ -16,3 +12,40 @@
 .camera-care figure{margin:0;flex:0 1 200px}.camera-care img{width:100%;height:auto;border-radius:12px}
 .camera-care figcaption{font-size:11px;color:var(--muted)}.camera-care>div{flex:1 1 220px;min-width:0}
 .camera-care .care-actions{margin:12px 0}.camera-care a{font-size:13px}
+
+/* The pet dashboard keeps meters and actions in view; collections and details live in dialogs. */
+.pet-game .intro,.pet-game footer,.pet-game .brand small,.pet-game #other-game{display:none}
+.pet-game header{padding:12px 3vw;gap:20px}.pet-game .brand{font-size:23px}.pet-game .mark{font-size:30px}
+.pet-game main{max-width:1130px;padding:22px 20px}.pet-game .layout{grid-template-columns:minmax(250px,340px) minmax(0,1fr);gap:18px}
+.pet-game .doll-card{position:relative;top:0;padding:18px 12px;background:radial-gradient(ellipse at 50% 55%,#fffaf1 15%,#f4dfe4 76%)}
+.pet-game .stage{height:440px}.pet-game .doll-heading h2{font-size:27px}.pet-game .doll-heading .eyebrow{display:none}
+.pet-game #outfit-note{margin:7px 0}.small-action{padding:5px 10px;font-size:11px}.game-dashboard{padding:22px}
+.game-dashboard .section-title{margin-bottom:15px}.game-dashboard .section-title h2{font-size:23px;margin:0}
+.game-dashboard .needs{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 16px}.game-dashboard .need label{font-size:11px}
+.status-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-top:18px}.status-grid>div{margin:0;padding:13px}
+.status-grid p{font-size:11px;line-height:1.45;margin:6px 0}.status-grid progress{height:10px;margin:7px 0}.status-grid label{font-size:11px}
+.action-dock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:18px}
+.action-dock button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:83px;padding:9px 3px;font-size:11px;border-bottom:3px solid #dec3d0;background:#fff9fa}
+.action-dock button span{font-size:28px;line-height:1.1;color:#99657e}.action-dock button:hover{transform:translateY(-1px)}
+.action-dock svg{width:28px;height:28px;fill:none;stroke:#99657e;stroke-width:1.5;stroke-linecap:round}
+.day-status{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.day-status p{flex:1 1 120px;font-size:12px;margin:0}.day-status button{font-size:11px;padding:6px 9px}.day-status .fine{margin:0}
+.game-menu{width:min(950px,94vw);max-width:950px;max-height:88dvh;padding:0;text-align:left;overflow:auto;overscroll-behavior:contain}
+.menu-heading{position:sticky;top:0;z-index:3;background:var(--paper);display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line)}
+.menu-heading h2{margin:0;font-size:27px}.menu-heading button{font-size:25px;line-height:1;padding:5px 11px}
+#picker-panel,#menu-content{padding:18px 24px}#menu-content:empty,#menu-content:not(:has(> :not([hidden]))){display:none}#picker-panel[hidden]+#menu-content{padding-top:0}
+#menu-notice{margin:14px 24px 0;padding:10px;background:#fff0cb;border-radius:9px;font-size:13px}
+#menu-search{margin:12px 0}.picture-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.picture-choice{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;gap:7px;padding:12px;border:2px solid var(--line);background:#fff}
+.picture-choice[aria-pressed=true]{border-color:var(--rose);background:#faeaf1;box-shadow:0 0 0 1px var(--rose)}
+.picture-choice canvas,.picture-choice img{display:block;object-fit:contain;width:100%;max-width:160px;height:140px;margin:0;border-radius:10px;background:#fcf5f1}
+.picture-choice strong{font-size:14px}.picture-choice small{font-size:11px;font-weight:400;color:var(--muted)}.picture-choice .pill{white-space:normal}
+.menu-footer{position:sticky;bottom:0;z-index:2;background:var(--paper);display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.menu-footer p{margin:0;font-size:13px;font-weight:600}.menu-footer button{white-space:nowrap}#change-cleanup{padding:12px;background:#fff0cb;border-radius:10px;font-size:12px}#change-cleanup p{margin:0 0 9px}#change-cleanup a{margin-left:12px}
+.game-menu .wardrobe{border:0;box-shadow:none;padding:0}.game-menu .camera-care figure{flex-basis:140px}.game-menu .camera-care{margin:16px 0}
+.creator-panel{display:grid;grid-template-columns:minmax(160px,260px) minmax(0,1fr);gap:24px;padding-top:20px}.creator-stage{position:sticky;top:84px;align-self:start;background:#f8e9e2;border-radius:16px}
+.pet-game #edit-character{display:none}
+.game-menu #creator-doll{width:100%;height:auto;max-height:520px;object-fit:contain;margin:0}.creator-panel form{margin-top:12px;gap:12px}.creator-panel .fine{margin-top:0}
+@media(max-width:800px){.action-dock{grid-template-columns:repeat(2,minmax(0,1fr))}.action-dock button{min-height:63px;flex-direction:row;gap:8px}.pet-game .layout{grid-template-columns:240px minmax(0,1fr)}.status-grid{grid-template-columns:1fr}.game-dashboard .needs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.pet-game header{padding:10px 14px;gap:10px}.pet-game header nav{font-size:10px}.pet-game .brand{font-size:20px}.pet-game main{padding:12px}.pet-game .layout{grid-template-columns:1fr;gap:12px}.pet-game .stage{height:285px}.pet-game .doll-card{padding:10px}.pet-game .doll-heading h2{font-size:22px}.pet-game .doll-heading p:last-child{margin:2px 0}.game-dashboard{padding:16px}.game-dashboard .needs{grid-template-columns:repeat(3,minmax(0,1fr))}.status-grid{grid-template-columns:1fr 1fr;margin-top:12px}.action-dock{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px}.action-dock button{flex-direction:column;min-height:70px;gap:4px;font-size:10px}.action-dock button span{font-size:23px}.game-menu{width:96vw;max-height:94dvh;border-radius:18px}.menu-heading{padding:13px 16px}.menu-heading h2{font-size:23px}#picker-panel,#menu-content{padding:12px 14px}.picture-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.picture-choice{padding:8px}.picture-choice canvas,.picture-choice img{height:110px}.picture-choice strong{font-size:12px}.creator-panel{grid-template-columns:1fr;gap:14px}.creator-stage{position:relative;top:0}.game-menu #creator-doll{height:240px}.creator-panel form{grid-template-columns:1fr 1fr}.day-status{margin-top:12px}}
+@media(max-width:600px){.pet-game .stage{height:220px}.game-dashboard{display:flex;flex-direction:column}.game-dashboard .section-title{order:-2;margin-bottom:0}.action-dock{order:-1;margin:12px 0 16px}.action-dock svg{width:23px;height:23px}}

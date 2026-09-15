@@ -57,7 +57,7 @@ class WardrobeEditor:
         ttk.Button(form, text="Preview rear camera", command=self.preview_camera).pack(fill="x")
         ttk.Button(form, text="View excitement & toy rules", command=self.show_toy_rules).pack(fill="x", pady=(8, 0))
         ttk.Button(form, text="Preview character anatomy", command=self.preview_anatomy).pack(fill="x", pady=(8, 0))
-        ttk.Label(form, text="Diaper fit selects the stance automatically.\nBulk holds both wettings and messy accidents.\nMessy mode uses the shared care rules in\nsrc/dressup/care.js. Preview stance is only\na comparison tool; source art stays fixed.", wraplength=240).pack(pady=20)
+        ttk.Label(form, text="Bulk = capacity in wet + messy accidents.\nFull means uncomfortable; later accidents\nroll 10% leak chance per excess bulk,\nup to 100%. Actual leaks need one wipe.\nPreview stance only compares fit;\nsource art stays fixed.", wraplength=240).pack(pady=20)  # Explain capacity, overflow odds and the cleanup requirement separately from visual fit.
         self.status = ttk.Label(form, wraplength=240)
         self.status.pack(fill="x")
         self.canvas = tk.Canvas(root, width=310, height=700, bg="#fff5ef", highlightthickness=0)
@@ -192,7 +192,7 @@ class WardrobeEditor:
             except ValueError:
                 messagebox.showerror("Invalid capacity", "Bulk must be a whole number from 1 to 100 wettings.")
                 return
-            item["bulk"] = bulk  # Reaching this many wettings triggers a leak; visual stance is tuned separately.
+            item["bulk"] = bulk  # Reaching capacity causes discomfort; new accidents above it roll for leaks independently of stance.
             item["stance"] = fit
         else:
             for key in ["name", "rarity", "slot"]:

@@ -56,6 +56,16 @@ Appearance editing and unclothed previews do not count as care, grant inventory,
 reset accident timers or satisfy cleanup requirements. Keep quests independent
 of anatomy, hairstyle, gender and body shape.
 
+Opening a picture menu, searching diapers, selecting a card, and cancelling grant
+no progress. Only the confirmed server action may count toward care. Fresh Change
+keeps required wipe cleanup inside its menu; selection cannot bypass that guard.
+Moving actions into dialogs does not change task deadlines or completion rewards.
+
+Full/uncomfortable and leaking are separate states. Do not complete a leak or
+cleanup quest merely because bulk reaches capacity. Only a successful overflow
+roll or diaper-free accident creates body cleanup; a contained full diaper can
+be changed freely. One wipe handles all accumulated cleanup regardless of count.
+
 Toy sessions are optional adult-character care actions. Do not gate ordinary
 quests on gender or toy use. A finished session adds one care moment; starting,
 repeating activation, or stopping does not grant completion credit.

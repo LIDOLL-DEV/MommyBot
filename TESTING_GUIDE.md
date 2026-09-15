@@ -517,6 +517,22 @@ completion, single completion credit, and independent gender persistence.
 The Chrome fixture exercises toy activation, partial relief, stop/restart,
 completion, gender editing and mobile layout with synthetic accounts and clocks.
 
+The redesigned dashboard check also covers pictured diaper selection, search,
+cancel without care changes, Escape/focus return, wipe cleanup inside Fresh Change,
+food/activity/toy confirmation, modal character saving, and phone-width dialogs.
+Run `scripts/check-dressup-browser.mjs` with the local Chrome tooling described
+above. Review `data/dressup-review/fresh-change-desktop.png` and
+`fresh-change-mobile.png` along with the dashboard screenshots. No real accounts,
+payments or push deliveries are involved.
+
+`test/littlepottchi-overflow.test.js` verifies wet and messy capacity boundaries,
+10–100% overflow odds, failed and successful boundary rolls, exact one-unit costs,
+cleanup guards, persistence after rejected actions/restarts, legacy leaks, and
+chronological offline equivalence (including tied wet/mess timestamps). A million
+wettings require only nine random draws before all remaining leaks are certain.
+The browser check distinguishes full/uncomfortable from leaking and confirms that
+Fresh Change requires a wipe only after the leak.
+
 LAN bridge checks cover analysis upload, event polling and acknowledgement at
 `10.1.1.23:4190`, rejection of public plain-HTTP endpoints, and bearer-authenticated
 HTTP requests while the game's configured browser origin remains public HTTPS.

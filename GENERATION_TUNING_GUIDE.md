@@ -159,6 +159,12 @@ Covered chest/genital regions are suppressed to prevent clothing clipping.
 Use the editor's **Preview character anatomy** window to check both body shapes
 and stances. Gender remains independent and never changes these mappings.
 
+Fresh Change cards use each diaper's catalog image, alpha bounds, bulk and stance.
+Use the fit editor to check these values; do not bake text or stats into images.
+Food cards use imported collectible images and catalog fullness/joy values.
+Toy cards read session duration/relief from the server snapshot. Menu illustrations
+and layout are deterministic browser code, with no image generation at runtime.
+
 Excitement tuning lives in `src/dressup/excitement.js`: maximum 255, buildup
 12/hour, and per-toy duration/relief. Each session pauses buildup and gradually
 applies relief; stopping grants only elapsed relief. All adult dolls use the
@@ -171,9 +177,15 @@ accidents and leaks. Tune diaper camera arrays in the catalog; first frame stays
 clean and all later frames require messy mode. The editor previews these frames.
 
 Tune `messyRules` in `src/dressup/care.js`: `minInterval` is 10 hours, `maxInterval`
-is 14 hours, and bulk cost is 2 per messy accident. Each interval is sampled uniformly
+is 14 hours, and bulk cost is 1 per messy accident, matching wettings. Each interval is sampled uniformly
 in milliseconds, including both endpoints. Existing deadlines are preserved.
 Update its UI label when changing the range. This is
 authored timing; the current saved AI input does not include bowel-event counts.
+
+Overflow follows lidollquest: reaching capacity caps comfort at 35; each new
+accident above it has 10% leak chance per excess bulk, capped at 100%. See
+`overflowRules` in `src/dressup/care.js`. Keep wet and messy accidents at one unit
+each. A leak requires a wipe; contained overflow does not. Changes in tuning
+do not reroll old accidents or erase saved cleanup requirements.
 
 Diaper bulk is a separate integer capacity (1�100 wettings) in assets/dressup/catalog.json; the wardrobe editor can tune it without changing the reviewed stance. The asset importer preserves edited bulk. Care durations and need periods are in src/dressup/care.js; pantry fullness/joy values are in the catalog. Rhythm comes from the latest saved community AI counts, with a labeled four-hour fallback. See LITTLEPOTTCHI_API.md.

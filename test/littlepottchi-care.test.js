@@ -63,11 +63,10 @@ test("wet and messy accidents share bulk; fresh replacement clears both and pres
   d = f.doll.act(f.user,{action:"messy-mode",enabled:true});
   const p = d.player; p.care.wetness = d.diaper.bulk - messyRules.bulkPerAccident; f.doll.save(f.user,p);
   f.now = p.care.nextMessAt; d = f.doll.snapshot(f.user);
-  assert.equal(d.player.care.mess,1); assert.equal(d.usedBulk,d.diaper.bulk); assert.equal(d.player.care.leaking,true);
-  assert.ok(d.player.comfort <= 20);
-  d = f.doll.act(f.user,{action:"messy-mode",enabled:false}); assert.equal(d.player.care.leaking,true); assert.equal(d.player.care.mess,1);
+  assert.equal(d.player.care.mess,1); assert.equal(d.usedBulk,d.diaper.bulk); assert.equal(d.player.care.leaking,false);
+  assert.equal(d.player.care.uncomfortable,true); assert.ok(d.player.comfort <= 35);
+  d = f.doll.act(f.user,{action:"messy-mode",enabled:false}); assert.equal(d.player.care.leaking,false); assert.equal(d.player.care.mess,1);
   d = f.doll.act(f.user,{action:"messy-mode",enabled:true}); const nextMess = d.player.care.nextMessAt, nextWet = d.player.care.nextWettingAt;
-  wipe(f);
   d = f.doll.act(f.user,{action:"change",design:"cloud-tapes"});
   assert.equal(d.usedBulk,0); assert.equal(d.player.care.mess,0); assert.equal(d.player.care.leaking,false);
   assert.equal(d.player.care.nextMessAt,nextMess); assert.equal(d.player.care.nextWettingAt,nextWet);
@@ -81,7 +80,7 @@ test("offline messy accidents catch up once and current messy reminders are canc
   f.doll.act(f.user,{action:"reminders",enabled:true});
   const started = f.doll.act(f.user,{action:"messy-mode",enabled:true});
   f.now = started.player.care.nextMessAt + 12 * HOUR; f.doll.tick();
-  let d = f.doll.snapshot(f.user); assert.equal(d.player.care.mess,2); assert.equal(d.usedBulk,4); assert.equal(d.player.care.leaking,false);
+  let d = f.doll.snapshot(f.user); assert.equal(d.player.care.mess,2); assert.equal(d.usedBulk,2); assert.equal(d.player.care.leaking,false);
   const events = () => f.doll.care.events(user => f.identities.gameIdentity(user),user => f.doll.player(user)).events;
   const first = events().filter(e => e.kind === "mess"); assert.equal(first.length,1);
   f.doll.tick(); assert.equal(events().filter(e => e.kind === "mess")[0].id,first[0].id);
@@ -102,14 +101,16 @@ test("community rate uses saved wettings per active participant-day, with explic
   }
 });
 
-test("wettings persist across reads and restarts; exact bulk leaks and only a replacement clears it", t => {
+test("wettings persist across reads and restarts; full diapers are uncomfortable and actual leaks need cleanup", t => {
   const f = fixture(t); f.doll.care.importAnalysis(report());
   let d = f.doll.snapshot(f.user); const interval = d.player.care.interval, bulk = d.diaper.bulk, first = d.player.care.nextWettingAt;
   f.now = first; d = f.doll.snapshot(f.user); assert.equal(d.player.care.wetness,1);
   assert.equal(f.doll.snapshot(f.user).player.care.wetness,1);
   f.doll = new LittlepottchiStore(f.clothes,f.diapers,f.catalog,() => f.now);
   f.now += (bulk - 1) * interval; d = f.doll.snapshot(f.user);
-  assert.equal(d.player.care.wetness,bulk); assert.equal(d.player.care.leaking,true);
+  assert.equal(d.player.care.wetness,bulk); assert.equal(d.player.care.leaking,false); assert.equal(d.player.care.uncomfortable,true);
+  f.doll.care.leakRandom = () => 0;
+  f.now += interval; d = f.doll.snapshot(f.user); assert.equal(d.player.care.leaking,true);
   d = f.doll.act(f.user,{...d.player,action:"appearance",name:"Still wet"}); assert.equal(d.player.care.leaking,true);
   const next = d.player.care.nextWettingAt;
   d = f.doll.act(f.user,{action:"equip",slot:"diaper",design:null}); assert.equal(d.player.care.needsWipe,true); assert.equal(d.diaper,null);

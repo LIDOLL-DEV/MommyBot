@@ -83,7 +83,7 @@ See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for the word list and full rules,
 
 ## Littlepottchi wetting and timed care
 
-- In **Make this doll your own**, choose hair style/color, body, face, chest,
+- Open **Character** to choose hair style/color, body, face, chest,
   nipple detail, genital appearance and pubic hair independently of gender.
 - Try the optional unclothed preview, then **Save my doll**. The preview does not
   remove clothes, consume items or change care timers. Covered details stay hidden.
@@ -98,8 +98,28 @@ in Diaper Atelier, then use **Use 1 baby wipe** after a leak or diaper-free acci
 before dressing again. One wipe cleans every accumulated body accident. The rear
 camera shows messy frames only while messy mode is on; turning it off does not clean.
 
-Turn on **Enable messy mode** if desired. Each countdown is randomly set to 10–14 hours and runs while enabled;
-turning it off pauses it. Messy accidents use two bulk units. A fresh diaper clears
+Turn on **Messy mode** in **Care & Settings** if desired. Each countdown is randomly set to 10–14 hours and runs while enabled;
+turning it off pauses it. Wet and messy accidents each use one bulk unit. A fresh diaper clears
 both wetness and mess; disabling the mode does not clean an already messy diaper.
 
-Choose food from the pantry, give water, and complete timed play/rest. Watch wetness against diaper bulk; reaching capacity causes a leak. Select a fresh replacement to clear it and update the stance. Designs stay collected and starter replacements are free. To receive reminders, enable the pet checkbox and Little Log push using the same LiD0llID account. Little Log quiet hours apply.
+Choose food from the pantry, give water, and complete timed play/rest. Reaching
+diaper capacity makes the doll uncomfortable. Further accidents roll for leaks:
+10% at one bulk over capacity, 20% at two over, up to 100%. The dashboard shows
+the next accident's chance. A contained full diaper can be changed without a wipe;
+an actual leak requires one baby wipe first. Select a fresh replacement to empty
+the diaper and update the stance. Designs stay collected and starters are free.
+For reminders, enable the pet checkbox and Little Log push with the same account.
+
+### Picture menus
+
+- **Fresh Change** opens your diaper pictures. Choose a card, check its bulk and
+  stance, then confirm. Search filters your unlocked designs; Cloud Tapes remains
+  available as a free starter. Close or Escape cancels without changing the doll.
+- If cleanup is required, use one owned wipe inside Fresh Change, or follow its
+  Atelier link to buy one. Then select and confirm the new diaper.
+- **Food**, **Toys**, and **Play & Rest** use picture choices and a confirmation.
+  **Water** is a direct action. Running tasks and cooldowns still apply.
+- **Wardrobe** opens clothing pictures, filters and collection pages.
+- **Character** has a separate draft preview; saving returns to the dashboard.
+- **Care & Settings** contains the camera, diaper removal, messy mode, push
+  reminders, and detailed care timers.
