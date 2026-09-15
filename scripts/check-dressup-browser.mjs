@@ -62,6 +62,21 @@ try {
   await page.waitForNetworkIdle();
   console.log("Wide stance, split hair and care checked.");
   await mkdir("data/dressup-review", { recursive: true });
+  assert.equal(await page.$eval("#messy-mode", input => input.checked),false);
+  await page.click("#messy-mode");
+  await page.waitForFunction(() => document.getElementById("messy-mode").checked && !document.getElementById("messy-mode").disabled);
+  f.now = f.doll.snapshot(f.user).player.care.nextMessAt;
+  await page.click("#refresh");
+  await page.waitForFunction(() => document.getElementById("leak-status").textContent.includes("Messy"));
+  assert.equal(f.doll.snapshot(f.user).player.care.mess,1);
+  assert.match(await page.$eval("#accident-counts", el => el.textContent),/1 messy accident/);
+  await page.screenshot({ path: "data/dressup-review/littlepottchi-messy.png", fullPage: true });
+  await page.click("#messy-mode");
+  await page.waitForFunction(() => !document.getElementById("messy-mode").checked && !document.getElementById("messy-mode").disabled);
+  assert.equal(f.doll.snapshot(f.user).player.care.mess,1);
+  await page.click('[data-care="change"]');
+  await page.waitForFunction(() => document.getElementById("leak-status").textContent.includes("Fresh"));
+  assert.equal(f.doll.snapshot(f.user).usedBulk,0);
   await page.screenshot({ path: "data/dressup-review/littlepottchi-desktop.png", fullPage: true });
   await page.evaluate(() => [...document.querySelectorAll(".item")].find(card => card.textContent.includes("Cloud Tapes")).querySelector("button").click());
   await page.waitForFunction(() => document.getElementById("stance").textContent.includes("Regular stance"));
@@ -108,7 +123,7 @@ try {
   assert.deepEqual(errors, []); assert.deepEqual(failures, []);
   await page.click("#logout");
   await page.waitForFunction(() => !document.getElementById("signin").hidden);
-  console.log("Browser passed: login, catalog, stances, food/water, timed play, leaks/replacements, pet reminders, roll/retry, both mobile screens and logout; no art or script/CSP errors.");
+  console.log("Browser passed: login, catalog, stances, food/water, timed play, messy mode, leaks/replacements, pet reminders, roll/retry, mobile and logout; no art or script/CSP errors.");
 } finally {
   await browser?.close();
   if (server) await new Promise(resolve => server.close(resolve));
