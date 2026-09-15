@@ -39,7 +39,7 @@ async function refresh() {
 function renderDoll() {
   const doll = state.doll;
   $("doll-name").textContent = doll.player.name;
-  $("stance").textContent = doll.stance === "wide" ? "Wide stance · room for a larger diaper" : "Regular stance · a comfortable fit";
+  $("stance").textContent = !doll.diaper ? "Diaper-free · regular stance" : doll.stance === "wide" ? "Wide stance · room for a larger diaper" : "Regular stance · a comfortable fit";
   $("bond").textContent = `${doll.player.careCount} care moment${doll.player.careCount === 1 ? "" : "s"}`;
   $("needs").replaceChildren(...Object.entries({ hunger: "Fullness", hydration: "Hydration", energy: "Energy", comfort: "Comfort", joy: "Happiness" }).map(([key, title]) => {
     const el = node("div", null, "need"), label = node("label", title), progress = node("progress");
@@ -61,7 +61,7 @@ function renderCare() {
   $("wetness").max = bulk || 1; $("wetness").value = Math.min(d.usedBulk, bulk || 1);
   $("wetness-label").textContent = `${d.usedBulk} / ${bulk} bulk`;
   $("accident-counts").textContent = `${c.wetness} wetting${c.wetness === 1 ? "" : "s"} · ${c.mess} messy accident${c.mess === 1 ? "" : "s"}. Each messy accident uses ${d.messyRules.bulkPerAccident} bulk.`;
-  $("leak-status").textContent = c.leaking ? `${c.mess ? "Messy and leaking" : "Leaking"} — choose a fresh diaper below.` : c.mess ? "Messy — ready for a fresh change." : c.wetness ? "Wet, with room left. You can change whenever you like." : "Fresh and comfortable.";
+  $("leak-status").textContent = !d.diaper ? "Diaper-free. Accidents will need a baby wipe." : c.leaking ? c.needsWipe ? `${c.mess ? "Messy and leaking" : "Leaking"} — clean up before a fresh diaper.` : "Diaper full — ready for a fresh change." : c.mess ? "Messy — ready for a fresh change." : c.wetness ? "Wet, with room left. You can change whenever you like." : "Fresh and comfortable.";
   $("leak-status").className = c.leaking ? "leaking" : "";
   $("rhythm").textContent = d.rhythm.reportId ? `${d.rhythm.label}: ${d.rhythm.rate.toFixed(2)} recorded wettings per active participant-day.${d.rhythm.limited ? " Game timing is limited to 30 minutes–24 hours." : ""}` : d.rhythm.label;
   const selected = $("replacement").value;
@@ -73,6 +73,15 @@ function renderCare() {
   if (!$("food").options.length) $("food").replaceChildren(...state.catalog.foods.map(food => { const option = node("option", `${food.name} · +${food.fullness} fullness`); option.value = food.id; return option; }));
   renderFood(); $("pet-reminders").checked = c.reminders; $("messy-mode").checked = c.messyMode;
   $("messy-rhythm").textContent = d.messyRules.label; renderTimers();
+  $("cleanup-status").textContent = c.needsWipe ? `Cleanup needed: ${c.bodyWetness} wet and ${c.bodyMess} messy accident${c.bodyWetness + c.bodyMess === 1 ? "" : "s"}. Use one wipe before dressing.` : "No body cleanup needed.";
+  $("wipe-stock").textContent = `${d.supplies.wipes} baby wipe${d.supplies.wipes === 1 ? "" : "s"} available`;
+  $("remove-diaper").dataset.unavailable = String(!d.diaper);
+  $("use-wipe").dataset.unavailable = String(!c.needsWipe || d.supplies.wipes < 1);
+  const camera = $("buttcam"), cameraUrl = `/littlepottchi/api/buttcam?state=${encodeURIComponent(d.buttcam.image + c.revision)}`;
+  if (camera.getAttribute("src") !== cameraUrl) {
+    camera.hidden = true; camera.onload = () => { camera.hidden = false; }; camera.onerror = () => notice("The diaper camera could not load. Refresh to retry."); camera.src = cameraUrl;
+  }
+  camera.alt = d.buttcam.label; $("buttcam-note").textContent = [d.buttcam.label,d.buttcam.note].filter(Boolean).join(" · ");
 } // Show actual capacity and only replacement designs currently available to this account.
 
 function renderFood() {
@@ -93,7 +102,7 @@ function updateButtons() {
   if (state) {
     $("roll").disabled = busy || !state.shop.enabled || !!state.shop.pending || state.coins === null || state.coins < state.shop.rollPrice;
     document.querySelectorAll("[data-care]").forEach(button => { button.disabled = busy || (state.doll.player.cooldowns[button.dataset.care] || 0) > state.doll.now ||
-      (!!state.doll.player.care.task && ["play", "rest"].includes(button.dataset.care)); });
+      (!!state.doll.player.care.task && ["play", "rest"].includes(button.dataset.care)) || (button.dataset.care === "change" && state.doll.player.care.needsWipe); });
     $("pet-reminders").disabled = busy;
     $("messy-mode").disabled = busy;
   }
@@ -109,7 +118,7 @@ async function run(work) {
 async function dollAction(input) {
   petGeneration++;
   state.doll = await api("/littlepottchi/api/doll", input); renderDoll(); renderGallery();
-} // Dressing and care are free and never invoke a wallet operation.
+} // Pet actions never debit the wallet; cleanup consumes an already-purchased wipe atomically on the server.
 
 async function purchase(action, item = null) {
   const key = requestKey();
@@ -128,9 +137,10 @@ async function purchase(action, item = null) {
     const result = await api("/clothes/api/action", input);
     sessionStorage.removeItem(key);
     await refresh();
-    const active = state.catalog.clothes.some(item => item.id === result.item.id);
+    const active = result.item.supply || state.catalog.clothes.some(item => item.id === result.item.id);
     $("prize-name").textContent = active ? result.item.name : "Retired design"; $("prize-rarity").textContent = active ? result.item.rarity : "";
     $("prize-copy").textContent = result.action === "sell" ? `Sold one copy for ${result.amount} coins.` : `One copy added to your wardrobe for ${result.amount} coins.`;
+    if (result.item.supply) $("prize-copy").textContent = `One baby wipe added to your care supplies for ${result.amount} coins.`;
     $("prize-art").getContext("2d").clearRect(0, 0, 160, 150);
     if (active) await thumbnail($("prize-art"), result.item);
     else $("prize-copy").textContent = "Your previous payment is resolved. This retired design is no longer available in the wardrobe.";
@@ -174,7 +184,8 @@ function renderGallery() {
     if (diapersView) card.append(node("p", `Bulk ${item.bulk} · wettings use 1, messy accidents use ${state.doll.messyRules.bulkPerAccident}`));
     if (view === "catalog") card.append(node("p", `${item.chance.toFixed(3)}% per roll`));
     if (count?.available > 0) {
-      const wear = node("button", fit ? "Wear this" : `Needs ${item.stances.join(" or ")} stance`); wear.dataset.unavailable = String(!fit);
+      const needsWipe = diapersView && state.doll.player.care.needsWipe;
+      const wear = node("button", needsWipe ? "Use a baby wipe first" : fit ? "Wear this" : `Needs ${item.stances.join(" or ")} stance`); wear.dataset.unavailable = String(!fit || needsWipe);
       wear.addEventListener("click", () => run(() => dollAction({ action: "equip", slot: item.slot, design: item.id }))); card.append(wear);
       if (!diapersView) {
         const sell = node("button", `Sell 1 · ${item.sell} coins`); sell.dataset.unavailable = String(!state.shop.enabled || !!state.shop.pending);
@@ -214,6 +225,8 @@ $("logout").addEventListener("click", () => run(async () => { await api("/clothe
 document.querySelectorAll("[data-care]").forEach(button => button.addEventListener("click", () => run(() => dollAction({ action: button.dataset.care,
   ...(button.dataset.care === "feed" ? { food: $("food").value } : {}), ...(button.dataset.care === "change" ? { design: $("replacement").value } : {}) }))));
 $("food").addEventListener("change", renderFood);
+$("remove-diaper").addEventListener("click", () => run(() => dollAction({ action: "equip", slot: "diaper", design: null })));
+$("use-wipe").addEventListener("click", () => run(() => dollAction({ action: "wipe" })));
 $("messy-mode").addEventListener("change", () => run(async () => {
   try { await dollAction({ action: "messy-mode", enabled: $("messy-mode").checked }); }
   finally { $("messy-mode").checked = state.doll.player.care.messyMode; }

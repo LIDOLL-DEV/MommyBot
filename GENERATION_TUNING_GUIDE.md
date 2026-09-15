@@ -151,6 +151,11 @@ reachability; it does not validate the quality of generated text.
 
 ## Littlepottchi wetting and timed care
 
+`BABYWIPES_PRICE` controls the per-wipe coin price (default 1); new purchases pin
+their price before payment. Each wipe clears all body cleanup from diaper-free
+accidents and leaks. Tune diaper camera arrays in the catalog; first frame stays
+clean and all later frames require messy mode. The editor previews these frames.
+
 Tune `messyRules` in `src/dressup/care.js`: default interval 12 hours and bulk cost
 2 per messy accident. Update its UI label when changing the interval. This is
 authored timing; the current saved AI input does not include bowel-event counts.

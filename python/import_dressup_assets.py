@@ -7,6 +7,7 @@ import json
 import re
 import shutil
 from wardrobe_catalog import discover
+from buttcam_catalog import cameras
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -100,13 +101,15 @@ def build(source):
             for key in keys:
                 if key in old.get(item["id"], {}):
                     item[key] = old[item["id"]][key]  # Rebuilding artwork preserves the handler's saved tuning.
+    bareCameras = cameras(source, diapers, copy)
+    wipeImage = copy("Items/Collectibles/pocketwipes1.png")
     foods = []
     for food_id, name, filename, fullness, joy in [("apple", "Apple", "apple1.png", 30, 3),
             ("banana", "Banana", "banana1.png", 35, 3), ("cookie", "Cookie", "cookie1.png", 15, 10),
             ("nuts", "Peanuts", "nuts1.png", 25, 5), ("lunch", "Packed lunch", "baglunch1.png", 45, 5)]:
         foods.append({"id": food_id, "name": name, "image": copy(f"Items/Collectibles/{filename}"), "fullness": fullness, "joy": joy})
     manifest = {"version": 3, "canvas": [387, 875], "bases": bases, "faces": faces, "hair": hair,
-                "diapers": diapers, "clothes": clothes, "foods": foods, "provenance": provenance}
+                "diapers": diapers, "clothes": clothes, "foods": foods, "bareCameras": bareCameras, "wipeImage": wipeImage, "provenance": provenance}
     audit["designs"] = len(clothes)
     audit["bySlot"] = dict(Counter(item["slot"] for item in clothes))
     (out / "catalog.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

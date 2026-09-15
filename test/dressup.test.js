@@ -138,8 +138,10 @@ test("care uses bounded server time, cooldowns, and persists without consuming i
   const elapsed = f.doll.snapshot(f.user);
   assert.equal(elapsed.player.hunger, 0); assert.equal(elapsed.player.comfort, 0);
   assert.throws(() => f.doll.act(f.user, { action: "change" }), /replacement diaper/);
+  f.clothes.db.prepare("INSERT INTO care_supplies VALUES (?,1)").run(f.user);
+  f.doll.act(f.user, { action: "wipe" });
   const changed = f.doll.act(f.user, { action: "change", design: "cloud-tapes" });
-  assert.equal(changed.player.comfort, 100); assert.equal(changed.player.careCount, 2);
+  assert.equal(changed.player.comfort, 100); assert.equal(changed.player.careCount, 3);
   assert.equal(f.coins, 1000); assert.equal(f.receipts.size, 0);
   assert.throws(() => f.doll.act(f.user, { action: "appearance", ...changed.player, hair: "../../unknown" }), /character builder/);
 });

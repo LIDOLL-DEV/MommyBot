@@ -10,3 +10,7 @@
 .reminder-choice input{display:inline-block;width:20px;height:20px;flex:none;margin:0}
 .diaper-care .reminder-choice{justify-content:flex-start}
 #care-timers{padding-left:20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 20px}
+.camera-care{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:20px 0}
+.camera-care figure{margin:0;flex:0 1 200px}.camera-care img{width:100%;height:auto;border-radius:12px}
+.camera-care figcaption{font-size:11px;color:var(--muted)}.camera-care>div{flex:1 1 220px;min-width:0}
+.camera-care .care-actions{margin:12px 0}.camera-care a{font-size:13px}

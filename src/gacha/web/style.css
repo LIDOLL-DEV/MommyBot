@@ -134,4 +134,5 @@ dialog .primary { width: 100%; }
   .diaper-card button { font-size: 12px; } .pending { flex-direction: column; align-items: stretch; }
   .site-footer { flex-direction: column; margin-top: 38px; } .handoff { padding: 16px; } .handoff-card { padding: 26px; }
 }
+#supplies .section-heading{flex-wrap:wrap}#wipe-art{object-fit:contain;flex:none}
 @media(prefers-reduced-motion: no-preference) { dialog[open] { animation: unwrap .25s ease-out; } @keyframes unwrap { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } } }

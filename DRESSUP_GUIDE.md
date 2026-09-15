@@ -13,7 +13,8 @@ session works across all three games, including sign-out and account revocation.
   Duplicates remain separate copies; buy and sell them at the shared clothing bank.
 - **Littlepottchi:** choose a name, soft/angular body, hair and face. Wear owned
   clothing and any of the 58 Atelier designs. A starter shirt and Cloud Tapes
-  appear when those slots are empty; these free fallback visuals are not sellable copies.
+  appear by default; these free fallback visuals are not sellable copies. **Remove
+  diaper** deliberately leaves the doll diaper-free until dressed again.
   Bras and corsets can replace the fallback shirt. Only diapers and training pants
   may fill the inner-bottom slot. Ordinary underwear is excluded from imports,
   rolls, the wardrobe and bank. Legacy outfits fall back to a diaper without
@@ -22,10 +23,18 @@ session works across all three games, including sign-out and account revocation.
   select `DQ_Base_2` (soft) or `DQ_Base_4` (angular). Smaller diapers restore
   `TQ_Base_3` or `TQ_Base_2`. Players do not choose the stance separately.
   Incompatible garments are removed from the outfit but remain owned.
-- Feed, play, rest and fresh changes are free. Each action has its own 30-second
-  cooldown. Fullness, energy, comfort and happiness decrease gradually offline,
+- Feed, play, rest and fresh changes are free. Food and water have 30-second
+  cooldowns; play and rest use activity timers. Fullness, energy, comfort and happiness decrease gradually offline,
   stopping at zero. There is no death or loss of collectibles. Changes do not
   consume owned diapers or create another copy.
+
+The rear camera follows the equipped diaper: its first frame is clean and later
+frames appear only for messy accidents while messy mode is on. Missing print
+sequences use a labeled generic camera. Diaper-free care uses the supplied bare
+camera. Accidents continue without a diaper. Diaper-free accidents and leaks
+require **one baby wipe** before redressing; contained accidents do not. Buy wipes
+at Diaper Atelier for 1 coin each by default. One wipe cleans all accumulated body
+accidents. The editor can preview clean and messy cameras without changing art.
 
 The wardrobe checks available ownership every time it renders. Selling the last
 copy, or reserving it for sale, removes permission to wear it. Another available

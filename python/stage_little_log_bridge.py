@@ -32,8 +32,8 @@ def notifications(text):
     return replace_once(text, "return {status,save,remove,tick,messages,community};", "return {status,save,remove,tick,messages,community,littlepottchi};")
 
 def worker(text):
-    text = text.replace("little-log-v90-social-profiles-", "little-log-v92-messy-mode-")
-    insertion = """ const petMessages={wet:'Your Littlepottchi has a wet diaper.',mess:'Your Littlepottchi has a messy diaper and needs a fresh change.',leak:'Your Littlepottchi is leaking and needs a fresh diaper.',feed:'Your Littlepottchi is ready for food.',water:'Your Littlepottchi is ready for water.',play:'Your Littlepottchi would like some playtime.',rest:'Your Littlepottchi is ready for a rest.',complete:'Your Littlepottchi finished a timed activity.'};
+    text = text.replace("little-log-v90-social-profiles-", "little-log-v93-pet-cleanup-")
+    insertion = """ const petMessages={wet:'Your Littlepottchi has a wet diaper.',mess:'Your Littlepottchi has a messy diaper and needs a fresh change.',leak:'Your Littlepottchi is leaking and needs a fresh diaper.',cleanup:'Your Littlepottchi needs a baby wipe before a fresh diaper.',feed:'Your Littlepottchi is ready for food.',water:'Your Littlepottchi is ready for water.',play:'Your Littlepottchi would like some playtime.',rest:'Your Littlepottchi is ready for a rest.',complete:'Your Littlepottchi finished a timed activity.'};
  if(data?.kind==='littlepottchi') {
   if(!Object.prototype.hasOwnProperty.call(petMessages,data.need))return;
   event.waitUntil(self.registration.showNotification('Littlepottchi',{body:petMessages[data.need],icon:new URL('./icons/notification-icon.png',self.registration.scope).href,badge:new URL('./icons/notification-badge.png',self.registration.scope).href,data:{pet:true},tag:typeof data.tag==='string'?data.tag.slice(0,80):'littlepottchi'}));return;

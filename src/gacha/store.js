@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import { randomInt, randomUUID } from "node:crypto";
 import { WalletError } from "../wallet/client.js";
 import { tiers } from "./catalog.js";
+import { babyWipe } from "./supplies.js";
 
 export class GachaError extends Error {}
 
@@ -21,6 +22,12 @@ export class DiaperStore {
       CREATE INDEX IF NOT EXISTS diaper_pending ON diaper_jobs(user_id,state);`);
     const seed = this.db.prepare("INSERT INTO diaper_designs VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data");
     this.db.transaction(() => { for (const item of catalog) seed.run(item.id, JSON.stringify(item)); })();
+    if (config.walletKey === "clothes") {
+      this.wipePrice = config.wipePrice ?? 1;
+      if (!Number.isSafeInteger(this.wipePrice) || this.wipePrice < 1 || this.wipePrice > 10000) throw new Error("Baby wipe price must be a whole number from 1 to 10000.");
+      this.db.exec("CREATE TABLE IF NOT EXISTS care_supplies(user_id TEXT PRIMARY KEY,wipes INTEGER NOT NULL CHECK(wipes>=0))");
+      seed.run(babyWipe.id, JSON.stringify(babyWipe));
+    } // Supplies share the pet database so consuming a wipe and cleaning the doll can commit together.
     const previous = wallet.hasPending;
     wallet.hasPending = user => previous(user) || Boolean(this.pending(user));
     wallet[config.walletKey === "clothes" ? "clothes" : "gacha"] = this; // Separate journals share the existing wallet lock and recovery guard.
@@ -30,6 +37,11 @@ export class DiaperStore {
   job(id) { return this.db.prepare("SELECT * FROM diaper_jobs WHERE id=?").get(id); }
   design(id) { const row = this.db.prepare("SELECT data FROM diaper_designs WHERE id=?").get(id); return row ? JSON.parse(row.data) : null; }
   availableDesign(id) { return this.config.walletKey !== "clothes" || this.catalog.some(item => item.id === id); } // Retired clothing stays in payment history but cannot re-enter the live shop.
+  supplySnapshot(user) {
+    const pending = this.pending(user);
+    return { wipes: this.db.prepare("SELECT wipes FROM care_supplies WHERE user_id=?").get(user)?.wipes || 0, price: this.wipePrice,
+      enabled: this.config.suppliesEnabled ?? this.config.enabled, pending: pending?.action === "wipes" ? { amount: pending.amount } : null };
+  } // Expose only the signed-in player's delivered wipes; unpaid purchases never count as stock.
   prices(item) {
     const stock = this.db.prepare("SELECT COUNT(*) quantity FROM diaper_items WHERE design=? AND owner IS NULL").get(item.id).quantity;
     const startingPrice = Math.max(3, Math.floor(this.config.price * tiers[item.rarity].buy));
@@ -57,7 +69,7 @@ export class DiaperStore {
   } // Return only this player's collection/history; reserve stock and unrevealed rolls stay private until payment is confirmed.
 
   async act(user, action, design, request, quotedAmount = null) {
-    if (!["roll", "sell", "buy"].includes(action) || !/^[\w-]{16,80}$/.test(request || "") ||
+    if (!["roll", "sell", "buy", "wipes"].includes(action) || (action === "wipes" && (this.config.walletKey !== "clothes" || design !== babyWipe.id)) || !/^[\w-]{16,80}$/.test(request || "") ||
         (action !== "roll" && !/^[a-z0-9-]{1,80}$/.test(design || ""))) throw new GachaError("Invalid game action. Refresh the page and try again.");
     return this.wallet.exclusive(user, async () => {
       const existing = this.db.prepare("SELECT * FROM diaper_jobs WHERE user_id=? AND request_id=?").get(user, request);
@@ -65,18 +77,18 @@ export class DiaperStore {
         if (existing.action !== action || (action !== "roll" && existing.design !== design)) throw new GachaError("This request already belongs to another action.");
         return this.settle(existing);
       }
-      if (!this.config.enabled) throw new GachaError("New rolls and bank trades are paused. Your collection and payment recovery remain available.");
+      if (!(action === "wipes" ? this.config.suppliesEnabled ?? this.config.enabled : this.config.enabled)) throw new GachaError("New purchases are paused. Your collection and payment recovery remain available.");
       if (this.wallet.hasPending(user)) throw new GachaError("Finish your pending payment first. Use Retry payment here or /lidollid wallet retry in Discord.");
       const account = this.wallet.requireConnection(user);
       const job = this.db.transaction(() => {
         const item = action === "roll" ? this.pick() : this.design(design);
-        if (!item || !this.availableDesign(item.id)) throw new GachaError("That design is not available.");
-        const stock = action === "roll" ? null : action === "sell"
+        if (!item || (action !== "wipes" && !this.availableDesign(item.id))) throw new GachaError("That design is not available.");
+        const stock = ["roll", "wipes"].includes(action) ? null : action === "sell"
           ? this.db.prepare("SELECT * FROM diaper_items WHERE owner=? AND design=? AND lock_id IS NULL ORDER BY created LIMIT 1").get(user, item.id)
           : this.db.prepare("SELECT * FROM diaper_items WHERE owner IS NULL AND design=? AND lock_id IS NULL ORDER BY created LIMIT 1").get(item.id);
-        if (action !== "roll" && !stock) throw new GachaError(action === "sell" ? "You have no available copy to sell." : "Someone bought the last available copy. Refresh the bank.");
+        if (!["roll", "wipes"].includes(action) && !stock) throw new GachaError(action === "sell" ? "You have no available copy to sell." : "Someone bought the last available copy. Refresh the bank.");
         const id = randomUUID(), itemId = stock?.id || randomUUID();
-        const amount = action === "roll" ? this.config.price : this.prices(item)[action];
+        const amount = action === "wipes" ? this.wipePrice : action === "roll" ? this.config.price : this.prices(item)[action];
         if (quotedAmount !== null && quotedAmount !== amount) throw new GachaError("The price changed. Refresh and review the new price before trying again.");
         this.db.prepare(`INSERT INTO diaper_jobs(id,user_id,request_id,action,design,item_id,amount,account_id,base_url,client_id,created)
           VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(id, user, request, action, item.id, itemId, amount, account.account_id, account.base_url, account.client_id, Date.now());
@@ -128,7 +140,9 @@ export class DiaperStore {
       job = this.job(job.id);
       if (job.state === "done") return;
       if (job.state !== "paid") throw new GachaError("This payment must finish before delivery.");
-      if (job.action === "roll") {
+      if (job.action === "wipes") {
+        this.db.prepare("INSERT INTO care_supplies VALUES (?,1) ON CONFLICT(user_id) DO UPDATE SET wipes=wipes+1").run(job.user_id);
+      } else if (job.action === "roll") {
         this.db.prepare("INSERT INTO diaper_items VALUES (?,?,?,NULL,?)").run(job.item_id, job.design, job.user_id, Date.now());
       } else {
         const result = this.db.prepare("UPDATE diaper_items SET owner=?,lock_id=NULL WHERE id=? AND lock_id=? AND owner IS ?")

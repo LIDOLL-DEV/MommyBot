@@ -4,12 +4,13 @@ import { dressupRoot } from "./catalog.js";
 import { GachaError } from "../gacha/store.js";
 import { WalletError } from "../wallet/client.js";
 import { createPetIntegration } from "./integration.js";
+import { selectButtcam } from "./camera.js";
 
 export function createDressupWeb(config, clothes, doll, sessions, catalog) {
   doll.identity = user => sessions.identities.gameIdentity(user);
   const integration = createPetIntegration(doll, config.petBridge);
   const assets = new Map();
-  for (const name of Object.keys(catalog.provenance)) assets.set(`/clothes/art/${name}`, new URL(name, dressupRoot));
+  for (const name of Object.keys(catalog.provenance)) if (!/_ButtCam_/.test(name)) assets.set(`/clothes/art/${name}`, new URL(name, dressupRoot));
   const page = readFileSync(new URL("./web/index.html", import.meta.url));
   const code = new Map(["app.js", "style.css", "care.css", "doll.js"].map(name => [name, readFileSync(new URL(`./web/${name}`, import.meta.url))]));
   const send = (res, status, body, type = "application/json") => { res.writeHead(status, { "Content-Type": type }); res.end(type === "application/json" ? JSON.stringify(body) : body); };
@@ -36,6 +37,11 @@ export function createDressupWeb(config, clothes, doll, sessions, catalog) {
       const token = (req.headers.cookie || "").split(";").map(s => s.trim()).find(s => s.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1);
       const session = sessions.get(token);
       if (!session) { send(res, 401, { error: "Sign in with LiD0llID to open your wardrobe." }); return true; }
+      if (req.method === "GET" && path === "api/buttcam") {
+        const player = doll.player(session.user_id), resolved = doll.resolve(session.user_id, player);
+        const camera = selectButtcam(catalog, player, resolved.diaper);
+        send(res, 200, readFileSync(new URL(camera.image, dressupRoot)), "image/png"); return true;
+      } // The server selects the authorized frame; query parameters cannot request messy art while the mode is off.
       if (req.method === "GET" && path === "api/pet") { send(res, 200, doll.snapshot(session.user_id)); return true; }
       if (req.method === "GET" && path === "api/state") {
         let coins = null, walletError = null;

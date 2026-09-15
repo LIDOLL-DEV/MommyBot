@@ -1,12 +1,14 @@
 import { GachaError } from "../gacha/store.js";
 import { slots } from "./catalog.js";
 import { PetCare, careRules, messyRules } from "./care.js";
+import { selectButtcam } from "./camera.js";
 
 export class LittlepottchiStore {
   constructor(clothes, diapers, catalog, now = Date.now) {
     this.clothes = clothes; this.diapers = diapers; this.catalog = catalog; this.db = clothes.db; this.now = now;
     this.db.exec("CREATE TABLE IF NOT EXISTS littlepottchi_players(user_id TEXT PRIMARY KEY, data TEXT NOT NULL)");
     this.care = new PetCare(this.db, catalog, now);
+    diapers.supplies = clothes; // Atelier sells supplies through the pet's journal and shared wallet guard.
     this.starterTop = catalog.clothes.find(item => /TShirt_1A/.test(item.image));
     if (!this.starterTop || !catalog.diapers.some(item => item.id === "cloud-tapes")) throw new Error("Missing starter outfit.");
   } // Persist care and outfits in the clothing journal; Atelier ownership remains in its original journal.
@@ -15,6 +17,7 @@ export class LittlepottchiStore {
     const saved = this.db.prepare("SELECT data FROM littlepottchi_players WHERE user_id=?").get(user);
     const value = saved ? JSON.parse(saved.data) : { name: "Littlepottchi", shape: "soft", hair: this.catalog.hair[0], face: this.catalog.faces.find(n => /CheekyFemale/.test(n)),
       outfit: {}, hunger: 85, energy: 85, comfort: 100, joy: 85, careCount: 0, updated: this.now(), cooldowns: {} };
+    value.diaperFree ??= false;
     const resolved = this.resolve(user, value);
     delete value.outfit.underwear;
     this.care.advance(value, resolved.diaper); // Migrate retired underwear to the starter diaper without cleaning existing wetness.
@@ -38,8 +41,8 @@ export class LittlepottchiStore {
       else if (id) removed.push(id);
     }
     if (player.outfit.underwear) removed.push(player.outfit.underwear);
-    const diaper = outfit.diaper || this.catalog.diapers.find(item => item.id === "cloud-tapes");
-    const stance = diaper.stance; // Diapers and training pants are the only inner-bottom choices, including for legacy saves.
+    const diaper = outfit.diaper || (player.diaperFree ? null : this.catalog.diapers.find(item => item.id === "cloud-tapes"));
+    const stance = diaper?.stance || "narrow"; // Deliberate removal allows diaper-free care; retired underwear never becomes wearable again.
     for (const slot of slots.filter(s => s !== "diaper")) {
       if (outfit[slot] && !outfit[slot].stances.includes(stance)) { removed.push(outfit[slot].id); delete outfit[slot]; }
     }
@@ -48,7 +51,8 @@ export class LittlepottchiStore {
 
   snapshot(user) {
     const player = this.player(user), resolved = this.resolve(user, player);
-    return { player, ...resolved, now: this.now(), careRules, messyRules, usedBulk: player.care.wetness + player.care.mess * messyRules.bulkPerAccident, rhythm: this.care.profile(),
+    return { player, ...resolved, now: this.now(), careRules, messyRules, buttcam: selectButtcam(this.catalog, player, resolved.diaper),
+      supplies: this.clothes.supplySnapshot(user), usedBulk: player.care.wetness + player.care.mess * messyRules.bulkPerAccident, rhythm: this.care.profile(),
       ownedClothes: this.clothes.snapshot(user).owned, ownedDiapers: this.diapers.snapshot(user).owned };
   }
 
@@ -63,21 +67,29 @@ export class LittlepottchiStore {
       } else if (input.action === "equip") {
         const slot = input.slot;
         if (!slots.includes(slot)) throw new GachaError("Unknown clothing slot.");
-        if (input.design === null) delete player.outfit[slot];
+        if (input.design === null) {
+          delete player.outfit[slot];
+          if (slot === "diaper" && !player.diaperFree) { player.diaperFree = true; this.care.removeDiaper(player); }
+        }
         else {
           const item = (slot === "diaper" ? this.catalog.diapers : this.catalog.clothes).find(item => item.id === input.design && (slot === "diaper" || item.slot === slot));
           if (!item || !this.owned(user, slot, item.id)) throw new GachaError("You need an available copy in your collection to wear this item.");
           if (slot !== "diaper" && !item.stances.includes(this.resolve(user, player).stance)) throw new GachaError("This piece needs a different leg stance. Choose a compatible diaper first.");
           if (slot === "diaper") delete player.outfit.underwear;
           player.outfit[slot] = item.id;
-          if (slot === "diaper") this.care.change(player);
+          if (slot === "diaper") { this.care.change(player); player.diaperFree = false; }
         }
       } else if (input.action === "change") {
         const item = this.catalog.diapers.find(item => item.id === input.design);
         if (!item || (item.id !== "cloud-tapes" && !this.owned(user, "diaper", item.id))) throw new GachaError("Choose a replacement diaper from your collection or the starter supply.");
         if (item.id === "cloud-tapes" && !this.owned(user, "diaper", item.id)) delete player.outfit.diaper;
         else player.outfit.diaper = item.id;
-        delete player.outfit.underwear; this.care.change(player);
+        delete player.outfit.underwear; this.care.change(player); player.diaperFree = false;
+      } else if (input.action === "wipe") {
+        if (!player.care.needsWipe) throw new GachaError("Your doll does not need a wipe right now.");
+        const consumed = this.db.prepare("UPDATE care_supplies SET wipes=wipes-1 WHERE user_id=? AND wipes>0").run(user);
+        if (!consumed.changes) throw new GachaError("Buy a baby wipe from Diaper Atelier to clean up first.");
+        this.care.wipe(player);
       } else {
         this.care.act(player, input);
         if (input.action === "reminders") {

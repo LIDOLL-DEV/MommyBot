@@ -13,6 +13,12 @@ All purchases and sales use the connected **online LiDollcoin wallet**.
 
 ## Playing
 
+**Baby wipes:** visit the supply section in the Atelier to buy individual wipes
+for 1 LiDollcoin by default (`BABYWIPES_PRICE`). One wipe cleans any number of
+Littlepottchi diaper-free accidents and leaks before a fresh diaper. Purchases
+are saved for retry across reloads, and use the same wallet and identity. Wipes
+are consumed only by the pet's **Use 1 baby wipe** button when cleanup is needed.
+
 1. Link your identity and wallet with `/lidollid login`, finish browser consent,
    and send the returned `/lidollid confirm code:…` command in Discord.
 2. Run `/diaper` (or `/diapers`). Open the private link and press **Open my atelier**.

@@ -18,6 +18,8 @@ assert.equal(opened,'https://log.example/tracker/#games');
 handlers.push({data:{json:() => ({kind:'littlepottchi',need:'__proto__'})},waitUntil:p => {work = p;}}); assert.equal(shown.length,1);
 handlers.push({data:{json:() => ({kind:'littlepottchi',need:'mess',body:'Injected text'})},waitUntil:p => {work = p;}}); await work;
 assert.equal(shown.length,2); assert.equal(shown[1][1].body,'Your Littlepottchi has a messy diaper and needs a fresh change.');
+handlers.push({data:{json:() => ({kind:'littlepottchi',need:'cleanup'})},waitUntil:p => {work = p;}}); await work;
+assert.equal(shown.length,3); assert.equal(shown[2][1].body,'Your Littlepottchi needs a baby wipe before a fresh diaper.');
 const {createGamesRoute} = await import(pathToFileURL(resolve(root,'server/games.mjs')));
 const route = createGamesRoute('/tracker/',{LIDOLLBOT_PUBLIC_ORIGIN:'https://bot.example'});
 for (const game of ['littlepottchi','clothes']) {

@@ -13,7 +13,8 @@
   diapers from **My diapers**. Large diapers automatically spread the doll's legs;
   smaller diapers switch them back. Incompatible clothes stay in your collection.
 - Customize the doll's name, body, face and hair. Feed, play, rest or change for
-  free; care buttons have a short cooldown. Retry saved payments before rolling
+  free; buy wipes for cleanup after leaks or diaper-free accidents. Food and water
+  have short cooldowns; play and rest use timers. Retry saved payments before rolling
   again. Full instructions: [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
 
 - To address Sakura directly, mention her, begin with **Sakura, ...**, or use
@@ -81,6 +82,11 @@ See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for the word list and full rules,
 [GAMES_GUIDE.md](GAMES_GUIDE.md) for available games.
 
 ## Littlepottchi wetting and timed care
+
+Use **Remove diaper** for diaper-free care; accidents still happen. Buy baby wipes
+in Diaper Atelier, then use **Use 1 baby wipe** after a leak or diaper-free accident
+before dressing again. One wipe cleans every accumulated body accident. The rear
+camera shows messy frames only while messy mode is on; turning it off does not clean.
 
 Turn on **Enable messy mode** if desired. Its 12-hour countdown runs while enabled;
 turning it off pauses it. Messy accidents use two bulk units. A fresh diaper clears

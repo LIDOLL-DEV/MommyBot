@@ -3,6 +3,7 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { GachaError } from "./store.js";
 import { WalletError } from "../wallet/client.js";
 import { assetRoot } from "./catalog.js";
+import { babyWipe } from "./supplies.js";
 
 const hash = value => createHash("sha256").update(value).digest("hex");
 const equal = (a, b) => typeof a === "string" && typeof b === "string" && a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
@@ -15,6 +16,7 @@ export function createGachaWeb(config, game, sessions) {
   const readCookie = (request, name) => (request.headers.cookie || "").split(";").map(part => part.trim()).find(part => part.startsWith(`${name}=`))?.slice(name.length + 1);
   const staticFiles = new Map(["app.js", "style.css"].map(name => [`/diapers/${name}`, { type: name.endsWith("css") ? "text/css" : "text/javascript", body: readFileSync(new URL(`./web/${name}`, import.meta.url)) }]));
   for (const item of game.catalog) staticFiles.set(`/diapers/art/${item.image}`, { type: "image/png", body: readFileSync(new URL(item.image, assetRoot)) });
+  if (game.supplies) staticFiles.set(`/diapers/art/${babyWipe.image}`, { type: "image/png", body: readFileSync(new URL(`../../assets/dressup/${babyWipe.image}`, import.meta.url)) });
   const app = readFileSync(new URL("./web/index.html", import.meta.url));
   const send = (response, status, body, type = "text/html") => { response.writeHead(status, { "Content-Type": type === "image/png" ? type : `${type}; charset=utf-8` }); response.end(body); };
   const json = (response, status, data) => send(response, status, JSON.stringify(data), "application/json");
@@ -27,6 +29,7 @@ export function createGachaWeb(config, game, sessions) {
 
   return async (request, response) => {
     const url = new URL(request.url, config.origin);
+    let supplyRequest = null, supplyUser = null;
     if (!url.pathname.startsWith("/diapers/") && url.pathname !== "/diapers") return false;
     response.setHeader("Cache-Control", "no-store");
     response.setHeader("Referrer-Policy", "no-referrer");
@@ -65,7 +68,7 @@ export function createGachaWeb(config, game, sessions) {
           let coins = null, walletError = null;
           try { coins = (await game.wallet.balance(session.user_id)).coins; }
           catch (error) { walletError = error instanceof WalletError ? error.message : "The wallet is temporarily unavailable."; }
-          json(response, 200, { ...game.snapshot(session.user_id), username: session.username, csrf: session.csrf, coins, walletError }); return true;
+          json(response, 200, { ...game.snapshot(session.user_id), supplies: game.supplies?.supplySnapshot(session.user_id) || null, username: session.username, csrf: session.csrf, coins, walletError }); return true;
         }
         if (request.method === "POST") {
           if (request.headers.origin !== config.origin || !equal(request.headers["x-csrf-token"], session.csrf) || request.headers["content-type"]?.split(";")[0] !== "application/json") {
@@ -82,12 +85,29 @@ export function createGachaWeb(config, game, sessions) {
               : await game.act(session.user_id, input.action, input.design, input.request, input.amount);
             json(response, 200, result); return true;
           }
+          if (url.pathname === "/diapers/api/supplies" && game.supplies) {
+            let input; try { input = JSON.parse(await body(request)); } catch { throw new GachaError("Invalid supply request."); }
+            supplyRequest = input?.request; supplyUser = session.user_id;
+            if (!input || !["buy", "retry"].includes(input.action)) throw new GachaError("Choose a baby wipe purchase or retry.");
+            if (input.action === "retry" && game.supplies.pending(session.user_id)?.action !== "wipes") throw new GachaError("No baby wipe payment is waiting.");
+            if (input.action !== "retry" && (!Number.isSafeInteger(input.amount) || input.amount < 1)) throw new GachaError("Review the current baby wipe price.");
+            const result = input.action === "retry" ? await game.supplies.retry(session.user_id)
+              : await game.supplies.act(session.user_id, "wipes", babyWipe.id, input.request, input.amount);
+            json(response, 200, result); return true;
+          } // Fixed-price supplies use the same verified identity, durable payment journal and idempotent receipts.
         }
       }
       send(response, 404, page("<p>That page is not here. <a href=\"/diapers/\">Return to the atelier</a>.</p>"));
     } catch (error) {
       const message = error instanceof GachaError || error instanceof WalletError ? error.message : "The atelier is temporarily unavailable. Refresh and retry any pending payment; do not start a replacement purchase.";
-      if (url.pathname.startsWith("/diapers/api/")) json(response, 400, { error: message });
+      if (url.pathname.startsWith("/diapers/api/")) {
+        let retryable;
+        if (typeof supplyRequest === "string" && (error instanceof GachaError || error instanceof WalletError)) {
+          const job = game.supplies.db.prepare("SELECT state FROM diaper_jobs WHERE user_id=? AND request_id=?").get(supplyUser,supplyRequest);
+          retryable = Boolean(job && job.state !== "failed");
+        }
+        json(response, 400, { error: message, retryable });
+      }
       else send(response, 400, page(`<p>${escape(message)}</p><a href="/diapers/">Return to the atelier</a>`));
     }
     return true;

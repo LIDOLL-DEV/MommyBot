@@ -1,6 +1,7 @@
 "use strict";
 const $ = id => document.getElementById(id);
 let state = null, activeTab = "roll", busy = false;
+const wipeRequestKey = () => `atelier-wipe-request:${state.csrf}`;
 const number = value => new Intl.NumberFormat().format(value);
 const element = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -24,7 +25,7 @@ async function api(route, payload) {
   const data = await response.json();
   if (!response.ok) {
     if (response.status === 401) signedOut();
-    throw new Error(data.error || "The atelier could not finish that request. Refresh and retry any pending payment.");
+    throw Object.assign(new Error(data.error || "The atelier could not finish that request. Refresh and retry any pending payment."), {retryable:data.retryable});
   }
   return data;
 } // The only browser credential is an HttpOnly session cookie; wallet tokens and account IDs never enter client storage.
@@ -41,6 +42,8 @@ async function refresh() {
 function controls() {
   $("refresh").disabled = busy; $("logout").disabled = busy; $("retry").disabled = busy;
   if (!state) return;
+  $("buy-wipe").disabled = busy || !state.supplies?.enabled || !!state.supplies?.pending || !!sessionStorage.getItem(wipeRequestKey()) || state.coins === null || state.coins < state.supplies?.price;
+  $("retry-wipe").disabled = busy;
   const reason = busy ? "Your request is finishing. Please wait…"
     : !state.enabled ? "New rolls are paused by Doll. You can still browse your collection."
     : state.pending ? "Finish your saved payment with Retry payment above before rolling again."
@@ -57,6 +60,13 @@ function controls() {
   });
 } // Disable repeats while a request runs; server-side locks and idempotency remain authoritative across tabs and restarts.
 function render() {
+  $("supplies").hidden = !state.supplies;
+  if (state.supplies) {
+    $("wipe-art").src = "/diapers/art/pocketwipes1.png";
+    $("wipe-count").textContent = `${state.supplies.wipes} baby wipes in your care supplies.`;
+    $("buy-wipe").textContent = `Buy 1 baby wipe · ${state.supplies.price} coin${state.supplies.price === 1 ? "" : "s"}`;
+    $("retry-wipe").hidden = !state.supplies.pending && !sessionStorage.getItem(wipeRequestKey());
+  }
   $("balance").textContent = state.coins === null ? "—" : number(state.coins);
   $("greeting").textContent = `Welcome back, ${state.username}. Your drawer is right here. ♡`;
   $("total").textContent = number(state.owned.reduce((sum, row) => sum + row.quantity, 0));
@@ -162,6 +172,25 @@ async function transact(action, design, amount) {
 document.querySelectorAll("[data-tab]").forEach(button => button.addEventListener("click", () => tab(button.dataset.tab)));
 for (const id of ["search", "rarity", "duplicates"]) $(id).addEventListener("input", () => { if (state && activeTab !== "roll") gallery(); });
 $("roll").addEventListener("click", () => transact("roll", undefined, state.rollPrice));
+async function buyWipe(retry = false) {
+  if (busy || !state?.supplies) return;
+  busy = true; controls(); notice();
+  try {
+    const key = wipeRequestKey();
+    let request = sessionStorage.getItem(key);
+    if (!retry && request) throw new Error("Retry the saved wipe purchase first.");
+    if (!request) { request = JSON.stringify({action:"buy",request:crypto.randomUUID(),amount:state.supplies.price}); sessionStorage.setItem(key,request); }
+    const input = retry && state.supplies.pending ? {action:"retry"} : JSON.parse(request);
+    await api("supplies",input); sessionStorage.removeItem(key);
+    await refresh(); notice("One baby wipe added to your care supplies.");
+  } catch (error) {
+    if (error.retryable === false && state) sessionStorage.removeItem(wipeRequestKey());
+    try { await refresh(); } catch { /* Keep the exact purchase for recovery when the network returns. */ }
+    notice(error.message,true);
+  } finally { busy = false; controls(); }
+} // Reuse the exact request after a lost response, including across reloads; never charge for a replacement purchase.
+$("buy-wipe").addEventListener("click", () => buyWipe());
+$("retry-wipe").addEventListener("click", () => buyWipe(true));
 $("retry").addEventListener("click", () => transact("retry"));
 $("refresh").addEventListener("click", async () => { if (busy) return; busy = true; controls(); notice(); try { await refresh(); } catch (error) { notice(error.message); } finally { busy = false; controls(); } });
 $("logout").addEventListener("click", async () => { if (busy) return; busy = true; controls(); try { await api("logout", {}); signedOut(); notice("Signed out of the atelier. Your diapers stay in your collection."); } catch (error) { notice(error.message); } finally { busy = false; controls(); } });

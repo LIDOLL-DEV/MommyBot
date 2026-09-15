@@ -9,7 +9,8 @@ export function initializeDressup(config, diapers, sessions) {
   const price = Number(process.env.CLOTHES_GACHA_ROLL_PRICE || 3);
   if (!Number.isSafeInteger(price) || price < 3 || price > 10000) throw new Error("CLOTHES_GACHA_ROLL_PRICE must be a whole number from 3 to 10000.");
   const clothes = new DiaperStore(fileURLToPath(new URL("../../data/clothes-gacha.db", import.meta.url)), catalog.clothes, diapers.wallet,
-    { enabled: diapers.config.enabled && process.env.CLOTHES_GACHA_ENABLED !== "false", price, walletKey: "clothes" });
+    { enabled: diapers.config.enabled && process.env.CLOTHES_GACHA_ENABLED !== "false", suppliesEnabled: diapers.config.enabled,
+      price, walletKey: "clothes", wipePrice: Number(process.env.BABYWIPES_PRICE || 1) });
   const doll = new LittlepottchiStore(clothes, diapers, catalog);
   const timer = setInterval(() => { try { doll.tick(); } catch { console.error("Littlepottchi care tick failed; saved timers will retry."); } }, 30000);
   timer.unref();

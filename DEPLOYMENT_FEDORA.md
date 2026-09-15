@@ -20,6 +20,15 @@ Substitute your tracker's private IPv4 address, port and base path. Deploy the
 updated report client first; no separate HTTP enable setting is required.
 The backend must serve the API without redirecting to the public hostname.
 
+For Little Log's pet updates in the other direction, set
+`LITTLEPOTTCHI_API_URL=http://10.1.1.23:4190/littlepottchi/integration/v1/` in
+Little Log's tracker service environment. MommyBot's existing `LIDOLLID_HOST=10.1.1.23`
+and `LIDOLLID_PORT=4190` already provide the correct listener; permit this port from the Little Log host.
+Both services need the same dedicated `LITTLEPOTTCHI_BRIDGE_TOKEN`.
+Public game URLs and browser sign-in callbacks stay public. Deploy the updated
+Little Log bridge, apply these service settings and restart the affected services.
+See [LITTLEPOTTCHI_API.md](LITTLEPOTTCHI_API.md) for the authenticated bridge protocol.
+
 If an older release enters a restart loop with `ReportError: invalid_configuration`,
 temporarily set `MOMMYBOT_REPORTS_ENABLED=false` in the service environment, then
 run `sudo systemctl reset-failed mommybot.service` and

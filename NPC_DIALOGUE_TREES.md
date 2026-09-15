@@ -58,6 +58,10 @@ completed before its journal confirms it. See [ONLINE_WALLET_GUIDE.md](ONLINE_WA
 
 ## Littlepottchi wetting and timed care
 
+For leaks and diaper-free accidents, explain that one baby wipe cleans everything
+before redressing. Do not imply multiple accidents need multiple wipes. The fixed
+`cleanup` reminder takes priority over leak/mess/wet messages until the doll is clean.
+
 Use gentle, factual messy-care copy: the diaper needs a fresh change. Avoid
 shaming the player. The fixed `mess` reminder is superseded by a leak reminder
 when shared capacity is reached; neither message includes personal tracker data.

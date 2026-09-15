@@ -12,6 +12,7 @@ export const careRules = {
 const clamp = value => Math.max(0, Math.min(100, value));
 const fallback = { reportId: null, interval: 4 * HOUR, rate: null, label: "Default rhythm · waiting for a completed Little Log analysis" };
 const messages = { wet: "Your Littlepottchi has a wet diaper.", mess: "Your Littlepottchi has a messy diaper and needs a fresh change.", leak: "Your Littlepottchi is leaking and needs a fresh diaper.",
+  cleanup: "Your Littlepottchi needs a baby wipe before a fresh diaper.",
   feed: "Your Littlepottchi is ready for food.", water: "Your Littlepottchi is ready for water.",
   play: "Your Littlepottchi would like some playtime.", rest: "Your Littlepottchi is ready for a rest.", complete: "Your Littlepottchi finished a timed activity." };
 
@@ -68,6 +69,9 @@ export class PetCare {
     } // Existing dolls migrate once with a fresh diaper and future timers; historical visits do not invent accidents.
     const c = p.care;
     c.messyMode ??= false; c.mess ??= 0; c.messings ??= 0;
+    c.bodyWetness ??= 0; c.bodyMess ??= 0;
+    c.cleanupRevision ??= randomUUID();
+    c.needsWipe ??= Boolean(c.leaking); // Existing leaked diapers migrate with one cleanup requirement, regardless of accident count.
     c.nextMessAt ??= null; c.messRemaining ??= messyRules.interval;
     // Older saves start with messy mode off; migration preserves wetness, activities and the wetting clock.
     let decayFrom = p.updated;
@@ -83,18 +87,28 @@ export class PetCare {
       c.completed = c.task; c.task = null; p.careCount++;
     } // Apply rewards at their completion time so the rest of an offline absence still decays normally.
     decayUntil(now);
+    let wetCount = 0, messCount = 0;
     if (c.nextWettingAt !== null && now >= c.nextWettingAt) {
       const count = Math.floor((now - c.nextWettingAt) / c.interval) + 1;
-      c.wetness = Math.min(1000000, c.wetness + count); c.wettings = Math.min(Number.MAX_SAFE_INTEGER, c.wettings + count);
+      wetCount = count;
+      if (diaper) c.wetness = Math.min(1000000, c.wetness + count);
+      c.wettings = Math.min(Number.MAX_SAFE_INTEGER, c.wettings + count);
       c.nextWettingAt += count * c.interval;
     } // Catch up in constant time, even after a long absence; refreshing never restarts the wetting clock.
     if (c.messyMode && c.nextMessAt !== null && now >= c.nextMessAt) {
       const count = Math.floor((now - c.nextMessAt) / messyRules.interval) + 1;
-      c.mess = Math.min(1000000, c.mess + count); c.messings = Math.min(Number.MAX_SAFE_INTEGER, c.messings + count);
+      messCount = count;
+      if (diaper) c.mess = Math.min(1000000, c.mess + count);
+      c.messings = Math.min(Number.MAX_SAFE_INTEGER, c.messings + count);
       c.nextMessAt += count * messyRules.interval;
     } // Catch up only time spent in messy mode; pausing does not invent accidents during the disabled period.
     const usedBulk = c.wetness + c.mess * messyRules.bulkPerAccident;
-    if (usedBulk > 0 && usedBulk >= (diaper?.bulk || 0)) c.leaking = true;
+    if (diaper && usedBulk > 0 && usedBulk >= diaper.bulk) c.leaking = true;
+    if ((!diaper || c.leaking) && (wetCount || messCount)) {
+      c.bodyWetness = Math.min(1000000, c.bodyWetness + wetCount);
+      c.bodyMess = Math.min(1000000, c.bodyMess + messCount); c.needsWipe = true;
+    } // Only new diaper-free accidents and leaks soil the doll; a wiped old leak stays clean until the next accident.
+    if (c.needsWipe) p.comfort = Math.min(p.comfort, 20);
     if (c.mess) p.comfort = Math.min(p.comfort, 35);
     if (c.leaking) p.comfort = Math.min(p.comfort, 20);
     if (c.reportId !== profile.reportId || c.interval !== profile.interval) {
@@ -106,9 +120,19 @@ export class PetCare {
   }
 
   change(p) {
+    if (p.care.needsWipe) throw new GachaError("Use one baby wipe to clean up before putting on a fresh diaper.");
     Object.assign(p.care, { wetness: 0, mess: 0, leaking: false, revision: randomUUID() });
     p.comfort = 100; p.careCount++;
   } // A fresh replacement clears the diaper but preserves the doll's next wetting time and lifetime count.
+
+  removeDiaper(p) {
+    Object.assign(p.care, { wetness: 0, mess: 0, leaking: false, revision: randomUUID() });
+  } // Discard the old diaper's contents while retaining body cleanup needs and both accident clocks.
+
+  wipe(p) {
+    Object.assign(p.care, { needsWipe: false, bodyWetness: 0, bodyMess: 0, cleanupRevision: randomUUID() });
+    p.comfort = 100; p.careCount++;
+  } // One delivered wipe cleans every accumulated body accident; it neither replaces nor empties the worn diaper.
 
   act(p, input) {
     const c = p.care, action = input.action, now = this.now();
@@ -143,7 +167,8 @@ export class PetCare {
 
   episodes(p) {
     const c = p.care, result = {};
-    if (c.leaking) result.leak = c.revision;
+    if (c.needsWipe) result.cleanup = c.cleanupRevision;
+    else if (c.leaking) result.leak = c.revision;
     else if (c.mess) result.mess = c.revision;
     else if (c.wetness) result.wet = c.revision;
     for (const [kind, due] of Object.entries(c.due)) if (due <= this.now() && c.task?.kind !== kind) result[kind] = String(due);

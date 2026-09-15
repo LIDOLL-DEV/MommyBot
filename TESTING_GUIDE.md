@@ -505,6 +505,17 @@ Run npm test for diamond balance validation and legacy consent (test/diamonds.te
 
 ## Littlepottchi wetting and timed care
 
+LAN bridge checks cover analysis upload, event polling and acknowledgement at
+`10.1.1.23:4190`, rejection of public plain-HTTP endpoints, and bearer-authenticated
+HTTP requests while the game's configured browser origin remains public HTTPS.
+
+`test/littlepottchi-camera.test.js` covers frame selection, protected image serving,
+diaper-free accidents, both redressing guards, one-wipe cleanup, atomic inventory
+rollback, new cleanup episodes, quote validation and exactly-once wipe delivery
+after lost receipts or storage failures. The browser check buys wipes in Atelier,
+recovers a lost response after reload, cleans leaks and diaper-free accidents,
+and checks both clean and messy cameras. All payments use fake balances.
+
 Messy-mode regressions cover opt-in defaults, old-save migration, pause/resume,
 repeated setting requests, restart/offline catch-up, shared bulk limits, fresh
 replacement, reminder priority and cancellation. Browser checks exercise the

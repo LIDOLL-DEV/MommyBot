@@ -52,6 +52,9 @@ class WardrobeEditor:
             self.fields[field] = (variable, widget)
         ttk.Button(form, text="Preview fit", command=self.preview).pack(fill="x", pady=(20, 8))
         ttk.Button(form, text="Save selected item", command=self.save).pack(fill="x")
+        self.messy_preview = tk.BooleanVar(value=False)
+        ttk.Checkbutton(form, text="Messy mode camera preview", variable=self.messy_preview).pack(anchor="w", pady=(10, 0))
+        ttk.Button(form, text="Preview rear camera", command=self.preview_camera).pack(fill="x")
         ttk.Label(form, text="Diaper fit selects the stance automatically.\nBulk holds both wettings and messy accidents.\nMessy mode uses the shared care rules in\nsrc/dressup/care.js. Preview stance is only\na comparison tool; source art stays fixed.", wraplength=240).pack(pady=20)
         self.status = ttk.Label(form, wraplength=240)
         self.status.pack(fill="x")
@@ -153,6 +156,23 @@ class WardrobeEditor:
             item.clear()
             item.update(previous_item)
             messagebox.showerror("Catalog was not changed", str(error))  # Restore the previous manifest if validation fails.
+
+    def preview_camera(self):
+        if not self.list.curselection():
+            return
+        group, item = self.current()
+        if group == "diapers":
+            frames = item["buttcams"]
+            name = frames[min(1, len(frames) - 1) if self.messy_preview.get() else 0]
+        else:
+            name = self.data["bareCameras"][self.fields["shape"][0].get()]
+        with Image.open(ART / name) as source:
+            art = source.copy()
+        art.thumbnail((310, 310))
+        self.preview_image = ImageTk.PhotoImage(art)
+        self.canvas.delete("all")
+        self.canvas.create_image(155, 160, image=self.preview_image)
+        self.status.configure(text=name + "\n" + item.get("buttcamNote", ""))  # Preview original frames without editing their source bytes.
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

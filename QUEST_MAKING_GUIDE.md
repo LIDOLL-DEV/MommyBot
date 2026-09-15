@@ -52,6 +52,11 @@ from repeated transfer receipts. Stars remain excluded from player transfers.
 
 ## Littlepottchi wetting and timed care
 
+Diaper removal preserves accident clocks. A cleanup task completes only after an
+owned baby wipe is consumed atomically; one wipe clears all current body accidents.
+Contained diaper accidents do not require this task. Never grant wipes from a
+purchase animation or count a pending supply payment as delivered inventory.
+
 Messy accidents are optional care events, not rewards or quest completions.
 Fresh changes clear wetness and mess together; toggling the mode grants nothing
 and preserves the remaining countdown. Do not require messy mode for ordinary care.

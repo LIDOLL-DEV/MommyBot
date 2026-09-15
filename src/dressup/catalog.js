@@ -22,6 +22,7 @@ export function loadDressupCatalog() {
       if (group === data.clothes && (!slots.includes(item.slot) || item.slot === "diaper" || !Object.hasOwn(tiers, item.rarity) ||
           !item.name || !Array.isArray(item.stances) || !item.stances.length || item.stances.some(s => !["narrow", "wide"].includes(s)))) throw new Error("Invalid clothing fit or rarity.");
       if (group === data.diapers && !["narrow", "wide"].includes(item.stance)) throw new Error("Invalid diaper stance.");
+      if (group === data.diapers && (!Array.isArray(item.buttcams) || !item.buttcams.length || item.buttcams.some(name => !image(name)) || !item.buttcams[0].endsWith("_1.png"))) throw new Error("Invalid diaper camera sequence.");
       if (group === data.diapers && (!Number.isInteger(item.bulk) || item.bulk < 1 || item.bulk > 100)) throw new Error("Diaper bulk must be a whole number from 1 to 100.");
       if (item.rect && (item.rect.length !== 4 || item.rect.some(n => !Number.isInteger(n) || n < 0) ||
           item.rect[2] < 1 || item.rect[3] < 1 || item.rect[0] + item.rect[2] > 387 || item.rect[1] + item.rect[3] > 875)) throw new Error("Invalid illustration fit rectangle.");
@@ -29,6 +30,8 @@ export function loadDressupCatalog() {
   }
   for (const rarity of Object.keys(tiers)) if (!data.clothes.some(item => item.rarity === rarity)) throw new Error("Every clothing rarity needs a design.");
   const foodIds = new Set();
+  for (const shape of ["soft", "angular"]) if (!image(data.bareCameras?.[shape])) throw new Error("Missing diaper-free camera.");
+  if (!image(data.wipeImage)) throw new Error("Missing baby wipe artwork.");
   if (!Array.isArray(data.foods) || !data.foods.length) throw new Error("The pantry needs food.");
   for (const food of data.foods) {
     if (!/^[a-z0-9-]{1,40}$/.test(food.id) || foodIds.has(food.id) || !food.name || !image(food.image) ||

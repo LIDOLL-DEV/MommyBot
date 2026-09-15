@@ -7,6 +7,7 @@ import { createDressupWeb } from "../src/dressup/web.js";
 import { LittlepottchiStore } from "../src/dressup/store.js";
 
 const fixture = t => { const f = dressupFixture(); t.after(() => f.close()); return f; };
+const wipe = f => { f.clothes.db.prepare("INSERT INTO care_supplies VALUES (?,1) ON CONFLICT(user_id) DO UPDATE SET wipes=wipes+1").run(f.user); f.doll.act(f.user,{action:"wipe"}); };
 const report = (finished = 1000000, rate = 6) => ({reportId:`report-${finished}`,finished,
   days:[{date:"2026-09-14",wettings:rate * 2,activeParticipants:2,randomPeeResults:999},{date:"2026-09-15",wettings:rate,activeParticipants:1}]});
 
@@ -39,6 +40,7 @@ test("wet and messy accidents share bulk; fresh replacement clears both and pres
   assert.ok(d.player.comfort <= 20);
   d = f.doll.act(f.user,{action:"messy-mode",enabled:false}); assert.equal(d.player.care.leaking,true); assert.equal(d.player.care.mess,1);
   d = f.doll.act(f.user,{action:"messy-mode",enabled:true}); const nextMess = d.player.care.nextMessAt, nextWet = d.player.care.nextWettingAt;
+  wipe(f);
   d = f.doll.act(f.user,{action:"change",design:"cloud-tapes"});
   assert.equal(d.usedBulk,0); assert.equal(d.player.care.mess,0); assert.equal(d.player.care.leaking,false);
   assert.equal(d.player.care.nextMessAt,nextMess); assert.equal(d.player.care.nextWettingAt,nextWet);
@@ -59,7 +61,7 @@ test("offline messy accidents catch up once and current messy reminders are canc
   f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"}); assert.equal(events().some(e => e.kind === "mess"),false);
   f.now += 1000 * messyRules.interval; d = f.doll.snapshot(f.user); assert.equal(d.player.care.mess,1000);
   assert.equal(d.player.care.leaking,true); assert.equal(f.doll.snapshot(f.user).player.care.mess,1000);
-  assert.equal(events().filter(e => e.kind === "leak").length,1); assert.equal(events().some(e => e.kind === "mess"),false);
+  assert.equal(events().filter(e => e.kind === "cleanup").length,1); assert.equal(events().some(e => e.kind === "mess"),false);
 });
 
 test("community rate uses saved wettings per active participant-day, with explicit zero and bounds", () => {
@@ -83,9 +85,9 @@ test("wettings persist across reads and restarts; exact bulk leaks and only a re
   assert.equal(d.player.care.wetness,bulk); assert.equal(d.player.care.leaking,true);
   d = f.doll.act(f.user,{...d.player,action:"appearance",name:"Still wet"}); assert.equal(d.player.care.leaking,true);
   const next = d.player.care.nextWettingAt;
-  d = f.doll.act(f.user,{action:"equip",slot:"diaper",design:null}); assert.equal(d.player.care.leaking,true);
+  d = f.doll.act(f.user,{action:"equip",slot:"diaper",design:null}); assert.equal(d.player.care.needsWipe,true); assert.equal(d.diaper,null);
   assert.throws(() => f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"}),/replacement/);
-  f.seed(f.diapers,"ribbon-bouquet"); d = f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
+  f.seed(f.diapers,"ribbon-bouquet"); wipe(f); d = f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
   assert.equal(d.stance,"wide"); assert.equal(d.player.care.wetness,0); assert.equal(d.player.care.leaking,false);
   assert.equal(d.player.care.nextWettingAt,next); assert.equal(f.diapers.snapshot(f.user).owned[0].quantity,1);
   f.now = next; d = f.doll.snapshot(f.user); assert.equal(d.player.care.wetness,1);
@@ -129,24 +131,24 @@ test("pet reminders require opt-in, coalesce episodes, cancel resolved needs and
   const events = () => f.doll.care.events(user => f.identities.gameIdentity(user),user => f.doll.player(user));
   assert.equal(events().events.length,0);
   f.doll.act(f.user,{action:"reminders",enabled:true}); let page = events();
-  assert.ok(page.events.some(e => e.kind === "leak")); assert.deepEqual(page.events[0].recipient,{issuer:f.identity.issuer,subject:f.identity.subject});
+  assert.ok(page.events.some(e => e.kind === "cleanup")); assert.deepEqual(page.events[0].recipient,{issuer:f.identity.issuer,subject:f.identity.subject});
   assert.equal(JSON.stringify(page).includes("wettings"),false);
   const count = page.events.length; f.doll.tick(); assert.equal(events().events.length,count);
-  f.doll.act(f.user,{action:"change",design:"cloud-tapes"}); assert.equal(events().events.some(e => e.kind === "leak"),false);
+  wipe(f); f.doll.act(f.user,{action:"change",design:"cloud-tapes"}); assert.equal(events().events.some(e => e.kind === "cleanup"),false);
   f.doll.care.ack(events().events.map(e => e.id)); f.doll.tick(); assert.equal(events().events.length,0);
   f.doll.act(f.user,{action:"water"}); f.now += 3 * HOUR; f.doll.tick(); assert.ok(events().events.some(e => e.kind === "water"));
   assert.equal(f.doll.care.events(() => ({issuer:f.identity.issuer,subject:"another-person"}),user => f.doll.player(user)).events.length,0);
   f.doll.act(f.user,{action:"reminders",enabled:false}); assert.equal(events().events.length,0);
 });
 
-test("bridge endpoints require their own bearer token, validate data and never accept browser auth", async t => {
+test("LAN bridge endpoints keep the public browser origin, require bearer auth and validate data", async t => {
   const f = fixture(t), token = "test-service-token-".repeat(3); f.config.petBridge = {token};
   const web = createDressupWeb(f.config,f.clothes,f.doll,f.sessions,f.catalog);
   const server = createServer(async (req,res) => { if (!await web(req,res)) { res.writeHead(404); res.end(); } });
-  await new Promise(resolve => server.listen(0,"127.0.0.1",resolve)); f.config.origin = `http://127.0.0.1:${server.address().port}`;
+  await new Promise(resolve => server.listen(0,"127.0.0.1",resolve)); f.config.origin = "https://bot.example";
   t.after(() => new Promise(resolve => server.close(resolve)));
-  const request = (path,body,auth = token) => fetch(`${f.config.origin}/littlepottchi/integration/v1/${path}`,{method:body ? "POST" : "GET",
-    headers:{Authorization:`Bearer ${auth}`,"Content-Type":"application/json",Cookie:`diaper_session=${f.token}`},...(body ? {body:JSON.stringify(body)} : {})});
+  const request = (path,body,auth = token) => fetch(`http://127.0.0.1:${server.address().port}/littlepottchi/integration/v1/${path}`,{method:body ? "POST" : "GET",redirect:"error",
+    headers:{Host:"10.1.1.23:4190",Authorization:`Bearer ${auth}`,"Content-Type":"application/json",Cookie:`diaper_session=${f.token}`},...(body ? {body:JSON.stringify(body)} : {})}); // Real HTTP requests model the LAN backend while browser SSO stays on the public HTTPS origin.
   assert.equal((await request("events",null,"wrong")).status,401);
   assert.equal((await request("analysis",report())).status,200);
   assert.equal((await request("analysis",{...report(),days:[]})).status,400);

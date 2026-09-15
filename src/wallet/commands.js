@@ -99,7 +99,7 @@ export async function runWalletAction(interaction, wallet, identities, action, o
         }
         if (wallet.clothes?.pending(user)) {
           const result = await wallet.clothes.retry(user);
-          response = { content: `Clothes Emporium payment completed: **${result.item.name}** for **${result.amount} LiDollcoins**.` };
+          response = { content: `${result.item.supply ? "Diaper Atelier supply" : "Clothes Emporium"} payment completed: **${result.item.name}** for **${result.amount} LiDollcoins**.` };
           break;
         } // Resume the saved clothing operation without drawing or charging twice.
         if (wallet.gacha?.pending(user)) {

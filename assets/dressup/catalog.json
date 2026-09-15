@@ -75,6 +75,11 @@
         364,
         274,
         481
+      ],
+      "buttcams": [
+        "DQ_Clothing_SmallDiaper1_ButtCam_1.png",
+        "DQ_Clothing_SmallDiaper1_ButtCam_2.png",
+        "DQ_Clothing_SmallDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -87,6 +92,11 @@
         364,
         274,
         481
+      ],
+      "buttcams": [
+        "DQ_Clothing_SmallDiaper2_ButtCam_1.png",
+        "DQ_Clothing_SmallDiaper2_ButtCam_2.png",
+        "DQ_Clothing_SmallDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -99,6 +109,11 @@
         364,
         274,
         481
+      ],
+      "buttcams": [
+        "DQ_Clothing_SmallDiaper3_ButtCam_1.png",
+        "DQ_Clothing_SmallDiaper3_ButtCam_2.png",
+        "DQ_Clothing_SmallDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -111,6 +126,13 @@
         347,
         296,
         541
+      ],
+      "buttcams": [
+        "DQ_Clothing_MoosiveDiaper1_ButtCam_1.png",
+        "DQ_Clothing_MoosiveDiaper1_ButtCam_2.png",
+        "DQ_Clothing_MoosiveDiaper1_ButtCam_3.png",
+        "DQ_Clothing_MoosiveDiaper1_ButtCam_4.png",
+        "DQ_Clothing_MoosiveDiaper1_ButtCam_5.png"
       ]
     },
     {
@@ -123,6 +145,13 @@
         347,
         296,
         541
+      ],
+      "buttcams": [
+        "DQ_Clothing_MoosiveDiaper2_ButtCam_1.png",
+        "DQ_Clothing_MoosiveDiaper2_ButtCam_2.png",
+        "DQ_Clothing_MoosiveDiaper2_ButtCam_3.png",
+        "DQ_Clothing_MoosiveDiaper2_ButtCam_4.png",
+        "DQ_Clothing_MoosiveDiaper2_ButtCam_5.png"
       ]
     },
     {
@@ -135,6 +164,13 @@
         347,
         296,
         541
+      ],
+      "buttcams": [
+        "DQ_Clothing_MoosiveDiaper3_ButtCam_1.png",
+        "DQ_Clothing_MoosiveDiaper3_ButtCam_2.png",
+        "DQ_Clothing_MoosiveDiaper3_ButtCam_3.png",
+        "DQ_Clothing_MoosiveDiaper3_ButtCam_4.png",
+        "DQ_Clothing_MoosiveDiaper3_ButtCam_5.png"
       ]
     },
     {
@@ -147,6 +183,13 @@
         349,
         295,
         549
+      ],
+      "buttcams": [
+        "DQ_Clothing_MoosiveDiaper4_ButtCam_1.png",
+        "DQ_Clothing_MoosiveDiaper4_ButtCam_2.png",
+        "DQ_Clothing_MoosiveDiaper4_ButtCam_3.png",
+        "DQ_Clothing_MoosiveDiaper4_ButtCam_4.png",
+        "DQ_Clothing_MoosiveDiaper4_ButtCam_5.png"
       ]
     },
     {
@@ -159,6 +202,13 @@
         364,
         293,
         499
+      ],
+      "buttcams": [
+        "DQ_Clothing_RubberDiaper_ButtCam_1.png",
+        "DQ_Clothing_RubberDiaper_ButtCam_2.png",
+        "DQ_Clothing_RubberDiaper_ButtCam_3.png",
+        "DQ_Clothing_RubberDiaper_ButtCam_4.png",
+        "DQ_Clothing_RubberDiaper_ButtCam_5.png"
       ]
     },
     {
@@ -171,6 +221,11 @@
         329,
         286,
         512
+      ],
+      "buttcams": [
+        "DQ_Clothing_GhostDiaper_ButtCam_1.png",
+        "DQ_Clothing_GhostDiaper_ButtCam_2.png",
+        "DQ_Clothing_GhostDiaper_ButtCam_3.png"
       ]
     },
     {
@@ -183,6 +238,9 @@
         346,
         290,
         522
+      ],
+      "buttcams": [
+        "DQ_Clothing_SlimeDiaper_ButtCam_1.png"
       ]
     },
     {
@@ -195,6 +253,11 @@
         343,
         300,
         542
+      ],
+      "buttcams": [
+        "DQ_Clothing_GiantDiaper1_ButtCam_1.png",
+        "DQ_Clothing_GiantDiaper1_ButtCam_2.png",
+        "DQ_Clothing_GiantDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -207,6 +270,11 @@
         343,
         300,
         542
+      ],
+      "buttcams": [
+        "DQ_Clothing_GiantDiaper2_ButtCam_1.png",
+        "DQ_Clothing_GiantDiaper2_ButtCam_2.png",
+        "DQ_Clothing_GiantDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -219,6 +287,11 @@
         343,
         300,
         542
+      ],
+      "buttcams": [
+        "DQ_Clothing_GiantDiaper3_ButtCam_1.png",
+        "DQ_Clothing_GiantDiaper3_ButtCam_2.png",
+        "DQ_Clothing_GiantDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -238,6 +311,12 @@
         14,
         290,
         263
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -250,6 +329,12 @@
         349,
         298,
         540
+      ],
+      "buttcams": [
+        "DQ_Clothing_GiantDiaper4_ButtCam_1.png",
+        "DQ_Clothing_GiantDiaper4_ButtCam_2.png",
+        "DQ_Clothing_GiantDiaper4_ButtCam_3.png",
+        "DQ_Clothing_GiantDiaper4_ButtCam_4.png"
       ]
     },
     {
@@ -262,6 +347,11 @@
         324,
         322,
         606
+      ],
+      "buttcams": [
+        "DQ_Clothing_WaddleDiaper1_ButtCam_1.png",
+        "DQ_Clothing_WaddleDiaper1_ButtCam_2.png",
+        "DQ_Clothing_WaddleDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -274,6 +364,11 @@
         324,
         322,
         606
+      ],
+      "buttcams": [
+        "DQ_Clothing_WaddleDiaper2_Large_ButtCam_1.png",
+        "DQ_Clothing_WaddleDiaper2_Large_ButtCam_2.png",
+        "DQ_Clothing_WaddleDiaper2_Large_ButtCam_3.png"
       ]
     },
     {
@@ -286,6 +381,11 @@
         324,
         322,
         606
+      ],
+      "buttcams": [
+        "DQ_Clothing_WaddleDiaper3_Large_ButtCam_1.png",
+        "DQ_Clothing_WaddleDiaper3_Large_ButtCam_2.png",
+        "DQ_Clothing_WaddleDiaper3_Large_ButtCam_3.png"
       ]
     },
     {
@@ -298,6 +398,11 @@
         352,
         281,
         510
+      ],
+      "buttcams": [
+        "DQ_Clothing_VelcroDiaper1_ButtCam_1.png",
+        "DQ_Clothing_VelcroDiaper1_ButtCam_2.png",
+        "DQ_Clothing_VelcroDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -310,6 +415,11 @@
         352,
         281,
         510
+      ],
+      "buttcams": [
+        "DQ_Clothing_VelcroDiaper2_ButtCam_1.png",
+        "DQ_Clothing_VelcroDiaper2_ButtCam_2.png",
+        "DQ_Clothing_VelcroDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -322,6 +432,11 @@
         352,
         281,
         510
+      ],
+      "buttcams": [
+        "DQ_Clothing_VelcroDiaper3_ButtCam_1.png",
+        "DQ_Clothing_VelcroDiaper3_ButtCam_2.png",
+        "DQ_Clothing_VelcroDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -334,6 +449,11 @@
         354,
         278,
         493
+      ],
+      "buttcams": [
+        "DQ_Clothing_BunnyDiaper1_ButtCam_1.png",
+        "DQ_Clothing_BunnyDiaper1_ButtCam_2.png",
+        "DQ_Clothing_BunnyDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -346,6 +466,11 @@
         354,
         278,
         493
+      ],
+      "buttcams": [
+        "DQ_Clothing_BunnyDiaper2_ButtCam_1.png",
+        "DQ_Clothing_BunnyDiaper2_ButtCam_2.png",
+        "DQ_Clothing_BunnyDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -358,6 +483,11 @@
         354,
         278,
         493
+      ],
+      "buttcams": [
+        "DQ_Clothing_BunnyDiaper3_ButtCam_1.png",
+        "DQ_Clothing_BunnyDiaper3_ButtCam_2.png",
+        "DQ_Clothing_BunnyDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -370,6 +500,11 @@
         360,
         282,
         482
+      ],
+      "buttcams": [
+        "DQ_Clothing_ClothDiaper1_ButtCam_1.png",
+        "DQ_Clothing_ClothDiaper1_ButtCam_2.png",
+        "DQ_Clothing_ClothDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -382,6 +517,11 @@
         360,
         282,
         482
+      ],
+      "buttcams": [
+        "DQ_Clothing_ClothDiaper2_ButtCam_1.png",
+        "DQ_Clothing_ClothDiaper2_ButtCam_2.png",
+        "DQ_Clothing_ClothDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -394,6 +534,11 @@
         360,
         282,
         482
+      ],
+      "buttcams": [
+        "DQ_Clothing_ClothDiaper3_ButtCam_1.png",
+        "DQ_Clothing_ClothDiaper3_ButtCam_2.png",
+        "DQ_Clothing_ClothDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -406,6 +551,11 @@
         350,
         286,
         524
+      ],
+      "buttcams": [
+        "DQ_Clothing_HugeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_HugeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_HugeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -418,6 +568,11 @@
         350,
         286,
         524
+      ],
+      "buttcams": [
+        "DQ_Clothing_HugeDiaper2_ButtCam_1.png",
+        "DQ_Clothing_HugeDiaper2_ButtCam_2.png",
+        "DQ_Clothing_HugeDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -430,6 +585,11 @@
         350,
         286,
         524
+      ],
+      "buttcams": [
+        "DQ_Clothing_HugeDiaper3_ButtCam_1.png",
+        "DQ_Clothing_HugeDiaper3_ButtCam_2.png",
+        "DQ_Clothing_HugeDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -442,6 +602,11 @@
         359,
         281,
         500
+      ],
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -454,6 +619,11 @@
         359,
         281,
         500
+      ],
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper2_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper2_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -466,6 +636,11 @@
         359,
         281,
         500
+      ],
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper3_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper3_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -478,6 +653,11 @@
         364,
         275,
         487
+      ],
+      "buttcams": [
+        "DQ_Clothing_MediumDiaper1_ButtCam_1.png",
+        "DQ_Clothing_MediumDiaper1_ButtCam_2.png",
+        "DQ_Clothing_MediumDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -490,6 +670,11 @@
         364,
         275,
         487
+      ],
+      "buttcams": [
+        "DQ_Clothing_MediumDiaper2_ButtCam_1.png",
+        "DQ_Clothing_MediumDiaper2_ButtCam_2.png",
+        "DQ_Clothing_MediumDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -502,6 +687,11 @@
         364,
         275,
         487
+      ],
+      "buttcams": [
+        "DQ_Clothing_MediumDiaper3_ButtCam_1.png",
+        "DQ_Clothing_MediumDiaper3_ButtCam_2.png",
+        "DQ_Clothing_MediumDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -514,6 +704,12 @@
         341,
         284,
         491
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -526,6 +722,12 @@
         344,
         282,
         486
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -538,6 +740,12 @@
         347,
         292,
         492
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -550,6 +758,12 @@
         348,
         283,
         490
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -562,6 +776,11 @@
         367,
         277,
         477
+      ],
+      "buttcams": [
+        "DQ_Clothing_TrainingPants_ButtCam_1.png",
+        "DQ_Clothing_TrainingPants_ButtCam_2.png",
+        "DQ_Clothing_TrainingPants_ButtCam_3.png"
       ]
     },
     {
@@ -574,6 +793,11 @@
         351,
         278,
         484
+      ],
+      "buttcams": [
+        "DQ_Clothing_TrainingPants2_ButtCam_1.png",
+        "DQ_Clothing_TrainingPants2_ButtCam_2.png",
+        "DQ_Clothing_TrainingPants2_ButtCam_3.png"
       ]
     },
     {
@@ -586,6 +810,11 @@
         351,
         278,
         484
+      ],
+      "buttcams": [
+        "DQ_Clothing_TrainingPants3_ButtCam_1.png",
+        "DQ_Clothing_TrainingPants3_ButtCam_2.png",
+        "DQ_Clothing_TrainingPants3_ButtCam_3.png"
       ]
     },
     {
@@ -598,6 +827,11 @@
         351,
         278,
         484
+      ],
+      "buttcams": [
+        "DQ_Clothing_TrainingPants4_ButtCam_1.png",
+        "DQ_Clothing_TrainingPants4_ButtCam_2.png",
+        "DQ_Clothing_TrainingPants4_ButtCam_3.png"
       ]
     },
     {
@@ -610,6 +844,11 @@
         384,
         276,
         473
+      ],
+      "buttcams": [
+        "DQ_Clothing_SexyTrainingPants_ButtCam_1.png",
+        "DQ_Clothing_SexyTrainingPants_ButtCam_2.png",
+        "DQ_Clothing_SexyTrainingPants_ButtCam_3.png"
       ]
     },
     {
@@ -622,6 +861,12 @@
         348,
         285,
         502
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -634,6 +879,12 @@
         356,
         283,
         501
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -646,6 +897,12 @@
         356,
         283,
         502
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -658,6 +915,12 @@
         309,
         285,
         501
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -670,6 +933,12 @@
         356,
         283,
         502
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -682,6 +951,12 @@
         345,
         283,
         502
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -694,6 +969,12 @@
         351,
         278,
         484
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -706,6 +987,11 @@
         354,
         278,
         493
+      ],
+      "buttcams": [
+        "DQ_Clothing_BunnyDiaper2_ButtCam_1.png",
+        "DQ_Clothing_BunnyDiaper2_ButtCam_2.png",
+        "DQ_Clothing_BunnyDiaper2_ButtCam_3.png"
       ]
     },
     {
@@ -718,6 +1004,11 @@
         360,
         282,
         482
+      ],
+      "buttcams": [
+        "DQ_Clothing_ClothDiaper1_ButtCam_1.png",
+        "DQ_Clothing_ClothDiaper1_ButtCam_2.png",
+        "DQ_Clothing_ClothDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -730,6 +1021,11 @@
         360,
         282,
         482
+      ],
+      "buttcams": [
+        "DQ_Clothing_ClothDiaper3_ButtCam_1.png",
+        "DQ_Clothing_ClothDiaper3_ButtCam_2.png",
+        "DQ_Clothing_ClothDiaper3_ButtCam_3.png"
       ]
     },
     {
@@ -742,6 +1038,12 @@
         343,
         302,
         488
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -754,6 +1056,12 @@
         337,
         286,
         492
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     },
     {
@@ -766,6 +1074,12 @@
         342,
         285,
         492
+      ],
+      "buttcamNote": "Generic diaper camera; this print has no matching supplied sequence.",
+      "buttcams": [
+        "DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+        "DQ_Clothing_LargeDiaper1_ButtCam_3.png"
       ]
     }
   ],
@@ -19678,6 +19992,11 @@
       "joy": 5
     }
   ],
+  "bareCameras": {
+    "soft": "DQ_Base_ButtCam_1a.png",
+    "angular": "DQ_Base_ButtCam_2.png"
+  },
+  "wipeImage": "pocketwipes1.png",
   "provenance": {
     "TQ_Base_3.png": {
       "source": "CW/Body/TQ_Base_3.png",
@@ -41998,6 +42317,1722 @@
         754,
         297,
         875
+      ]
+    },
+    "DQ_Clothing_SmallDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_SmallDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_SmallDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_SmallDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_SmallDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_SmallDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_SmallDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_SmallDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_SmallDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SmallDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        223
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper1_ButtCam_4.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper1_ButtCam_4.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        223
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper1_ButtCam_5.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper1_ButtCam_5.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        247
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        224
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper2_ButtCam_4.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper2_ButtCam_4.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        223
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper2_ButtCam_5.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper2_ButtCam_5.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        247
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        224
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper3_ButtCam_4.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper3_ButtCam_4.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        223
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper3_ButtCam_5.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper3_ButtCam_5.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        247
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper4_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper4_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        21,
+        253,
+        217
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper4_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper4_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        21,
+        253,
+        223
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper4_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper4_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        21,
+        253,
+        217
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper4_ButtCam_4.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper4_ButtCam_4.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        21,
+        253,
+        221
+      ]
+    },
+    "DQ_Clothing_MoosiveDiaper4_ButtCam_5.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MoosiveDiaper4_ButtCam_5.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        21,
+        253,
+        247
+      ]
+    },
+    "DQ_Clothing_RubberDiaper_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_RubberDiaper_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        18,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_RubberDiaper_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_RubberDiaper_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        18,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_RubberDiaper_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_RubberDiaper_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        18,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_RubberDiaper_ButtCam_4.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_RubberDiaper_ButtCam_4.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        18,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_RubberDiaper_ButtCam_5.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_RubberDiaper_ButtCam_5.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        18,
+        253,
+        230
+      ]
+    },
+    "DQ_Clothing_GhostDiaper_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GhostDiaper_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "DQ_Clothing_GhostDiaper_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GhostDiaper_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "DQ_Clothing_GhostDiaper_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GhostDiaper_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "DQ_Clothing_SlimeDiaper_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SlimeDiaper_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "DQ_Clothing_GiantDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_GiantDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        227
+      ]
+    },
+    "DQ_Clothing_GiantDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        231
+      ]
+    },
+    "DQ_Clothing_GiantDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_GiantDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        227
+      ]
+    },
+    "DQ_Clothing_GiantDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        231
+      ]
+    },
+    "DQ_Clothing_GiantDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_GiantDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        227
+      ]
+    },
+    "DQ_Clothing_GiantDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        231
+      ]
+    },
+    "DQ_Clothing_LargeDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_LargeDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_LargeDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_GiantDiaper4_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper4_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "DQ_Clothing_GiantDiaper4_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper4_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        227
+      ]
+    },
+    "DQ_Clothing_GiantDiaper4_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper4_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        228
+      ]
+    },
+    "DQ_Clothing_GiantDiaper4_ButtCam_4.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_GiantDiaper4_ButtCam_4.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        247
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        237
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        242
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        246
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper2_Large_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper2_Large_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        237
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper2_Large_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper2_Large_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        242
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper2_Large_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper2_Large_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        246
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper3_Large_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper3_Large_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        237
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper3_Large_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper3_Large_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        242
+      ]
+    },
+    "DQ_Clothing_WaddleDiaper3_Large_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_WaddleDiaper3_Large_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        0,
+        253,
+        246
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_VelcroDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_VelcroDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_BunnyDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_BunnyDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_ClothDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_ClothDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_ClothDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_ClothDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_ClothDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_ClothDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_ClothDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_ClothDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_ClothDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_ClothDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_HugeDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_HugeDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_HugeDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_HugeDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_HugeDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_HugeDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_HugeDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_HugeDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_HugeDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_HugeDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        19,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_LargeDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_LargeDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_LargeDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_LargeDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_LargeDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_LargeDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_LargeDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MediumDiaper1_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper1_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_MediumDiaper1_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper1_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_MediumDiaper1_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper1_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_MediumDiaper2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MediumDiaper2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MediumDiaper2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MediumDiaper3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MediumDiaper3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_MediumDiaper3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_MediumDiaper3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_TrainingPants_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_TrainingPants_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_TrainingPants2_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants2_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants2_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants2_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants2_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants2_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants3_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants3_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants3_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants3_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants3_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants3_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants4_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants4_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants4_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants4_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_TrainingPants4_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_TrainingPants4_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        220
+      ]
+    },
+    "DQ_Clothing_SexyTrainingPants_ButtCam_1.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SexyTrainingPants_ButtCam_1.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_SexyTrainingPants_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SexyTrainingPants_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Clothing_SexyTrainingPants_ButtCam_3.png": {
+      "source": "CharWins/DQWin/Diapers/Buttcams/DQ_Clothing_SexyTrainingPants_ButtCam_3.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        20,
+        253,
+        219
+      ]
+    },
+    "DQ_Base_ButtCam_1a.png": {
+      "source": "CharWins/DQWin/Buttcams/DQ_Base_ButtCam_1a.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "DQ_Base_ButtCam_2.png": {
+      "source": "CharWins/DQWin/Buttcams/DQ_Base_ButtCam_2.png",
+      "size": [
+        253,
+        247
+      ],
+      "bounds": [
+        0,
+        22,
+        253,
+        217
+      ]
+    },
+    "pocketwipes1.png": {
+      "source": "Items/Collectibles/pocketwipes1.png",
+      "size": [
+        314,
+        205
+      ],
+      "bounds": [
+        8,
+        11,
+        314,
+        205
       ]
     },
     "apple1.png": {

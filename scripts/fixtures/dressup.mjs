@@ -8,6 +8,7 @@ import { GachaSessions } from "../../src/gacha/sessions.js";
 import { loadDressupCatalog } from "../../src/dressup/catalog.js";
 import { LittlepottchiStore } from "../../src/dressup/store.js";
 import { createDressupWeb } from "../../src/dressup/web.js";
+import { createGachaWeb } from "../../src/gacha/web.js";
 
 export function dressupFixture() {
   const f = { coins: 1000, now: 1000000, lose: false, receipts: new Map(), catalog: loadDressupCatalog() };
@@ -31,7 +32,8 @@ export function dressupFixture() {
   f.token = f.sessions.openForIdentity(f.identity);
   f.seed = (store, id, owner = f.user) => store.db.prepare("INSERT INTO diaper_items VALUES (?,?,?,NULL,?)").run(randomUUID(), id, owner, Date.now());
   f.config = { origin: "http://127.0.0.1" };
-  f.web = createDressupWeb(f.config, f.clothes, f.doll, f.sessions, f.catalog);
+  const dressupWeb = createDressupWeb(f.config, f.clothes, f.doll, f.sessions, f.catalog), atelierWeb = createGachaWeb(f.config, f.diapers, f.sessions);
+  f.web = async (req,res) => Boolean(await dressupWeb(req,res) || await atelierWeb(req,res));
   f.close = async () => { await f.wallet.close(); f.clothes.close(); f.diapers.close(); f.identities.close(); };
   return f;
 } // Deterministic, in-memory fixtures never connect to a real identity provider or wallet.
