@@ -1,5 +1,12 @@
 # MommyBot player checklist
 
+- Open **/menu → Prism Drop**, `/balldrop`, or `/balldrop/login` in your browser.
+  Pick pocket 1-10 and bet 1, 5, 10, 25, 50 or 100 coins. The ball starts at a
+  random pin from 4-7 on the 10-by-20 field. Exact guesses return 2x, one away
+  returns 1.5x rounded up, two away returns your bet, and larger misses lose it.
+  Returns include your stake. Replay is free; use **Retry payment** for a pending
+  debit or payout instead of placing a replacement bet.
+
 - Nightly Little Log reports appear in the configured reports channel after
   generation completes. Open the `.md` attachment for the full report; its caption
   warns if generation reached its output limit. Manual analyses are not posted.

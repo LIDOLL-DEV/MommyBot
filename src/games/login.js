@@ -16,7 +16,7 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now,
   const prune = () => db.prepare("DELETE FROM game_logins WHERE expires<=?").run(now());
   const page = (res, status, body) => { res.writeHead(status, { "Content-Type": "text/html; charset=utf-8" }); res.end(renderAuthPage(body, status)); };
   const route = async (req, res) => {
-    const url = new URL(req.url, config.origin), match = /^\/(diapers|hangman|touhou)\/login$/.exec(url.pathname);
+    const url = new URL(req.url, config.origin), match = /^\/(diapers|hangman|touhou|balldrop)\/login$/.exec(url.pathname);
     const isCallback = url.pathname === "/auth/callback" && (url.searchParams.get("state")?.startsWith("game.") ||
       (readCookie(req, loginCookie) && !readCookie(req, `${prefix}lidollbot_login`) && !url.searchParams.has("state")));
     if (!match && !isCallback) return false;

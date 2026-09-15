@@ -193,7 +193,7 @@ test("OIDC validates real signed responses and rejects state, nonce, signature, 
 test("direct game SSO admits non-Discord players, obtains wallet consent, and isolates sessions", async () => {
   const fixture = await providerFixture(), store = new IdentityStore(":memory:");
   const config = { issuer: fixture.origin, clientId: "lidollbot", origin: "http://127.0.0.1" };
-  const games = Object.fromEntries(["diapers", "hangman", "touhou"].map(game => [game, { title: game, sessions: new GameSessions(store.db, store, { prefix: game === "diapers" ? "diaper" : game, command: "/lidollid login" }) }]));
+  const games = Object.fromEntries(["diapers", "hangman", "touhou", "balldrop"].map(game => [game, { title: game, sessions: new GameSessions(store.db, store, { prefix: game === "diapers" ? "diaper" : game, command: "/lidollid login" }) }]));
   let wrongWallet = false, grants = 0;
   const wallet = new WalletService(":memory:", {config:{baseUrl:"https://wallet.example/",clientId:"lidollbot"},
     exchange:async proof=>{assert.equal(proof,"test-token");return {access_token:"grant-"+(++grants),expires_in:3600,identity:{issuer:fixture.origin,subject:wrongWallet?"foreign":"stable-account"}};},

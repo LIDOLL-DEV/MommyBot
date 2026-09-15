@@ -13,6 +13,14 @@ wallet. Sign-in itself does not charge coins or stars. Game prices stay unchange
 | Diaper Atelier | /diapers/login | 3 coins per roll |
 | Cozy Hangman | /hangman/login | 1 coin per round; 1 coin earned per newly revealed letter position |
 | Touhou Trader | /touhou/login | 1 star or 25 coins per adoption |
+| Prism Drop | /balldrop/login | Bet 1, 5, 10, 25, 50 or 100 coins; returns depend on your landing guess |
+
+Prism Drop is also available from `/menu`, `/balldrop` and the direct bot page
+`https://bot.lidoll.dev/balldrop/`. Its 10-by-20 field has random entry pins 4-7,
+glowing trails and free replay. Exact guesses return 2x, one away returns 1.5x
+rounded up, two away returns 1x, and larger misses return zero. Returns include
+your stake. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md). The separate tracker site
+needs its own game-list entry if it should launch Prism Drop from there.
 
 ## Saved progress and existing accounts
 

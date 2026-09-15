@@ -3,6 +3,7 @@ import { WalletError } from "./client.js";
 import { TraderError } from "../touhou/store.js";
 import { canAward } from "../permissions.js";
 import { HangmanError } from "../hangman/store.js";
+import { BallDropError } from "../balldrop/rules.js";
 import { swearJarPaymentText, swearJarBalanceText } from "./swearJar.js";
 
 export const balanceText = balance => `Little Log wallet: **${balance.stars} stars** and **${balance.coins} LiDollcoins**. Diamonds: **${balance.diamonds??'reconnect to enable'}**.\nExchange diamonds for coins on Little Log's Stickers page (1 diamond = 50 coins).\nAdoption costs **1 star OR 25 LiDollcoins**. All other trader payments and rewards use these LiDollcoins.`;
@@ -87,6 +88,11 @@ export async function runWalletAction(interaction, wallet, identities, action, o
           response = { content: result.action === "start" ? "Your hangman entry is paid. Use /hangman to continue the same word." : `Your ${result.amount}-coin hangman letter reward is paid. Use /hangman to continue.` };
           break;
         }
+        if (wallet.balldrop?.pending(user)) {
+          const result = await wallet.balldrop.retry(user);
+          response = { content: `Your ball drop is settled. Pocket ${result.round.landing}; ${result.round.payout} LiDollcoins returned on your ${result.round.bet}-coin bet. Use /balldrop to view it.` };
+          break;
+        }
         if (wallet.gifts?.pending(user)) {
           response = { content: giftText(await wallet.gifts.retry(user)) };
           break;
@@ -105,7 +111,7 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       default: throw new WalletError("unknown", "Use /lidollid wallet connect or balance.");
     }
   } catch (error) {
-    response = { content: error instanceof WalletError || error instanceof TraderError || error instanceof HangmanError ? error.message : "Wallet storage is unavailable. Try again; pending payments are saved for /lidollid wallet retry." };
+    response = { content: error instanceof WalletError || error instanceof TraderError || error instanceof HangmanError || error instanceof BallDropError ? error.message : "Wallet storage is unavailable. Try again; pending payments are saved for /lidollid wallet retry." };
   }
   return response;
 } // Use authenticated Discord IDs and private replies for approval codes, account balances and recovery.

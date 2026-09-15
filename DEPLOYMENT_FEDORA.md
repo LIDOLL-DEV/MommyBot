@@ -1,5 +1,12 @@
 # Fedora deployment and updates
 
+Prism Drop adds `/balldrop/` to the bot's existing HTTP listener. Include that
+path in your reverse proxy if routes are individually allowlisted. It uses the
+existing SSO/wallet setup; `BALLDROP_ENABLED=false` pauses new bets while keeping
+recovery. Back up `data/balldrop.db` with wallet state and settle pending drops
+before rolling back to code without its reservation guard. See
+[BALLDROP_GUIDE.md](BALLDROP_GUIDE.md) for rules and acceptance checks.
+
 For Little Log nightly reports, set the `MOMMYBOT_REPORTS_*` settings in
 `/etc/mommybot/mommybot.env`, including the separate report-read token, destination
 and explicit `history`/`future` choice. Releases include `scripts/check-reports.mjs`

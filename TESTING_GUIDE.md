@@ -1,5 +1,20 @@
 # Testing MommyBot
 
+## Prism Drop
+
+Run `node --test test/balldrop.test.js` for all bet/payout distances and rounding,
+20 random bounces with reflecting walls, hidden unpaid outcomes, duplicate wager
+IDs, debit/credit recovery across restarts, malformed receipts, storage failures,
+wallet binding, locks, paused recovery, private launchers, CSRF and session
+isolation. SSO and account-menu tests include ball-drop login and the full
+five-button games row. All currency is synthetic.
+
+Run `node scripts/check-balldrop-browser.mjs` with `PUPPETEER_MODULE` and
+`CHROME_PATH` set. It checks desktop/mobile layout, real animation and replay,
+rounded returns, refresh, pending payouts, reduced motion, low funds, outages,
+request-preparation failure and logout. Set `BALLDROP_SCREENSHOT_DIR` to save
+preview images. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md) for deployment checks.
+
 ## Little Log nightly reports
 
 `test/reports.test.js` checks explicit history/future configuration, safe API

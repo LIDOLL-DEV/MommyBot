@@ -1,5 +1,12 @@
 # MommyBot generation tuning
 
+## Prism Drop
+
+Prism Drop uses authored UI text and cryptographically random server bounces;
+it does not call an LLM. Its canvas adds cosmetic particle randomness only.
+Payouts and saved paths live in `src/balldrop/`; never let generated copy choose
+an outcome or claim a pending credit has arrived. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md).
+
 ## Little Log nightly reports
 
 Nightly report Markdown is generated upstream and attached in full by

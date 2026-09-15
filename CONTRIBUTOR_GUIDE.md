@@ -5,6 +5,15 @@ The application is an ES-module Node.js Discord bot. Runtime code lives under
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.
 Run `npm test` before deploying.
 
+Prism Drop lives in `src/balldrop/`; see [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md).
+Preserve the 10-column/20-row field, uniform entry pins 4-7, server-owned random
+bounces, six allowed bets, and gross payout rules with half coins rounded up.
+Freeze outcomes before debiting; hide them until a verified debit. Debit and
+payout retries must reuse their saved operation IDs and original wallet binding.
+Load pending guards before HTTP and drain wallet actions before journal close.
+Route `/balldrop`, `!balldrop`, private menus and standalone SSO consistently;
+unlink must revoke its sessions. Animation/replay cannot affect payments.
+
 Nightly Little Log publication lives in `src/reports/`; see
 [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md). Keep report-read tokens
 separate from wallet credentials. Validate daily completion metadata and attach

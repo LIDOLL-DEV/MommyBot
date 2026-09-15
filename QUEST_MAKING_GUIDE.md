@@ -1,5 +1,10 @@
 # Quest-making notes
 
+Prism Drop wagers return 2x, rounded-up 1.5x, 1x or zero according to landing
+distance. These are wallet-journal game payouts, not quest rewards. Replaying a
+saved animation must never award progress or additional coins. Any future quest
+integration should consume a unique settled round once. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md).
+
 Little Log nightly reports are read-only and grant no currency, quest progress
 or roles. Generated report prose must never trigger game actions. See
 [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).
