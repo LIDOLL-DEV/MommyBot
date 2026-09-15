@@ -66,6 +66,10 @@ cleanup quest merely because bulk reaches capacity. Only a successful overflow
 roll or diaper-free accident creates body cleanup; a contained full diaper can
 be changed freely. One wipe handles all accumulated cleanup regardless of count.
 
+Public `/doll` and `/pottchistats` checks apply elapsed care but grant no care
+moments, inventory, currency, or quest progress. Sharing never changes clothes,
+uses a wipe, or restarts a timer; the same applies to their prefix aliases.
+
 Toy sessions are optional adult-character care actions. Do not gate ordinary
 quests on gender or toy use. A finished session adds one care moment; starting,
 repeating activation, or stopping does not grant completion credit.

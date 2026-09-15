@@ -1,0 +1,108 @@
+/* Little Log's pastel palette, adapted to the compact doll dashboard and picture menus. */
+:root {
+  --ink:#563b68; --muted:#786080; --pink:#f9cddd; --rose:#ad3c79;
+  --line:#dac4df; --paper:#fffdfd; --mint:#d9f0e8;
+  --lilac:#e9ddfa; --yellow:#fff0bc;
+  --display:"Comic Sans MS","Chalkboard SE","Trebuchet MS",sans-serif;
+}
+body {
+  min-height:100vh;
+  font-family:"Trebuchet MS","Segoe UI",sans-serif;
+  background:radial-gradient(circle at 1px 1px,#dac4df70 1.5px,transparent 2px),
+    linear-gradient(135deg,#fff0f7,#f3edff 55%,#eaf9f2);
+  background-size:24px 24px,auto;
+  background-attachment:fixed;
+}
+::selection { background:#f9cddd; color:#563b68; }
+/* Local display fonts keep the game playful without needing a font service or network request. */
+h1,h2,h3,.brand,summary,.item h3 { font-family:var(--display); font-style:normal; letter-spacing:-.5px; }
+h1 em { font-style:normal; }
+header,.pet-game header {
+  background:linear-gradient(100deg,#ffedf5,#f2eafb 65%,#ebf8f1);
+  border-bottom:2px solid #e4cfe9;
+  box-shadow:0 3px 0 #ffffffb0;
+}
+.brand .mark { color:#ad3c79; filter:drop-shadow(2px 2px 0 white); }
+header nav { gap:8px; }
+header nav a { border:1px solid transparent; border-radius:13px; padding:5px 10px; font-weight:700; }
+header nav a:hover { background:#ffffffb0; }
+header nav a[aria-current] { background:#fff8fc; color:#963367; border:1px solid #d9acce; box-shadow:0 3px 0 #e8cfe7; }
+#balance { background:var(--yellow); color:#765614; border:1px solid #e4d097; }
+.card,.doll-card,dialog {
+  border-color:var(--line); border-radius:26px;
+  box-shadow:0 5px 0 #e7d6ed90,0 12px 28px #9671a012;
+}
+.game-dashboard { border-top:5px solid var(--pink); }
+button,.primary { border-radius:14px; transition:background-color .15s,border-color .15s,box-shadow .15s; }
+button:hover:not(:disabled) { background:#f4eafb; border-color:#bd91c8; }
+.primary { background:#f6c8dd; color:#66334e; border-color:#cf8db0; box-shadow:0 3px 0 #e7accb; }
+.primary:hover:not(:disabled) { background:#f9dce9; color:#66334e; border-color:#cf8db0; }
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible { outline-color:#8060af; }
+input,select { border-color:#c8afcf; border-radius:12px; }
+.pill { background:#fce6f1; color:#87345f; border:1px solid #ebc7dc; border-radius:12px; }
+.section-title h2 { color:#795491; }
+/* A pastel toy-room frame stays behind the original registered character artwork. */
+.doll-card,.pet-game .doll-card { background:linear-gradient(160deg,#fce0ee,#eee2ff 62%,#def3eb); border:2px solid #d7bde3; }
+.doll-heading h2 { color:#795491; text-shadow:0 2px white; }
+.stage { background:radial-gradient(ellipse at 50% 45%,#fffcff 0%,#ffffff90 44%,transparent 70%); }
+.stage::before {
+  content:""; position:absolute; inset:12px 10% 17px; pointer-events:none;
+  border-radius:48% 48% 32px 32px; border:2px dashed #ffffffd9;
+  box-shadow:0 0 0 9px #ffffff28,inset 0 0 0 7px #ffffff26;
+}
+.sparkle { color:#9a75bd; text-shadow:2px 2px white; }
+.sparkle.right { color:#b5769d; }
+.rug { background:#ccbcdf80; border:3px solid #ffffff90; box-shadow:0 4px 0 #c6aecd40; }
+#outfit-note { display:inline-block; padding:3px 12px; background:#ffffffb8; border-radius:20px; }
+/* Colored meters use a light track even at zero, instead of the browser's dark native trough. */
+.need { --meter:#c582a7; }
+.need:nth-child(2) { --meter:#6d9ac7; }
+.need:nth-child(3) { --meter:#a084c0; }
+.need:nth-child(4) { --meter:#6aab94; }
+.need:nth-child(5) { --meter:#d0a34c; }
+.diaper-care { --meter:#c582a7; background:#fce8f2; border:1px solid #edd0e1; }
+.excitement-care { --meter:#a084c0; background:#eee5fb; border:1px solid #dcccef; }
+progress { appearance:none; -webkit-appearance:none; border:0; border-radius:12px; overflow:hidden; background:#eee5f2; }
+progress::-webkit-progress-bar { background:#eee5f2; border-radius:12px; }
+progress::-webkit-progress-value { background:var(--meter,#c582a7); border-radius:12px; }
+progress::-moz-progress-bar { background:var(--meter,#c582a7); border-radius:12px; }
+/* Each action is a small pastel tile; the icon and label remain meaningful without color. */
+.action-dock button { --tile:#fce2ef; --edge:#e4b6d0; --icon:#a24777; background:var(--tile); border-color:var(--edge); border-bottom-width:4px; border-radius:18px; }
+.action-dock button:nth-child(2),.action-dock button:nth-child(8) { --tile:#fff3cd; --edge:#e5d398; --icon:#8a681a; }
+.action-dock button:nth-child(3),.action-dock button:nth-child(7) { --tile:#e0f3ed; --edge:#b6d9cf; --icon:#417e6c; }
+.action-dock button:nth-child(4),.action-dock button:nth-child(5) { --tile:#eee3fb; --edge:#d2bce8; --icon:#8053a1; }
+.action-dock button:hover:not(:disabled) { background:var(--tile); border-color:var(--icon); box-shadow:0 3px 10px #9671a020; }
+.action-dock button:active:not(:disabled) { transform:translateY(2px); }
+.action-dock svg { stroke:var(--icon); filter:drop-shadow(0 1px #fff); }
+.action-dock button span { color:var(--icon); }
+.day-status { border-top-style:dashed; }
+/* Picture menus use the same pastel frames as Little Log's cards. */
+.menu-heading { background:linear-gradient(105deg,#fce5f1,#eee4fb); }
+.menu-footer { background:#fffdfd; }
+.game-menu { border:2px solid #d7bde3; }
+dialog::backdrop { background:#59456770; backdrop-filter:blur(5px); }
+.picture-choice { position:relative; border-color:#e2cfea; border-radius:20px; }
+.picture-choice[aria-pressed=true] { border-color:#b36398; background:#fff0f7; box-shadow:0 3px 0 #e9c5dd; }
+.picture-choice[aria-pressed=true]::after { content:"✓"; position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; color:white; background:#a65389; line-height:24px; }
+.picture-choice canvas,.picture-choice img,.item canvas { background:linear-gradient(145deg,#fff1f8,#f0e9fc); border-radius:14px; }
+.creator-stage { background:linear-gradient(150deg,#fce1ef,#eae0fb 65%,#ddf3e9); border:1px dashed #c2a2d1; }
+.tabs [aria-pressed=true] { background:#eee2fb; color:#644587; border-radius:12px; }
+.item { border-radius:20px; border-color:#e2cfea; box-shadow:0 3px 0 #eee2f550; }
+.machine { background:linear-gradient(120deg,#ffe7f2,#f0e8fc); border-top:5px solid var(--lilac); }
+.capsule { background:linear-gradient(#fffbff 49%,#efb8d6 50%); border-color:#ddafd2; box-shadow:0 12px 0 -6px #e1cdec; color:#a24777; }
+.intro-stamp { border-color:#c3a1d4; outline-color:#dbc3e8; color:#8053a1; background:#f0e5fb; font-family:var(--display); }
+#notice,#menu-notice,.pending,#change-cleanup { background:#fff4cf; border-color:#e4d097; color:#765614; }
+.leaking { color:#96365b; }
+@media(max-width:720px) {
+  header nav a { padding:4px 6px; }
+  header nav { gap:3px; }
+}
+@media(max-width:600px) {
+  .action-dock button { border-radius:14px; }
+  .stage::before { inset:8px 17% 12px; }
+  .game-menu { border-radius:22px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  button,.primary { transition:none; }
+  .action-dock button:hover,.action-dock button:active:not(:disabled) { transform:none; }
+}

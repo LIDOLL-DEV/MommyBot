@@ -379,6 +379,39 @@ Escape available, restore focus to the opener, and show failures inside the menu
 Character drafts render on their own canvas; the dashboard shows the saved doll.
 The shared shop page retains its inline collection and payment recovery controls.
 
+Keep accident countdowns, interval ranges and community frequency out of the
+player interface, including Care & Settings. Server accident timing still runs;
+only care, activity and toy countdowns are displayed.
+
+`src/dressup/web/pastel.css` loads after the layout styles and supplies the shared
+Littlepottchi/Clothes Emporium theme. Its pink, lilac, mint and yellow palette and
+local display fonts follow Little Log's `little-tracker` theme. Keep color changes
+there, preserve visible focus and selected-card marks, and avoid external fonts
+or image requests. Action illustrations are inline SVG; original doll art is unchanged.
+
+`player.starterTopEnabled` defaults true for old saves. Unequipping the top slot
+sets it false, so reads and restarts respect an empty top slot. Only the designated
+starter shirt can be re-equipped without ownership; it grants no inventory or
+sale entitlement. Browser and Discord rendering consume the same resolved top.
+
+### Public Littlepottchi Discord commands
+
+`src/dressup/commands.js` registers `/doll` (PNG plus diaper status) and
+`/pottchistats` (public care stats), with exact `!doll` / `!pottchistats` aliases.
+The existing gacha dispatcher routes both before conversation handling. Both
+commands resolve the invoker's confirmed Discord identity to the browser's
+canonical game account, including web-first saves. They post in the invoking
+channel with a public `/littlepottchi/` link and no authentication ticket.
+
+PNG export uses `src/dressup/web/layers.js`, also used by the browser, and
+`python/render_littlepottchi.py` with Pillow. Install Pillow in the bot's Python
+environment; Windows defaults to `py -3.11`, other hosts to `python3`. Set
+`LITTLEPOTTCHI_PYTHON` to an executable path when needed. The subprocess receives
+only registered image layers through stdin and returns PNG bytes through stdout;
+it uses no shell, temporary player files, or public image route. Runtime guards
+limit rendering to two concurrent jobs and one pending check per player.
+The identity link is rechecked before a rendered image is posted.
+
 Overflow uses one capacity unit per wet or messy accident, as in lidollquest's
 `_handle_diaper_overflow`. Full diapers cause discomfort; only subsequent accidents
 roll 10% per excess unit, capped at 100%. Resolve mixed offline events in timestamp

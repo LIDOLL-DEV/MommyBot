@@ -20,6 +20,7 @@ export class LittlepottchiStore {
     const value = saved ? JSON.parse(saved.data) : { name: "Littlepottchi", shape: "soft", hair: this.catalog.hair[0], face: this.catalog.faces.find(n => /CheekyFemale/.test(n)),
       outfit: {}, hunger: 85, energy: 85, comfort: 100, joy: 85, careCount: 0, updated: this.now(), cooldowns: {} };
     value.diaperFree ??= false;
+    value.starterTopEnabled ??= true; // Existing dolls keep their shirt until the player explicitly removes it.
     value.gender ??= ""; // Gender is optional self-description, independent of the adult doll's body shape and equipment.
     value.anatomy = { ...anatomyDefaults, ...value.anatomy }; // Old saves keep their front appearance without adding anatomy automatically.
     const resolved = this.resolve(user, value);
@@ -41,7 +42,7 @@ export class LittlepottchiStore {
     for (const slot of slots) {
       const id = player.outfit[slot];
       const item = (slot === "diaper" ? this.catalog.diapers : this.catalog.clothes).find(item => item.id === id && (slot === "diaper" || item.slot === slot));
-      if (item && this.owned(user, slot, id)) outfit[slot] = item;
+      if (item && ((slot === "top" && id === this.starterTop.id) || this.owned(user, slot, id))) outfit[slot] = item;
       else if (id) removed.push(id);
     }
     if (player.outfit.underwear) removed.push(player.outfit.underwear);
@@ -50,13 +51,14 @@ export class LittlepottchiStore {
     for (const slot of slots.filter(s => s !== "diaper")) {
       if (outfit[slot] && !outfit[slot].stances.includes(stance)) { removed.push(outfit[slot].id); delete outfit[slot]; }
     }
-    return { outfit, removed, stance, base: this.catalog.bases[player.shape][stance], diaper, top: outfit.top || (outfit.bra || outfit.corset ? null : this.starterTop) };
-  } // Recheck live ownership on every read so selling the last copy immediately restores the starter piece.
+    return { outfit, removed, stance, base: this.catalog.bases[player.shape][stance], diaper,
+      top: outfit.top || (outfit.bra || outfit.corset || player.starterTopEnabled === false ? null : this.starterTop) };
+  } // Recheck live ownership on every read; starter fallback respects the player's saved removal choice.
 
   snapshot(user) {
     const player = this.player(user), resolved = this.resolve(user, player);
     return { player, ...resolved, bodyLayers: anatomyLayers(this.catalog, player, resolved.diaper, resolved.outfit, resolved.top), now: this.now(), careRules, messyRules, excitementRules, buttcam: selectButtcam(this.catalog, player, resolved.diaper),
-      supplies: this.clothes.supplySnapshot(user), usedBulk: diaperCondition(player.care, resolved.diaper).usedBulk,
+      starterTop: this.starterTop, supplies: this.clothes.supplySnapshot(user), usedBulk: diaperCondition(player.care, resolved.diaper).usedBulk,
       overflow: diaperCondition(player.care, resolved.diaper), overflowRules, rhythm: this.care.profile(),
       ownedClothes: this.clothes.snapshot(user).owned, ownedDiapers: this.diapers.snapshot(user).owned };
   }
@@ -77,14 +79,17 @@ export class LittlepottchiStore {
         if (!slots.includes(slot)) throw new GachaError("Unknown clothing slot.");
         if (input.design === null) {
           delete player.outfit[slot];
+          if (slot === "top") player.starterTopEnabled = false; // An empty top slot must not silently put the default shirt back on.
           if (slot === "diaper" && !player.diaperFree) { player.diaperFree = true; this.care.removeDiaper(player); }
         }
         else {
           const item = (slot === "diaper" ? this.catalog.diapers : this.catalog.clothes).find(item => item.id === input.design && (slot === "diaper" || item.slot === slot));
-          if (!item || !this.owned(user, slot, item.id)) throw new GachaError("You need an available copy in your collection to wear this item.");
+          const starterShirt = slot === "top" && item?.id === this.starterTop.id;
+          if (!item || (!starterShirt && !this.owned(user, slot, item.id))) throw new GachaError("You need an available copy in your collection to wear this item.");
           if (slot !== "diaper" && !item.stances.includes(this.resolve(user, player).stance)) throw new GachaError("This piece needs a different leg stance. Choose a compatible diaper first.");
           if (slot === "diaper") delete player.outfit.underwear;
           player.outfit[slot] = item.id;
+          if (starterShirt) player.starterTopEnabled = true; // The free starter can be worn again without granting a sellable inventory copy.
           if (slot === "diaper") { this.care.change(player); player.diaperFree = false; }
         }
       } else if (input.action === "change") {

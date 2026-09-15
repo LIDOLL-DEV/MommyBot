@@ -103,9 +103,8 @@ function renderCare() {
   $("leak-status").textContent = !d.diaper ? "Diaper-free. Accidents will need a baby wipe." : c.leaking ? c.needsWipe ? "Leaking — use one baby wipe before changing." : "Cleaned up — ready for a fresh change." : c.uncomfortable ? "Full and uncomfortable — no leak yet." : c.mess ? "Messy — ready for a fresh change." : c.wetness ? "Wet, with room left. You can change whenever you like." : "Fresh and comfortable.";
   $("overflow-status").textContent = d.diaper && d.overflow.full ? `${d.overflow.excess} over capacity · ${d.overflow.nextLeakChance}% leak chance on the next accident` : "";
   $("leak-status").className = c.leaking ? "leaking" : "";
-  $("rhythm").textContent = d.rhythm.reportId ? `${d.rhythm.label}: ${d.rhythm.rate.toFixed(2)} recorded wettings per active participant-day.${d.rhythm.limited ? " Game timing is limited to 30 minutes–24 hours." : ""}` : d.rhythm.label;
   $("pet-reminders").checked = c.reminders; $("messy-mode").checked = c.messyMode;
-  $("messy-rhythm").textContent = d.messyRules.label; renderTimers();
+  renderTimers();
   $("cleanup-status").textContent = c.needsWipe ? `Cleanup needed: ${c.bodyWetness} wet and ${c.bodyMess} messy accident${c.bodyWetness + c.bodyMess === 1 ? "" : "s"}. Use one wipe before dressing.` : "No body cleanup needed.";
   $("wipe-stock").textContent = `${d.supplies.wipes} baby wipe${d.supplies.wipes === 1 ? "" : "s"} available`;
   $("remove-diaper").dataset.unavailable = String(!d.diaper);
@@ -120,11 +119,9 @@ function renderCare() {
 function renderTimers() {
   const d = state.doll, c = d.player.care;
   $("toy-status").textContent = c.toy ? `${c.toy.name} active · ${countdown(c.toy.finishesAt, d.now)}` : c.completedToy ? "Toy session complete" : "Settled · no active toy";
-  $("wetting-clock").textContent = c.nextWettingAt === null ? "Wetting paused" : `Wetting · ${countdown(c.nextWettingAt, d.now)}`;
-  $("messy-clock").textContent = c.messyMode ? `Messy · ${countdown(c.nextMessAt, d.now)}` : "Messy mode off";
   $("activity-status").textContent = c.task ? `${c.task.kind === "play" ? "Playing" : "Resting"} · ${countdown(c.task.finishesAt, d.now)}` : c.completed ? "Activity finished" : "Ready to play";
   $("care-timers").replaceChildren(...Object.entries({ feed: "Food", water: "Water", play: "Play", rest: "Rest" }).map(([kind, label]) => node("li", `${label}: ${c.task?.kind === kind ? "in progress" : c.due[kind] <= d.now ? "ready now" : `in ${countdown(c.due[kind], d.now)}`}`)));
-} // Count down between server snapshots; only the server applies wettings and completion rewards.
+} // Display care and activity countdowns only; accident schedules stay out of the player interface.
 
 function updateButtons() {
   document.querySelectorAll("button").forEach(button => { button.disabled = busy || button.dataset.unavailable === "true"; });
@@ -198,10 +195,17 @@ function renderGallery() {
   $("gallery-title").textContent = { owned: "Your wardrobe", diapers: "Your Atelier diapers", catalog: "The design book", bank: "The clothing bank" }[view];
   $("collection-count").textContent = `${rows.reduce((sum, row) => sum + row.quantity, 0)} pieces`;
   $("slot").disabled = diapersView;
-  $("equipped").replaceChildren(...Object.entries(state.doll.outfit).map(([slot, item]) => {
+  const visibleOutfit = { ...state.doll.outfit, ...(state.doll.top ? { top:state.doll.top } : {}) };
+  $("equipped").replaceChildren(...Object.entries(visibleOutfit).map(([slot, item]) => {
     const button = node("button", `${labels[slot]} · ${item.name || state.diapers.find(d => d.id === item.id)?.name || item.id} ×`);
+    button.dataset.unequip = slot;
     button.addEventListener("click", () => run(() => dollAction({ action: "equip", slot, design: null }))); return button;
   }));
+  if (state.doll.top?.id !== state.doll.starterTop.id) {
+    const starter = node("button", "Wear starter shirt"); starter.id = "wear-starter-shirt";
+    starter.addEventListener("click", () => run(() => dollAction({action:"equip",slot:"top",design:state.doll.starterTop.id})));
+    $("equipped").append(starter);
+  } // Expose the free default shirt alongside equipped pieces, including an explicit way to restore it.
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   galleryPage = Math.min(galleryPage, pages - 1);
   $("gallery-status").textContent = filtered.length ? `${galleryPage * pageSize + 1}–${Math.min((galleryPage + 1) * pageSize, filtered.length)} of ${filtered.length} pieces` : "0 pieces";

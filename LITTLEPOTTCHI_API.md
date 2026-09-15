@@ -1,6 +1,11 @@
 # Littlepottchi care and Little Log bridge
 
 Littlepottchi keeps wetness, needs, outfits and timers in `data/clothes-gacha.db`.
+
+Discord `/doll` (`!doll`) posts a public PNG of the saved doll and its diaper
+condition. `/pottchistats` (`!pottchistats`) posts public game stats. Both include
+the public Littlepottchi URL; neither exports accident schedules or login tickets.
+The PNG is an attachment rendered locally, not an unauthenticated API resource.
 It shares Diaper Atelier ownership and the existing LiD0llID account. Food, water,
 activities and dressing are free; baby wipes are purchased care supplies. Replacing a diaper, including
 the same design, supplies a fresh one; Cloud Tapes is also a free starter supply.
@@ -83,7 +88,9 @@ the same design, supplies a fresh one; Cloud Tapes is also a free starter supply
   random roll results are excluded. This is a derived count rate, not measured
   within-day intervals. The interval is `24 hours / rate`, limited to 30 minutes
   through 24 hours for playability. A recorded zero rate pauses wettings. Until a
-  usable report arrives, the UI explicitly labels its four-hour default rhythm.
+  usable report arrives, the server uses its four-hour default rhythm. Accident
+  schedules and frequency details remain in server/API metadata; the player
+  interface does not display them or show accident countdowns.
   Reports with no active participant-days leave the previous usable rhythm in place.
 - New reports affect future timing. Replays are idempotent; older completed
   reports cannot replace a newer profile. No names or individual records reach

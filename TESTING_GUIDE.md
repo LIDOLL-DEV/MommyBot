@@ -533,6 +533,26 @@ wettings require only nine random draws before all remaining leaks are certain.
 The browser check distinguishes full/uncomfortable from leaking and confirms that
 Fresh Change requires a wipe only after the leak.
 
+`test/littlepottchi-commands.test.js` checks public slash replies, prefix aliases,
+registration and routing, canonical web-first/Discord-first ownership, missing
+accounts, diaper condition on PNG and stats posts, hidden accident schedules,
+render concurrency, link revocation, and actual PNG dimensions/stance changes.
+Tests use synthetic Discord interactions; they never publish to a live channel.
+The real PNG test requires the same Python/Pillow environment as the bot (see
+`LITTLEPOTTCHI_PYTHON`). Run the browser fixture after changing `web/layers.js` to
+verify browser dolls still use the same garment and hair ordering.
+
+Starter-shirt regression coverage checks removal, persistence across restart,
+restoration without inventory grants, ordinary shirt ownership guards, anatomy
+visibility, and unchanged care state. The browser fixture removes the starter in
+Wardrobe, reloads to confirm it stays off, then restores it through the free button.
+
+For theme changes, review the existing desktop/mobile dashboard, Fresh Change,
+creator and Clothes Emporium screenshots in `data/dressup-review`. Check pastel
+text contrast, selected-card checkmarks, keyboard focus, zero-value meter tracks,
+and phone-width buttons without horizontal overflow. The browser fixture exercises
+the same care, collection and payment flows under `pastel.css`.
+
 LAN bridge checks cover analysis upload, event polling and acknowledgement at
 `10.1.1.23:4190`, rejection of public plain-HTTP endpoints, and bearer-authenticated
 HTTP requests while the game's configured browser origin remains public HTTPS.

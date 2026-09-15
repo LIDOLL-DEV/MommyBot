@@ -98,8 +98,8 @@ in Diaper Atelier, then use **Use 1 baby wipe** after a leak or diaper-free acci
 before dressing again. One wipe cleans every accumulated body accident. The rear
 camera shows messy frames only while messy mode is on; turning it off does not clean.
 
-Turn on **Messy mode** in **Care & Settings** if desired. Each countdown is randomly set to 10–14 hours and runs while enabled;
-turning it off pauses it. Wet and messy accidents each use one bulk unit. A fresh diaper clears
+Turn on **Messy mode** in **Care & Settings** if desired. Messy accidents can happen
+while enabled; turning it off pauses them. Wet and messy accidents each use one bulk unit. A fresh diaper clears
 both wetness and mess; disabling the mode does not clean an already messy diaper.
 
 Choose food from the pantry, give water, and complete timed play/rest. Reaching
@@ -120,6 +120,20 @@ For reminders, enable the pet checkbox and Little Log push with the same account
 - **Food**, **Toys**, and **Play & Rest** use picture choices and a confirmation.
   **Water** is a direct action. Running tasks and cooldowns still apply.
 - **Wardrobe** opens clothing pictures, filters and collection pages.
+- Remove the starter shirt using its **Tops & dresses ×** button in Wardrobe.
+  The empty top slot stays saved; **Wear starter shirt** puts it back on for free.
 - **Character** has a separate draft preview; saving returns to the dashboard.
 - **Care & Settings** contains the camera, diaper removal, messy mode, push
   reminders, and detailed care timers.
+- Accident schedules are hidden. Care, activity and toy timers remain visible;
+  diaper status updates after accidents happen.
+
+### Share in Discord
+
+- Link the same account using `/lidollid login`, and save a doll in Littlepottchi.
+- `/doll` or `!doll` posts your saved doll as a PNG **publicly in the channel**.
+  The post includes diaper name, used bulk, wet/messy counts, and its current
+  condition, including discomfort, leaks and any wipe requirement.
+- `/pottchistats` or `!pottchistats` posts a **public** check-in with fullness,
+  hydration, energy, comfort, happiness, excitement, diaper status and activity.
+- Both include a link for friends to try Littlepottchi. Accident schedules stay hidden.

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#fff6ef">
-<title>Littlepottchi & Clothes Emporium</title><link rel="stylesheet" href="/clothes/style.css"><link rel="stylesheet" href="/clothes/care.css"><script type="module" src="/clothes/app.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#fff5fa">
+<title>Littlepottchi & Clothes Emporium</title><link rel="stylesheet" href="/clothes/style.css"><link rel="stylesheet" href="/clothes/care.css"><link rel="stylesheet" href="/clothes/pastel.css"><script type="module" src="/clothes/app.js"></script></head>
 <body>
 <a class="skip" href="#main">Skip to game</a>
 <header><a class="brand" href="/littlepottchi/"><span class="mark">✿</span><span>Littlepottchi<small>A LITTLE WORLD TO CALL YOUR OWN</small></span></a>
@@ -16,17 +16,17 @@
 <div class="workspace">
 <section id="care-panel" class="card game-dashboard">
 <div class="section-title"><h2>Your day</h2><span id="bond" class="pill">0 care moments</span></div><div id="needs" class="needs"></div>
-<div class="status-grid"><div class="diaper-care"><label for="wetness">Diaper <strong id="wetness-label"></strong></label><progress id="wetness" max="3" value="0"></progress><p id="leak-status" role="status"></p><p id="overflow-status" class="fine"></p><p id="wetting-clock" class="fine"></p><p id="messy-clock" class="fine"></p></div>
+<div class="status-grid"><div class="diaper-care"><label for="wetness">Diaper <strong id="wetness-label"></strong></label><progress id="wetness" max="3" value="0"></progress><p id="leak-status" role="status"></p><p id="overflow-status" class="fine"></p></div>
 <div class="excitement-care"><label for="excitement">Excitement <strong id="excitement-label">0 / 255</strong></label><progress id="excitement" max="255" value="0"></progress><p id="toy-status" role="status"></p><button id="stop-toy" class="small-action">Stop toy</button></div></div>
 <nav class="action-dock" aria-label="Doll actions">
-<button id="fresh-change" data-menu="change"><span aria-hidden="true">♡</span>Fresh Change</button>
-<button id="open-food" data-menu="food"><span aria-hidden="true">◒</span>Food</button>
+<button id="fresh-change" data-menu="change"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 5h18l-2 9-7 6-7-6Z"/><path d="M3 5l5 2-2 5-2-1m17-6-5 2 2 5 2-1M10 11c-2-2-4 1 2 4 6-3 4-6 2-4l-2 2Z"/></svg>Fresh Change</button>
+<button id="open-food" data-menu="food"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 7C4 2 1 12 7 20c2 2 3-1 5 0 2-1 3 2 5 0 6-8 3-18-5-13Zm0 0V3m0 2c0-3 3-4 5-3-1 3-3 4-5 3Z"/></svg>Food</button>
 <button data-care="water"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2C9 7 5 11 5 15a7 7 0 0 0 14 0c0-4-4-8-7-13Z"/><path d="M8 15a4 4 0 0 0 4 4"/></svg>Water</button>
-<button data-menu="routine"><span aria-hidden="true">☾</span>Play &amp; Rest</button>
-<button id="open-toys" data-menu="toys"><span aria-hidden="true">✦</span>Toys</button>
-<button id="open-wardrobe" data-menu="wardrobe"><span aria-hidden="true">♙</span>Wardrobe</button>
-<button id="open-character" data-menu="character"><span aria-hidden="true">✧</span>Character</button>
-<button id="open-settings" data-menu="settings"><span aria-hidden="true">⚙</span>Care &amp; Settings</button>
+<button data-menu="routine"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M19 15A8 8 0 0 1 9 4a8 8 0 1 0 10 11Z"/><path d="m17 2 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>Play &amp; Rest</button>
+<button id="open-toys" data-menu="toys"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 21 9-10m1-9 2 4 5 1-4 3 1 5-4-2-4 2 1-5-4-3 5-1Z"/><path d="M4 4v4M2 6h4"/></svg>Toys</button>
+<button id="open-wardrobe" data-menu="wardrobe"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 1 5 2l-2 2v2L3 17a1 1 0 0 0 1 2h16a1 1 0 0 0 1-2l-9-5"/></svg>Wardrobe</button>
+<button id="open-character" data-menu="character"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14c2 3 6 3 8 0M8 9h.01M16 9h.01"/></svg>Character</button>
+<button id="open-settings" data-menu="settings"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></svg>Care &amp; Settings</button>
 </nav>
 <div class="day-status"><p id="activity-status" role="status"></p><button id="use-wipe">Use 1 wipe</button><span id="wipe-stock" class="fine"></span></div>
 </section>
@@ -60,9 +60,9 @@
 <div id="menu-content"></div>
 <section id="settings-panel" hidden>
 <div class="camera-care"><figure><img id="buttcam" width="256" height="256" alt="Diaper camera" hidden><figcaption id="buttcam-note"></figcaption></figure><div><h3>Care status</h3><p id="cleanup-status" role="status"></p><p id="accident-counts" class="fine"></p><button id="remove-diaper">Remove diaper</button></div></div>
-<label class="reminder-choice"><input id="messy-mode" type="checkbox"> Messy mode</label><p id="messy-rhythm" class="fine"></p>
+<label class="reminder-choice"><input id="messy-mode" type="checkbox"> Messy mode</label>
 <label class="reminder-choice"><input id="pet-reminders" type="checkbox"> Little Log push reminders</label><p class="fine">Enable push in Little Log with the same account. Quiet hours apply.</p>
-<details><summary>Timers &amp; rules</summary><ul id="care-timers" class="fine"></ul><p id="rhythm" class="fine"></p><p id="excitement-rhythm" class="fine"></p><p class="fine">One wipe clears all cleanup after leaks or diaper-free accidents. Fresh changes reuse unlocked diapers. Timers continue offline.</p></details>
+<details><summary>Care timers &amp; rules</summary><ul id="care-timers" class="fine"></ul><p id="excitement-rhythm" class="fine"></p><p class="fine">One wipe clears all cleanup after leaks or diaper-free accidents. Fresh changes reuse unlocked diapers. Care continues offline.</p></details>
 </section>
 </dialog>
 </body></html>

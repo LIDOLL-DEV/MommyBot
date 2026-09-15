@@ -39,6 +39,15 @@ try {
   console.log("Littlepottchi loaded.");
   await page.waitForFunction(() => !document.getElementById("game").hidden);
   assert.equal(await page.$eval("#slot", select => [...select.options].some(option => option.value === "underwear")), false);
+  await openMenu('wardrobe');
+  await page.click('[data-unequip="top"]');
+  await page.waitForFunction(() => document.getElementById('wear-starter-shirt') && !document.getElementById('wear-starter-shirt').disabled);
+  await closeMenu(); await page.reload();
+  await page.waitForFunction(() => document.getElementById('doll').getAttribute('aria-label').includes('no top equipped'));
+  assert.equal(f.doll.snapshot(f.user).top,null,'Removing the starter survives reload');
+  await openMenu('wardrobe'); await page.click('#wear-starter-shirt');
+  await page.waitForFunction(() => document.querySelector('[data-unequip="top"]') && !document.querySelector('[data-unequip="top"]').disabled);
+  await closeMenu();
   await page.goto(`${f.config.origin}/diapers/#supplies`);
   await page.waitForFunction(() => !document.getElementById("buy-wipe").disabled);
   f.lose = true;

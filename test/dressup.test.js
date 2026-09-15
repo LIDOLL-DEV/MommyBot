@@ -5,9 +5,33 @@ import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
 import { dressupFixture } from "../scripts/fixtures/dressup.mjs";
 import { dressupRoot } from "../src/dressup/catalog.js";
+import { LittlepottchiStore } from "../src/dressup/store.js";
 
 function fixture(t) { const f = dressupFixture(); t.after(() => f.close()); return f; }
 const equip = (f, slot, design) => f.doll.act(f.user, { action: "equip", slot, design });
+
+test("the free starter shirt can be removed persistently and restored without granting inventory or altering care", t => {
+  const f = fixture(t), initial = f.doll.snapshot(f.user), starter = initial.top.id;
+  assert.equal(initial.player.starterTopEnabled,true);
+  let d = equip(f,"top",null);
+  assert.equal(d.top,null); assert.equal(d.player.starterTopEnabled,false);
+  assert.deepEqual(d.player.care,initial.player.care); assert.equal(d.player.careCount,initial.player.careCount);
+  f.doll = new LittlepottchiStore(f.clothes,f.diapers,f.catalog,()=>f.now);
+  assert.equal(f.doll.snapshot(f.user).top,null);
+  d = f.doll.act(f.user,{...d.player,action:"appearance",anatomy:{chest:"breasts",nipples:"style-1"}});
+  assert.ok(d.bodyLayers.some(layer=>layer.image==="TQ_Breasts_1.png"));
+  const other = f.catalog.clothes.find(item=>item.slot==="top"&&item.id!==starter&&item.stances.includes("narrow"));
+  assert.throws(()=>equip(f,"top",other.id),/available copy/);
+  assert.equal(f.doll.snapshot(f.user).top,null);
+  f.seed(f.clothes,other.id); equip(f,"top",other.id); assert.equal(equip(f,"top",null).top,null);
+  const beforeRestore = f.clothes.snapshot(f.user).owned;
+  d = equip(f,"top",starter);
+  assert.equal(d.top.id,starter); assert.equal(d.player.starterTopEnabled,true); assert.deepEqual(d.bodyLayers,[]);
+  assert.deepEqual(f.clothes.snapshot(f.user).owned,beforeRestore); assert.equal(f.coins,1000);
+  assert.equal(d.player.careCount,initial.player.careCount);
+  delete d.player.starterTopEnabled; delete d.player.outfit.top; f.doll.save(f.user,d.player);
+  assert.equal(f.doll.snapshot(f.user).top.id,starter,"Legacy saves keep the default shirt");
+});
 
 test("all Atelier designs map to packaged art; native layers retain 387x875 registration", t => {
   const f = fixture(t);

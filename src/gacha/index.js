@@ -21,13 +21,13 @@ export function initializeGacha(config, identities, wallet) {
     revoke: user => sessions.revoke(user),
     prune: () => sessions.prune(),
     close: () => { dressup.close(); game.close(); },
-    ...createGachaCommands(config, sessions, game),
+    ...createGachaCommands(config, sessions, game, dressup.commands),
   };
 }
 
 const rarityColors = { common: 0xf4c2d7, uncommon: 0x9fd8b8, rare: 0x8fb8f0, epic: 0xc39bf0, legendary: 0xf5c45e };
 
-export function createGachaCommands(config, sessions, game = null) {
+export function createGachaCommands(config, sessions, game = null, petCommands = null) {
   const names = ["diaper", "diapers", "clothes", "littlepottchi"];
   const rollMessage = async user => {
     const { amount, item } = await game.act(user, "roll", null, randomUUID());
@@ -44,6 +44,7 @@ export function createGachaCommands(config, sessions, game = null) {
   return {
     linkMessage, // Allow the private account menu to issue the same owner-bound browser handoff.
     async registerGuild(guild) {
+      await petCommands?.registerGuild(guild);
       for (const name of names) {
         try {
           await guild.commands.create(new SlashCommandBuilder().setName(name).setDescription(name === "clothes" ? "Open Clothes Emporium to roll for wearable clothing" : name === "littlepottchi" ? "Dress and care for your Littlepottchi doll" : "Open your Diaper Gacha collection, rolls and bank in your browser"));
@@ -55,6 +56,7 @@ export function createGachaCommands(config, sessions, game = null) {
       }
     },
     async handleMessage(message) {
+      if (await petCommands?.handleMessage(message)) return true;
       if (!message.author.bot && game && /^\s*!diaper\s*$/i.test(message.content || "")) {
         message.channel?.sendTyping?.()?.catch(() => {});
         let response;
@@ -88,6 +90,7 @@ export function createGachaCommands(config, sessions, game = null) {
       return true;
     }, // Consume only the exact prefix command; private login tickets must never appear in a server-channel reply.
     async handleInteraction(interaction) {
+      if (await petCommands?.handleInteraction(interaction)) return true;
       if (!interaction.isChatInputCommand() || !names.includes(interaction.commandName)) return false;
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       let content;
@@ -95,6 +98,7 @@ export function createGachaCommands(config, sessions, game = null) {
         content = ["clothes", "littlepottchi"].includes(interaction.commandName)
           ? `Open ${interaction.commandName === "clothes" ? "Clothes Emporium" : "Littlepottchi"}: ${config.origin}/${interaction.commandName}/\nSign in with LiD0llID, or open /diapers first to use your existing browser session.`
           : linkMessage(interaction.user.id);
+        if (interaction.commandName === "littlepottchi") content += "\nShare your saved doll publicly with /doll, or post a public care check with /pottchistats.";
       } catch (error) { content = error instanceof GachaError ? error.message : "The atelier is unavailable. Please try again shortly."; }
       await interaction.editReply({ content, allowedMentions: { parse: [] }, flags: MessageFlags.SuppressEmbeds });
       return true;

@@ -63,6 +63,8 @@ Do not infer pronouns or gender from body shape, chest or genital choices.
 Creator status text should explain saving and previews without narrating anatomy.
 
 Keep the game dashboard terse: action names, meters and short timer status.
+Timer status is for care, activities and toys; do not reveal accident countdowns
+or scheduling details in either the dashboard or settings.
 Put choice descriptions and care instructions inside their relevant menus. Fresh
 Change copy names the selected design, bulk, stance and availability. When cleanup
 is required, explain the single wipe requirement beside the confirmation control.
@@ -72,6 +74,11 @@ Use “Full and uncomfortable — no leak yet” at capacity. Do not announce a 
 until the server records one. The displayed probability describes the next new
 accident, not a continuous chance while waiting. On a leak, explain that one baby
 wipe is required before changing; contained accidents do not require cleanup.
+
+Discord `/doll` and `/pottchistats` are deliberately public. Use short factual
+check-in copy and include the game link. Both show diaper condition, including
+the PNG post; never add an accident forecast, personal tracker record, or private
+login link. These responses use fixed game text and do not invoke dialogue AI.
 
 Littlepottchi characters are adults. Describe toy actions through plain status
 text such as “Wand active” and “Session complete.” Use neutral wording for every

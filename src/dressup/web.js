@@ -12,7 +12,7 @@ export function createDressupWeb(config, clothes, doll, sessions, catalog) {
   const assets = new Map();
   for (const name of Object.keys(catalog.provenance)) if (!/_ButtCam_/.test(name)) assets.set(`/clothes/art/${name}`, new URL(name, dressupRoot));
   const page = readFileSync(new URL("./web/index.html", import.meta.url));
-  const code = new Map(["app.js", "style.css", "care.css", "doll.js", "menu.js"].map(name => [name, readFileSync(new URL(`./web/${name}`, import.meta.url))]));
+  const code = new Map(["app.js", "style.css", "care.css", "pastel.css", "doll.js", "layers.js", "menu.js"].map(name => [name, readFileSync(new URL(`./web/${name}`, import.meta.url))]));
   const send = (res, status, body, type = "application/json") => { res.writeHead(status, { "Content-Type": type }); res.end(type === "application/json" ? JSON.stringify(body) : body); };
   return async (req, res) => {
     const url = new URL(req.url, config.origin), match = /^\/(clothes|littlepottchi)(?:\/(.*))?$/.exec(url.pathname);

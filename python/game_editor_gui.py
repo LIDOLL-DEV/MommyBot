@@ -1,4 +1,4 @@
-"""Littlepottchi wardrobe editor: preview and tune packaged clothing and diaper fits."""
+"""Preview and tune clothing/diaper fits used by the browser doll and Discord PNG exports."""
 from pathlib import Path
 import argparse
 import copy

@@ -1,3 +1,4 @@
+import { dollLayers } from "./layers.js";
 const images = new Map();
 export function loadImage(name) {
   if (!images.has(name) && images.size >= 128) images.delete(images.keys().next().value); // Bound decoded-image retention while paging through a large wardrobe.
@@ -11,18 +12,13 @@ export function loadImage(name) {
 export async function drawDoll(canvas, state) {
   const { player, outfit, base, diaper, top } = state;
   const generation = (canvas.generation || 0) + 1; canvas.generation = generation;
-  const hairBack = player.hair.replace(/\.png$/, "_Back.png"), splitHair = /TQ_Hair_4_/.test(player.hair);
-  const backLayers = [...new Set([top, ...Object.values(outfit)].filter(Boolean).flatMap(item => item.backParts || []))].map(image => ({ image }));
-  const layers = [...backLayers, splitHair ? { image: hairBack } : null, { image: base }, ...(state.bodyLayers || []), { image: player.face },
-    outfit.socks, diaper, outfit.bra, outfit.bottom, outfit.shoes, top, outfit.corset,
-    outfit.belt, outfit.gloves, outfit.accessory, outfit.hand, outfit.bag,
-    { image: splitHair ? player.hair.replace(/\.png$/, "_Front.png") : player.hair }, outfit.head].filter(Boolean)
-    .flatMap(layer => [layer, ...(layer.parts || []).map(image => ({ image }))]); // Rejoin A/B/C garment sections at their native coordinates.
+  const layers = dollLayers(state);
   const loaded = await Promise.all(layers.map(layer => loadImage(layer.image)));
   if (canvas.generation !== generation) return;
   const context = canvas.getContext("2d"); context.clearRect(0, 0, 387, 875);
   layers.forEach((layer, index) => context.drawImage(loaded[index], ...(layer.sourceRect || []), ...(layer.rect || [0, 0, 387, 875])));
-  canvas.setAttribute("aria-label", `${player.name}, ${state.stance === "wide" ? "wide-legged" : "regular"} stance, wearing ${top?.name || outfit.corset?.name || outfit.bra?.name || "starter shirt"}`);
+  const clothing = top?.name || outfit.corset?.name || outfit.bra?.name;
+  canvas.setAttribute("aria-label", `${player.name}, ${state.stance === "wide" ? "wide-legged" : "regular"} stance, ${clothing ? `wearing ${clothing}` : "no top equipped"}`);
 } // Load the full outfit before replacing the canvas, and discard stale asynchronous renders.
 
 export async function thumbnail(canvas, item) {

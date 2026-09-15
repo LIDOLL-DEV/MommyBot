@@ -165,6 +165,16 @@ Food cards use imported collectible images and catalog fullness/joy values.
 Toy cards read session duration/relief from the server snapshot. Menu illustrations
 and layout are deterministic browser code, with no image generation at runtime.
 
+Discord `/doll` exports compose the saved asset layers into a transparent PNG at
+387 × 875; they do not generate new artwork. Keep `web/layers.js` as the common
+browser/export layer order when tuning split hair, garment parts or stance.
+Public diaper status is fixed text derived from that same saved snapshot.
+
+The pastel browser theme is authored in `src/dressup/web/pastel.css`: dotted
+background, doll frame, colored action tiles, meter fills and picture-card states.
+Tune its palette independently of the asset catalog or PNG export. Headings use
+local playful fonts, and reduced-motion preferences disable button movement.
+
 Excitement tuning lives in `src/dressup/excitement.js`: maximum 255, buildup
 12/hour, and per-toy duration/relief. Each session pauses buildup and gradually
 applies relief; stopping grants only elapsed relief. All adult dolls use the
