@@ -1,4 +1,4 @@
-"""Preview and tune clothing/diaper fits used by the browser doll and Discord PNG exports."""
+"""Preview and tune active clothing/diaper fits; the bottom slot contains skirts, not retired trousers."""
 from pathlib import Path
 import argparse
 import copy
@@ -7,6 +7,7 @@ import subprocess
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
+from render_littlepottchi import render
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / "assets/dressup"
@@ -57,7 +58,7 @@ class WardrobeEditor:
         ttk.Button(form, text="Preview rear camera", command=self.preview_camera).pack(fill="x")
         ttk.Button(form, text="View excitement & toy rules", command=self.show_toy_rules).pack(fill="x", pady=(8, 0))
         ttk.Button(form, text="Preview character anatomy", command=self.preview_anatomy).pack(fill="x", pady=(8, 0))
-        ttk.Label(form, text="Bulk = capacity in wet + messy accidents.\nFull means uncomfortable; later accidents\nroll 10% leak chance per excess bulk,\nup to 100%. Actual leaks need one wipe.\nPreview stance only compares fit;\nsource art stays fixed.", wraplength=240).pack(pady=20)  # Explain capacity, overflow odds and the cleanup requirement separately from visual fit.
+        ttk.Label(form, text="Bulk = wet + messy accident capacity.\nFull means uncomfortable; later accidents\nroll 10% leak chance per excess bulk.\nLeaks need one wipe. Fit records the\nart's native stance, not a wear restriction.\nPreview uses the game's stretching rules.", wraplength=240).pack(pady=20)  # Distinguish original art registration from automatic clothing fitting.
         self.status = ttk.Label(form, wraplength=240)
         self.status.pack(fill="x")
         self.canvas = tk.Canvas(root, width=310, height=700, bg="#fff5ef", highlightthickness=0)
@@ -154,26 +155,25 @@ class WardrobeEditor:
             return
         group, item = self.current()
         stance, shape = self.fields["preview stance"][0].get(), self.fields["shape"][0].get()
-        art = Image.new("RGBA", (387, 875))
-        for name in item.get("backParts", []):
-            art.alpha_composite(Image.open(ART / name).convert("RGBA"))
-        art.alpha_composite(Image.open(ART / self.data["bases"][shape][stance]).convert("RGBA"))
-        starter = next(d for d in self.data["diapers"] if d["id"] == "cloud-tapes")
-        layers = [starter, next(c for c in self.data["clothes"] if c["image"] == "TQ_Clothing_TShirt_1A.png")]
-        if group == "diapers":
-            layers = [item, layers[1]]
-        elif item["slot"] in ["bra", "corset"]:
-            layers = [starter, item]
-        else:
-            layers.append(item)
-        layers = [part for layer in layers for part in [layer] + [{"image": image} for image in layer.get("parts", [])]]
-        for layer in layers:
-            overlay = Image.open(ART / layer["image"]).convert("RGBA")
-            if layer.get("rect"):
-                x, y, width, height = layer["rect"]
-                art.alpha_composite(overlay.resize((width, height)), (x, y))
-            else:
-                art.alpha_composite(overlay)
+        rules = json.loads((ART / "clothing-fit-rules.json").read_text(encoding="utf-8"))
+        item = {**rules.get(item["image"], {}), **item}
+        diaper = item if group == "diapers" else next(d for d in self.data["diapers"] if d["stance"] == stance)
+        top = next(c for c in self.data["clothes"] if c["image"] == "TQ_Clothing_TShirt_1A.png")
+        outfit = {} if group == "diapers" else {item["slot"]: item}
+        if group == "clothes" and item["slot"] in ["top", "bra", "corset"]:
+            top = item if item["slot"] == "top" else None
+        snapshot = {"player": {"shape": shape, "hair": self.data["hair"][0], "face": self.data["faces"][0]},
+                    "base": self.data["bases"][shape][stance], "stance": stance,
+                    "diaper": diaper, "top": top, "outfit": outfit}
+        result = subprocess.run(["node", "--input-type=module", "-e",
+            "import {readFileSync} from 'node:fs'; import {dollLayers} from './src/dressup/web/layers.js'; "
+            "import {fittingProfiles} from './src/dressup/fitting.js'; import {loadDressupCatalog} from './src/dressup/catalog.js'; "
+            "const s=JSON.parse(readFileSync(0,'utf8')); s.fitProfiles=fittingProfiles(s,loadDressupCatalog()); console.log(JSON.stringify(dollLayers(s)));"],
+            cwd=ROOT, input=json.dumps(snapshot), capture_output=True, text=True, check=False)
+        if result.returncode:
+            messagebox.showerror("Fit preview", "Could not build the fitting plan. Validate the catalog and rebake clothing profiles.")
+            return
+        art = render(json.loads(result.stdout))  # Share the browser's geometry and the Discord renderer instead of duplicating warp math.
         self.preview_image = ImageTk.PhotoImage(art.resize((310, 700)))
         self.canvas.delete("all")
         self.canvas.create_image(0, 0, anchor="nw", image=self.preview_image)  # Composite only the preview; never rewrite source images.

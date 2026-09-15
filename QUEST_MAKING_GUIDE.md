@@ -3,8 +3,13 @@
 ## Littlepottchi
 
 Count complete design IDs, not individual A/B/C or back-section PNGs, for future
-collection quests. The 949-item wardrobe has 12 clothing/accessory slots. Only
+collection quests. The 929-item wardrobe has 12 clothing/accessory slots. Only
 diapers and training pants may fill the inner-bottom slot; never award ordinary underwear.
+Trousers and pants are retired: exclude their historical design IDs from new rewards.
+
+Automatic clothing stretch and stance adjustments are rendering only. They do
+not consume garments, create new items, complete quests or grant rewards. Changing
+diapers retains equipped clothing; do not require a new clothing roll for a wider base.
 
 Care moments currently count companionship actions only; they grant no coins,
 items or quest completion. Future clothing quests must reference a unique settled

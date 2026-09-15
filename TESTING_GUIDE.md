@@ -2,7 +2,7 @@
 
 ## Littlepottchi and Clothes Emporium
 
-The expanded-catalog regressions cover 949 designs, all 12 wearable
+The expanded-catalog regressions cover 929 designs, all 12 wearable
 slots, complete alternate hems, back sections, opaque `d` color variants,
 ordinary-underwear exclusion, legacy save migration, training pants, and visibility of bras/corsets without the starter
 shirt. `py -3.11 python/test_wardrobe_catalog.py` checks discovery using synthetic
@@ -11,7 +11,7 @@ PNGs, without requiring the external source archive. The browser check verifies
 
 Run `node --test test/dressup.test.js test/diaper-gacha.test.js test/diaper-commands.test.js`
 for native asset registration, Atelier mappings, automatic wide/narrow transitions
-for both bodies, wrong-slot/unowned rejection, incompatible garments, sale
+for both bodies, wrong-slot/unowned rejection, clothing retained across stances, sale
 reservations, care cooldowns, wallet recovery, shared sessions and CSRF.
 `npm test` runs the complete suite (`npm.cmd test` on restricted PowerShell hosts).
 
@@ -21,6 +21,21 @@ in-memory accounts and fake coins to check dressing, stance changes, split hair,
 care, clothing rolls, lost-response recovery across reload, mobile width and logout.
 Screenshots and contact sheets live in ignored `data/dressup-review/`.
 Run `py -3.11 python/game_editor_gui.py --validate` after tuning the manifest.
+
+`node --test test/clothing-fit.test.js` checks reference warp geometry, sleeve
+positions, the stretch cap, taper clamp, complete profile coverage, shared multipart
+plans, shoe alignment and fitted real PNG output. The browser fixture equips
+narrow-native shoes on a wide doll and verifies that its actual canvas changes.
+`node scripts/check-clothing-fit.mjs` saves narrow/unfitted-wide/fitted-wide PNGs
+for dresses, skirts, stockings/shoes and frilly hems on both body shapes. Inspect
+these after changing geometry. Very bulky diapers may remain visible under short
+garments; stretching is not a promise of complete coverage. Profile data must ship
+with every release; rebake after changing source art or registration rectangles.
+
+Trouser retirement regressions cover import exclusion (including dungaree sections
+outside the Trousers folder), saved-outfit cleanup, hidden owned/bank entries,
+rejected equip and purchase requests, and unchanged care and historical inventory.
+Skirts and Atelier training pants must remain wearable.
 Visually inspect both body shapes and complete A/B/C garment sections whenever
 adding new assets. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
 

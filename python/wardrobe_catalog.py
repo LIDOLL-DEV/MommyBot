@@ -11,6 +11,13 @@ FOLDERS = {"Dresses": "top", "Headgear": "head", "Shoes": "shoes", "Stockings": 
            "Belts_Suspenders": "belt", "Equippables": "hand", "HospitalArmband": "accessory"}
 FADED_FOLDERS = {"Dresses", "Bras", "Knickers", "Trousers", "Skirts"}
 
+def excluded_trousers(path):
+    path = Path(path)
+    if re.search(r"Diaper|TrainingPants", path.stem, re.I):
+        return False
+    return path.parent.name == "Trousers" or bool(re.search(r"Trousers|Pants|Jeans|Leggings|Shorts|Dungarees|Overalls", path.stem, re.I))
+    # Retire trouser-family garments wherever stored, while preserving Atelier protection.
+
 def faded_copy(path):
     if not path.stem.endswith("d") or not path.with_name(path.stem[:-1] + ".png").exists():
         return False
@@ -71,7 +78,9 @@ def discover(source, copy_asset, previous):
         candidates = []
         for path in sorted((root / folder).glob("*.png")):
             stem = path.stem
-            if "buttcam" in stem.lower():
+            if excluded_trousers(path):
+                record(path, "excluded-trousers")  # Future imports must not restore retired pants or their alternate sections.
+            elif "buttcam" in stem.lower():
                 record(path, "alternate-camera")
             elif folder in FADED_FOLDERS and faded_copy(path):
                 record(path, "faded-overlay")

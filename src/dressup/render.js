@@ -1,6 +1,8 @@
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dollLayers } from "./web/layers.js";
+import { fittingProfiles } from "./fitting.js";
+import { loadDressupCatalog } from "./catalog.js";
 
 const failures = {
   python_missing:"Python could not be started. Install Python 3 or set LITTLEPOTTCHI_PYTHON to its executable path.",
@@ -30,6 +32,7 @@ function failureCode(error, stderr) {
 } // Distinguish missing setup from bad release contents without echoing untrusted process output.
 
 export function renderDollPng(snapshot, execute = execFile) {
+  if (!snapshot.fitProfiles) snapshot = { ...snapshot, fitProfiles: fittingProfiles(snapshot, loadDressupCatalog()) };
   const executable = process.env.LITTLEPOTTCHI_PYTHON || (process.platform === "win32" ? "py" : "python3");
   const args = !process.env.LITTLEPOTTCHI_PYTHON && process.platform === "win32" ? ["-3.11"] : [];
   args.push(fileURLToPath(new URL("../../python/render_littlepottchi.py", import.meta.url)));

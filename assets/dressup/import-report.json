@@ -1,8 +1,8 @@
 {
-  "designs": 949,
+  "designs": 929,
   "bySlot": {
-    "top": 380,
-    "bottom": 63,
+    "top": 379,
+    "bottom": 44,
     "head": 150,
     "shoes": 77,
     "socks": 42,
@@ -16,12 +16,13 @@
   },
   "sourceFiles": 2747,
   "dispositions": {
-    "faded-overlay": 952,
+    "faded-overlay": 915,
     "alternate-camera": 9,
-    "included": 1602,
+    "excluded-trousers": 76,
+    "included": 1580,
     "unsupported-canvas-or-empty": 2,
     "atelier-diaper-family": 49,
-    "excluded-ordinary-underwear": 137,
+    "excluded-ordinary-underwear": 120,
     "non-clothing-prop": 8
   },
   "files": [
@@ -1303,11 +1304,11 @@
     },
     {
       "source": "CW/Dresses/TQ_Clothing_LatexDungarees_1Ad.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Dresses/TQ_Clothing_LatexDungarees_1Cd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Dresses/TQ_Clothing_LatexJacket_1Ad.png",
@@ -5135,18 +5136,15 @@
     },
     {
       "source": "CW/Dresses/TQ_Clothing_LatexDungarees_1A.png",
-      "status": "included",
-      "design": "tq-clothing-latexdungarees-1a"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Dresses/TQ_Clothing_LatexDungarees_1B.png",
-      "status": "included",
-      "design": "tq-clothing-latexdungarees-1a"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Dresses/TQ_Clothing_LatexDungarees_1C.png",
-      "status": "included",
-      "design": "tq-clothing-latexdungarees-1a"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Dresses/TQ_Clothing_LatexJacket_1A.png",
@@ -9230,174 +9228,155 @@
     },
     {
       "source": "CW/Trousers/NEWTQ_Clothing_Trousers_Bloomers_2d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/NEWTQ_Clothing_Trousers_Canvasd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_BitchBottomsd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Bloomers_1d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Buttocklessd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Blackd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Blued.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Greyd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Sheerd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_TightBlued.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Jeans_1d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Jeans_2d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Jeans_3d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_KittyPyjamasd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Latexd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Leggings_1d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Leggings_2d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Witchd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Yogad.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/NEWTQ_Clothing_Trousers_Bloomers_2.png",
-      "status": "included",
-      "design": "newtq-clothing-trousers-bloomers-2"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/NEWTQ_Clothing_Trousers_Canvas.png",
-      "status": "included",
-      "design": "newtq-clothing-trousers-canvas"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_BitchBottoms.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-bitchbottoms"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Bloomers_1.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-bloomers-1"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Buttockless.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-buttockless"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Black.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-exerciseshorts-black"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Blue.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-exerciseshorts-blue"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Grey.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-exerciseshorts-grey"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_Sheer.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-exerciseshorts-sheer"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_ExerciseShorts_TightBlue.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-exerciseshorts-tightblue"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Jeans_1.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-jeans-1"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Jeans_2.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-jeans-2"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Jeans_3.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-jeans-3"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_KittyPyjamas.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-kittypyjamas"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Latex.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-latex"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Leggings_1.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-leggings-1"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Leggings_2.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-leggings-2"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Witch.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-witch"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Trousers/TQ_Clothing_Trousers_Yoga.png",
-      "status": "included",
-      "design": "tq-clothing-trousers-yoga"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Skirts/NEWTQ_Clothing_Skirts_Babydolld.png",
@@ -10289,11 +10268,11 @@
     },
     {
       "source": "CW/Knickers/NEWTQ_Clothing_Knickers_MicroShorts_Xmas.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/NEWTQ_Clothing_Knickers_MicroShorts_Xmasd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_GiantTeddy_1.png",
@@ -11261,35 +11240,35 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_1.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_1d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_2.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_2d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_3.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_3d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_4.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_4d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_1.png",
@@ -11317,23 +11296,23 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Black.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Blackd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Gold.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Goldd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_microshorts_Xmas.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Missing.png",
@@ -11345,51 +11324,51 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_1.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_1d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_2.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_2d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_3.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_3d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_4.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_4d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_5.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_5d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_6.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_6d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1a.png",
@@ -11449,19 +11428,19 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PortalHotpants.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PortalHotpantsd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PortalPants.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PortalPantsd.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PouchPanties.png",
@@ -11713,11 +11692,11 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Pants_White_1.png",
-      "status": "excluded-ordinary-underwear"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Pants_White_1d.png",
-      "status": "faded-overlay"
+      "status": "excluded-trousers"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_StringBowPanties_1.png",

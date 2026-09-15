@@ -1,0 +1,429 @@
+{
+  "NEWTQ_Clothing_AllInOne_1A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "NEWTQ_Clothing_BabydollTop_1A.png": {
+    "warp": "none"
+  },
+  "NEWTQ_Clothing_CatBodysuit_1A.png": {
+    "warpFullHem": true
+  },
+  "NEWTQ_Clothing_DiaperCoverAll_1A.png": {
+    "warp": "none"
+  },
+  "NEWTQ_Clothing_DuckyRomper_1A.png": {
+    "warpFullHem": true
+  },
+  "NEWTQ_Clothing_FrillyDress_1A.png": {
+    "warp": "none"
+  },
+  "NEWTQ_Clothing_LatexPlaysuit_1A.png": {
+    "warp": "none"
+  },
+  "NEWTQ_Clothing_RomanticDress_1A.png": {
+    "warp": "none"
+  },
+  "NEWTQ_Clothing_Romper_2A.png": {
+    "warpFullHem": true
+  },
+  "NEWTQ_Clothing_Romper_3A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "NEWTQ_Clothing_SchoolUniform_1A.png": {
+    "warp": "none"
+  },
+  "NEWTQ_Clothing_SweetBodyLeotard_1A.png": {
+    "warpFullHem": true
+  },
+  "NEWTQ_Clothing_UnicornTutu_1A.png": {
+    "warp": "none"
+  },
+  "NEWTQ_Clothing_XmasLatexSuit_3A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_BabyFrilly_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_BabyFrilly_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Basque_1A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Basque_2A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_BearTopDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_BlousePink_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_BlueExposingClubbingDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Bodysuit_1A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Bodysuit_3A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Bodysuit_4A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_BunnyDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_BunnySuit_1aA.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_BunnySuit_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_CafeMaidDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Cheerleader_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Cheerleader_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Cheerleader_5A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Cheerleader_6A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_ChristmasDress_10A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_ChristmasDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_ChristmasDress_3A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_ChristmasDress_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_ChristmasDress_5A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_ChristmasDress_8A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_CommandoOutfit_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_DinosaurDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_DollDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_FertilityGoddessDress_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_FetishBabyDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_FishnetDress_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_FishnetTop_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_FloofyBabydoll_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_FullBodyRomper_1A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_FurryHoodOutfit_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_GinghamDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_HexDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Kimono_3A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Kimono_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_KittyBabyDress_1aA.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_LatexCatsuit_3A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_LatexDress_10A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_LatexDress_11aA.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_LatexDress_11bA.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Leotard_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Leotard_2A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Leotard_3A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_LolitaSwimsuit_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_LollipopDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_LycraBodysuit_1A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MagicalDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_MagicalDress_5A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MagicalDress_6A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MagicalDress_7A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MaidDress_14A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MaidDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_MaidDress_3A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MaidDress_5A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MaidDress_6A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_MaidDress_8A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_MaidDress_9A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_MaidWaitressDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_MissingDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_MissingSuperShortDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Monokini_9A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Negligee_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Negligee_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Negligee_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Negligee_5A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Nightie_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_NunBodysuit_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_PinaforeDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_PinkExposingClubbingDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_PinkFloralDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Priestess_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Priestess_5A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_RibbonDress_1A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_10A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_11A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_12A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_1A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_2A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_3A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_4A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_6A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_8A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Romper_9A.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_RomperBlue_1A.png": {
+    "warp": "none",
+    "warpFullHem": true
+  },
+  "TQ_Clothing_RopeHarness_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_RoyalDress_3A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_RoyalDress_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_RubberDress_5A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_RubberDress_6A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_RubberDress_8A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SanataBabyOutfit_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SchoolgirlUniform_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SchoolgirlUniform_3A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SchoolgirlUniform_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Shirt_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Shirt_4aA.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SinfulPriestessDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SinfulPriestessDress_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SinfulPriestessDress_3A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SinfulPriestessDress_4A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SlaveDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_SlaveDress_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_StringMonokini_6A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_TongueBosysuit_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_TongueBosysuit_1aA.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_TongueBosysuit_2A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_TongueBosysuit_2aA.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_TubeTop_6A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_VestDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_WarriorChestplate_6A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_WhiteBabydoll_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_WitchBodysuit_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_XmasDress_6A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_YellowBabydoll_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_YellowBabyDress_1A.png": {
+    "warp": "none"
+  },
+  "TQ_Clothing_Bodysuit_2a.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Bodysuit_2b.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Bodysuit_2c.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Bodysuit_2e.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Bodysuit_2f.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_Bodysuit_2g.png": {
+    "warpFullHem": true
+  },
+  "TQ_Clothing_BunnySuit_1b.png": {
+    "warp": "none"
+  }
+}

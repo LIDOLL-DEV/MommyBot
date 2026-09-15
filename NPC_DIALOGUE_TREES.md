@@ -5,10 +5,14 @@
 Wardrobe copy should refer to complete garments and accessories across the expanded
 catalog. Only diapers and training pants are available for the inner-bottom slot;
 describe their matching stance without implying either collectible was consumed.
+Skirts remain available; trousers and pants do not. Training pants are still an
+Atelier protection option, so do not describe them as retired clothing.
 
 These games use fixed care labels, outfit notices and purchase results in
 `src/dressup/web/app.js`; there are no NPC dialogue trees yet. Explain that the
-diaper chooses the leg stance and incompatible clothing stays in the wardrobe.
+diaper chooses the leg stance and equipped clothes adjust automatically. Do not
+tell players that a garment needs a different diaper stance. Detailed frilly hems
+keep their original shape, following lidollquest's rendering exceptions.
 Keep fresh-change wording matter-of-fact and payment-retry wording tied to the
 saved operation. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
 

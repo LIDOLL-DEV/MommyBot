@@ -88,7 +88,7 @@ def build(source):
                         **({"rect": rect, "fitNote": "Item illustration fitted to the matching Giant silhouette; no native print overlay supplied."} if rect else {})})
 
     clothes, audit = discover(source, copy, previous)
-    # A wide-stance option is available for feet and legs instead of stretching narrow footwear.
+    # Preserve native wide footwear; the renderer adapts other shoes when the doll changes stance.
     for filename, slot, name in [("DQ_Clothing_Shoes_Rollerskates_1b.png", "shoes", "Wide-stance Roller Skates")]:
         clothes.append({"id": "dq-wide-roller-skates", "name": name, "description": "Skates aligned to the wide-legged DQ base.",
                         "image": copy(f"CharWins/DQWin/{filename}"), "rarity": "rare", "slot": slot, "stances": ["wide"], "sprite": True})
@@ -98,7 +98,7 @@ def build(source):
     for group, items in [("clothes", clothes), ("diapers", diapers)]:
         old = {item["id"]: item for item in previous.get(group, [])}
         for item in items:
-            keys = ["name", "description", "rarity", "slot", "stances"] if group == "clothes" else ["stance", "fitNote", "bulk"]
+            keys = ["name", "description", "rarity", "slot", "stances", "warp", "warpFullHem"] if group == "clothes" else ["stance", "fitNote", "bulk"]
             for key in keys:
                 if key in old.get(item["id"], {}):
                     item[key] = old[item["id"]][key]  # Rebuilding artwork preserves the handler's saved tuning.
@@ -115,6 +115,8 @@ def build(source):
     audit["designs"] = len(clothes)
     audit["bySlot"] = dict(Counter(item["slot"] for item in clothes))
     (out / "catalog.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    from bake_clothing_profiles import bake
+    bake(out)  # Rebuild silhouettes whenever artwork is imported so browser and PNG fitting stay in sync.
     (out / "import-report.json").write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
     print(f"Imported {len(clothes)} clothes and mapped all {len(diapers)} Atelier designs ({sum(d['stance'] == 'wide' for d in diapers)} wide).")
 

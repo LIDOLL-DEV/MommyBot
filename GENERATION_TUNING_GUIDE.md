@@ -6,7 +6,7 @@ Expanded clothing rarity defaults are assigned by the importer; existing edited
 rarities remain preserved by ID. Tier probabilities remain fixed as new designs
 join the pool, so per-design odds decrease within growing tiers. The import report
 distinguishes wearable designs from faded previews and shared garment sections.
-Ordinary underwear is excluded, leaving 949 designs across 12 clothing slots.
+Ordinary underwear and trouser-family garments are excluded, leaving 929 designs across 12 clothing slots.
 Keep the underwear slot disabled in the editor and validator; diapers and training
 pants are supplied by Atelier and retain their independent bulk and stance tuning.
 
@@ -15,6 +15,16 @@ generation at runtime. Clothes Emporium draws rarity then a uniform design using
 server randomness. Tune rarity and fit in `assets/dressup/catalog.json` or
 `python/game_editor_gui.py`, keeping every tier populated. A diaper's saved stance
 selects the actual body base automatically. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
+
+Clothing fitting is deterministic. `src/dressup/web/fit.js` uses lidollquest's
+two-pass profile smoothing, four-pixel bands, 3.5x stretch cap, sleeve preservation
+and 30% dress hem push. Skirts keep their vertical scale; socks and shoes
+also follow the selected base's leg positions. Clothing `stances` is native art
+metadata, not a permission gate. `warp: "none"` preserves detailed hems and
+`warpFullHem: true` extends the fitting zone. Imported defaults live in
+`assets/dressup/clothing-fit-rules.json`; explicit catalog values override them.
+To refresh reference flags, run `python/import_clothing_fit_rules.py` with the
+lidollquest project path. Rebuild profiles after changing PNGs or diaper rectangles.
 
 ## Conversational routing
 

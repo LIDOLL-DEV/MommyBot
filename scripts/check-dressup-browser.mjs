@@ -10,6 +10,8 @@ const f = dressupFixture(); let browser, server;
 try {
   f.seed(f.diapers, "ribbon-bouquet"); f.seed(f.diapers, "cloud-tapes");
   for (const item of f.catalog.clothes.slice(0, 6)) f.seed(f.clothes, item.id);
+  const fittedShoes = f.catalog.clothes.find(item => /Shoes_MaryJanes\.png/.test(item.image));
+  f.seed(f.clothes, fittedShoes.id);
   server = createServer(async (req, res) => { if (!await f.web(req, res)) { res.writeHead(404); res.end(); } });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
   f.config.origin = `http://127.0.0.1:${server.address().port}`;
@@ -77,12 +79,32 @@ try {
   await confirmChoice('ribbon-bouquet');
   await page.waitForFunction(() => document.getElementById("stance").textContent.includes("Wide stance"));
   assert.equal(f.doll.snapshot(f.user).base, "DQ_Base_2.png");
+  await openMenu('wardrobe');
+  await page.select('#slot', 'shoes');
+  await page.evaluate(name => {
+    const card = [...document.querySelectorAll('#gallery article')].find(el => el.querySelector('h3')?.textContent === name);
+    const button = [...card.querySelectorAll('button')].find(el => el.textContent === 'Wear this');
+    if (!button || button.disabled) throw new Error('Narrow shoes must be wearable with a wide diaper');
+    button.click();
+  }, fittedShoes.name);
+  await page.waitForFunction(() => document.querySelector('[data-unequip="shoes"]') && !document.querySelector('[data-unequip="shoes"]').disabled);
+  assert.equal(f.doll.snapshot(f.user).outfit.shoes.id, fittedShoes.id);
+  await page.select('#slot', ''); await closeMenu();
+  assert.equal(await page.evaluate(async () => {
+    const { drawDoll } = await import('/littlepottchi/doll.js');
+    const { doll } = await (await fetch('/clothes/api/state')).json();
+    const a = document.createElement('canvas'), b = document.createElement('canvas');
+    a.width = b.width = 387; a.height = b.height = 875;
+    await drawDoll(a, doll); await drawDoll(b, { ...doll, fitProfiles: {} });
+    return a.toDataURL() !== b.toDataURL();
+  }), true, 'Real browser canvas applies fitting instead of only switching base artwork');
   await openMenu("character");
   await page.select("#shape", "angular");
   await page.select("#hair", "TQ_Hair_4_Pink.png");
   await page.click('#appearance button');
   await page.waitForFunction(() => !document.querySelector('#appearance button').disabled);
   assert.equal(f.doll.snapshot(f.user).base, "DQ_Base_4.png");
+  assert.equal(f.doll.snapshot(f.user).outfit.shoes.id, fittedShoes.id, 'Changing body shape keeps equipped clothing');
   await choose("food", "apple");
   await page.waitForFunction(() => document.getElementById("bond").textContent.includes("2 care"));
   await page.click('[data-care="water"]');

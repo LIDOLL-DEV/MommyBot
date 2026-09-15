@@ -2,7 +2,7 @@
 
 ## Dress and care for your doll
 
-- Browse the **949-piece** clothing catalog using slot filters, search, and
+- Browse the **929-piece** clothing catalog using slot filters, search, and
   Previous/Next. Gloves, bags, bras, corsets, belts and accessories have their own
   slots. Only diapers and training pants are available for the inner-bottom slot;
   each selects its matching stance automatically.
@@ -11,7 +11,9 @@
   pages. Sign in with LiD0llID or use your existing Atelier browser session.
 - Roll for individual clothing pieces, wear owned pieces, and equip Atelier
   diapers from **My diapers**. Large diapers automatically spread the doll's legs;
-  smaller diapers switch them back. Incompatible clothes stay in your collection.
+  smaller diapers switch them back. Your clothes stay equipped and stretch to fit;
+  socks and shoes follow the stance. Discord doll pictures use the same fit.
+  Trousers and pants have been removed; skirts, diapers and training pants remain.
 - Customize the doll's name, body, face and hair. Feed, play, rest or change for
   free; buy wipes for cleanup after leaks or diaper-free accidents. Food and water
   have short cooldowns; play and rest use timers. Retry saved payments before rolling

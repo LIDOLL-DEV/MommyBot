@@ -6,6 +6,25 @@ import unittest
 from wardrobe_catalog import discover
 
 class WardrobeImportTests(unittest.TestCase):
+    def test_trouser_family_is_excluded_without_removing_skirts_or_training_pants(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ["Trousers/TQ_Clothing_Trousers_Jeans_1.png", "Trousers/TQ_Clothing_Trousers_Bloomers_1.png",
+                         "Dresses/TQ_Clothing_LatexDungarees_1A.png", "Dresses/TQ_Clothing_LatexDungarees_1B.png",
+                         "Skirts/TQ_Clothing_Skirts_Floral.png", "Knickers/TQ_Clothing_Knickers_TrainingPants_1.png"]:
+                path = root / "CW" / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                Image.new("RGBA", (387, 875), (40, 70, 90, 255)).save(path)
+            copied = []
+            def copy(path):
+                copied.append(path)
+                return Path(path).name
+            items, report = discover(root, copy, {})
+            self.assertEqual([item["image"] for item in items], ["TQ_Clothing_Skirts_Floral.png"])
+            self.assertEqual(report["dispositions"]["excluded-trousers"], 4)
+            self.assertEqual(report["dispositions"]["atelier-diaper-family"], 1)
+            self.assertEqual(len(copied), 1)  # Retirement happens before copying assets or reassembling garment sections.
+
     def test_sections_variants_faded_copies_and_new_slots(self):
         with TemporaryDirectory() as directory:
             root = Path(directory)

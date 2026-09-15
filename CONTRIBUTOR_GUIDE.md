@@ -2,12 +2,16 @@
 
 ## Littlepottchi wardrobe
 
-The catalog now covers 949 wearable items. Maintain folder-based discovery in
+The catalog now covers 929 wearable items. Maintain folder-based discovery in
 `python/wardrobe_catalog.py`, its per-source import report, 36-item browser pages,
 and all 12 garment/accessory slots. Only diapers and training pants may fill the
-inner-bottom slot; ordinary underwear must stay excluded. Preserve opaque color variants, rejoin shared
-bodices with alternate hems, and draw back sections behind the body. Run
+inner-bottom slot; ordinary underwear must stay excluded. Preserve opaque color
+variants, rejoin shared bodices with alternate hems, and draw back sections behind the body. Run
 `py -3.11 python/test_wardrobe_catalog.py` when changing import classification.
+
+Trousers, jeans, leggings, shorts, bloomers and dungarees are retired. Keep the
+importer's `excluded-trousers` rule and the runtime catalog validation; old saved
+selections are removed without deleting purchase history or resetting care.
 
 `src/dressup/` connects Clothes Emporium and Littlepottchi to Atelier sessions and
 inventory. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md). Preserve automatic diaper-to-base
@@ -16,6 +20,16 @@ clothing payment recovery. Art and fit metadata live in `assets/dressup/catalog.
 update `python/game_editor_gui.py` with any schema changes. Python tools belong
 under `python/`, PowerShell tools under `ps/`. Run the dress-up tests and browser
 check after changing outfit layers, fit rules or transactions.
+
+Clothing no longer has stance-based equip restrictions. `web/fit.js` ports
+lidollquest's pixel-profile dress/pants warp; browser Canvas, Discord PNGs and the
+editor share its strip plan through `web/layers.js`. Keep complete garment
+sections on the same plan and preserve sleeve positions. `stances` records native
+art registration for leg alignment; it must not revoke ownership or unequip items.
+Rebuild `assets/dressup/fit-profiles.json` with
+`py -3.11 python/bake_clothing_profiles.py` after changing artwork or diaper
+rectangles (the importer also runs it). Commit generated profiles with the art.
+Only equipped profiles are sent to the browser; original PNGs stay unchanged.
 
 ## Chat routing
 

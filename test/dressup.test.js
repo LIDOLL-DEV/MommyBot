@@ -54,6 +54,7 @@ test("the expanded catalog includes every wearable category and preserves opaque
   const f = fixture(t);
   assert.ok(f.catalog.clothes.length >= 900, "Keep the full clothing collection after excluding ordinary underwear");
   assert.ok(!f.catalog.clothes.some(item => item.slot === "underwear"));
+  assert.ok(!f.catalog.clothes.some(item => /Trousers|Pants|Jeans|Leggings|Shorts|Dungarees|Overalls/i.test(item.image)));
   for (const slot of ["top", "bottom", "head", "shoes", "socks", "bra", "corset", "gloves", "belt", "accessory", "bag", "hand"]) {
     assert.ok(f.catalog.clothes.some(item => item.slot === slot), slot);
   }
@@ -99,6 +100,37 @@ test("legacy underwear disappears from outfits, shop and bank without deleting o
   assert.equal(f.receipts.size,0);
 });
 
+test("retired trousers and dungarees disappear from saved outfits, collections and banks without resetting care", async t => {
+  const f = fixture(t), removed = [
+    { id: "tq-clothing-trousers-jeans-1", name: "Jeans", slot: "bottom", image: "TQ_Clothing_Trousers_Jeans_1.png", rarity: "common" },
+    { id: "tq-clothing-latexdungarees-1a", name: "Dungarees", slot: "top", image: "TQ_Clothing_LatexDungarees_1A.png", rarity: "common" },
+  ];
+  const player = f.doll.player(f.user);
+  for (const item of removed) {
+    f.clothes.db.prepare("INSERT INTO diaper_designs VALUES (?,?)").run(item.id, JSON.stringify(item));
+    f.seed(f.clothes, item.id); f.seed(f.clothes, item.id, null);
+    player.outfit[item.slot] = item.id;
+  }
+  player.care.wetness = 1; f.doll.save(f.user, player);
+  const snapshot = f.doll.snapshot(f.user), shop = f.clothes.snapshot(f.user);
+  assert.equal(snapshot.player.care.wetness, 1);
+  assert.equal(snapshot.diaper.id, "cloud-tapes");
+  for (const item of removed) {
+    assert.equal(snapshot.outfit[item.slot], undefined);
+    assert.equal(f.doll.player(f.user).outfit[item.slot], undefined, "Remove the retired selection from the persisted save");
+    assert.ok(!shop.catalog.some(row => row.id === item.id));
+    assert.ok(!shop.owned.some(row => row.design === item.id));
+    assert.ok(!shop.bank.some(row => row.design === item.id));
+    assert.throws(() => equip(f, item.slot, item.id), /available copy/);
+    await assert.rejects(f.clothes.act(f.user, "buy", item.id, randomUUID()), /not available/);
+    assert.equal(f.clothes.db.prepare("SELECT COUNT(*) n FROM diaper_items WHERE design=?").get(item.id).n, 2);
+  }
+  const skirt = f.catalog.clothes.find(item => item.slot === "bottom");
+  f.seed(f.clothes, skirt.id);
+  assert.equal(equip(f, "bottom", skirt.id).outfit.bottom.id, skirt.id);
+  assert.equal(f.receipts.size, 0);
+});
+
 test("complete dresses include their waist and skirt sections as one rolled garment", t => {
   const f = fixture(t), dress = f.catalog.clothes.find(item => item.image === "NEWTQ_Clothing_FrillyDress_1A.png");
   assert.deepEqual(dress.parts, ["NEWTQ_Clothing_FrillyDress_1B.png", "NEWTQ_Clothing_FrillyDress_1C.png"]);
@@ -118,15 +150,16 @@ test("equipped diaper automatically selects wide and narrow bases for both body 
   assert.equal(f.doll.snapshot("someone-else").stance, "narrow");
 });
 
-test("unowned and wrong-slot items are rejected; wide diapers return incompatible clothes to the wardrobe", t => {
+test("unowned and wrong-slot items are rejected; clothing persists and equips across diaper stances", t => {
   const f = fixture(t), shoes = f.catalog.clothes.find(i => i.slot === "shoes" && i.stances.includes("narrow"));
   assert.throws(() => equip(f, "shoes", shoes.id), /available copy/);
   f.seed(f.clothes, shoes.id); f.seed(f.diapers, "ribbon-bouquet");
   assert.throws(() => equip(f, "head", shoes.id), /available copy/);
   equip(f, "shoes", shoes.id);
   const changed = equip(f, "diaper", "ribbon-bouquet");
-  assert.deepEqual(changed.removed, [shoes.id]); assert.equal(changed.outfit.shoes, undefined);
-  assert.throws(() => equip(f, "shoes", shoes.id), /different leg stance/);
+  assert.deepEqual(changed.removed, []); assert.equal(changed.outfit.shoes.id, shoes.id);
+  assert.equal(equip(f, "shoes", shoes.id).outfit.shoes.id, shoes.id);
+  assert.equal(f.doll.snapshot(f.user).player.outfit.shoes, shoes.id);
   assert.equal(f.clothes.snapshot(f.user).owned[0].quantity, 1);
 });
 

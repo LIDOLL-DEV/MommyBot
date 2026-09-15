@@ -7,7 +7,7 @@ let petGeneration = 0;
 let appearanceDirty = false;
 const anatomyKeys = ["chest", "nipples", "genitals", "pubes"];
 const pageSize = 36;
-const labels = { diaper: "Diaper", head: "Headwear", top: "Tops & dresses", bottom: "Bottoms", shoes: "Shoes", socks: "Socks",
+const labels = { diaper: "Diaper", head: "Headwear", top: "Tops & dresses", bottom: "Skirts", shoes: "Shoes", socks: "Socks",
   bra: "Bras", corset: "Corsets", belt: "Belts & suspenders", gloves: "Gloves", accessory: "Accessories", bag: "Bags", hand: "Handhelds" };
 const requestKey = () => `clothes-pending-request:${state.csrf}`; // A different signed-in account must never replay another browser session's request.
 const notice = message => { for (const id of ["notice", "menu-notice"]) { $(id).textContent = message; $(id).hidden = !message; } };
@@ -59,7 +59,7 @@ function renderDoll() {
     progress.id = `need-${key}`; label.htmlFor = progress.id; label.append(node("span", Math.round(doll.player[key]).toString()));
     progress.max = 100; progress.value = doll.player[key]; el.append(label, progress); return el;
   }));
-  $("outfit-note").textContent = doll.removed.length ? "Some pieces need a different stance." : "Outfit saved";
+  $("outfit-note").textContent = doll.removed.length ? "Unavailable pieces returned to the wardrobe." : "Outfit saved";
   renderAppearance();
   renderCare();
 } // Let the server choose the matching base and effective owned outfit.
@@ -214,14 +214,14 @@ function renderGallery() {
   $("gallery").replaceChildren(...filtered.slice(galleryPage * pageSize, (galleryPage + 1) * pageSize).map(item => {
     const card = node("article", null, "item"), art = node("canvas"); art.width = 160; art.height = 150; art.setAttribute("aria-label", item.name); art.setAttribute("role", "img");
     card.append(art, node("span", item.rarity, "pill"), node("h3", item.name));
-    const count = owned.get(item.id), fit = diapersView || item.stances.includes(state.doll.stance);
+    const count = owned.get(item.id);
     card.append(node("p", diapersView ? `${item.stance === "wide" ? "Wide" : "Regular"} stance · ${count?.quantity || 0} owned` : `${labels[item.slot]} · ${count?.quantity || 0} owned`));
     if (item.fitNote) card.append(node("p", item.fitNote));
     if (diapersView) card.append(node("p", `Bulk ${item.bulk} · wettings use 1, messy accidents use ${state.doll.messyRules.bulkPerAccident}`));
     if (view === "catalog") card.append(node("p", `${item.chance.toFixed(3)}% per roll`));
     if (count?.available > 0) {
       const needsWipe = diapersView && state.doll.player.care.needsWipe;
-      const wear = node("button", needsWipe ? "Use a baby wipe first" : fit ? "Wear this" : `Needs ${item.stances.join(" or ")} stance`); wear.dataset.unavailable = String(!fit || needsWipe);
+      const wear = node("button", needsWipe ? "Use a baby wipe first" : "Wear this"); wear.dataset.unavailable = String(needsWipe);
       wear.addEventListener("click", () => run(() => dollAction({ action: "equip", slot: item.slot, design: item.id }))); card.append(wear);
       if (!diapersView) {
         const sell = node("button", `Sell 1 · ${item.sell} coins`); sell.dataset.unavailable = String(!state.shop.enabled || !!state.shop.pending);
@@ -237,7 +237,7 @@ function renderGallery() {
   }));
   if (!filtered.length) $("gallery").append(node("p", diapersView ? "No matching diapers yet. Visit Diaper Atelier to grow your collection." : "No matching pieces yet. Try a roll, browse the bank, or change your filters.", "empty"));
   updateButtons();
-} // Render names as text, enforce slot fit visibly, and keep item illustrations separate from wearable layers.
+} // Render names as text and keep catalog thumbnails separate from automatically fitted doll layers.
 
 $("login").href = shopPage ? "/clothes/login" : "/littlepottchi/login";
 $("slot").replaceChildren(node("option", "Every piece"), ...Object.entries(labels).filter(([key]) => key !== "diaper").map(([key, label]) => {

@@ -16,7 +16,10 @@ export async function drawDoll(canvas, state) {
   const loaded = await Promise.all(layers.map(layer => loadImage(layer.image)));
   if (canvas.generation !== generation) return;
   const context = canvas.getContext("2d"); context.clearRect(0, 0, 387, 875);
-  layers.forEach((layer, index) => context.drawImage(loaded[index], ...(layer.sourceRect || []), ...(layer.rect || [0, 0, 387, 875])));
+  layers.forEach((layer, index) => {
+    if (layer.strips) for (const strip of layer.strips) context.drawImage(loaded[index], ...strip);
+    else context.drawImage(loaded[index], ...(layer.sourceRect || []), ...(layer.rect || [0, 0, 387, 875]));
+  }); // Browser and Pillow consume the same source/destination rectangles for fitted clothing.
   const clothing = top?.name || outfit.corset?.name || outfit.bra?.name;
   canvas.setAttribute("aria-label", `${player.name}, ${state.stance === "wide" ? "wide-legged" : "regular"} stance, ${clothing ? `wearing ${clothing}` : "no top equipped"}`);
 } // Load the full outfit before replacing the canvas, and discard stale asynchronous renders.

@@ -4,6 +4,7 @@ import { PetCare, careRules, messyRules, overflowRules, diaperCondition } from "
 import { selectButtcam } from "./camera.js";
 import { excitementRules } from "./excitement.js";
 import { anatomyDefaults, anatomyLayers, updateAnatomy } from "./appearance.js";
+import { fittingProfiles } from "./fitting.js";
 
 export class LittlepottchiStore {
   constructor(clothes, diapers, catalog, now = Date.now) {
@@ -25,6 +26,9 @@ export class LittlepottchiStore {
     value.anatomy = { ...anatomyDefaults, ...value.anatomy }; // Old saves keep their front appearance without adding anatomy automatically.
     const resolved = this.resolve(user, value);
     delete value.outfit.underwear;
+    for (const slot of slots.filter(slot => slot !== "diaper")) {
+      if (value.outfit[slot] && !this.catalog.clothes.some(item => item.id === value.outfit[slot] && item.slot === slot)) delete value.outfit[slot];
+    } // Remove retired garments from old saves without consuming ownership or changing diaper care.
     this.care.advance(value, resolved.diaper); // Migrate retired underwear to the starter diaper without cleaning existing wetness.
     this.save(user, value); this.care.record(user, value);
     return value;
@@ -48,16 +52,13 @@ export class LittlepottchiStore {
     if (player.outfit.underwear) removed.push(player.outfit.underwear);
     const diaper = outfit.diaper || (player.diaperFree ? null : this.catalog.diapers.find(item => item.id === "cloud-tapes"));
     const stance = diaper?.stance || "narrow"; // Deliberate removal allows diaper-free care; retired underwear never becomes wearable again.
-    for (const slot of slots.filter(s => s !== "diaper")) {
-      if (outfit[slot] && !outfit[slot].stances.includes(stance)) { removed.push(outfit[slot].id); delete outfit[slot]; }
-    }
     return { outfit, removed, stance, base: this.catalog.bases[player.shape][stance], diaper,
       top: outfit.top || (outfit.bra || outfit.corset || player.starterTopEnabled === false ? null : this.starterTop) };
   } // Recheck live ownership on every read; starter fallback respects the player's saved removal choice.
 
   snapshot(user) {
     const player = this.player(user), resolved = this.resolve(user, player);
-    return { player, ...resolved, bodyLayers: anatomyLayers(this.catalog, player, resolved.diaper, resolved.outfit, resolved.top), now: this.now(), careRules, messyRules, excitementRules, buttcam: selectButtcam(this.catalog, player, resolved.diaper),
+    return { player, ...resolved, fitProfiles: fittingProfiles(resolved, this.catalog), bodyLayers: anatomyLayers(this.catalog, player, resolved.diaper, resolved.outfit, resolved.top), now: this.now(), careRules, messyRules, excitementRules, buttcam: selectButtcam(this.catalog, player, resolved.diaper),
       starterTop: this.starterTop, supplies: this.clothes.supplySnapshot(user), usedBulk: diaperCondition(player.care, resolved.diaper).usedBulk,
       overflow: diaperCondition(player.care, resolved.diaper), overflowRules, rhythm: this.care.profile(),
       ownedClothes: this.clothes.snapshot(user).owned, ownedDiapers: this.diapers.snapshot(user).owned };
@@ -86,7 +87,6 @@ export class LittlepottchiStore {
           const item = (slot === "diaper" ? this.catalog.diapers : this.catalog.clothes).find(item => item.id === input.design && (slot === "diaper" || item.slot === slot));
           const starterShirt = slot === "top" && item?.id === this.starterTop.id;
           if (!item || (!starterShirt && !this.owned(user, slot, item.id))) throw new GachaError("You need an available copy in your collection to wear this item.");
-          if (slot !== "diaper" && !item.stances.includes(this.resolve(user, player).stance)) throw new GachaError("This piece needs a different leg stance. Choose a compatible diaper first.");
           if (slot === "diaper") delete player.outfit.underwear;
           player.outfit[slot] = item.id;
           if (starterShirt) player.starterTopEnabled = true; // The free starter can be worn again without granting a sellable inventory copy.

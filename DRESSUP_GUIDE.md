@@ -24,7 +24,9 @@ Discord slash command. Sign in with LiD0llID. An existing Diaper Atelier browser
 session works across all three games, including sign-out and account revocation.
 
 - **Clothes Emporium:** roll for one complete garment for 3 LiDollcoins by default.
-  The catalog contains **949 wearable items** across 12 clothing/accessory slots.
+  The catalog contains **929 wearable items** across 12 clothing/accessory slots.
+  Trousers, jeans, leggings, shorts, bloomers and dungarees are excluded from rolls,
+  the bank and wearable outfits. Skirts, diapers and training pants remain available.
   Browse 36 designs per page, search by name and filter by slot or rarity.
   A/B/C image sections combine into one garment, including alternate hems and back sections.
   Duplicates remain separate copies; buy and sell them at the shared clothing bank.
@@ -39,7 +41,8 @@ session works across all three games, including sign-out and account revocation.
 - **Automatic stance:** the equipped diaper selects the base. Larger silhouettes
   select `DQ_Base_2` (soft) or `DQ_Base_4` (angular). Smaller diapers restore
   `TQ_Base_3` or `TQ_Base_2`. Players do not choose the stance separately.
-  Incompatible garments are removed from the outfit but remain owned.
+  Clothes stay equipped when the stance changes. Garments stretch using
+  lidollquest's silhouette algorithm; stockings and shoes follow the legs.
 - Feed, play, rest and fresh changes are free. Food and water have 30-second
   cooldowns; play and rest use activity timers. Fullness, energy, comfort and happiness decrease gradually offline,
   stopping at zero. There is no death or loss of collectibles. Changes do not
@@ -91,7 +94,7 @@ can appear under more than one complete garment. Exact duplicate art is not
 added again, and existing IDs and handler tuning remain stable across imports.
 
 The manifest records each source path, native image dimensions, gallery crop
-bounds, constituent garment sections, compatible stances and diaper mappings.
+bounds, constituent garment sections, native art stances and diaper mappings.
 The initial 20 wide diapers were selected from inspected silhouettes with an
 alpha-bound bottom beyond row 505. This threshold bootstraps the explicit manifest;
 the game uses the manifest's saved `stance`, not a runtime size guess.
@@ -102,9 +105,13 @@ All other diaper designs use full-canvas wearable overlays.
 Body and wearable layers use their original 387 × 875 coordinates. Never stretch
 a narrow body sideways to fit a diaper. Hair style 4 draws its back before the
 body and its front below headwear. Clothing covers lower layers normally.
-Stockings and most bottoms/long dresses are conservatively restricted to narrow
-stance until their alternate fit is reviewed. Wide roller skates supply one
-explicit alternate footwear option.
+Clothes are wearable in either stance. The shared renderer compares garment and
+diaper alpha silhouettes, smooths horizontal band stretching, preserves sleeve
+positions and applies dress hem drop. Detailed-hem exceptions follow lidollquest.
+Stockings and shoes also move with each leg when the base changes;
+native wide roller skates remain registered to the wide base. A short garment
+may still expose part of a very large diaper, as in the reference fitting rules.
+Browser dolls, Discord PNGs and editor previews share the same fitting plan.
 
 ## Modding tools
 
@@ -116,6 +123,7 @@ Python, Pillow, Tkinter and Node.js. Run:
 py -3.11 python/game_editor_gui.py
 py -3.11 python/game_editor_gui.py --validate
 py -3.11 python/scan_dressup_assets.py
+py -3.11 python/bake_clothing_profiles.py
 py -3.11 python/import_dressup_assets.py --source C:\Users\langley\GameMakerProjects\extraAssets\Figures
 ```
 
@@ -129,8 +137,11 @@ margins; IDs must never be reused for different garments. Retain retired art and
 manifest records for existing owners. The runtime pool consists of wearable
 overlays; standalone Items illustrations do not become additional wearable
 copies of the same designs. New clothing fit defaults use upper-body alpha bounds
-and slot rules, with conservative narrow fits for leg-dependent garments. These
-are editable defaults; the entire expanded catalog has not had every possible
+and slot rules to record native artwork stances, not equip restrictions. Imported
+`clothing-fit-rules.json` supplies detailed/extended hem defaults; catalog `warp`
+(`auto` or `none`) and `warpFullHem` values override them. Rebuild and ship
+`fit-profiles.json` after changes to source art or diaper registration rectangles.
+These are editable defaults; the entire expanded catalog has not had every possible
 outfit combination visually reviewed.
 
 ## Economy and operation
