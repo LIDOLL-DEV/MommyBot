@@ -1,5 +1,12 @@
 # MommyBot player checklist
 
+- To address Sakura directly, mention her, begin with **Sakura, ...**, or use
+  Discord **Reply** on her message. Reply works even with the reply ping off.
+  Short answers can continue a recent exchange; you do not need to tag every
+  turn. She should leave conversations addressed to other members alone and
+  let closing remarks end an exchange. The configured chat-channel gate still
+  applies, including to DMs.
+
 - Open **/menu → Prism Drop**, `/balldrop`, or `/balldrop/login` in your browser.
   Pick pocket 1-10 and bet 1, 5, 10, 25, 50 or 100 coins. The ball starts at a
   random pin from 4-7 on the 10-by-20 field. Exact guesses return 2x, one away

@@ -1,5 +1,13 @@
 # NPC dialogue notes
 
+## Sakura conversation turns
+
+Sakura's router distinguishes an invitation to speak from a conversation
+between other members. Recent questions and their answers can continue without
+repeated pings; thanks, laughter and goodbye can end the exchange. A third-person
+mention of Sakura is not automatically a request to her. Keep these turn-taking
+rules in `src/graph/router.js`; the chat persona stays in `src/graph/prompt.js`.
+
 Prism Drop has fixed instructions and result text in `src/balldrop/web/app.js`.
 There is no NPC conversation or modding GUI for this game. Keep exact landing,
 gross return, rounded payouts and pending-credit wording tied to server state;

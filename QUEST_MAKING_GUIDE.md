@@ -1,5 +1,11 @@
 # Quest-making notes
 
+## Ordinary conversation
+
+Chat categorization is not a quest event. A respond/skip decision grants no
+progress or coins; both silently skipped messages and free-form replies remain
+independent of the game economy.
+
 Prism Drop wagers return 2x, rounded-up 1.5x, 1x or zero according to landing
 distance. These are wallet-journal game payouts, not quest rewards. Replaying a
 saved animation must never award progress or additional coins. Any future quest

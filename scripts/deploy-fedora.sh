@@ -120,7 +120,7 @@ trap 'exit 143' TERM
 
 install -d -o mommybot -g mommybot -m 0755 "$release"
 # Copy only application inputs, so local credentials, databases and node_modules stay out.
-tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs | tar -C "$release" -xf -
+tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs scripts/check-router.mjs scripts/fixtures | tar -C "$release" -xf -
 revision=$(git -c safe.directory="$source_dir" -C "$source_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)
 modified=$(git -c safe.directory="$source_dir" -C "$source_dir" status --porcelain 2>/dev/null || true)
 node --input-type=module - "$release/release.json" "$revision" "$stamp" "$modified" <<'NODE'
@@ -129,9 +129,9 @@ fs.writeFileSync(process.argv[2], JSON.stringify({ revision: process.argv[3], de
 NODE
 # Record which checkout supplied the running code, including manually deployed local changes.
 if [[ -d "$source_dir/test" ]]; then
-    tar -C "$source_dir" -cf - test scripts/fixtures | tar -C "$release" -xf -
+    tar -C "$source_dir" -cf - test | tar -C "$release" -xf -
 fi
-# Include shared collision fixtures so release tests load the same inputs as checkout tests.
+# Shared fixtures ship with diagnostics above, including when release tests are omitted.
 chown -R mommybot:mommybot "$release"
 cd -- "$release"
 runuser -u mommybot -- env HOME="$state" npm ci --omit=dev --no-audit --no-fund

@@ -1,5 +1,15 @@
 # Contributing to MommyBot
 
+## Chat routing
+
+Keep routing policy in `src/graph/router.js` and bounded Discord context in
+`src/bot/conversation.js`. The handler supplies fresh context on every turn,
+serializes each member's checkpoint updates and sends only an assistant message
+from an explicit respond route. Never use cleaned user text or a previous
+assistant message as evidence that the current turn should be sent.
+Classifier failures stay silent; direct addresses bypass classification. See
+[GENERATION_TUNING_GUIDE.md](GENERATION_TUNING_GUIDE.md) for prompts and diagnostics.
+
 The application is an ES-module Node.js Discord bot. Runtime code lives under
 `src/`; dependency versions are declared in `package.json` and resolved in
 `package-lock.json`. Keep both in sync and use `npm ci` to reproduce installs.

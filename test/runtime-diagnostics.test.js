@@ -59,7 +59,7 @@ test("swear jar startup explains inactive dependencies, a deliberate pause and a
   assert.match(swearJarStatus({}, { wallet: true, identities: true }), /ON/);
 });
 
-test("chat and router failures log nested network codes and keep their user-facing fallback behavior", async t => {
+test("chat failures retain retry text while router failures stay silent and log nested network codes", async t => {
   const errors = [];
   t.mock.method(console, "error", (...args) => errors.push(args.join(" ")));
   t.mock.method(console, "log", () => {});
@@ -68,7 +68,8 @@ test("chat and router failures log nested network codes and keep their user-faci
     throw new Error("PRIVATE", { cause: Object.assign(new Error(), { code: "ENETUNREACH" }) });
   });
   const state = { messages: [new HumanMessage("Are you there?")], force_respond: false };
-  assert.equal((await routerNode(state)).next, "sakura_llm");
+  assert.equal((await routerNode(state)).next, "__end__");
+  assert.equal((await routerNode({ ...state, force_respond: true })).next, "sakura_llm"); // A router outage must not disable direct invitations.
   assert.match((await sakuraLLMNode(state)).messages[0].content, /couldn't reach her brain/);
   assert.equal(errors.length, 2); assert.ok(errors.every(line => line.includes("ENETUNREACH") && !line.includes("PRIVATE")));
 });

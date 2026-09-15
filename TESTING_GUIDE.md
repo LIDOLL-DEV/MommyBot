@@ -1,5 +1,26 @@
 # Testing MommyBot
 
+## Conversational routing
+
+Run `node --test test/router.test.js test/conversation-memory.test.js` for
+direct addresses, unpinged replies, follow-ups, side conversations, closures,
+bounded channel context, history failures, strict label parsing, inference
+failures, serialized turns and prevention of accidental user echoes. These
+tests use synthetic Discord objects and model responses with disposable
+SQLite; they verify plumbing and policy, not real-model accuracy.
+
+After deployment, run:
+
+```bash
+sudo -u mommybot node /opt/mommybot/current/scripts/check-router.mjs /etc/mommybot/mommybot.env
+```
+
+The check sends 17 synthetic scenarios through the router, with model inference
+where needed, and sends no Discord messages. Report mismatches by scenario name
+and routing reason. `invalid_decision` means the model did not return a usable
+label; `router_unavailable` indicates configuration, network or server failure.
+Check ordinary unpinged turns as well as direct mentions when assessing quality.
+
 ## Prism Drop
 
 Run `node --test test/balldrop.test.js` for all bet/payout distances and rounding,
@@ -30,8 +51,8 @@ loads, mute during replay, remembered preferences, reduced-motion landing audio
 and playable wagers when audio devices or browser storage fail. Manually listen
 with your preferred speakers/headphones to check the mix.
 
-The Fedora installer copies `scripts/fixtures/` alongside `test/` before running
-the release tests. Keep shared fixture files in that package; omitting the
+The Fedora installer includes `scripts/fixtures/` with its diagnostic scripts
+and copies `test/` before running the release tests. Keep shared fixture files in that package; omitting the
 ball-drop layout causes the entire test file to fail during module loading.
 
 ## Little Log nightly reports

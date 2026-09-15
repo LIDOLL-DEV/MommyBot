@@ -1,5 +1,40 @@
 # MommyBot generation tuning
 
+## Conversational routing
+
+`src/graph/router.js` decides whether ordinary chat merits a reply. Direct
+mentions, Discord replies to Sakura (including replies with ping disabled), DMs
+and an opening address by name bypass the model. Replies/mentions aimed at
+other members, bot commands, link-only posts and plain closing acknowledgements
+stay quiet. Short answers to her recent question can continue without a ping.
+Complete acknowledgements such as "that helped, thank you" also close a turn;
+gratitude with a new question or concern still goes to the classifier. Two
+recent turns between this member and another human stay their conversation
+unless the latest message directly addresses Sakura or openly invites company
+(for example, "can anyone help?"). These checks avoid relying on model politeness
+to decide whether to interrupt or add another "you're welcome".
+The existing `CHANNEL_ID` gate still controls which channels reach chat routing.
+
+The classifier receives up to 12 recent messages from this channel, covering
+five minutes, with speaker labels, ages, mentions and the reply target. History
+reads have a 1.5-second limit and fall back to the channel cache. Missing
+history permissions reduce context; they do not disable direct addresses.
+Old per-member memory is retained for chat but never used as proof that a
+channel conversation is still active. Recent-question shortcuts expire after
+two minutes and apply only to the intended member.
+
+`ROUTER_LAMA_URL` remains the router endpoint; optional `ROUTER_MODEL` overrides
+`LLAMA_MODEL` for classification. Temperature is zero, thinking is disabled,
+and the 64-token response has no whitespace stop tokens. The decision must be
+a complete respond/skip label. Blank, reasoning-only, malformed, timeout and
+HTTP-error responses stay quiet. Direct addresses still work during a router
+outage. Each route logs a reason without logging the private model output.
+
+Run `node scripts/check-router.mjs /path/to/mommybot.env` to evaluate the actual
+model on 17 synthetic exchanges without posting to Discord. This is a small
+regression set, not a guarantee of conversational judgement. Add anonymized
+examples to `scripts/fixtures/router-conversations.json` when tuning the prompt.
+
 ## Prism Drop
 
 Prism Drop uses authored UI text and cryptographically random server bounces;
