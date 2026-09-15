@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "canvas": [
     387,
     875
@@ -69,6 +69,7 @@
       "id": "cloud-tapes",
       "image": "DQ_Clothing_SmallDiaper1_1.png",
       "stance": "narrow",
+      "bulk": 2,
       "bounds": [
         106,
         364,
@@ -80,6 +81,7 @@
       "id": "sweetheart-blue",
       "image": "DQ_Clothing_SmallDiaper2_1.png",
       "stance": "narrow",
+      "bulk": 2,
       "bounds": [
         106,
         364,
@@ -91,6 +93,7 @@
       "id": "cupcake-pink",
       "image": "DQ_Clothing_SmallDiaper3_1.png",
       "stance": "narrow",
+      "bulk": 2,
       "bounds": [
         106,
         364,
@@ -102,6 +105,7 @@
       "id": "ribbon-cloud",
       "image": "DQ_Clothing_MoosiveDiaper1_1.png",
       "stance": "wide",
+      "bulk": 8,
       "bounds": [
         78,
         347,
@@ -113,6 +117,7 @@
       "id": "duckling-parade",
       "image": "DQ_Clothing_MoosiveDiaper2_1.png",
       "stance": "wide",
+      "bulk": 8,
       "bounds": [
         78,
         347,
@@ -124,6 +129,7 @@
       "id": "lime-teddy",
       "image": "DQ_Clothing_MoosiveDiaper3_1.png",
       "stance": "wide",
+      "bulk": 8,
       "bounds": [
         78,
         347,
@@ -135,6 +141,7 @@
       "id": "woodland-daydream",
       "image": "DQ_Clothing_MoosiveDiaper4_1.png",
       "stance": "wide",
+      "bulk": 8,
       "bounds": [
         74,
         349,
@@ -146,6 +153,7 @@
       "id": "golden-petticoat",
       "image": "DQ_Clothing_RubberDiaper_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         90,
         364,
@@ -157,6 +165,7 @@
       "id": "sunbeam-shell",
       "image": "DQ_Clothing_GhostDiaper1_1.png",
       "stance": "wide",
+      "bulk": 3,
       "bounds": [
         91,
         329,
@@ -168,6 +177,7 @@
       "id": "slime-sprout",
       "image": "DQ_Clothing_SlimeDiaper_1.png",
       "stance": "wide",
+      "bulk": 3,
       "bounds": [
         92,
         346,
@@ -179,6 +189,7 @@
       "id": "berry-bloomers",
       "image": "DQ_Clothing_GiantDiaper1_1.png",
       "stance": "wide",
+      "bulk": 6,
       "bounds": [
         76,
         343,
@@ -190,6 +201,7 @@
       "id": "pearl-bloomers",
       "image": "DQ_Clothing_GiantDiaper2_1.png",
       "stance": "wide",
+      "bulk": 6,
       "bounds": [
         76,
         343,
@@ -201,6 +213,7 @@
       "id": "lavender-dots",
       "image": "DQ_Clothing_GiantDiaper3_1.png",
       "stance": "wide",
+      "bulk": 6,
       "bounds": [
         76,
         343,
@@ -212,6 +225,7 @@
       "id": "berry-spell",
       "image": "diaper2d.png",
       "stance": "wide",
+      "bulk": 6,
       "rect": [
         76,
         343,
@@ -230,6 +244,7 @@
       "id": "bubblegum-balloons",
       "image": "DQ_Clothing_GiantDiaper4_1.png",
       "stance": "wide",
+      "bulk": 6,
       "bounds": [
         78,
         349,
@@ -241,6 +256,7 @@
       "id": "ribbon-bouquet",
       "image": "DQ_Clothing_WaddleDiaper1_1.png",
       "stance": "wide",
+      "bulk": 10,
       "bounds": [
         52,
         324,
@@ -252,6 +268,7 @@
       "id": "starlight-sachet",
       "image": "DQ_Clothing_WaddleDiaper2_Large_1.png",
       "stance": "wide",
+      "bulk": 10,
       "bounds": [
         52,
         324,
@@ -263,6 +280,7 @@
       "id": "buttercup-garden",
       "image": "DQ_Clothing_WaddleDiaper3_Large_1.png",
       "stance": "wide",
+      "bulk": 10,
       "bounds": [
         52,
         324,
@@ -274,6 +292,7 @@
       "id": "bluebell-wrap",
       "image": "DQ_Clothing_VelcroDiaper1_1.png",
       "stance": "wide",
+      "bulk": 3,
       "bounds": [
         95,
         352,
@@ -285,6 +304,7 @@
       "id": "rose-lace",
       "image": "DQ_Clothing_VelcroDiaper2_1.png",
       "stance": "wide",
+      "bulk": 3,
       "bounds": [
         95,
         352,
@@ -296,6 +316,7 @@
       "id": "midnight-magic",
       "image": "DQ_Clothing_VelcroDiaper3_1.png",
       "stance": "wide",
+      "bulk": 3,
       "bounds": [
         95,
         352,
@@ -307,6 +328,7 @@
       "id": "cocoa-buttons",
       "image": "DQ_Clothing_BunnyDiaper1_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         105,
         354,
@@ -318,6 +340,7 @@
       "id": "bunny-buttons",
       "image": "DQ_Clothing_BunnyDiaper2_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         105,
         354,
@@ -329,6 +352,7 @@
       "id": "twilight-buttons",
       "image": "DQ_Clothing_BunnyDiaper3_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         105,
         354,
@@ -340,6 +364,7 @@
       "id": "cotton-cloud",
       "image": "DQ_Clothing_ClothDiaper1_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         95,
         360,
@@ -351,6 +376,7 @@
       "id": "confetti-cloth",
       "image": "DQ_Clothing_ClothDiaper2_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         95,
         360,
@@ -362,6 +388,7 @@
       "id": "sleepy-blue",
       "image": "DQ_Clothing_ClothDiaper3_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         95,
         360,
@@ -373,6 +400,7 @@
       "id": "rosy-ribbons",
       "image": "DQ_Clothing_HugeDiaper1_1.png",
       "stance": "wide",
+      "bulk": 5,
       "bounds": [
         92,
         350,
@@ -384,6 +412,7 @@
       "id": "party-petals",
       "image": "DQ_Clothing_HugeDiaper2_1.png",
       "stance": "wide",
+      "bulk": 5,
       "bounds": [
         92,
         350,
@@ -395,6 +424,7 @@
       "id": "clover-playtime",
       "image": "DQ_Clothing_HugeDiaper3_1.png",
       "stance": "wide",
+      "bulk": 5,
       "bounds": [
         92,
         350,
@@ -406,6 +436,7 @@
       "id": "pink-cloud",
       "image": "DQ_Clothing_LargeDiaper1_1.png",
       "stance": "narrow",
+      "bulk": 4,
       "bounds": [
         99,
         359,
@@ -417,6 +448,7 @@
       "id": "unicorn-nap",
       "image": "DQ_Clothing_LargeDiaper2_1.png",
       "stance": "narrow",
+      "bulk": 4,
       "bounds": [
         99,
         359,
@@ -428,6 +460,7 @@
       "id": "moonlit-kitty",
       "image": "DQ_Clothing_LargeDiaper3_1.png",
       "stance": "narrow",
+      "bulk": 4,
       "bounds": [
         99,
         359,
@@ -439,6 +472,7 @@
       "id": "candy-cloud",
       "image": "DQ_Clothing_MediumDiaper1_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         105,
         364,
@@ -450,6 +484,7 @@
       "id": "lilac-snowflakes",
       "image": "DQ_Clothing_MediumDiaper2_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         105,
         364,
@@ -461,6 +496,7 @@
       "id": "pastel-playdate",
       "image": "DQ_Clothing_MediumDiaper3_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         105,
         364,
@@ -472,6 +508,7 @@
       "id": "princess-ribbon",
       "image": "DQ_Clothing_DiaperCover4_1.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         96,
         341,
@@ -483,6 +520,7 @@
       "id": "teddy-keepsake",
       "image": "DQ_Clothing_DiaperCover3_1.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         95,
         344,
@@ -494,6 +532,7 @@
       "id": "pumpkin-lace",
       "image": "DQ_Clothing_DiaperCover1_1.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         89,
         347,
@@ -505,6 +544,7 @@
       "id": "batty-baby",
       "image": "DQ_Clothing_DiaperCover2_1.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         97,
         348,
@@ -516,6 +556,7 @@
       "id": "plum-training",
       "image": "TQ_Clothing_Knickers_TrainingPants_1.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         101,
         367,
@@ -527,6 +568,7 @@
       "id": "bunny-training",
       "image": "TQ_Clothing_Knickers_TrainingPants_2.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         103,
         351,
@@ -538,6 +580,7 @@
       "id": "unicorn-training",
       "image": "TQ_Clothing_Knickers_TrainingPants_3.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         103,
         351,
@@ -549,6 +592,7 @@
       "id": "sweetheart-training",
       "image": "TQ_Clothing_Knickers_TrainingPants_4.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         103,
         351,
@@ -560,6 +604,7 @@
       "id": "royal-blue",
       "image": "TQ_Clothing_Knickers_TrainingPants_Sexy.png",
       "stance": "narrow",
+      "bulk": 1,
       "bounds": [
         98,
         384,
@@ -571,6 +616,7 @@
       "id": "ladybird",
       "image": "TQ_Clothing_Knickers_Diapers_Ladybird.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         96,
         348,
@@ -582,6 +628,7 @@
       "id": "royal-rose",
       "image": "TQ_Clothing_Knickers_Diaper_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         92,
         356,
@@ -593,6 +640,7 @@
       "id": "midnight-bows",
       "image": "TQ_Clothing_Knickers_Diaper_2.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         98,
         356,
@@ -604,6 +652,7 @@
       "id": "violet-castle",
       "image": "TQ_Clothing_Knickers_Diaper_3.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         92,
         309,
@@ -615,6 +664,7 @@
       "id": "berry-bows",
       "image": "TQ_Clothing_Knickers_Diaper_4.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         98,
         356,
@@ -626,6 +676,7 @@
       "id": "teddy-picnic",
       "image": "TQ_Clothing_Knickers_Diaper_5.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         98,
         345,
@@ -637,6 +688,7 @@
       "id": "heart-confetti",
       "image": "TQ_Clothing_Knickers_Diaper_27.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         103,
         351,
@@ -648,6 +700,7 @@
       "id": "pearl-buttons",
       "image": "TQ_Clothing_Knickers_Diaper_Bunny_2.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         105,
         354,
@@ -659,6 +712,7 @@
       "id": "vanilla-cloth",
       "image": "TQ_Clothing_Knickers_Diaper_Cloth_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         95,
         360,
@@ -670,6 +724,7 @@
       "id": "lemon-checks",
       "image": "TQ_Clothing_Knickers_Diaper_Cloth_3.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         95,
         360,
@@ -681,6 +736,7 @@
       "id": "holiday-ribbons",
       "image": "TQ_Clothing_Knickers_Diaper_Xmas_1.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         86,
         343,
@@ -692,6 +748,7 @@
       "id": "reindeer-cuddles",
       "image": "TQ_Clothing_Knickers_Diaper_Xmas_2.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         92,
         337,
@@ -703,6 +760,7 @@
       "id": "winter-wishes",
       "image": "TQ_Clothing_Knickers_Diaper_Xmas_3.png",
       "stance": "narrow",
+      "bulk": 3,
       "bounds": [
         92,
         342,
@@ -16254,2364 +16312,6 @@
       ]
     },
     {
-      "id": "newtq-clothing-knickers-microshorts-xmas",
-      "name": "Knickers Micro Shorts Xmas",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "NEWTQ_Clothing_Knickers_MicroShorts_Xmas.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        121,
-        378,
-        268,
-        472
-      ]
-    },
-    {
-      "id": "tq-clothing-giantteddy-1",
-      "name": "Giant Teddy 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_GiantTeddy_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        9,
-        121,
-        360,
-        622
-      ]
-    },
-    {
-      "id": "tq-clothing-giantteddy-2",
-      "name": "Giant Teddy 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_GiantTeddy_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        9,
-        121,
-        360,
-        622
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-1",
-      "name": "Knickers Bikini Briefs 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        93,
-        386,
-        286,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-2",
-      "name": "Knickers Bikini Briefs 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        388,
-        269,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-3",
-      "name": "Knickers Bikini Briefs 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        121,
-        386,
-        268,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-4",
-      "name": "Knickers Bikini Briefs 4",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_4.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        121,
-        386,
-        268,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-5",
-      "name": "Knickers Bikini Briefs 5",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_5.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        104,
-        383,
-        278,
-        468
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-6",
-      "name": "Knickers Bikini Briefs 6",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_6.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        383,
-        266,
-        470
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-7",
-      "name": "Knickers Bikini Briefs 7",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_7.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        123,
-        388,
-        266,
-        462
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bikinibriefs-8",
-      "name": "Knickers Bikini Briefs 8",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_BikiniBriefs_8.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        100,
-        384,
-        283,
-        465
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bloomers-1",
-      "name": "Knickers Bloomers 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Bloomers_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        88,
-        344,
-        283,
-        536
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-bloomers-2",
-      "name": "Knickers Bloomers 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Bloomers_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        97,
-        384,
-        275,
-        582
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-1",
-      "name": "Knickers Briefs 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-10",
-      "name": "Knickers Briefs 10",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_10.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        111,
-        386,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-11",
-      "name": "Knickers Briefs 11",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_11.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        109,
-        386,
-        275,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-12",
-      "name": "Knickers Briefs 12",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_12.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        347,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-13",
-      "name": "Knickers Briefs 13",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_13.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-14",
-      "name": "Knickers Briefs 14",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_14.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-15",
-      "name": "Knickers Briefs 15",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_15.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-16",
-      "name": "Knickers Briefs 16",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_16.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-19",
-      "name": "Knickers Briefs 19",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_19.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        389,
-        272,
-        470
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-2",
-      "name": "Knickers Briefs 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        385,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-3",
-      "name": "Knickers Briefs 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        106,
-        399,
-        275,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-4",
-      "name": "Knickers Briefs 4",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_4.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        103,
-        378,
-        279,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-5",
-      "name": "Knickers Briefs 5",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_5.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        385,
-        275,
-        472
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-6",
-      "name": "Knickers Briefs 6",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_6.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        362,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-7",
-      "name": "Knickers Briefs 7",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_7.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        102,
-        361,
-        276,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-8",
-      "name": "Knickers Briefs 8",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_8.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        105,
-        377,
-        274,
-        475
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-9",
-      "name": "Knickers Briefs 9",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_9.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        109,
-        386,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-bbc",
-      "name": "Knickers Briefs BBC",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_BBC.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        386,
-        271,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-blowjobqueen",
-      "name": "Knickers Briefs Blowjob Queen",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_BlowjobQueen.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        103,
-        364,
-        277,
-        477
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-breedme",
-      "name": "Knickers Briefs Breed Me",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_BreedMe.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        103,
-        375,
-        277,
-        477
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-daddyanalwhore",
-      "name": "Knickers Briefs Daddy Anal Whore",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_DaddyAnalWhore.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-daddygirl",
-      "name": "Knickers Briefs Daddy Girl",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_DaddyGirl.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        107,
-        369,
-        275,
-        476
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-getaroom",
-      "name": "Knickers Briefs Get ARoom",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_GetARoom.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        373,
-        267,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-hellokitty",
-      "name": "Knickers Briefs Hello Kitty",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_HelloKitty.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        119,
-        369,
-        271,
-        472
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-hole",
-      "name": "Knickers Briefs Hole",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Hole.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        372,
-        267,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-loveboys",
-      "name": "Knickers Briefs Love Boys",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_LoveBoys.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        367,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-lucky",
-      "name": "Knickers Briefs Lucky",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Lucky.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        367,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-ovaries-black",
-      "name": "Knickers Briefs Ovaries Black",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Ovaries_Black.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-ovaries-white",
-      "name": "Knickers Briefs Ovaries White",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Ovaries_White.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        372,
-        267,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-pinkkitty",
-      "name": "Knickers Briefs Pink Kitty",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_PinkKitty.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-suckingcock",
-      "name": "Knickers Briefs Sucking Cock",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_SuckingCock.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        109,
-        365,
-        275,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-surething",
-      "name": "Knickers Briefs Sure Thing",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_SureThing.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-thirsty",
-      "name": "Knickers Briefs Thirsty",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Thirsty.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        109,
-        358,
-        273,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-tongue-1a",
-      "name": "Knickers Briefs Tongue 1a",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Tongue_1a.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        102,
-        370,
-        278,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-tongue-1b",
-      "name": "Knickers Briefs Tongue 1b",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Tongue_1b.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        102,
-        370,
-        278,
-        479
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-tongue-2a",
-      "name": "Knickers Briefs Tongue 2a",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Tongue_2a.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        102,
-        370,
-        278,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-tongue-2b",
-      "name": "Knickers Briefs Tongue 2b",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Tongue_2b.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        102,
-        370,
-        278,
-        479
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-tonight",
-      "name": "Knickers Briefs Tonight",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_Tonight.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        370,
-        267,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-trickme",
-      "name": "Knickers Briefs Trick Me",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_TrickMe.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        383,
-        275,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-upallnight",
-      "name": "Knickers Briefs Up All Night",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_UpAllNight.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        369,
-        267,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-wantitall",
-      "name": "Knickers Briefs Want It All",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_WantItAll.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-briefs-wokeup",
-      "name": "Knickers Briefs Woke Up",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Briefs_WokeUp.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-codpiece-1",
-      "name": "Knickers Codpiece 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Codpiece_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        100,
-        399,
-        274,
-        482
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotch-rope-1",
-      "name": "Knickers Crotch Rope 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotch_Rope_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        390,
-        266,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotchless-1",
-      "name": "Knickers Crotchless 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotchless_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        395,
-        274,
-        477
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotchless-2",
-      "name": "Knickers Crotchless 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotchless_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        107,
-        389,
-        277,
-        460
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotchless-3",
-      "name": "Knickers Crotchless 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotchless_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        116,
-        389,
-        270,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotchless-4",
-      "name": "Knickers Crotchless 4",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotchless_4.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        105,
-        379,
-        274,
-        482
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotchless-5",
-      "name": "Knickers Crotchless 5",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotchless_5.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        115,
-        386,
-        270,
-        483
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotchless-6",
-      "name": "Knickers Crotchless 6",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotchless_6.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        125,
-        385,
-        265,
-        465
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-crotchless-7",
-      "name": "Knickers Crotchless 7",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Crotchless_7.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        118,
-        391,
-        268,
-        464
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-cutoffs-1",
-      "name": "Knickers Cutoffs 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Cutoffs_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        397,
-        271,
-        470
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-cutoffs-2",
-      "name": "Knickers Cutoffs 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Cutoffs_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        97,
-        394,
-        276,
-        483
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-cutoffs-3a",
-      "name": "Knickers Cutoffs 3a",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Cutoffs_3a.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        97,
-        388,
-        274,
-        484
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-cutoffs-3b",
-      "name": "Knickers Cutoffs 3b",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Cutoffs_3b.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        97,
-        388,
-        274,
-        484
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-facehugger-2",
-      "name": "Knickers Facehugger 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Facehugger_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        375,
-        273,
-        483
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-1",
-      "name": "Knickers GString 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        118,
-        390,
-        269,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-2",
-      "name": "Knickers GString 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        384,
-        269,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-3",
-      "name": "Knickers GString 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        116,
-        383,
-        273,
-        470
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-4",
-      "name": "Knickers GString 4",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_4.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        118,
-        391,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-5",
-      "name": "Knickers GString 5",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_5.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        115,
-        387,
-        272,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-6",
-      "name": "Knickers GString 6",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_6.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        118,
-        390,
-        269,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-7",
-      "name": "Knickers GString 7",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_7.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        115,
-        391,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-8",
-      "name": "Knickers GString 8",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_8.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        118,
-        391,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-9",
-      "name": "Knickers GString 9",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_9.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        118,
-        390,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-bemine",
-      "name": "Knickers GString Be Mine",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_BeMine.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        113,
-        394,
-        271,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-gstring-toomuchfun",
-      "name": "Knickers GString Too Much Fun",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_GString_TooMuchFun.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        115,
-        396,
-        271,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-hotpants-1",
-      "name": "Knickers Hotpants 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Hotpants_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        105,
-        383,
-        275,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-hotpants-2",
-      "name": "Knickers Hotpants 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Hotpants_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        121,
-        368,
-        267,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-hotpants-3",
-      "name": "Knickers Hotpants 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Hotpants_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        102,
-        386,
-        275,
-        474
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-hotpants-4",
-      "name": "Knickers Hotpants 4",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Hotpants_4.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        100,
-        380,
-        278,
-        475
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-meattoilet-1",
-      "name": "Knickers Meat Toilet 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_MeatToilet_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        109,
-        389,
-        272,
-        478
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-meattoilet-2",
-      "name": "Knickers Meat Toilet 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_MeatToilet_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        109,
-        389,
-        272,
-        476
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-meattoilet-3",
-      "name": "Knickers Meat Toilet 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_MeatToilet_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        109,
-        389,
-        272,
-        476
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-microshorts-black",
-      "name": "Knickers Micro Shorts Black",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_MicroShorts_Black.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        372,
-        267,
-        469
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-microshorts-gold",
-      "name": "Knickers Micro Shorts Gold",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_MicroShorts_Gold.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        372,
-        267,
-        469
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-missing",
-      "name": "Knickers Missing",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Missing.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        362,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plasticpants-1",
-      "name": "Knickers Plastic Pants 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlasticPants_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        97,
-        353,
-        283,
-        501
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plasticpants-2",
-      "name": "Knickers Plastic Pants 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlasticPants_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plasticpants-3",
-      "name": "Knickers Plastic Pants 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlasticPants_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plasticpants-4",
-      "name": "Knickers Plastic Pants 4",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlasticPants_4.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plasticpants-5",
-      "name": "Knickers Plastic Pants 5",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlasticPants_5.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plasticpants-6",
-      "name": "Knickers Plastic Pants 6",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlasticPants_6.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        89,
-        347,
-        292,
-        492
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plugpanties-1a",
-      "name": "Knickers Plug Panties 1a",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlugPanties_1a.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        376,
-        272,
-        469
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plugpanties-1b",
-      "name": "Knickers Plug Panties 1b",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlugPanties_1b.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        376,
-        272,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plugpanties-1c",
-      "name": "Knickers Plug Panties 1c",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlugPanties_1c.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        376,
-        272,
-        571
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plugpanties-1d",
-      "name": "Knickers Plug Panties 1d",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlugPanties_1d.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        376,
-        272,
-        571
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plugpanties-2",
-      "name": "Knickers Plug Panties 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlugPanties_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        124,
-        381,
-        266,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plugpanties-3a",
-      "name": "Knickers Plug Panties 3a",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlugPanties_3a.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        124,
-        388,
-        265,
-        469
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-plugpanties-3b",
-      "name": "Knickers Plug Panties 3b",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PlugPanties_3b.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        124,
-        388,
-        265,
-        530
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-portalhotpants",
-      "name": "Knickers Portal Hotpants",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PortalHotpants.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        369,
-        267,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-portalpants",
-      "name": "Knickers Portal Pants",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PortalPants.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        121,
-        375,
-        268,
-        477
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-pouchpanties",
-      "name": "Knickers Pouch Panties",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_PouchPanties.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        388,
-        264,
-        477
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-swimmingbottoms-1",
-      "name": "Knickers Swimming Bottoms 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_SwimmingBottoms_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        97,
-        387,
-        274,
-        493
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-1",
-      "name": "Knickers Thong 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-10",
-      "name": "Knickers Thong 10",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_10.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        391,
-        272,
-        470
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-18",
-      "name": "Knickers Thong 18",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_18.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        111,
-        406,
-        270,
-        471
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-19",
-      "name": "Knickers Thong 19",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_19.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        103,
-        387,
-        275,
-        464
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-2",
-      "name": "Knickers Thong 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        112,
-        386,
-        273,
-        468
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-3",
-      "name": "Knickers Thong 3",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_3.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        113,
-        379,
-        273,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-4",
-      "name": "Knickers Thong 4",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_4.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-5",
-      "name": "Knickers Thong 5",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_5.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        115,
-        386,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-6",
-      "name": "Knickers Thong 6",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_6.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        389,
-        269,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-7",
-      "name": "Knickers Thong 7",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_7.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-8",
-      "name": "Knickers Thong 8",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_8.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        110,
-        386,
-        275,
-        468
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-9",
-      "name": "Knickers Thong 9",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_9.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-bigcocklover",
-      "name": "Knickers Thong Big Cock Lover",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_BigCockLover.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        389,
-        269,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-heart",
-      "name": "Knickers Thong Heart",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_Heart.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        387,
-        266,
-        465
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-oops",
-      "name": "Knickers Thong Oops",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_Oops.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        119,
-        390,
-        269,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-pretty",
-      "name": "Knickers Thong Pretty",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_Pretty.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        118,
-        385,
-        269,
-        467
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-spade",
-      "name": "Knickers Thong Spade",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_Spade.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        387,
-        266,
-        465
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-stripper-1",
-      "name": "Knickers Thong Stripper 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_Stripper_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        124,
-        385,
-        264,
-        465
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-stripper-2",
-      "name": "Knickers Thong Stripper 2",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_Stripper_2.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        124,
-        385,
-        264,
-        465
-      ]
-    },
-    {
-      "id": "tq-clothing-knickers-thong-surething",
-      "name": "Knickers Thong Sure Thing",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Knickers_Thong_SureThing.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        115,
-        389,
-        273,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-pants-white-1",
-      "name": "Pants White 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_Pants_White_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    {
-      "id": "tq-clothing-stringbowpanties-1",
-      "name": "String Bow Panties 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_StringBowPanties_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        120,
-        387,
-        268,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-tartanpanties-1",
-      "name": "Tartan Panties 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_TartanPanties_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        383,
-        267,
-        466
-      ]
-    },
-    {
-      "id": "tq-clothing-woolenpanties-1",
-      "name": "Woolen Panties 1",
-      "description": "A collectible underwear piece for your Littlepottchi wardrobe.",
-      "image": "TQ_Clothing_WoolenPanties_1.png",
-      "rarity": "common",
-      "slot": "underwear",
-      "stances": [
-        "narrow"
-      ],
-      "sprite": true,
-      "bounds": [
-        122,
-        374,
-        268,
-        473
-      ]
-    },
-    {
       "id": "newtq-clothing-lacebib-1",
       "name": "Lace Bib 1",
       "description": "A collectible accessory piece for your Littlepottchi wardrobe.",
@@ -21939,6 +19639,43 @@
         297,
         875
       ]
+    }
+  ],
+  "foods": [
+    {
+      "id": "apple",
+      "name": "Apple",
+      "image": "apple1.png",
+      "fullness": 30,
+      "joy": 3
+    },
+    {
+      "id": "banana",
+      "name": "Banana",
+      "image": "banana1.png",
+      "fullness": 35,
+      "joy": 3
+    },
+    {
+      "id": "cookie",
+      "name": "Cookie",
+      "image": "cookie1.png",
+      "fullness": 15,
+      "joy": 10
+    },
+    {
+      "id": "nuts",
+      "name": "Peanuts",
+      "image": "nuts1.png",
+      "fullness": 25,
+      "joy": 5
+    },
+    {
+      "id": "lunch",
+      "name": "Packed lunch",
+      "image": "baglunch1.png",
+      "fullness": 45,
+      "joy": 5
     }
   ],
   "provenance": {
@@ -41962,1709 +39699,6 @@
         449
       ]
     },
-    "NEWTQ_Clothing_Knickers_MicroShorts_Xmas.png": {
-      "source": "CW/Knickers/NEWTQ_Clothing_Knickers_MicroShorts_Xmas.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        121,
-        378,
-        268,
-        472
-      ]
-    },
-    "TQ_Clothing_GiantTeddy_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_GiantTeddy_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        9,
-        121,
-        360,
-        622
-      ]
-    },
-    "TQ_Clothing_GiantTeddy_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_GiantTeddy_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        9,
-        121,
-        360,
-        622
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        93,
-        386,
-        286,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        388,
-        269,
-        466
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        121,
-        386,
-        268,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_4.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_4.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        121,
-        386,
-        268,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_5.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_5.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        104,
-        383,
-        278,
-        468
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_6.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_6.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        383,
-        266,
-        470
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_7.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_7.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        123,
-        388,
-        266,
-        462
-      ]
-    },
-    "TQ_Clothing_Knickers_BikiniBriefs_8.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_8.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        100,
-        384,
-        283,
-        465
-      ]
-    },
-    "TQ_Clothing_Knickers_Bloomers_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        88,
-        344,
-        283,
-        536
-      ]
-    },
-    "TQ_Clothing_Knickers_Bloomers_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        97,
-        384,
-        275,
-        582
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_10.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_10.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        111,
-        386,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_11.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_11.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        109,
-        386,
-        275,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_12.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_12.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        347,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_13.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_13.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_14.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_14.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_15.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_15.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_16.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_16.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_19.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_19.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        389,
-        272,
-        470
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        385,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        106,
-        399,
-        275,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_4.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_4.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        103,
-        378,
-        279,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_5.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_5.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        385,
-        275,
-        472
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_6.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_6.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        362,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_7.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_7.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        102,
-        361,
-        276,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_8.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_8.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        105,
-        377,
-        274,
-        475
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_9.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_9.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        109,
-        386,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_BBC.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BBC.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        386,
-        271,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_BlowjobQueen.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BlowjobQueen.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        103,
-        364,
-        277,
-        477
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_BreedMe.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BreedMe.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        103,
-        375,
-        277,
-        477
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_DaddyAnalWhore.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyAnalWhore.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_DaddyGirl.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyGirl.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        107,
-        369,
-        275,
-        476
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_GetARoom.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_GetARoom.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        373,
-        267,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_HelloKitty.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_HelloKitty.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        119,
-        369,
-        271,
-        472
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Hole.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Hole.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        372,
-        267,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_LoveBoys.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_LoveBoys.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        367,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Lucky.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Lucky.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        367,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Ovaries_Black.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_Black.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Ovaries_White.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_White.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        372,
-        267,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_PinkKitty.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_PinkKitty.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_SuckingCock.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SuckingCock.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        109,
-        365,
-        275,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_SureThing.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SureThing.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Thirsty.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Thirsty.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        109,
-        358,
-        273,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Tongue_1a.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1a.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        102,
-        370,
-        278,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Tongue_1b.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1b.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        102,
-        370,
-        278,
-        479
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Tongue_2a.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2a.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        102,
-        370,
-        278,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Tongue_2b.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2b.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        102,
-        370,
-        278,
-        479
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_Tonight.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tonight.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        370,
-        267,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_TrickMe.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_TrickMe.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        383,
-        275,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_UpAllNight.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_UpAllNight.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        369,
-        267,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_WantItAll.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WantItAll.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Briefs_WokeUp.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WokeUp.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        365,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Codpiece_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Codpiece_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        100,
-        399,
-        274,
-        482
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotch_Rope_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotch_Rope_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        390,
-        266,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotchless_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        395,
-        274,
-        477
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotchless_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        107,
-        389,
-        277,
-        460
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotchless_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        116,
-        389,
-        270,
-        466
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotchless_4.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_4.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        105,
-        379,
-        274,
-        482
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotchless_5.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_5.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        115,
-        386,
-        270,
-        483
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotchless_6.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_6.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        125,
-        385,
-        265,
-        465
-      ]
-    },
-    "TQ_Clothing_Knickers_Crotchless_7.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_7.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        118,
-        391,
-        268,
-        464
-      ]
-    },
-    "TQ_Clothing_Knickers_Cutoffs_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        397,
-        271,
-        470
-      ]
-    },
-    "TQ_Clothing_Knickers_Cutoffs_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        97,
-        394,
-        276,
-        483
-      ]
-    },
-    "TQ_Clothing_Knickers_Cutoffs_3a.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3a.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        97,
-        388,
-        274,
-        484
-      ]
-    },
-    "TQ_Clothing_Knickers_Cutoffs_3b.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3b.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        97,
-        388,
-        274,
-        484
-      ]
-    },
-    "TQ_Clothing_Knickers_Facehugger_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Facehugger_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        375,
-        273,
-        483
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        118,
-        390,
-        269,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        384,
-        269,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        116,
-        383,
-        273,
-        470
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_4.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_4.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        118,
-        391,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_5.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_5.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        115,
-        387,
-        272,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_6.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_6.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        118,
-        390,
-        269,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_7.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_7.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        115,
-        391,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_8.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_8.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        118,
-        391,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_9.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_9.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        118,
-        390,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_BeMine.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_BeMine.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        113,
-        394,
-        271,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_GString_TooMuchFun.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_TooMuchFun.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        115,
-        396,
-        271,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Hotpants_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        105,
-        383,
-        275,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_Hotpants_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        121,
-        368,
-        267,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Hotpants_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        102,
-        386,
-        275,
-        474
-      ]
-    },
-    "TQ_Clothing_Knickers_Hotpants_4.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_4.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        100,
-        380,
-        278,
-        475
-      ]
-    },
-    "TQ_Clothing_Knickers_MeatToilet_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        109,
-        389,
-        272,
-        478
-      ]
-    },
-    "TQ_Clothing_Knickers_MeatToilet_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        109,
-        389,
-        272,
-        476
-      ]
-    },
-    "TQ_Clothing_Knickers_MeatToilet_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        109,
-        389,
-        272,
-        476
-      ]
-    },
-    "TQ_Clothing_Knickers_MicroShorts_Black.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Black.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        372,
-        267,
-        469
-      ]
-    },
-    "TQ_Clothing_Knickers_MicroShorts_Gold.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Gold.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        372,
-        267,
-        469
-      ]
-    },
-    "TQ_Clothing_Knickers_Missing.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Missing.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        362,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_Knickers_PlasticPants_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        97,
-        353,
-        283,
-        501
-      ]
-    },
-    "TQ_Clothing_Knickers_PlasticPants_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    "TQ_Clothing_Knickers_PlasticPants_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    "TQ_Clothing_Knickers_PlasticPants_4.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_4.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    "TQ_Clothing_Knickers_PlasticPants_5.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_5.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        101,
-        353,
-        278,
-        487
-      ]
-    },
-    "TQ_Clothing_Knickers_PlasticPants_6.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_6.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        89,
-        347,
-        292,
-        492
-      ]
-    },
-    "TQ_Clothing_Knickers_PlugPanties_1a.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1a.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        376,
-        272,
-        469
-      ]
-    },
-    "TQ_Clothing_Knickers_PlugPanties_1b.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1b.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        376,
-        272,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_PlugPanties_1c.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1c.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        376,
-        272,
-        571
-      ]
-    },
-    "TQ_Clothing_Knickers_PlugPanties_1d.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1d.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        376,
-        272,
-        571
-      ]
-    },
-    "TQ_Clothing_Knickers_PlugPanties_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        124,
-        381,
-        266,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_PlugPanties_3a.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3a.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        124,
-        388,
-        265,
-        469
-      ]
-    },
-    "TQ_Clothing_Knickers_PlugPanties_3b.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3b.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        124,
-        388,
-        265,
-        530
-      ]
-    },
-    "TQ_Clothing_Knickers_PortalHotpants.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PortalHotpants.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        369,
-        267,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_PortalPants.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PortalPants.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        121,
-        375,
-        268,
-        477
-      ]
-    },
-    "TQ_Clothing_Knickers_PouchPanties.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PouchPanties.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        388,
-        264,
-        477
-      ]
-    },
-    "TQ_Clothing_Knickers_SwimmingBottoms_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_SwimmingBottoms_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        97,
-        387,
-        274,
-        493
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_10.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_10.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        391,
-        272,
-        470
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_18.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_18.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        111,
-        406,
-        270,
-        471
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_19.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_19.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        103,
-        387,
-        275,
-        464
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        112,
-        386,
-        273,
-        468
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_3.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_3.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        113,
-        379,
-        273,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_4.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_4.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_5.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_5.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        115,
-        386,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_6.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_6.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        389,
-        269,
-        466
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_7.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_7.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_8.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_8.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        110,
-        386,
-        275,
-        468
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_9.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_9.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        117,
-        386,
-        270,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_BigCockLover.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_BigCockLover.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        389,
-        269,
-        466
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_Heart.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Heart.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        387,
-        266,
-        465
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_Oops.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Oops.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        119,
-        390,
-        269,
-        466
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_Pretty.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Pretty.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        118,
-        385,
-        269,
-        467
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_Spade.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Spade.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        387,
-        266,
-        465
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_Stripper_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        124,
-        385,
-        264,
-        465
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_Stripper_2.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_2.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        124,
-        385,
-        264,
-        465
-      ]
-    },
-    "TQ_Clothing_Knickers_Thong_SureThing.png": {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_SureThing.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        115,
-        389,
-        273,
-        466
-      ]
-    },
-    "TQ_Clothing_Pants_White_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_Pants_White_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        108,
-        393,
-        274,
-        473
-      ]
-    },
-    "TQ_Clothing_StringBowPanties_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_StringBowPanties_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        120,
-        387,
-        268,
-        466
-      ]
-    },
-    "TQ_Clothing_TartanPanties_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_TartanPanties_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        383,
-        267,
-        466
-      ]
-    },
-    "TQ_Clothing_WoolenPanties_1.png": {
-      "source": "CW/Knickers/TQ_Clothing_WoolenPanties_1.png",
-      "size": [
-        387,
-        875
-      ],
-      "bounds": [
-        122,
-        374,
-        268,
-        473
-      ]
-    },
     "NEWTQ_Clothing_LaceBib_1.png": {
       "source": "CW/Accessories/NEWTQ_Clothing_LaceBib_1.png",
       "size": [
@@ -45964,6 +41998,71 @@
         754,
         297,
         875
+      ]
+    },
+    "apple1.png": {
+      "source": "Items/Collectibles/apple1.png",
+      "size": [
+        269,
+        290
+      ],
+      "bounds": [
+        17,
+        22,
+        256,
+        275
+      ]
+    },
+    "banana1.png": {
+      "source": "Items/Collectibles/banana1.png",
+      "size": [
+        257,
+        202
+      ],
+      "bounds": [
+        16,
+        15,
+        240,
+        191
+      ]
+    },
+    "cookie1.png": {
+      "source": "Items/Collectibles/cookie1.png",
+      "size": [
+        256,
+        256
+      ],
+      "bounds": [
+        9,
+        12,
+        249,
+        254
+      ]
+    },
+    "nuts1.png": {
+      "source": "Items/Collectibles/nuts1.png",
+      "size": [
+        238,
+        266
+      ],
+      "bounds": [
+        36,
+        24,
+        206,
+        248
+      ]
+    },
+    "baglunch1.png": {
+      "source": "Items/Collectibles/baglunch1.png",
+      "size": [
+        68,
+        210
+      ],
+      "bounds": [
+        2,
+        2,
+        66,
+        208
       ]
     }
   }

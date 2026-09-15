@@ -25,6 +25,8 @@ class WardrobeImportTests(unittest.TestCase):
             art("CW/Dresses/TQ_Clothing_Gown_1a_BackB.png", (70, 317, 290, 413), (100, 0, 0, 255))
             art("CW/Bags/TQ_Clothing_Bag_1.png", (10, 400, 90, 470), (100, 100, 0, 255))
             art("CW/Equippables/TQ_Clothing_Mittens_1.png", (10, 400, 90, 470), (100, 100, 0, 255))
+            art("CW/Knickers/TQ_Clothing_Knickers_Briefs_1.png", (110, 400, 230, 460), (0, 100, 0, 255))
+            art("CW/Knickers/TQ_Clothing_Knickers_TrainingPants_1.png", (110, 400, 230, 460), (0, 100, 0, 255))
             copied = []
             def copy(path):
                 copied.append(path)
@@ -39,6 +41,9 @@ class WardrobeImportTests(unittest.TestCase):
             self.assertTrue(any(item["slot"] == "bag" for item in items))
             self.assertTrue(any(item["slot"] == "gloves" for item in items))
             self.assertFalse(any(path.endswith("1aAd.png") for path in copied))
+            self.assertFalse(any(item["slot"] == "underwear" for item in items))
+            self.assertEqual(report["dispositions"]["excluded-ordinary-underwear"], 1)
+            self.assertEqual(report["dispositions"]["atelier-diaper-family"], 1)
 
 if __name__ == "__main__":
     unittest.main()

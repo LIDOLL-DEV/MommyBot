@@ -77,6 +77,8 @@ def discover(source, copy_asset, previous):
                 record(path, "faded-overlay")
             elif folder == "Knickers" and re.search(r"Diaper|TrainingPants", stem, re.I):
                 record(path, "atelier-diaper-family")
+            elif folder == "Knickers":
+                record(path, "excluded-ordinary-underwear")  # Only Atelier diapers and training pants may fill the inner-bottom slot.
             elif re.search(r"Strapon|VaginalSeal|ThumbVibrator|CockPaci|GapeGloves|TongueGloves", stem, re.I):
                 record(path, "non-clothing-prop")
             else:

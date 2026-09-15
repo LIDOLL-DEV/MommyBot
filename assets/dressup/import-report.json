@@ -1,5 +1,5 @@
 {
-  "designs": 1080,
+  "designs": 949,
   "bySlot": {
     "top": 380,
     "bottom": 63,
@@ -8,7 +8,6 @@
     "socks": 42,
     "bra": 45,
     "corset": 16,
-    "underwear": 131,
     "accessory": 66,
     "bag": 15,
     "belt": 33,
@@ -19,11 +18,11 @@
   "dispositions": {
     "faded-overlay": 952,
     "alternate-camera": 9,
-    "included": 1733,
+    "included": 1602,
     "unsupported-canvas-or-empty": 2,
     "atelier-diaper-family": 49,
-    "non-clothing-prop": 13,
-    "identical-art": 1
+    "excluded-ordinary-underwear": 137,
+    "non-clothing-prop": 8
   },
   "files": [
     {
@@ -10289,76 +10288,164 @@
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/NEWTQ_Clothing_Knickers_MicroShorts_Xmas.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/NEWTQ_Clothing_Knickers_MicroShorts_Xmasd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_GiantTeddy_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_GiantTeddy_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_3.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_3d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_4.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_4d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_5.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_5d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_6.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_6d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_7.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_7d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_8.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_8d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_10.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_10d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_11.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_11d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_12.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_12d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_13.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_13d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_14.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_14d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_15.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_15d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_16.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_16d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_19.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_19d.png",
@@ -10369,184 +10456,368 @@
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_3.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_3d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_4.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_4d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_5.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_5d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_6.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_6d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_7.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_7d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_8.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_8d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_9.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_9d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BBC.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BBCd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BlowjobQueen.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BlowjobQueend.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BreedMe.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BreedMed.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyAnalWhore.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyAnalWhored.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyGirl.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyGirld.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_GetARoom.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_GetARoomd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_HelloKitty.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_HelloKittyd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Hole.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Holed.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_LoveBoys.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_LoveBoysd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Lucky.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Luckyd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_Black.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_Blackd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_White.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_Whited.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_PinkKitty.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_PinkKittyd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SuckingCock.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SuckingCockd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SureThing.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SureThingd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Thirsty.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Thirstyd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1a.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1ad.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1b.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1bd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2a.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2ad.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2b.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2bd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tonight.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tonightd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_TrickMe.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_TrickMed.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_UpAllNight.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_UpAllNightd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WantItAll.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WantItAlld.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WokeUp.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WokeUpd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Codpiece_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Codpiece_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotch_Rope_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotch_Rope_1d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_3.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_3d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_4.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_4d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_5.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_5d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_6.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_6d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_7.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_7d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_1d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_2.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_2d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3a.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3ad.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3b.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3bd.png",
@@ -10897,148 +11168,304 @@
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Facehugger_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_1d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_2.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_2d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_3.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_3d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_4.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_4d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_5.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_5d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_6.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_6d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_7.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_7d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_8.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_8d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_9.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_9d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_BeMine.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_BeMined.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_TooMuchFun.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_GString_TooMuchFund.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_3.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_3d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_4.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_4d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_3.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_3d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Black.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Blackd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Gold.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Goldd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_microshorts_Xmas.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Missing.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Missingd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_3.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_3d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_4.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_4d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_5.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_5d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_6.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_6d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1a.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1ad.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1b.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1bd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1c.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1cd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1d.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1dd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_2.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_2d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3a.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3ad.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3b.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3bd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PortalHotpants.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PortalHotpantsd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PortalPants.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PortalPantsd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_PouchPanties.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_PouchPantiesd.png",
@@ -11046,7 +11473,7 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_1.png",
-      "status": "non-clothing-prop"
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_1d.png",
@@ -11054,7 +11481,7 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_2.png",
-      "status": "non-clothing-prop"
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_2d.png",
@@ -11062,7 +11489,7 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_3.png",
-      "status": "non-clothing-prop"
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_3d.png",
@@ -11070,23 +11497,43 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_4.png",
-      "status": "non-clothing-prop"
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Strapon_4d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_SwimmingBottoms_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_SwimmingBottoms_1d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_10.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_10d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_18.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_18d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_19.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_19d.png",
@@ -11097,64 +11544,128 @@
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_3.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_3d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_4.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_4d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_5.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_5d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_6.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_6d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_7.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_7d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_8.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_8d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_9.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_9d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_BigCockLover.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_BigCockLoverd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Heart.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Heartd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Oops.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Oopsd.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Pretty.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Prettyd.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Spade.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Spaded.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_2.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_2d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_SureThing.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_SureThingd.png",
@@ -11201,12 +11712,24 @@
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_Pants_White_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_Pants_White_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_StringBowPanties_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_StringBowPanties_1d.png",
       "status": "faded-overlay"
+    },
+    {
+      "source": "CW/Knickers/TQ_Clothing_TartanPanties_1.png",
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_TartanPanties_1d.png",
@@ -11214,675 +11737,19 @@
     },
     {
       "source": "CW/Knickers/TQ_Clothing_VaginalSeal_1.png",
-      "status": "non-clothing-prop"
+      "status": "excluded-ordinary-underwear"
     },
     {
       "source": "CW/Knickers/TQ_Clothing_VaginalSeal_1d.png",
       "status": "faded-overlay"
     },
     {
+      "source": "CW/Knickers/TQ_Clothing_WoolenPanties_1.png",
+      "status": "excluded-ordinary-underwear"
+    },
+    {
       "source": "CW/Knickers/TQ_Clothing_WoolenPanties_1d.png",
       "status": "faded-overlay"
-    },
-    {
-      "source": "CW/Knickers/NEWTQ_Clothing_Knickers_MicroShorts_Xmas.png",
-      "status": "included",
-      "design": "newtq-clothing-knickers-microshorts-xmas"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_GiantTeddy_1.png",
-      "status": "included",
-      "design": "tq-clothing-giantteddy-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_GiantTeddy_2.png",
-      "status": "included",
-      "design": "tq-clothing-giantteddy-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_4.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-4"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_5.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-5"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_6.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-6"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_7.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-7"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_BikiniBriefs_8.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bikinibriefs-8"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bloomers-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Bloomers_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-bloomers-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_10.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-10"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_11.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-11"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_12.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-12"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_13.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-13"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_14.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-14"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_15.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-15"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_16.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-16"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_19.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-19"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_4.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-4"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_5.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-5"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_6.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-6"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_7.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-7"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_8.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-8"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_9.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-9"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BBC.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-bbc"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BlowjobQueen.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-blowjobqueen"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_BreedMe.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-breedme"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyAnalWhore.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-daddyanalwhore"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_DaddyGirl.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-daddygirl"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_GetARoom.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-getaroom"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_HelloKitty.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-hellokitty"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Hole.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-hole"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_LoveBoys.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-loveboys"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Lucky.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-lucky"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_Black.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-ovaries-black"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Ovaries_White.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-ovaries-white"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_PinkKitty.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-pinkkitty"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SuckingCock.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-suckingcock"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_SureThing.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-surething"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Thirsty.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-thirsty"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1a.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-tongue-1a"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_1b.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-tongue-1b"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2a.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-tongue-2a"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tongue_2b.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-tongue-2b"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_Tonight.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-tonight"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_TrickMe.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-trickme"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_UpAllNight.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-upallnight"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WantItAll.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-wantitall"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Briefs_WokeUp.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-briefs-wokeup"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Codpiece_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-codpiece-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotch_Rope_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotch-rope-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotchless-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotchless-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotchless-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_4.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotchless-4"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_5.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotchless-5"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_6.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotchless-6"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Crotchless_7.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-crotchless-7"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-cutoffs-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-cutoffs-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3a.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-cutoffs-3a"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Cutoffs_3b.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-cutoffs-3b"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Facehugger_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-facehugger-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_4.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-4"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_5.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-5"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_6.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-6"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_7.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-7"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_8.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-8"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_9.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-9"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_BeMine.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-bemine"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_GString_TooMuchFun.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-gstring-toomuchfun"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-hotpants-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-hotpants-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-hotpants-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Hotpants_4.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-hotpants-4"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-meattoilet-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-meattoilet-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MeatToilet_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-meattoilet-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Black.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-microshorts-black"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_MicroShorts_Gold.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-microshorts-gold"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_microshorts_Xmas.png",
-      "status": "identical-art",
-      "sameAs": "newtq-clothing-knickers-microshorts-xmas"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Missing.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-missing"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plasticpants-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plasticpants-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plasticpants-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_4.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plasticpants-4"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_5.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plasticpants-5"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlasticPants_6.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plasticpants-6"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1a.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plugpanties-1a"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1b.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plugpanties-1b"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1c.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plugpanties-1c"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_1d.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plugpanties-1d"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plugpanties-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3a.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plugpanties-3a"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PlugPanties_3b.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-plugpanties-3b"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PortalHotpants.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-portalhotpants"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PortalPants.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-portalpants"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_PouchPanties.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-pouchpanties"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_SwimmingBottoms_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-swimmingbottoms-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_10.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-10"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_18.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-18"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_19.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-19"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_3.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-3"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_4.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-4"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_5.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-5"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_6.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-6"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_7.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-7"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_8.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-8"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_9.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-9"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_BigCockLover.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-bigcocklover"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Heart.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-heart"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Oops.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-oops"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Pretty.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-pretty"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Spade.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-spade"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_1.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-stripper-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_Stripper_2.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-stripper-2"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Knickers_Thong_SureThing.png",
-      "status": "included",
-      "design": "tq-clothing-knickers-thong-surething"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_Pants_White_1.png",
-      "status": "included",
-      "design": "tq-clothing-pants-white-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_StringBowPanties_1.png",
-      "status": "included",
-      "design": "tq-clothing-stringbowpanties-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_TartanPanties_1.png",
-      "status": "included",
-      "design": "tq-clothing-tartanpanties-1"
-    },
-    {
-      "source": "CW/Knickers/TQ_Clothing_WoolenPanties_1.png",
-      "status": "included",
-      "design": "tq-clothing-woolenpanties-1"
     },
     {
       "source": "CW/Accessories/TQ_Clothing_CockPaci_1.png",

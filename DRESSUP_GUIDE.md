@@ -7,16 +7,17 @@ Discord slash command. Sign in with LiD0llID. An existing Diaper Atelier browser
 session works across all three games, including sign-out and account revocation.
 
 - **Clothes Emporium:** roll for one complete garment for 3 LiDollcoins by default.
-  The catalog contains **1,080 wearable items** across 13 clothing/accessory slots.
+  The catalog contains **949 wearable items** across 12 clothing/accessory slots.
   Browse 36 designs per page, search by name and filter by slot or rarity.
   A/B/C image sections combine into one garment, including alternate hems and back sections.
   Duplicates remain separate copies; buy and sell them at the shared clothing bank.
 - **Littlepottchi:** choose a name, soft/angular body, hair and face. Wear owned
   clothing and any of the 58 Atelier designs. A starter shirt and Cloud Tapes
   appear when those slots are empty; these free fallback visuals are not sellable copies.
-  Bras and corsets can replace the fallback shirt. Ordinary underwear replaces
-  the equipped diaper and uses the regular stance; equipping a diaper replaces
-  underwear and selects that diaper's stance. Neither choice consumes a copy.
+  Bras and corsets can replace the fallback shirt. Only diapers and training pants
+  may fill the inner-bottom slot. Ordinary underwear is excluded from imports,
+  rolls, the wardrobe and bank. Legacy outfits fall back to a diaper without
+  resetting wetness; old payment receipts remain recoverable.
 - **Automatic stance:** the equipped diaper selects the base. Larger silhouettes
   select `DQ_Base_2` (soft) or `DQ_Base_4` (angular). Smaller diapers restore
   `TQ_Base_3` or `TQ_Base_2`. Players do not choose the stance separately.
@@ -34,7 +35,6 @@ duplicate keeps the design wearable. Refresh other open tabs after a trade.
 | --- | ---: |
 | Tops and dresses | 380 |
 | Headwear | 150 |
-| Underwear | 131 |
 | Shoes | 77 |
 | Accessories | 66 |
 | Bottoms | 63 |
@@ -97,7 +97,7 @@ The editor previews both bases, changes garment names/rarities/slots/fit and the
 diaper's automatic stance. It validates with the shipping Node loader, backs up
 successful saves, and restores the previous catalog on validation errors.
 Restart the bot to load changes. The importer preserves existing tuning by ID.
-The editor includes a searchable garment list and all 13 clothing slots.
+The editor includes a searchable garment list and all 12 clothing slots.
 Add new artwork through the folder-based importer, retaining all original canvas
 margins; IDs must never be reused for different garments. Retain retired art and
 manifest records for existing owners. The runtime pool consists of wearable
@@ -128,3 +128,12 @@ assets and editor and validates the manifest before switching releases. If the
 reverse proxy already forwards `/`, no change is needed; otherwise also forward
 `/clothes/` and `/littlepottchi/` to the same listener as `/diapers/`.
 No live deployment or real-wallet purchase is part of the local verification.
+
+## Littlepottchi wetting and timed care
+
+Optional **messy mode** adds a saved 12-hour game timer. Each messy accident uses
+two bulk units alongside wettings. Disabling pauses the timer; a fresh change
+clears both conditions. The UI labels this as game timing because the AI analysis
+currently contains no bowel-event counts. Messy reminders use the existing opt-in.
+
+Littlepottchi now has saved wettings, per-diaper bulk capacity, leaks, pantry food, hydration and timed care. Replacing a diaper clears wetness and selects its matching base; collectible designs are reusable. LITTLEPOTTCHI_API.md describes the latest-analysis community rhythm, default behavior and optional Little Log push bridge.

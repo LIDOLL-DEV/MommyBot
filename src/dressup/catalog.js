@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { tiers } from "../gacha/catalog.js";
 
 export const dressupRoot = new URL("../../assets/dressup/", import.meta.url);
-export const slots = ["diaper", "underwear", "socks", "bra", "bottom", "shoes", "top", "corset", "belt", "gloves", "accessory", "hand", "bag", "head"];
+export const slots = ["diaper", "socks", "bra", "bottom", "shoes", "top", "corset", "belt", "gloves", "accessory", "hand", "bag", "head"];
 
 export function loadDressupCatalog() {
   const data = JSON.parse(readFileSync(new URL("catalog.json", dressupRoot), "utf8"));
@@ -22,10 +22,18 @@ export function loadDressupCatalog() {
       if (group === data.clothes && (!slots.includes(item.slot) || item.slot === "diaper" || !Object.hasOwn(tiers, item.rarity) ||
           !item.name || !Array.isArray(item.stances) || !item.stances.length || item.stances.some(s => !["narrow", "wide"].includes(s)))) throw new Error("Invalid clothing fit or rarity.");
       if (group === data.diapers && !["narrow", "wide"].includes(item.stance)) throw new Error("Invalid diaper stance.");
+      if (group === data.diapers && (!Number.isInteger(item.bulk) || item.bulk < 1 || item.bulk > 100)) throw new Error("Diaper bulk must be a whole number from 1 to 100.");
       if (item.rect && (item.rect.length !== 4 || item.rect.some(n => !Number.isInteger(n) || n < 0) ||
           item.rect[2] < 1 || item.rect[3] < 1 || item.rect[0] + item.rect[2] > 387 || item.rect[1] + item.rect[3] > 875)) throw new Error("Invalid illustration fit rectangle.");
     }
   }
   for (const rarity of Object.keys(tiers)) if (!data.clothes.some(item => item.rarity === rarity)) throw new Error("Every clothing rarity needs a design.");
+  const foodIds = new Set();
+  if (!Array.isArray(data.foods) || !data.foods.length) throw new Error("The pantry needs food.");
+  for (const food of data.foods) {
+    if (!/^[a-z0-9-]{1,40}$/.test(food.id) || foodIds.has(food.id) || !food.name || !image(food.image) ||
+        [food.fullness, food.joy].some(n => !Number.isInteger(n) || n < 0 || n > 100)) throw new Error("Invalid pantry food.");
+    foodIds.add(food.id);
+  }
   return data;
 } // Validate modded catalogs before either game starts or charges for a roll.

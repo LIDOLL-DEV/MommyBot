@@ -3,8 +3,8 @@
 ## Littlepottchi and Clothes Emporium
 
 Wardrobe copy should refer to complete garments and accessories across the expanded
-catalog. Underwear and diapers replace one another when equipped; describe the
-resulting stance without implying either collectible was consumed.
+catalog. Only diapers and training pants are available for the inner-bottom slot;
+describe their matching stance without implying either collectible was consumed.
 
 These games use fixed care labels, outfit notices and purchase results in
 `src/dressup/web/app.js`; there are no NPC dialogue trees yet. Explain that the
@@ -55,3 +55,11 @@ Player transfers use fixed recipient, amount, review and result screens in the
 account menu. Their text must state that coins/diamonds come from the sender's
 own wallet. NPC or model dialogue must never authorize a send or claim a payment
 completed before its journal confirms it. See [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md).
+
+## Littlepottchi wetting and timed care
+
+Use gentle, factual messy-care copy: the diaper needs a fresh change. Avoid
+shaming the player. The fixed `mess` reminder is superseded by a leak reminder
+when shared capacity is reached; neither message includes personal tracker data.
+
+Littlepottchi reminders use fixed, gentle game messages for wet diapers, leaks, food, water, play, rest and completion. They never quote personal tracking records or imply a medical prediction. Keep the approved message sets aligned in care.js and the Little Log service worker. See LITTLEPOTTCHI_API.md.

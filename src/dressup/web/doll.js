@@ -14,7 +14,7 @@ export async function drawDoll(canvas, state) {
   const hairBack = player.hair.replace(/\.png$/, "_Back.png"), splitHair = /TQ_Hair_4_/.test(player.hair);
   const backLayers = [...new Set([top, ...Object.values(outfit)].filter(Boolean).flatMap(item => item.backParts || []))].map(image => ({ image }));
   const layers = [...backLayers, splitHair ? { image: hairBack } : null, { image: base }, { image: player.face },
-    outfit.socks, outfit.underwear, diaper, outfit.bra, outfit.bottom, outfit.shoes, top, outfit.corset,
+    outfit.socks, diaper, outfit.bra, outfit.bottom, outfit.shoes, top, outfit.corset,
     outfit.belt, outfit.gloves, outfit.accessory, outfit.hand, outfit.bag,
     { image: splitHair ? player.hair.replace(/\.png$/, "_Front.png") : player.hair }, outfit.head].filter(Boolean)
     .flatMap(layer => [layer, ...(layer.parts || []).map(image => ({ image }))]); // Rejoin A/B/C garment sections at their native coordinates.

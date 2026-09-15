@@ -6,6 +6,9 @@ Expanded clothing rarity defaults are assigned by the importer; existing edited
 rarities remain preserved by ID. Tier probabilities remain fixed as new designs
 join the pool, so per-design odds decrease within growing tiers. The import report
 distinguishes wearable designs from faded previews and shared garment sections.
+Ordinary underwear is excluded, leaving 949 designs across 12 clothing slots.
+Keep the underwear slot disabled in the editor and validator; diapers and training
+pants are supplied by Atelier and retain their independent bulk and stance tuning.
 
 Littlepottchi has authored UI and care rules, with no generated dialogue or image
 generation at runtime. Clothes Emporium draws rarity then a uniform design using
@@ -145,3 +148,11 @@ Use `node --test test/swear-jar-ai.test.js test/swear-jar.test.js` to verify
 generation and balance behavior without contacting live model or wallet servers.
 The runtime checker in [DEPLOYMENT_FEDORA.md](DEPLOYMENT_FEDORA.md) checks model
 reachability; it does not validate the quality of generated text.
+
+## Littlepottchi wetting and timed care
+
+Tune `messyRules` in `src/dressup/care.js`: default interval 12 hours and bulk cost
+2 per messy accident. Update its UI label when changing the interval. This is
+authored timing; the current saved AI input does not include bowel-event counts.
+
+Diaper bulk is a separate integer capacity (1�100 wettings) in assets/dressup/catalog.json; the wardrobe editor can tune it without changing the reviewed stance. The asset importer preserves edited bulk. Care durations and need periods are in src/dressup/care.js; pantry fullness/joy values are in the catalog. Rhythm comes from the latest saved community AI counts, with a labeled four-hour fallback. See LITTLEPOTTCHI_API.md.

@@ -3,8 +3,8 @@
 ## Littlepottchi
 
 Count complete design IDs, not individual A/B/C or back-section PNGs, for future
-collection quests. The expanded 1,080-item wardrobe has 13 clothing/accessory slots;
-switching between underwear and a diaper is an equipment change only.
+collection quests. The 949-item wardrobe has 12 clothing/accessory slots. Only
+diapers and training pants may fill the inner-bottom slot; never award ordinary underwear.
 
 Care moments currently count companionship actions only; they grant no coins,
 items or quest completion. Future clothing quests must reference a unique settled
@@ -49,3 +49,11 @@ never change currency using leaderboard snapshots. See
 Player **Send coins/diamonds** actions are voluntary transfers, not quest rewards.
 Future quests must not trigger a transfer on a player's behalf or grant rewards
 from repeated transfer receipts. Stars remain excluded from player transfers.
+
+## Littlepottchi wetting and timed care
+
+Messy accidents are optional care events, not rewards or quest completions.
+Fresh changes clear wetness and mess together; toggling the mode grants nothing
+and preserves the remaining countdown. Do not require messy mode for ordinary care.
+
+Littlepottchi play and rest are durable timed activities. Start an activity through the authenticated doll action; award its rewards only after finishesAt, once. Food, water and fresh replacements satisfy separate needs. Do not award coins or alter collection ownership for care tasks. See LITTLEPOTTCHI_API.md.

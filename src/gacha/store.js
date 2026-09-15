@@ -29,6 +29,7 @@ export class DiaperStore {
   pending(user) { return this.db.prepare("SELECT * FROM diaper_jobs WHERE user_id=? AND state IN ('pending','paid') ORDER BY created LIMIT 1").get(user); }
   job(id) { return this.db.prepare("SELECT * FROM diaper_jobs WHERE id=?").get(id); }
   design(id) { const row = this.db.prepare("SELECT data FROM diaper_designs WHERE id=?").get(id); return row ? JSON.parse(row.data) : null; }
+  availableDesign(id) { return this.config.walletKey !== "clothes" || this.catalog.some(item => item.id === id); } // Retired clothing stays in payment history but cannot re-enter the live shop.
   prices(item) {
     const stock = this.db.prepare("SELECT COUNT(*) quantity FROM diaper_items WHERE design=? AND owner IS NULL").get(item.id).quantity;
     const startingPrice = Math.max(3, Math.floor(this.config.price * tiers[item.rarity].buy));
@@ -42,10 +43,10 @@ export class DiaperStore {
     return choices[this.draw(choices.length)];
   } // Use cryptographic randomness, with injectable bounded draws for deterministic economic tests.
   snapshot(user) {
-    const owned = this.db.prepare("SELECT design,COUNT(*) quantity,SUM(lock_id IS NULL) available FROM diaper_items WHERE owner=? GROUP BY design").all(user);
-    const bank = this.db.prepare("SELECT design,COUNT(*) quantity FROM diaper_items WHERE owner IS NULL AND lock_id IS NULL GROUP BY design").all();
-    const catalog = this.db.prepare("SELECT data FROM diaper_designs ORDER BY id").all().map(row => {
-      const item = JSON.parse(row.data), tier = tiers[item.rarity];
+    const owned = this.db.prepare("SELECT design,COUNT(*) quantity,SUM(lock_id IS NULL) available FROM diaper_items WHERE owner=? GROUP BY design").all(user).filter(row => this.availableDesign(row.design));
+    const bank = this.db.prepare("SELECT design,COUNT(*) quantity FROM diaper_items WHERE owner IS NULL AND lock_id IS NULL GROUP BY design").all().filter(row => this.availableDesign(row.design));
+    const catalog = this.db.prepare("SELECT data FROM diaper_designs ORDER BY id").all().map(row => JSON.parse(row.data)).filter(item => this.availableDesign(item.id)).map(item => {
+      const tier = tiers[item.rarity];
       const count = this.catalog.filter(entry => entry.rarity === item.rarity).length;
       return { ...item, ...this.prices(item), chance: this.catalog.some(entry => entry.id === item.id) ? tier.chance / count : 0 };
     });
@@ -69,7 +70,7 @@ export class DiaperStore {
       const account = this.wallet.requireConnection(user);
       const job = this.db.transaction(() => {
         const item = action === "roll" ? this.pick() : this.design(design);
-        if (!item) throw new GachaError("That design is not available.");
+        if (!item || !this.availableDesign(item.id)) throw new GachaError("That design is not available.");
         const stock = action === "roll" ? null : action === "sell"
           ? this.db.prepare("SELECT * FROM diaper_items WHERE owner=? AND design=? AND lock_id IS NULL ORDER BY created LIMIT 1").get(user, item.id)
           : this.db.prepare("SELECT * FROM diaper_items WHERE owner IS NULL AND design=? AND lock_id IS NULL ORDER BY created LIMIT 1").get(item.id);

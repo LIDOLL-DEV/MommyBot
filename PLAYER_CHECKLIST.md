@@ -2,10 +2,10 @@
 
 ## Dress and care for your doll
 
-- Browse the **1,080-piece** clothing catalog using slot filters, search, and
-  Previous/Next. Gloves, bags, bras, underwear, corsets, belts and accessories have
-  their own slots. Equipping underwear replaces the diaper; equipping a diaper
-  restores that diaper's automatic stance.
+- Browse the **949-piece** clothing catalog using slot filters, search, and
+  Previous/Next. Gloves, bags, bras, corsets, belts and accessories have their own
+  slots. Only diapers and training pants are available for the inner-bottom slot;
+  each selects its matching stance automatically.
 
 - Open `/clothes` or `/littlepottchi` in Discord, or visit the matching browser
   pages. Sign in with LiD0llID or use your existing Atelier browser session.
@@ -79,3 +79,11 @@
 See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for the word list and full rules,
 [ACCOUNT_LINKING_GUIDE.md](ACCOUNT_LINKING_GUIDE.md) for sign-in help, and
 [GAMES_GUIDE.md](GAMES_GUIDE.md) for available games.
+
+## Littlepottchi wetting and timed care
+
+Turn on **Enable messy mode** if desired. Its 12-hour countdown runs while enabled;
+turning it off pauses it. Messy accidents use two bulk units. A fresh diaper clears
+both wetness and mess; disabling the mode does not clean an already messy diaper.
+
+Choose food from the pantry, give water, and complete timed play/rest. Watch wetness against diaper bulk; reaching capacity causes a leak. Select a fresh replacement to clear it and update the stance. Designs stay collected and starter replacements are free. To receive reminders, enable the pet checkbox and Little Log push using the same LiD0llID account. Little Log quiet hours apply.

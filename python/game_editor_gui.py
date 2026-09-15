@@ -43,8 +43,8 @@ class WardrobeEditor:
         form.pack(side="left", fill="y")
         self.fields = {}
         for field, values in [("name", None), ("rarity", ["common", "uncommon", "rare", "epic", "legendary"]),
-                              ("slot", ["top", "bottom", "shoes", "socks", "head", "underwear", "bra", "corset", "belt", "gloves", "accessory", "hand", "bag"]), ("fit", ["narrow", "wide", "both"]),
-                              ("shape", ["soft", "angular"]), ("preview stance", ["narrow", "wide"])]:
+                              ("slot", ["top", "bottom", "shoes", "socks", "head", "bra", "corset", "belt", "gloves", "accessory", "hand", "bag"]), ("fit", ["narrow", "wide", "both"]),
+                              ("bulk", None), ("shape", ["soft", "angular"]), ("preview stance", ["narrow", "wide"])]:
             ttk.Label(form, text=field.title()).pack(anchor="w", pady=(12, 3))
             variable = tk.StringVar(value="soft" if field == "shape" else "narrow" if field == "preview stance" else "")
             widget = ttk.Combobox(form, textvariable=variable, values=values, state="readonly") if values else ttk.Entry(form, textvariable=variable)
@@ -52,7 +52,7 @@ class WardrobeEditor:
             self.fields[field] = (variable, widget)
         ttk.Button(form, text="Preview fit", command=self.preview).pack(fill="x", pady=(20, 8))
         ttk.Button(form, text="Save selected item", command=self.save).pack(fill="x")
-        ttk.Label(form, text="Diaper fit selects the stance automatically\nin the game. Preview stance is only a\ncomparison tool. IDs and source art stay fixed.", wraplength=240).pack(pady=20)
+        ttk.Label(form, text="Diaper fit selects the stance automatically.\nBulk holds both wettings and messy accidents.\nMessy mode uses the shared care rules in\nsrc/dressup/care.js. Preview stance is only\na comparison tool; source art stays fixed.", wraplength=240).pack(pady=20)
         self.status = ttk.Label(form, wraplength=240)
         self.status.pack(fill="x")
         self.canvas = tk.Canvas(root, width=310, height=700, bg="#fff5ef", highlightthickness=0)
@@ -83,6 +83,8 @@ class WardrobeEditor:
             self.fields[key][1].configure(state="disabled" if group == "diapers" else "normal" if key == "name" else "readonly")
         fit = item.get("stance") or ("both" if len(item["stances"]) == 2 else item["stances"][0])
         self.fields["fit"][0].set(fit)
+        self.fields["bulk"][0].set(str(item.get("bulk", "")))
+        self.fields["bulk"][1].configure(state="normal" if group == "diapers" else "disabled")
         self.fields["preview stance"][0].set("narrow" if fit == "both" else fit)
         self.fields["fit"][1].configure(values=["narrow", "wide"] if group == "diapers" else ["narrow", "wide", "both"])
         self.status.configure(text=f"ID: {item['id']}\n{self.data['provenance'][item['image']]['source']}")
@@ -100,8 +102,6 @@ class WardrobeEditor:
         starter = next(d for d in self.data["diapers"] if d["id"] == "cloud-tapes")
         layers = [starter, next(c for c in self.data["clothes"] if c["image"] == "TQ_Clothing_TShirt_1A.png")]
         if group == "diapers":
-            layers = [item, layers[1]]
-        elif item["slot"] == "underwear":
             layers = [item, layers[1]]
         elif item["slot"] in ["bra", "corset"]:
             layers = [starter, item]
@@ -126,6 +126,14 @@ class WardrobeEditor:
         previous_item = copy.deepcopy(item)
         fit = self.fields["fit"][0].get()
         if group == "diapers":
+            try:
+                bulk = int(self.fields["bulk"][0].get())
+                if not 1 <= bulk <= 100:
+                    raise ValueError()
+            except ValueError:
+                messagebox.showerror("Invalid capacity", "Bulk must be a whole number from 1 to 100 wettings.")
+                return
+            item["bulk"] = bulk  # Reaching this many wettings triggers a leak; visual stance is tuned separately.
             item["stance"] = fit
         else:
             for key in ["name", "rarity", "slot"]:

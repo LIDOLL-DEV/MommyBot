@@ -2,9 +2,10 @@
 
 ## Littlepottchi wardrobe
 
-The catalog now covers 1,080 wearable items. Maintain folder-based discovery in
+The catalog now covers 949 wearable items. Maintain folder-based discovery in
 `python/wardrobe_catalog.py`, its per-source import report, 36-item browser pages,
-and all 13 garment/accessory slots. Preserve opaque color variants, rejoin shared
+and all 12 garment/accessory slots. Only diapers and training pants may fill the
+inner-bottom slot; ordinary underwear must stay excluded. Preserve opaque color variants, rejoin shared
 bodices with alternate hems, and draw back sections behind the body. Run
 `py -3.11 python/test_wardrobe_catalog.py` when changing import classification.
 
@@ -335,3 +336,11 @@ Diamond support extends wallet client validation, explicit OIDC/device scopes, g
 ## Explicit report sharing
 
 The report client also accepts `source: manual` when `share_with_bot === 1`, set by Little Log's authenticated **Run and share with MommyBot** action. Bind document source/sharing metadata to the listed entry. Keep nightly captions unchanged for reconciliation; explicitly shared reports use the requested-report caption and the same durable delivery journal. See [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).
+
+## Littlepottchi wetting and timed care
+
+Messy mode defaults off. Preserve paused countdowns across toggles, lifetime
+totals across changes, and old wetting state during migration. Both accident
+types share bulk. Keep the bridge and service worker's `mess` notification aligned.
+
+Care simulation lives in src/dressup/care.js; browser, background ticks and the Little Log API all use the same saved state. Preserve collectible ownership, server timing and identity-bound reminder opt-in. See LITTLEPOTTCHI_API.md for bridge installation and protocol.

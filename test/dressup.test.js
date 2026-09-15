@@ -28,8 +28,9 @@ test("all Atelier designs map to packaged art; native layers retain 387x875 regi
 
 test("the expanded catalog includes every wearable category and preserves opaque color variants", t => {
   const f = fixture(t);
-  assert.ok(f.catalog.clothes.length >= 1000, "Do not regress to a small name-filtered sample");
-  for (const slot of ["top", "bottom", "head", "shoes", "socks", "bra", "corset", "underwear", "gloves", "belt", "accessory", "bag", "hand"]) {
+  assert.ok(f.catalog.clothes.length >= 900, "Keep the full clothing collection after excluding ordinary underwear");
+  assert.ok(!f.catalog.clothes.some(item => item.slot === "underwear"));
+  for (const slot of ["top", "bottom", "head", "shoes", "socks", "bra", "corset", "gloves", "belt", "accessory", "bag", "hand"]) {
     assert.ok(f.catalog.clothes.some(item => item.slot === slot), slot);
   }
   assert.ok(f.catalog.clothes.some(item => item.image === "TQ_Clothing_Bodysuit_2d.png"));
@@ -41,21 +42,37 @@ test("the expanded catalog includes every wearable category and preserves opaque
   assert.equal(back.backParts.length, 2);
 });
 
-test("new clothing slots persist independently and underwear swaps cleanly with automatic diaper stance", t => {
+test("clothing slots persist independently; ordinary underwear is blocked and training pants remain wearable", t => {
   const f = fixture(t);
   for (const slot of ["gloves", "bag", "accessory", "bra", "corset", "belt", "hand"]) {
     const item = f.catalog.clothes.find(i => i.slot === slot && i.stances.includes("narrow"));
     f.seed(f.clothes, item.id); assert.equal(equip(f, slot, item.id).outfit[slot].id, item.id);
   }
   assert.equal(f.doll.snapshot(f.user).top, null, "Bras and corsets can be worn without a fallback shirt covering them");
-  const underwear = f.catalog.clothes.find(i => i.slot === "underwear");
-  f.seed(f.clothes, underwear.id); f.seed(f.diapers, "ribbon-bouquet");
+  const training = f.catalog.diapers.find(i => /TrainingPants/.test(i.image));
+  f.seed(f.diapers, training.id); f.seed(f.diapers, "ribbon-bouquet");
   equip(f, "diaper", "ribbon-bouquet");
-  const regular = equip(f, "underwear", underwear.id);
-  assert.equal(regular.stance, "narrow"); assert.equal(regular.diaper, null); assert.equal(regular.outfit.diaper, undefined);
+  assert.throws(() => equip(f, "underwear", "old-briefs"), /Unknown clothing slot/);
+  const regular = equip(f, "diaper", training.id);
+  assert.equal(regular.stance, "narrow"); assert.equal(regular.diaper.id, training.id);
   const wide = equip(f, "diaper", "ribbon-bouquet");
   assert.equal(wide.stance, "wide"); assert.equal(wide.outfit.underwear, undefined);
-  assert.equal(f.clothes.snapshot(f.user).owned.find(i => i.design === underwear.id).quantity, 1);
+  assert.equal(f.diapers.snapshot(f.user).owned.find(i => i.design === training.id).quantity, 1);
+});
+
+test("legacy underwear disappears from outfits, shop and bank without deleting ownership or cleaning the doll", async t => {
+  const f = fixture(t), retired = {id:"old-briefs",name:"Old briefs",slot:"underwear",rarity:"common",image:"old.png"};
+  f.clothes.db.prepare("INSERT INTO diaper_designs VALUES (?,?)").run(retired.id, JSON.stringify(retired));
+  f.seed(f.clothes, retired.id); f.seed(f.clothes, retired.id, null);
+  const p = f.doll.player(f.user); p.outfit.underwear = retired.id; p.care.wetness = 1; f.doll.save(f.user,p);
+  const d = f.doll.snapshot(f.user);
+  assert.equal(d.diaper.id,"cloud-tapes"); assert.equal(d.player.outfit.underwear,undefined); assert.equal(d.player.care.wetness,1);
+  const shop = f.clothes.snapshot(f.user);
+  assert.ok(!shop.catalog.some(i => i.id === retired.id)); assert.ok(!shop.owned.some(i => i.design === retired.id));
+  assert.ok(!shop.bank.some(i => i.design === retired.id));
+  await assert.rejects(f.clothes.act(f.user,"buy",retired.id,randomUUID()),/not available/);
+  assert.equal(f.clothes.db.prepare("SELECT COUNT(*) n FROM diaper_items WHERE design=?").get(retired.id).n,2);
+  assert.equal(f.receipts.size,0);
 });
 
 test("complete dresses include their waist and skirt sections as one rolled garment", t => {
@@ -120,8 +137,9 @@ test("care uses bounded server time, cooldowns, and persists without consuming i
   f.now += 1000 * 3600 * 1000;
   const elapsed = f.doll.snapshot(f.user);
   assert.equal(elapsed.player.hunger, 0); assert.equal(elapsed.player.comfort, 0);
-  const changed = f.doll.act(f.user, { action: "change" });
-  assert.equal(changed.player.comfort, 40); assert.equal(changed.player.careCount, 2);
+  assert.throws(() => f.doll.act(f.user, { action: "change" }), /replacement diaper/);
+  const changed = f.doll.act(f.user, { action: "change", design: "cloud-tapes" });
+  assert.equal(changed.player.comfort, 100); assert.equal(changed.player.careCount, 2);
   assert.equal(f.coins, 1000); assert.equal(f.receipts.size, 0);
   assert.throws(() => f.doll.act(f.user, { action: "appearance", ...changed.player, hair: "../../unknown" }), /character builder/);
 });
@@ -141,6 +159,7 @@ test("wardrobe HTTP routes require the shared session and CSRF, and serve only p
   assert.equal((await request("/littlepottchi/api/doll", { method: "POST", headers, body: '{"action":"feed"}' })).status, 200);
   assert.equal((await request("/clothes/art/TQ_Base_3.png")).status, 200);
   assert.equal((await request("/clothes/art/missing.png")).status, 404);
+  assert.equal((await request("/clothes/art/TQ_Clothing_Knickers_Briefs_1.png")).status, 404);
   assert.equal((await request("/clothes/api/action", { method: "POST", headers, body: JSON.stringify({ action: "roll", request: randomUUID(), amount: 1 }) })).status, 400);
   assert.equal(f.receipts.size, 0);
   f.sessions.revoke(f.user);

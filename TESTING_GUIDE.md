@@ -2,9 +2,9 @@
 
 ## Littlepottchi and Clothes Emporium
 
-The expanded-catalog regressions cover more than 1,000 designs, all 13 wearable
+The expanded-catalog regressions cover 949 designs, all 12 wearable
 slots, complete alternate hems, back sections, opaque `d` color variants,
-underwear/diaper replacement, and visibility of bras/corsets without the starter
+ordinary-underwear exclusion, legacy save migration, training pants, and visibility of bras/corsets without the starter
 shirt. `py -3.11 python/test_wardrobe_catalog.py` checks discovery using synthetic
 PNGs, without requiring the external source archive. The browser check verifies
 36-item pagination, next-page contents and filters for newly supported slots.
@@ -502,3 +502,13 @@ Run npm test for diamond balance validation and legacy consent (test/diamonds.te
 ## Shared on-demand reports
 
 `test/reports.test.js` covers an explicitly shared manual report passing through the real ReportClient and publisher with fake HTTP/Discord transports, posting once alongside a nightly report. Unshared/malformed manual flags and mismatched document source are rejected. No test posts live Discord messages.
+
+## Littlepottchi wetting and timed care
+
+Messy-mode regressions cover opt-in defaults, old-save migration, pause/resume,
+repeated setting requests, restart/offline catch-up, shared bulk limits, fresh
+replacement, reminder priority and cancellation. Browser checks exercise the
+toggle, a timed messy accident, the capacity display and fresh changes. The Little
+Log worker check also verifies approved messy copy without real push delivery.
+
+Run npm test for littlepottchi-care.test.js and little-log-bridge.test.js: saved report means, zero rates, report replay, offline wettings, exact capacity, replacement/stance, timed rewards, reminder opt-in/identity, API auth, quiet hours and lost push acknowledgements. Run scripts/check-dressup-browser.mjs with local Chrome for food/water, timed play, leaks, replacements, reminder controls and existing gacha/mobile flows. All transports and records are synthetic. See LITTLEPOTTCHI_API.md for the sibling Little Log checks.

@@ -11,5 +11,7 @@ export function initializeDressup(config, diapers, sessions) {
   const clothes = new DiaperStore(fileURLToPath(new URL("../../data/clothes-gacha.db", import.meta.url)), catalog.clothes, diapers.wallet,
     { enabled: diapers.config.enabled && process.env.CLOTHES_GACHA_ENABLED !== "false", price, walletKey: "clothes" });
   const doll = new LittlepottchiStore(clothes, diapers, catalog);
-  return { web: createDressupWeb(config, clothes, doll, sessions, catalog), close: () => clothes.close() };
+  const timer = setInterval(() => { try { doll.tick(); } catch { console.error("Littlepottchi care tick failed; saved timers will retry."); } }, 30000);
+  timer.unref();
+  return { web: createDressupWeb(config, clothes, doll, sessions, catalog), close: () => { clearInterval(timer); clothes.close(); } };
 } // Keep clothing payments in their own durable journal while sharing Atelier inventory and login.

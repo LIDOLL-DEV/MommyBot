@@ -3,12 +3,15 @@ import { timingSafeEqual } from "node:crypto";
 import { dressupRoot } from "./catalog.js";
 import { GachaError } from "../gacha/store.js";
 import { WalletError } from "../wallet/client.js";
+import { createPetIntegration } from "./integration.js";
 
 export function createDressupWeb(config, clothes, doll, sessions, catalog) {
+  doll.identity = user => sessions.identities.gameIdentity(user);
+  const integration = createPetIntegration(doll, config.petBridge);
   const assets = new Map();
   for (const name of Object.keys(catalog.provenance)) assets.set(`/clothes/art/${name}`, new URL(name, dressupRoot));
   const page = readFileSync(new URL("./web/index.html", import.meta.url));
-  const code = new Map(["app.js", "style.css", "doll.js"].map(name => [name, readFileSync(new URL(`./web/${name}`, import.meta.url))]));
+  const code = new Map(["app.js", "style.css", "care.css", "doll.js"].map(name => [name, readFileSync(new URL(`./web/${name}`, import.meta.url))]));
   const send = (res, status, body, type = "application/json") => { res.writeHead(status, { "Content-Type": type }); res.end(type === "application/json" ? JSON.stringify(body) : body); };
   return async (req, res) => {
     const url = new URL(req.url, config.origin), match = /^\/(clothes|littlepottchi)(?:\/(.*))?$/.exec(url.pathname);
@@ -20,6 +23,7 @@ export function createDressupWeb(config, clothes, doll, sessions, catalog) {
     let actionRequest = null, actionUser = null;
     try {
       if (url.origin !== config.origin) throw new GachaError("Invalid origin.");
+      if (await integration(req, res, url)) return true;
       const path = match[2] || "";
       if (req.method === "GET" && assets.has(url.pathname)) {
         res.setHeader("Cache-Control", "public, max-age=3600");
@@ -32,6 +36,7 @@ export function createDressupWeb(config, clothes, doll, sessions, catalog) {
       const token = (req.headers.cookie || "").split(";").map(s => s.trim()).find(s => s.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1);
       const session = sessions.get(token);
       if (!session) { send(res, 401, { error: "Sign in with LiD0llID to open your wardrobe." }); return true; }
+      if (req.method === "GET" && path === "api/pet") { send(res, 200, doll.snapshot(session.user_id)); return true; }
       if (req.method === "GET" && path === "api/state") {
         let coins = null, walletError = null;
         try { coins = (await clothes.wallet.balance(session.user_id)).coins; }

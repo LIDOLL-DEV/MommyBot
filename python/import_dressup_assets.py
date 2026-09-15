@@ -10,6 +10,13 @@ from wardrobe_catalog import discover
 
 ROOT = Path(__file__).resolve().parents[1]
 
+def diaper_bulk(filename):
+    for family, bulk in [("Waddle", 10), ("Moosive", 8), ("Giant", 6), ("Huge", 5), ("Large", 4),
+                         ("Medium", 3), ("Small", 2), ("Training", 1), ("Cover", 1)]:
+        if family in filename:
+            return bulk
+    return 3  # Author Littlepottchi capacity in wetting units; stance remains the independently reviewed visual fit.
+
 def build(source):
     out = ROOT / "assets/dressup"
     out.mkdir(parents=True, exist_ok=True)
@@ -75,7 +82,7 @@ def build(source):
         # The reviewed wide silhouettes extend well below the narrow base's crotch.
         bottom = rect[1] + rect[3] if rect else bbox[3]
         stance = "wide" if bottom > 505 else "narrow"
-        diapers.append({"id": item["id"], "image": filename, "stance": stance,
+        diapers.append({"id": item["id"], "image": filename, "stance": stance, "bulk": 6 if rect else diaper_bulk(filename),
                         **({"rect": rect, "fitNote": "Item illustration fitted to the matching Giant silhouette; no native print overlay supplied."} if rect else {})})
 
     clothes, audit = discover(source, copy, previous)
@@ -89,12 +96,17 @@ def build(source):
     for group, items in [("clothes", clothes), ("diapers", diapers)]:
         old = {item["id"]: item for item in previous.get(group, [])}
         for item in items:
-            keys = ["name", "description", "rarity", "slot", "stances"] if group == "clothes" else ["stance", "fitNote"]
+            keys = ["name", "description", "rarity", "slot", "stances"] if group == "clothes" else ["stance", "fitNote", "bulk"]
             for key in keys:
                 if key in old.get(item["id"], {}):
                     item[key] = old[item["id"]][key]  # Rebuilding artwork preserves the handler's saved tuning.
-    manifest = {"version": 2, "canvas": [387, 875], "bases": bases, "faces": faces, "hair": hair,
-                "diapers": diapers, "clothes": clothes, "provenance": provenance}
+    foods = []
+    for food_id, name, filename, fullness, joy in [("apple", "Apple", "apple1.png", 30, 3),
+            ("banana", "Banana", "banana1.png", 35, 3), ("cookie", "Cookie", "cookie1.png", 15, 10),
+            ("nuts", "Peanuts", "nuts1.png", 25, 5), ("lunch", "Packed lunch", "baglunch1.png", 45, 5)]:
+        foods.append({"id": food_id, "name": name, "image": copy(f"Items/Collectibles/{filename}"), "fullness": fullness, "joy": joy})
+    manifest = {"version": 3, "canvas": [387, 875], "bases": bases, "faces": faces, "hair": hair,
+                "diapers": diapers, "clothes": clothes, "foods": foods, "provenance": provenance}
     audit["designs"] = len(clothes)
     audit["bySlot"] = dict(Counter(item["slot"] for item in clothes))
     (out / "catalog.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
