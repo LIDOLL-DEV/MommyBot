@@ -10,7 +10,8 @@ Discord membership. Signing in or replaying a saved drop costs nothing.
 Choose one of ten numbered landing pockets and bet **1, 5, 10, 25, 50 or 100
 LiDollcoins**. Press **Drop the rainbow** to commit that bet. The server randomly
 selects entry pin **4, 5, 6 or 7**, each equally likely, then chooses a left/right
-bounce at each of the twenty pin rows. At a wall the ball reflects inward. The
+bounce at ordinary pegs. Special pegs can change the route or add rewards.
+At a wall the ball reflects inward. The
 field is ten pins wide and twenty rows high, with ten pockets numbered left to
 right. Payout distance is the absolute difference between your guess and the
 landing pocket; the edges do not wrap around.
@@ -24,7 +25,8 @@ landing pocket; the edges do not wrap around.
 
 Returns **include the original stake**. LiDollcoins are whole numbers: one-away
 payouts on 1-, 5-, and 25-coin bets are 2, 8, and 38 coins, as requested. The game
-shows the exact coin returns for the selected wager before purchase.
+shows the exact landing returns for the selected wager before purchase. Collected
+coin-peg bonuses are added to those returns, including on missed guesses.
 
 The canvas replays the saved path with colorful ball trails, pin-impact rings,
 glowing pins and rainbow pockets. A system preference for reduced motion shows
@@ -33,6 +35,23 @@ announcements. Free **Replay** and recent-drop buttons never charge or reroll.
 The most recent eight settled drops are visible only to their owner.
 
 ## Payments and recovery
+
+The board contains 11 striped blocked pegs, nine orange bombs and eight gold
+coin pegs. Their authored layout is visible before betting and saved per round.
+
+- Blocks push the ball two columns left or right while descending one row.
+- Bombs launch it two or three grid spaces in one of eight equally likely
+  compass directions, including upward and sideways. The flight clears
+  intervening pegs; collisions resume at its destination. Walls and ceiling
+  reflect the blast; reaching the bottom finishes the drop. Each bomb fires
+  once per drop, preventing endless upward loops. Explosions add spark bursts.
+- Coin pegs award a uniformly random **1-5 extra coins**, once per peg per drop.
+  Returning to a collected peg cannot award again. They pay even when the
+  pocket guess misses. Gold `+N` effects and the tally show collected bonuses.
+
+Bombs and coins reset for each new paid drop. Replays only repeat their effects.
+The final result separates the landing return from the peg bonus, then confirms
+their combined credit. Reduced motion shows that final tally immediately.
 
 The server owns the random path and payout. No outcome is exposed until the
 entry debit has a verified receipt. A single `balldrop_rounds` row pins the bet,
@@ -74,6 +93,11 @@ The HTML/CSS/canvas assets are in `src/balldrop/web/`. This repository has no
 reuse the authored rules and preview without performing real wallet operations.
 Never recalculate already-saved payouts after changing rules.
 
+`obstacles`, `trajectory` and `bonus` are additive columns on `balldrop_rounds`.
+Old rows default to no obstacles, their original row-by-row path and zero bonus;
+migration and retries never reroll them. Edit `OBSTACLES`, `BLAST_DIRECTIONS` and
+`COIN_REWARD` in `rules.js` for future drops, updating descriptions alongside them.
+
 ## Verification
 
 Run `node --test test/balldrop.test.js` and `npm test`. Tests use fake online
@@ -82,6 +106,11 @@ distance payouts, rounding, pin bounds, invalid inputs, duplicate requests,
 restart recovery, wallet pinning, lost receipts, malformed receipts, storage
 failures, locking, paused recovery, private commands, CSRF and session isolation.
 Shared SSO tests also cover standalone ball-drop login and consent.
+
+Obstacle tests cover all eight blast directions, upward revisits, bottom exits,
+bounded termination, block deflection, 1-5 coin rolls, single collection, bonuses
+on misses, hidden unpaid outcomes and migration of pending legacy rounds. The
+Chrome fixture also verifies coin tallies and the landing/bonus breakdown.
 
 Set `PUPPETEER_MODULE` and `CHROME_PATH` to local tools, then run
 `node scripts/check-balldrop-browser.mjs`. `BALLDROP_SCREENSHOT_DIR` optionally

@@ -5,6 +5,10 @@ distance. These are wallet-journal game payouts, not quest rewards. Replaying a
 saved animation must never award progress or additional coins. Any future quest
 integration should consume a unique settled round once. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md).
 
+Coin pegs add 1-5 coins each once per paid drop, including misses. Bombs may
+revisit pegs but cannot re-award them. Future quests must deduplicate by saved
+round and peg coordinates rather than reacting to animation or replay events.
+
 Little Log nightly reports are read-only and grant no currency, quest progress
 or roles. Generated report prose must never trigger game actions. See
 [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md).

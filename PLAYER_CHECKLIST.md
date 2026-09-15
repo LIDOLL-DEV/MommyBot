@@ -6,6 +6,9 @@
   returns 1.5x rounded up, two away returns your bet, and larger misses lose it.
   Returns include your stake. Replay is free; use **Retry payment** for a pending
   debit or payout instead of placing a replacement bet.
+  Striped blocks shove the ball sideways; orange bombs can launch it in any
+  direction. Gold coin pegs give 1-5 extra coins each, once per drop, even on a
+  missed guess. Bombs and coins reset each new drop; replay earns nothing.
 
 - Nightly Little Log reports appear in the configured reports channel after
   generation completes. Open the `.md` attachment for the full report; its caption

@@ -5,6 +5,10 @@ There is no NPC conversation or modding GUI for this game. Keep exact landing,
 gross return, rounded payouts and pending-credit wording tied to server state;
 cosmetic replay must not announce a new payment. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md).
 
+Block, bomb and coin-peg notices are fixed canvas status messages. Use saved
+hits and pickup amounts, and keep the landing-return/bonus breakdown accurate.
+A replayed gold sparkle is not a newly earned coin.
+
 Little Log nightly reports are upstream model-authored Markdown attachments
 with a fixed date/ID and completeness caption in `src/reports/publisher.js`.
 Report text never controls bot actions or mentions. See

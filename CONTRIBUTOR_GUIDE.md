@@ -14,6 +14,13 @@ Load pending guards before HTTP and drain wallet actions before journal close.
 Route `/balldrop`, `!balldrop`, private menus and standalone SSO consistently;
 unlink must revoke its sessions. Animation/replay cannot affect payments.
 
+Save each special-peg layout, full trajectory and rolled coin bonus before
+debiting. Blocks deflect two columns; bombs launch in eight directions once per
+drop; coin pegs award 1-5 coins once each. Combine landing return and bonus in
+the existing idempotent credit, even on misses. Legacy rows have no obstacles
+or bonus and keep their original path. Never recompute old results from the
+current board or let cosmetic pickups call wallet operations.
+
 Nightly Little Log publication lives in `src/reports/`; see
 [NIGHTLY_REPORTS_GUIDE.md](NIGHTLY_REPORTS_GUIDE.md). Keep report-read tokens
 separate from wallet credentials. Validate daily completion metadata and attach

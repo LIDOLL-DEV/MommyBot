@@ -1,13 +1,13 @@
 import Database from "better-sqlite3";
 import { randomInt, randomUUID } from "node:crypto";
 import { WalletError } from "../wallet/client.js";
-import { BETS, WIDTH, HEIGHT, BallDropError, ballDropConfig, ballPath, payout } from "./rules.js";
+import { BETS, WIDTH, HEIGHT, OBSTACLES, COIN_REWARD, BallDropError, ballDropConfig, obstacleDrop, payout } from "./rules.js";
 export { BallDropError } from "./rules.js";
 
 export class BallDropStore {
-  constructor(filename, wallet, config = ballDropConfig(), { draw = randomInt } = {}) {
+  constructor(filename, wallet, config = ballDropConfig(), { draw = randomInt, obstacles = OBSTACLES } = {}) {
     this.db = new Database(filename); this.db.pragma("journal_mode = WAL");
-    this.wallet = wallet; this.config = config; this.draw = draw;
+    this.wallet = wallet; this.config = config; this.draw = draw; this.obstacles = obstacles.map(obstacle => ({ ...obstacle }));
     this.db.exec(`CREATE TABLE IF NOT EXISTS balldrop_rounds (
       id TEXT PRIMARY KEY,user_id TEXT NOT NULL,request_id TEXT NOT NULL,
       bet INTEGER NOT NULL CHECK(bet IN (1,5,10,25,50,100)),guess INTEGER NOT NULL CHECK(guess BETWEEN 1 AND 10),
@@ -16,6 +16,10 @@ export class BallDropStore {
       debit_attempted INTEGER NOT NULL DEFAULT 0,account_id TEXT NOT NULL,base_url TEXT NOT NULL,client_id TEXT NOT NULL,
       created INTEGER NOT NULL,UNIQUE(user_id,request_id));
       CREATE UNIQUE INDEX IF NOT EXISTS balldrop_pending ON balldrop_rounds(user_id) WHERE state IN ('debit','credit');`);
+    const columns = new Set(this.db.prepare("PRAGMA table_info(balldrop_rounds)").all().map(column => column.name));
+    for (const column of ["obstacles", "trajectory"]) if (!columns.has(column)) this.db.exec(`ALTER TABLE balldrop_rounds ADD COLUMN ${column} TEXT NOT NULL DEFAULT '[]'`);
+    if (!columns.has("bonus")) this.db.exec("ALTER TABLE balldrop_rounds ADD COLUMN bonus INTEGER NOT NULL DEFAULT 0 CHECK(bonus>=0)");
+    // Add snapshots without rerolling legacy drops; an empty trajectory replays the original row-by-row path.
     const previous = wallet.hasPending;
     wallet.hasPending = user => previous(user) || Boolean(this.pending(user));
     wallet.balldrop = this;
@@ -26,6 +30,8 @@ export class BallDropStore {
   publicRound(round) {
     if (!round || ["debit", "failed"].includes(round.state)) return null;
     return { id: round.id, bet: round.bet, guess: round.guess, path: JSON.parse(round.path), landing: round.landing,
+      obstacles: JSON.parse(round.obstacles), trajectory: JSON.parse(round.trajectory),
+      bonus: round.bonus, basePayout: round.payout - round.bonus,
       payout: round.payout, state: round.state, created: round.created };
   } // Never reveal the random entry or landing before a matching debit receipt has been saved.
   snapshot(user) {
@@ -34,6 +40,7 @@ export class BallDropStore {
     const recent = this.db.prepare("SELECT * FROM balldrop_rounds WHERE user_id=? AND state='done' ORDER BY rowid DESC LIMIT 8").all(user);
     const receipt = this.db.prepare("SELECT request_id AS request,state FROM balldrop_rounds WHERE user_id=? ORDER BY rowid DESC LIMIT 1").get(user);
     return { enabled: this.config.enabled, bets: BETS, width: WIDTH, height: HEIGHT, rounding: "up",
+      obstacles: this.obstacles.map(obstacle => ({ ...obstacle })), coinReward: COIN_REWARD,
       round: this.publicRound(latest), recent: recent.map(round => this.publicRound(round)), receipt: receipt || null,
       pending: pending ? { action: pending.state, amount: pending.state === "debit" ? pending.bet : pending.payout } : null };
   } // Return only this player's visible rounds and payment status, without credentials or hidden outcomes.
@@ -53,9 +60,9 @@ export class BallDropStore {
       }
       if (!this.config.enabled) throw new BallDropError("New drops are paused. You can still recover a pending payment.");
       if (this.wallet.hasPending(user)) throw new BallDropError("Finish your pending wallet action with Retry payment or /lidollid wallet retry first.");
-      const account = this.wallet.requireConnection(user), path = ballPath(this.draw), landing = path.at(-1), id = randomUUID();
-      this.db.prepare("INSERT INTO balldrop_rounds(id,user_id,request_id,bet,guess,path,landing,payout,account_id,base_url,client_id,created) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
-        .run(id, user, input.request, input.bet, input.guess, JSON.stringify(path), landing, payout(input.bet, input.guess, landing), account.account_id, account.base_url, account.client_id, Date.now());
+      const account = this.wallet.requireConnection(user), drop = obstacleDrop(this.draw, this.obstacles), landing = drop.path.at(-1), id = randomUUID();
+      this.db.prepare("INSERT INTO balldrop_rounds(id,user_id,request_id,bet,guess,path,landing,payout,account_id,base_url,client_id,created,obstacles,trajectory,bonus) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+        .run(id, user, input.request, input.bet, input.guess, JSON.stringify(drop.path), landing, payout(input.bet, input.guess, landing) + drop.bonus, account.account_id, account.base_url, account.client_id, Date.now(), JSON.stringify(drop.obstacles), JSON.stringify(drop.trajectory), drop.bonus);
       return this.settle(this.round(id));
     });
   } // Lock the player, freeze the wager and random path, then debit once; browser-supplied results never affect a payout.

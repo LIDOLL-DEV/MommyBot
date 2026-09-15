@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { BallDropStore, BallDropError } from "../src/balldrop/store.js";
-import { BETS, ballPath, payout } from "../src/balldrop/rules.js";
+import { BETS, OBSTACLES, BLAST_DIRECTIONS, ballPath, obstacleDrop, payout } from "../src/balldrop/rules.js";
 import { WalletService } from "../src/wallet/service.js";
 import { WalletError } from "../src/wallet/client.js";
 import { IdentityStore } from "../src/auth/store.js";
@@ -17,7 +17,7 @@ import { createIdentityHandler } from "../src/auth/index.js";
 import { runWalletAction } from "../src/wallet/commands.js";
 import { createGameLogin } from "../src/games/login.js";
 
-function fixture(t) {
+function fixture(t, { obstacles = [] } = {}) {
   const directory = mkdtempSync(join(tmpdir(), "prism-drop-"));
   const f = { funds: { alice: 5000, bob: 5000 }, ledger: new Map(), lose: null, rolls: 0 };
   f.client = { config: { baseUrl: "https://wallet.example/", clientId: "lidollbot" }, revoke: async () => {},
@@ -39,7 +39,7 @@ function fixture(t) {
     } };
   const open = seed => {
     f.wallet = new WalletService(join(directory, "wallet.db"), f.client);
-    f.game = new BallDropStore(join(directory, "game.db"), f.wallet, { enabled: true }, { draw: () => { f.rolls++; return 0; } });
+    f.game = new BallDropStore(join(directory, "game.db"), f.wallet, { enabled: true }, { obstacles, draw: () => { f.rolls++; return 0; } });
     if (seed) for (const user of ["alice", "bob"]) f.wallet.db.prepare("INSERT INTO online_wallets VALUES (?,?,?,?,?,?)").run(user, user, Date.now() + 86400000, user, f.client.config.baseUrl, f.client.config.clientId);
   };
   open(true);
@@ -56,6 +56,95 @@ test("all four entry pins, 20 bounces and reflecting walls keep the route on a 1
     assert.equal(route[0], entry + 4); assert.equal(route.length, 21);
     route.forEach((column, index) => { assert.ok(column >= 1 && column <= 10); if (index) assert.equal(Math.abs(column - route[index - 1]), 1); });
   }
+});
+
+test("bombs launch in every compass direction, fire only once, and gravity always reaches a pocket", () => {
+  for (let direction = 0; direction < 8; direction++) {
+    const layout = [{ row: 1, column: 3, type: "bomb" }];
+    const drop = obstacleDrop(max => max === 8 ? direction : 0, layout);
+    const at = drop.trajectory.findIndex(point => point.hit === "bomb"), next = drop.trajectory[at + 1];
+    const [dx, dy] = BLAST_DIRECTIONS[direction];
+    assert.equal(next.column, 3 + dx * 2); assert.equal(next.row, Math.abs(1 + dy * 2));
+    assert.equal(drop.trajectory.filter(point => point.hit === "bomb").length, 1);
+    assert.equal(drop.trajectory.at(-1).row, 20);
+  }
+  const upward = obstacleDrop(() => 0, [{ row: 3, column: 1, type: "bomb" }]);
+  const index = upward.trajectory.findIndex(point => point.hit === "bomb");
+  assert.ok(upward.trajectory[index + 1].row < upward.trajectory[index].row);
+  assert.ok(upward.trajectory.filter(point => point.row === 3 && point.column === 1).length > 1);
+  const downward = obstacleDrop(max => max === 8 ? 6 : 0, [{ row: 19, column: 1, type: "bomb" }]);
+  const bottom = downward.trajectory.findIndex(point => point.hit === "bomb");
+  assert.deepEqual(downward.trajectory[bottom + 1], { row: 20, column: 1 });
+  for (let seed = 1; seed <= 150; seed++) {
+    let state = seed;
+    const drop = obstacleDrop(max => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state % max; });
+    assert.ok(drop.trajectory.length <= 20 + 4 * OBSTACLES.filter(peg => peg.type === "bomb").length + 1);
+    assert.equal(drop.trajectory.at(-1).row, 20);
+    for (const point of drop.trajectory) assert.ok(point.column >= 1 && point.column <= 10 && point.row >= 0 && point.row <= 20);
+  }
+});
+
+test("blocked pegs shove two columns sideways and ignore client-invented obstacles", async t => {
+  const layout = [{ row: 1, column: 3, type: "block" }], drop = obstacleDrop(() => 0, layout);
+  assert.equal(drop.trajectory[1].hit, "block"); assert.deepEqual(drop.trajectory[2], { row: 2, column: 1 });
+  const f = fixture(t, { obstacles: layout });
+  const result = await f.act({ obstacles: [{ row: 1, column: 3, type: "coin" }], bonus: 99999 });
+  assert.deepEqual(result.round.obstacles, layout); assert.equal(result.round.bonus, 0);
+  assert.throws(() => obstacleDrop(() => 0, [...layout, ...layout]), /Invalid obstacle/);
+});
+
+test("coin pegs award 1-5 each once even when a bomb revisits a collected peg", () => {
+  const layout = [{ row: 1, column: 3, type: "coin" }, { row: 3, column: 1, type: "bomb" }];
+  for (const reward of [1, 2, 3, 4, 5]) {
+    const drop = obstacleDrop(max => max === 5 ? reward - 1 : 0, layout);
+    assert.equal(drop.bonus, reward);
+    assert.ok(drop.trajectory.filter(point => point.row === 1 && point.column === 3).length > 1);
+    assert.equal(drop.trajectory.filter(point => point.hit === "coin").length, 1);
+    assert.equal(drop.trajectory.find(point => point.hit === "coin").coins, reward);
+  }
+});
+
+test("peg bonuses pay on misses and are journaled together with winning returns", async t => {
+  for (const guess of [2, 10]) {
+    const f = fixture(t, { obstacles: OBSTACLES }), expected = obstacleDrop(() => 0);
+    const result = await f.act({ guess });
+    assert.equal(result.round.basePayout, payout(5, guess, expected.path.at(-1)));
+    assert.equal(result.round.bonus, expected.bonus); assert.ok(result.round.bonus > 0);
+    assert.equal(f.funds.alice, 5000 - 5 + result.round.basePayout + result.round.bonus);
+    assert.equal(f.ledger.size, 2, "One combined credit pays the landing return plus all coin pegs");
+  }
+});
+
+test("obstacles, bomb directions and coin rolls survive restart and changed level layouts", async t => {
+  const f = fixture(t, { obstacles: OBSTACLES }); f.lose = "credit";
+  await assert.rejects(f.act(), /payout is pending/);
+  const before = f.game.snapshot("alice").round, funds = f.funds.alice, rolls = f.rolls;
+  assert.ok(before.trajectory.some(point => point.hit === "coin")); assert.ok(before.trajectory.some(point => point.hit === "bomb"));
+  await f.reopen(); f.game.obstacles = [];
+  const result = await f.game.retry("alice");
+  assert.deepEqual(result.round.trajectory, before.trajectory); assert.deepEqual(result.round.obstacles, before.obstacles);
+  assert.equal(result.round.bonus, before.bonus); assert.equal(f.rolls, rolls); assert.equal(f.funds.alice, funds); assert.equal(f.ledger.size, 2);
+});
+
+test("legacy database migration leaves an unpaid original drop and its payout untouched", async t => {
+  const f = fixture(t); f.lose = "debit";
+  await assert.rejects(f.act(), /pending/);
+  const original = f.game.pending("alice");
+  for (const column of ["obstacles", "trajectory", "bonus"]) f.game.db.exec(`ALTER TABLE balldrop_rounds DROP COLUMN ${column}`);
+  await f.reopen(); f.game.obstacles = OBSTACLES;
+  const recovered = await f.game.retry("alice");
+  assert.deepEqual(recovered.round.path, JSON.parse(original.path)); assert.deepEqual(recovered.round.obstacles, []); assert.deepEqual(recovered.round.trajectory, []);
+  assert.equal(recovered.round.bonus, 0); assert.equal(recovered.round.payout, original.payout); assert.equal(f.funds.alice, 5005);
+});
+
+test("an uncertain entry reveals the public layout but hides its coin rolls and bomb directions", async t => {
+  const f = fixture(t, { obstacles: OBSTACLES }); f.lose = "debit";
+  await assert.rejects(f.act(), /pending/);
+  const state = f.game.snapshot("alice");
+  assert.deepEqual(state.obstacles, OBSTACLES); assert.equal(state.round, null);
+  assert.doesNotMatch(JSON.stringify(state), /trajectory|landing|bonus|"hit"/);
+  const saved = f.game.pending("alice"); await f.game.retry("alice");
+  assert.equal(f.game.snapshot("alice").round.bonus, saved.bonus);
 });
 
 test("all allowed bets follow exact, adjacent, two-away and losing payouts with half coins rounded up", async t => {

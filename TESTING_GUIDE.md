@@ -15,6 +15,12 @@ rounded returns, refresh, pending payouts, reduced motion, low funds, outages,
 request-preparation failure and logout. Set `BALLDROP_SCREENSHOT_DIR` to save
 preview images. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md) for deployment checks.
 
+Obstacle tests cover all bomb directions, reflecting walls/ceiling, bottom
+pockets, single-use bombs, blocks and bounded paths. Coin tests cover every
+reward value, revisits, miss bonuses, one combined credit, hidden unpaid outcomes,
+changed layouts and legacy migration. Chrome checks upward blasts, coin tallies
+and bonus breakdowns through replay, refresh and payment recovery.
+
 ## Little Log nightly reports
 
 `test/reports.test.js` checks explicit history/future configuration, safe API

@@ -7,6 +7,11 @@ it does not call an LLM. Its canvas adds cosmetic particle randomness only.
 Payouts and saved paths live in `src/balldrop/`; never let generated copy choose
 an outcome or claim a pending credit has arrived. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md).
 
+Blocked pegs, bomb launches and 1-5 coin rewards are also resolved on the server.
+Saved hits drive sparks, gold pickup labels and result summaries. Cosmetic
+randomness cannot change rewards. Keep landing returns, peg bonuses and pending
+payment wording distinct and accurate.
+
 ## Little Log nightly reports
 
 Nightly report Markdown is generated upstream and attached in full by

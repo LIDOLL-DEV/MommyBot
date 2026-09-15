@@ -56,20 +56,26 @@ try {
     await mkdir(process.env.BALLDROP_SCREENSHOT_DIR, { recursive: true });
     await page.screenshot({ path: join(process.env.BALLDROP_SCREENSHOT_DIR, "prism-drop-desktop.png"), fullPage: true });
   }
-  await idle(); assert.equal(coins, 213); assert.equal(receipts.size, 2);
-  assert.equal(await page.$eval("#result-value", node => node.textContent), "38 coins returned");
+  await idle(); assert.equal(coins, 215); assert.equal(receipts.size, 2);
+  assert.equal(await page.$eval("#result-value", node => node.textContent), "40 coins returned");
+  assert.equal(await page.$eval("#peg-bonus", node => node.textContent), "2");
+  assert.match(await page.$eval("#result-copy", node => node.textContent), /Landing return: 38 coins. Coin pegs: \+2 coins/);
+  const saved = game.snapshot("fixture").round;
+  assert.ok(saved.trajectory.some(point => point.hit === "bomb")); assert.ok(saved.trajectory.some(point => point.hit === "block"));
+  assert.equal(saved.trajectory.filter(point => point.hit === "coin").length, 2);
+  assert.ok(saved.trajectory.some((point, index) => index && point.row < saved.trajectory[index - 1].row));
   await page.click("#replay"); await idle(); assert.equal(receipts.size, 2);
-  await page.reload(); await page.waitForFunction(() => document.getElementById("balance").textContent === "213");
-  assert.equal(await page.$eval("#result-value", node => node.textContent), "38 coins returned");
+  await page.reload(); await page.waitForFunction(() => document.getElementById("balance").textContent === "215");
+  assert.equal(await page.$eval("#result-value", node => node.textContent), "40 coins returned");
   await page.setViewport({ width: 390, height: 844 });
   await page.click('[aria-label="Guess pocket 3"]'); await page.click('[aria-label="Bet 25 coins"]');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   if (process.env.BALLDROP_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.BALLDROP_SCREENSHOT_DIR, "prism-drop-mobile.png"), fullPage: true });
   await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
   loseCredit = true; await page.click("#drop"); await idle();
-  assert.equal(coins, 226); assert.equal(await page.$eval("#pending", node => node.hidden), false);
+  assert.equal(coins, 230); assert.equal(await page.$eval("#pending", node => node.hidden), false);
   assert.match(await page.$eval("#result-value", node => node.textContent), /pending/);
-  await page.click("#retry"); await idle(); assert.equal(coins, 226); assert.equal(receipts.size, 4);
+  await page.click("#retry"); await idle(); assert.equal(coins, 230); assert.equal(receipts.size, 4);
   assert.equal(await page.$eval("#pending", node => node.hidden), true);
   failBalance = true; await page.click("#refresh"); await idle(); assert.equal(await page.$eval("#drop", node => node.disabled), true);
   failBalance = false; coins = 0; await page.click("#refresh"); await idle(); assert.match(await page.$eval("#controls-note", node => node.textContent), /need 25 coins/);
@@ -77,10 +83,10 @@ try {
   await page.evaluate(() => { crypto.randomUUID = () => { throw Error("fixture"); }; });
   await page.click("#drop"); await idle(); assert.equal(coins, 100); assert.match(await page.$eval("#notice", node => node.textContent), /Nothing was sent/);
   await page.evaluate(() => { crypto.randomUUID = undefined; });
-  loseCredit = false; await page.click('[aria-label="Bet 1 coin"]'); await page.click("#drop"); await idle(); assert.equal(coins, 101);
+  loseCredit = false; await page.click('[aria-label="Bet 1 coin"]'); await page.click("#drop"); await idle(); assert.equal(coins, 103);
   await page.click("#logout"); await page.waitForFunction(() => !document.getElementById("signin").hidden && document.getElementById("balance").textContent === "—");
   assert.deepEqual(errors, []); assert.deepEqual(violations, []);
-  console.log("PASS: Chrome desktop/mobile, 200-pin canvas, colored trails, wallet bet/rounded payout, free replay, refresh, payment recovery, reduced motion, disabled controls and logout. No real coins used.");
+  console.log("PASS: Chrome desktop/mobile, blocked pegs, upward bomb blasts, coin pickups and combined payouts, colored trails, free replay, refresh, payment recovery, reduced motion and logout. No real coins used.");
 } finally {
   await browser?.close();
   if (server?.listening) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }

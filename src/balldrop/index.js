@@ -14,7 +14,7 @@ export function initializeBallDrop(config, identities, wallet) {
 } // Load pending balldrop payments before the shared auth listener accepts browser actions.
 
 export function createBallDropCommands(config, sessions) {
-  const linkMessage = user => `Open Prism Drop: ${config.origin}/balldrop/open?ticket=${sessions.begin(user)}\nPick pocket 1-10 and bet 1, 5, 10, 25, 50 or 100 coins. Exact: 2x return; one away: 1.5x rounded up; two away: stake returned. This private link expires in ten minutes; do not share it.`;
+  const linkMessage = user => `Open Prism Drop: ${config.origin}/balldrop/open?ticket=${sessions.begin(user)}\nPick pocket 1-10 and bet 1, 5, 10, 25, 50 or 100 coins. Exact: 2x return; one away: 1.5x rounded up; two away: stake returned. Blocks shove sideways, bombs blast in random directions, and coin pegs give 1-5 extra coins each, once per drop. This private link expires in ten minutes; do not share it.`;
   return {
     linkMessage,
     async registerGuild(guild) {
