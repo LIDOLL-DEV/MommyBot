@@ -1,3 +1,4 @@
+import { OBSTACLES } from "./fixtures/balldrop-layout.mjs";
 import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -26,7 +27,7 @@ const client = { config: { baseUrl: "https://fixture.invalid/", clientId: "lidol
   }
   return receipt;
 } };
-const wallet = new WalletService(":memory:", client), game = new BallDropStore(":memory:", wallet, { enabled: true }, { draw: () => 0 });
+const wallet = new WalletService(":memory:", client), game = new BallDropStore(":memory:", wallet, { enabled: true }, { draw: () => 0, obstacles: OBSTACLES });
 try {
   identities.db.prepare("INSERT INTO identity_links VALUES (?,?,?,?,?)").run("fixture", "issuer", "fixture", "Doll", Date.now());
   wallet.db.prepare("INSERT INTO online_wallets VALUES (?,?,?,?,?,?)").run("fixture", "fixture", Date.now() + 3600000, "fixture", client.config.baseUrl, client.config.clientId);
@@ -44,12 +45,16 @@ try {
   await page.goto(`${config.origin}/balldrop/open?ticket=${sessions.begin("fixture")}`);
   await Promise.all([page.waitForNavigation(), page.click("button[type=submit]")]);
   await page.waitForFunction(() => document.getElementById("balance").textContent === "200");
+  assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme), "light");
+  assert.equal(await page.$eval(".control-card", node => getComputedStyle(node).borderRadius), "24px");
+  assert.match(await page.$eval("#peg-reset", node => node.textContent), /shuffled when you drop/);
   assert.equal(await page.$$eval("#pockets button", buttons => buttons.length), 10);
   assert.deepEqual(await page.$$eval("#bets button", buttons => buttons.map(button => Number(button.textContent))), [1, 5, 10, 25, 50, 100]);
   await page.click('[aria-label="Guess pocket 3"]'); await page.click('[aria-label="Bet 25 coins"]');
   assert.equal(await page.$eval("#return-near", node => node.textContent), "38 coins");
   await page.click("#drop");
   await page.waitForFunction(() => document.getElementById("controls-note").textContent.includes("Follow the glow"));
+  assert.match(await page.$eval("#peg-reset", node => node.textContent), /Playing this drop's saved field/);
   assert.equal(await page.$eval("#drop", button => button.disabled), true);
   await new Promise(resolve => setTimeout(resolve, 1100));
   if (process.env.BALLDROP_SCREENSHOT_DIR) {
@@ -84,9 +89,21 @@ try {
   await page.click("#drop"); await idle(); assert.equal(coins, 100); assert.match(await page.$eval("#notice", node => node.textContent), /Nothing was sent/);
   await page.evaluate(() => { crypto.randomUUID = undefined; });
   loseCredit = false; await page.click('[aria-label="Bet 1 coin"]'); await page.click("#drop"); await idle(); assert.equal(coins, 103);
+  game.obstacles = undefined; // Exercise production field generation after the fixed collision and payment cases.
+  let seed = 918;
+  game.draw = max => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return Math.floor(seed / 4294967296 * max); };
+  await page.click("#drop"); await idle(); const firstRandom = game.snapshot("fixture").round;
+  await page.click("#drop"); await idle(); const secondRandom = game.snapshot("fixture").round;
+  assert.equal(secondRandom.obstacles.length, 28); assert.notDeepEqual(secondRandom.obstacles, firstRandom.obstacles);
+  assert.match(await page.$eval("#peg-reset", node => node.textContent), /Saved field shown/);
+  const savedCoins = coins, savedReceipts = receipts.size;
+  await page.click("#replay"); await idle(); await page.reload(); await idle();
+  assert.deepEqual(game.snapshot("fixture").round, secondRandom);
+  assert.equal(coins, savedCoins); assert.equal(receipts.size, savedReceipts);
+  assert.equal(await page.$eval("#peg-bonus", node => Number(node.textContent)), secondRandom.bonus);
   await page.click("#logout"); await page.waitForFunction(() => !document.getElementById("signin").hidden && document.getElementById("balance").textContent === "—");
   assert.deepEqual(errors, []); assert.deepEqual(violations, []);
-  console.log("PASS: Chrome desktop/mobile, blocked pegs, upward bomb blasts, coin pickups and combined payouts, colored trails, free replay, refresh, payment recovery, reduced motion and logout. No real coins used.");
+  console.log("PASS: Chrome desktop/mobile pastel theme, shuffled fields, blocked pegs, upward bomb blasts, coin pickups and combined payouts, colored trails, saved replay/reload, payment recovery, reduced motion and logout. No real coins used.");
 } finally {
   await browser?.close();
   if (server?.listening) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }

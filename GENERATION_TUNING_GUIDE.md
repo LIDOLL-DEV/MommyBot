@@ -7,7 +7,10 @@ it does not call an LLM. Its canvas adds cosmetic particle randomness only.
 Payouts and saved paths live in `src/balldrop/`; never let generated copy choose
 an outcome or claim a pending credit has arrived. See [BALLDROP_GUIDE.md](BALLDROP_GUIDE.md).
 
-Blocked pegs, bomb launches and 1-5 coin rewards are also resolved on the server.
+Each new wager shuffles blocked pegs, bombs and coins using `OBSTACLE_COUNTS`
+and `randomObstacles()` in `rules.js`. Entry pins, bounces, bomb launches and
+1-5 coin rewards are also resolved freshly on the server. Never regenerate a
+layout while reading state, replaying an animation or retrying payment.
 Saved hits drive sparks, gold pickup labels and result summaries. Cosmetic
 randomness cannot change rewards. Keep landing returns, peg bonuses and pending
 payment wording distinct and accurate.

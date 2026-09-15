@@ -8,7 +8,9 @@
   debit or payout instead of placing a replacement bet.
   Striped blocks shove the ball sideways; orange bombs can launch it in any
   direction. Gold coin pegs give 1-5 extra coins each, once per drop, even on a
-  missed guess. Bombs and coins reset each new drop; replay earns nothing.
+  missed guess. Every new wager shuffles blocks, bombs and coins and rolls a new
+  drop. The pastel board shows your saved field after playing; the next field
+  is revealed when you drop. Replay earns nothing and preserves that field.
 
 - Nightly Little Log reports appear in the configured reports channel after
   generation completes. Open the `.md` attachment for the full report; its caption

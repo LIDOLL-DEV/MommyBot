@@ -1,5 +1,5 @@
 const $ = id => document.getElementById(id);
-const colors = ["#ff749f", "#ff9972", "#ffce70", "#d8ea76", "#89e6ae", "#5ee0e0", "#74beff", "#aa9cff", "#d68cf0", "#fa85d5"];
+const colors = ["#d95691", "#cc7151", "#b99129", "#849940", "#419777", "#309b9e", "#518cca", "#8973ce", "#ad68c1", "#cc62a5"];
 const motion = matchMedia("(prefers-reduced-motion: reduce)");
 let data = null, busy = false, animating = false, guess = 5, bet = 1, displayed = null, unconfirmed = null;
 try { unconfirmed = JSON.parse(sessionStorage.getItem("prism-pending") || "null"); } catch { /* Storage may be unavailable; the server journal still protects pending payments. */ }
@@ -52,6 +52,7 @@ function showResult(round) {
   displayed = round;
   terrainRound = round; usedPegs = new Set((round.trajectory || []).filter(point => ["coin", "bomb"].includes(point.hit)).map(point => `${point.row}:${point.column}`));
   $("peg-bonus").textContent = round.bonus || 0;
+  $("peg-reset").textContent = "Saved field shown. Your next drop shuffles blocks, bombs and coins again.";
   const distance = Math.abs(round.guess - round.landing), labels = ["Right on the rainbow!", "So close. Still sparkling!", "A soft landing. Stake returned."];
   $("result-title").textContent = labels[distance] || "A little further this time.";
   $("result-copy").textContent = `You picked ${round.guess}. The ball landed in ${round.landing} from pin ${round.path[0]}. Bet: ${money(round.bet)}. Landing return: ${money(round.basePayout ?? round.payout)}. Coin pegs: +${money(round.bonus || 0)}.`;
@@ -75,7 +76,7 @@ function render() {
     button.append(number, text); button.addEventListener("click", () => { if (!busy && !animating) void animate(round); }); $("recent").append(button);
   }
   if (!$("recent").children.length) { const empty = document.createElement("p"); empty.className = "muted"; empty.textContent = "Your settled drops will appear here."; $("recent").append(empty); }
-  if (!data) { displayed = null; ball = null; terrainRound = null; usedPegs.clear(); $("peg-bonus").textContent = "0"; $("result-title").textContent = "A pocketful of possibility."; $("result-copy").textContent = "Sign in to play with your LiDollcoins."; $("result-value").textContent = ""; }
+  if (!data) { displayed = null; ball = null; terrainRound = null; usedPegs.clear(); $("peg-bonus").textContent = "0"; $("result-title").textContent = "A pocketful of possibility."; $("result-copy").textContent = "Sign in to play with your LiDollcoins."; $("result-value").textContent = ""; $("peg-reset").textContent = "A fresh field of blocks, bombs and coins is shuffled when you drop."; }
   if (data?.round && !animating) showResult(data.round);
   controls(); drawField();
 } // Refresh only this player's server snapshot; never use browser values to compute a wallet payout.
@@ -115,7 +116,7 @@ function dot(px, py, radius, color, glow = 0) {
 function drawPeg(column, row, type) {
   const px = x(column), py = y(row), used = usedPegs.has(`${row}:${column}`);
   if (type === "block") {
-    ctx.fillStyle = "#786b94"; ctx.strokeStyle = "#ded0ff"; ctx.lineWidth = 1.5;
+    ctx.fillStyle = "#9578b0"; ctx.strokeStyle = "#624270"; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.roundRect(px - 13, py - 8, 26, 16, 4); ctx.fill(); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(px - 7, py + 4); ctx.lineTo(px - 1, py - 4); ctx.moveTo(px + 1, py + 4); ctx.lineTo(px + 7, py - 4); ctx.stroke();
   } else if (type === "bomb") {
@@ -131,33 +132,34 @@ function drawPeg(column, row, type) {
 } // Draw distinct blocked, explosive and collectible pegs; consumed coins/bombs dim for the remainder of the saved drop.
 
 function drawField() {
-  const obstacles = new Map((terrainRound?.obstacles || data?.obstacles || []).map(peg => [`${peg.row}:${peg.column}`, peg.type]));
+  const obstacles = new Map((terrainRound?.obstacles || []).map(peg => [`${peg.row}:${peg.column}`, peg.type]));
   ctx.clearRect(0, 0, 640, 920);
-  const gradient = ctx.createLinearGradient(0, 0, 640, 850); gradient.addColorStop(0, "#241139"); gradient.addColorStop(.5, "#121426"); gradient.addColorStop(1, "#19122e"); ctx.fillStyle = gradient; ctx.fillRect(15, 8, 610, 880);
-  for (let n = 0; n < 52; n++) dot(25 + ((n * 173) % 580), 28 + ((n * 113) % 775), n % 4 ? .6 : 1.1, "#bca7ff44");
+  const gradient = ctx.createLinearGradient(0, 0, 640, 850); gradient.addColorStop(0, "#fff7fb"); gradient.addColorStop(.5, "#f4ecfc"); gradient.addColorStop(1, "#eef8f3"); ctx.fillStyle = gradient; ctx.fillRect(15, 8, 610, 880);
+  for (let n = 0; n < 52; n++) dot(25 + ((n * 173) % 580), 28 + ((n * 113) % 775), n % 4 ? .6 : 1.1, "#b391c955");
   for (let col = 1; col <= 10; col++) {
     const chosen = col === guess;
-    ctx.fillStyle = chosen ? `${colors[col - 1]}0b` : "#ffffff02"; ctx.fillRect(x(col) - 25, 43, 50, 793);
-    ctx.font = "600 13px system-ui"; ctx.textAlign = "center"; ctx.fillStyle = col >= 4 && col <= 7 ? "#f2b5ff" : "#756384"; ctx.fillText(String(col), x(col), 27);
-    if (col >= 4 && col <= 7) { ctx.fillStyle = "#d791ff"; ctx.beginPath(); ctx.moveTo(x(col) - 4, 35); ctx.lineTo(x(col) + 4, 35); ctx.lineTo(x(col), 41); ctx.fill(); }
+    ctx.fillStyle = chosen ? `${colors[col - 1]}0b` : "#ffffff35"; ctx.fillRect(x(col) - 25, 43, 50, 793);
+    ctx.font = "600 13px system-ui"; ctx.textAlign = "center"; ctx.fillStyle = col >= 4 && col <= 7 ? "#ad3c79" : "#786080"; ctx.fillText(String(col), x(col), 27);
+    if (col >= 4 && col <= 7) { ctx.fillStyle = "#ad3c79"; ctx.beginPath(); ctx.moveTo(x(col) - 4, 35); ctx.lineTo(x(col) + 4, 35); ctx.lineTo(x(col), 41); ctx.fill(); }
     for (let row = 0; row < 20; row++) drawPeg(col, row, obstacles.get(`${row}:${col}`));
     const landed = !animating && displayed?.landing === col;
-    ctx.fillStyle = landed ? colors[col - 1] : `${colors[col - 1]}21`; ctx.strokeStyle = colors[col - 1]; ctx.lineWidth = chosen || landed ? 2.5 : 1;
-    ctx.beginPath(); ctx.roundRect(x(col) - 25, 841, 50, 49, 10); ctx.fill(); ctx.stroke(); ctx.fillStyle = landed ? "#181029" : colors[col - 1]; ctx.font = "800 20px system-ui"; ctx.fillText(String(col), x(col), 872);
-    if (chosen) { ctx.fillStyle = colors[col - 1]; ctx.font = "700 8px system-ui"; ctx.fillText("YOUR PICK", x(col), 908); }
+    ctx.fillStyle = landed ? `${colors[col - 1]}66` : `${colors[col - 1]}21`; ctx.strokeStyle = colors[col - 1]; ctx.lineWidth = chosen || landed ? 2.5 : 1;
+    ctx.beginPath(); ctx.roundRect(x(col) - 25, 841, 50, 49, 10); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#563b68"; ctx.font = "800 20px system-ui"; ctx.fillText(String(col), x(col), 872);
+    if (chosen) { ctx.fillStyle = "#563b68"; ctx.font = "700 8px system-ui"; ctx.fillText("YOUR PICK", x(col), 908); }
   }
   for (const impact of impacts) {
     ctx.beginPath(); ctx.arc(impact.x, impact.y, (1 - impact.life) * (impact.type === "bomb" ? 60 : 26) + 5, 0, Math.PI * 2); ctx.strokeStyle = impact.color; ctx.globalAlpha = impact.life; ctx.lineWidth = impact.type === "bomb" ? 3 : 2; ctx.stroke();
-    if (impact.coins) { ctx.fillStyle = "#ffe28c"; ctx.font = "800 22px system-ui"; ctx.textAlign = "center"; ctx.fillText(`+${impact.coins}`, impact.x, impact.y - 22 - (1 - impact.life) * 35); }
+    if (impact.coins) { ctx.fillStyle = "#94641c"; ctx.font = "800 22px system-ui"; ctx.textAlign = "center"; ctx.fillText(`+${impact.coins}`, impact.x, impact.y - 22 - (1 - impact.life) * 35); }
   } ctx.globalAlpha = 1;
   for (const particle of particles) { ctx.globalAlpha = Math.max(0, particle.life); dot(particle.x, particle.y, particle.size * Math.max(.1, particle.life), particle.color, 7); } ctx.globalAlpha = 1;
-  if (ball) { dot(ball.x, ball.y, 16, "#d892ff22", 24); dot(ball.x, ball.y, 7, "#fff8ff", 18); dot(ball.x - 2, ball.y - 2, 2.5, "#ffffff"); }
+  if (ball) { dot(ball.x, ball.y, 16, "#d892ff22", 24); dot(ball.x, ball.y, 7, "#ad3c79", 18); dot(ball.x - 2, ball.y - 2, 2.5, "#ffffff"); }
 } // Render exactly 200 pins and ten pockets; highlights and animation cannot affect the saved result.
 
 async function animate(round) {
   if (animating) return;
   if (!motion.matches) canvas.scrollIntoView({ block: "center", behavior: "smooth" }); // Keep the drop visible when mobile betting controls sit below the tall field.
   animating = true; displayed = null; terrainRound = round; usedPegs.clear(); particles = []; impacts = []; $("peg-bonus").textContent = "0"; controls();
+  $("peg-reset").textContent = "Playing this drop's saved field. Each bomb and coin peg works once.";
   $("result-title").textContent = "A little rainbow in motion…"; $("result-copy").textContent = `Entered at pin ${round.path[0]}. Your guess: pocket ${round.guess}.`; $("result-value").textContent = "";
   $("field-status").textContent = `Dropping from pin ${round.path[0]}…`;
   if (!motion.matches) await new Promise(resolve => {
@@ -177,7 +179,7 @@ async function animate(round) {
           if (hit.coins) { collected += hit.coins; $("peg-bonus").textContent = collected; }
         } // Account for every saved pickup even if a backgrounded tab skips animation frames.
         previousSegment = segment;
-        const color = from.hit === "coin" ? "#ffe28c" : from.hit === "bomb" ? "#ff9f82" : from.hit === "block" ? "#ddc8ff" : colors[Math.max(0, round.path[Math.max(0, segment - 1)] - 1)];
+        const color = from.hit === "coin" ? "#94641c" : from.hit === "bomb" ? "#db7357" : from.hit === "block" ? "#9674c0" : colors[Math.max(0, round.path[Math.max(0, segment - 1)] - 1)];
         impacts.push({ ...from, life: 1, color, type: from.hit, coins: from.coins });
         if (from.hit) {
           $("field-status").textContent = from.hit === "bomb" ? "Boom! A new direction…" : from.hit === "coin" ? `Coin peg! +${from.coins} extra coins.` : "Blocked peg! Bouncing sideways…";

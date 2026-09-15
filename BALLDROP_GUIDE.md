@@ -37,7 +37,11 @@ The most recent eight settled drops are visible only to their owner.
 ## Payments and recovery
 
 The board contains 11 striped blocked pegs, nine orange bombs and eight gold
-coin pegs. Their authored layout is visible before betting and saved per round.
+coin pegs. Every new paid wager randomly places all 28 special pegs in unique
+cells across rows 1-19, keeping the entry row clear. The entry pin, bounces,
+bomb directions and coin amounts also get fresh server rolls. Before the first
+bet the board shows ordinary pins; afterward it shows the labeled saved field,
+not a preview of the next wager.
 
 - Blocks push the ball two columns left or right while descending one row.
 - Bombs launch it two or three grid spaces in one of eight equally likely
@@ -49,7 +53,8 @@ coin pegs. Their authored layout is visible before betting and saved per round.
   Returning to a collected peg cannot award again. They pay even when the
   pocket guess misses. Gold `+N` effects and the tally show collected bonuses.
 
-Bombs and coins reset for each new paid drop. Replays only repeat their effects.
+Blocks, bombs and coins shuffle for every new paid drop. Replays only repeat
+the saved field and effects; reloads and payment retries never reshuffle.
 The final result separates the landing return from the peg bonus, then confirms
 their combined credit. Reduced motion shows that final tally immediately.
 
@@ -88,14 +93,17 @@ drain. Settle pending drops before rolling back to code without this guard.
 
 Rules live in `src/balldrop/rules.js`, durable settlement in `store.js`, private
 Discord launchers in `index.js`, and authenticated HTTP routes in `web.js`.
-The HTML/CSS/canvas assets are in `src/balldrop/web/`. This repository has no
+The HTML/CSS/canvas assets are in `src/balldrop/web/`. Their soft pink, lilac,
+mint and cream palette, rounded cards, paper shadows and display font follow
+the default Little Tracker appearance from `lidoll.dev/tracker`. The theme is
+self-contained; no tracker scripts, stylesheets or session storage are required. This repository has no
 `game_editor_gui.py`; these files are the editing surface. Future editors should
 reuse the authored rules and preview without performing real wallet operations.
 Never recalculate already-saved payouts after changing rules.
 
 `obstacles`, `trajectory` and `bonus` are additive columns on `balldrop_rounds`.
 Old rows default to no obstacles, their original row-by-row path and zero bonus;
-migration and retries never reroll them. Edit `OBSTACLES`, `BLAST_DIRECTIONS` and
+migration and retries never reroll them. Edit `OBSTACLE_COUNTS`, `BLAST_DIRECTIONS` and
 `COIN_REWARD` in `rules.js` for future drops, updating descriptions alongside them.
 
 ## Verification
@@ -110,7 +118,10 @@ Shared SSO tests also cover standalone ball-drop login and consent.
 Obstacle tests cover all eight blast directions, upward revisits, bottom exits,
 bounded termination, block deflection, 1-5 coin rolls, single collection, bonuses
 on misses, hidden unpaid outcomes and migration of pending legacy rounds. The
-Chrome fixture also verifies coin tallies and the landing/bonus breakdown.
+Chrome fixture also verifies coin tallies, the landing/bonus breakdown, pastel
+styles and successive shuffled fields. Fixed collision scenarios live only in
+`scripts/fixtures/balldrop-layout.mjs`. Seeded tests cover layout counts, unique
+cells, all four entry pins and persistence through retries and restart.
 
 Set `PUPPETEER_MODULE` and `CHROME_PATH` to local tools, then run
 `node scripts/check-balldrop-browser.mjs`. `BALLDROP_SCREENSHOT_DIR` optionally

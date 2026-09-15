@@ -19,7 +19,11 @@ Obstacle tests cover all bomb directions, reflecting walls/ceiling, bottom
 pockets, single-use bombs, blocks and bounded paths. Coin tests cover every
 reward value, revisits, miss bonuses, one combined credit, hidden unpaid outcomes,
 changed layouts and legacy migration. Chrome checks upward blasts, coin tallies
-and bonus breakdowns through replay, refresh and payment recovery.
+and bonus breakdowns through replay, refresh and payment recovery. Seeded
+production-layout tests cover special-peg counts, unique positions, fresh fields
+and paths, all entry pins, and unchanged layouts after duplicate wagers and
+restart recovery. Chrome also checks the tracker pastel theme, successive
+random fields and their saved replay/reload state.
 
 ## Little Log nightly reports
 

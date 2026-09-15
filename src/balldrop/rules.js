@@ -2,21 +2,24 @@ import { randomInt } from "node:crypto";
 
 export const BETS = Object.freeze([1, 5, 10, 25, 50, 100]);
 export const WIDTH = 10, HEIGHT = 20;
-export const OBSTACLES = Object.freeze([
-  [3, 1, "bomb"], [3, 6, "block"], [4, 4, "block"], [4, 9, "bomb"],
-  [6, 3, "bomb"], [6, 7, "block"], [7, 1, "block"], [7, 5, "bomb"],
-  [8, 9, "block"], [9, 4, "block"], [10, 2, "bomb"], [10, 7, "bomb"],
-  [12, 3, "block"], [12, 6, "block"], [13, 9, "bomb"], [14, 1, "block"],
-  [14, 5, "bomb"], [15, 8, "block"], [16, 3, "bomb"], [17, 6, "block"],
-  [1, 3, "coin"], [2, 7, "coin"], [5, 2, "coin"], [8, 6, "coin"],
-  [11, 8, "coin"], [15, 4, "coin"], [18, 2, "coin"], [18, 9, "coin"],
-].map(([row, column, type]) => Object.freeze({ row, column, type })));
+export const OBSTACLE_COUNTS = Object.freeze({ block: 11, bomb: 9, coin: 8 });
 export const COIN_REWARD = Object.freeze({ min: 1, max: 5 });
 export const BLAST_DIRECTIONS = Object.freeze([
   [-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1],
 ].map(direction => Object.freeze(direction))); // Eight equally likely compass directions, stored as column/row offsets.
 export class BallDropError extends Error {}
 export const ballDropConfig = (env = process.env) => ({ enabled: env.BALLDROP_ENABLED !== "false" }); // Pausing new bets keeps existing payment recovery available.
+
+export function randomObstacles(draw = randomInt) {
+  const cells = Array.from({ length: (HEIGHT - 1) * WIDTH }, (_, index) => ({ row: 1 + Math.floor(index / WIDTH), column: 1 + index % WIDTH }));
+  const layout = [];
+  for (const [type, count] of Object.entries(OBSTACLE_COUNTS)) for (let n = 0; n < count; n++) {
+    const selected = draw(cells.length);
+    layout.push({ ...cells[selected], type });
+    cells[selected] = cells.at(-1); cells.pop(); // Sample without replacement so every special peg gets its own cell.
+  }
+  return layout;
+} // Shuffle blocks, bombs and coins across rows 1-19; keep all four entry pins clear for each new wager.
 
 export function ballPath(draw = randomInt) {
   const path = [4 + draw(4)];
@@ -32,7 +35,7 @@ function reflect(value, minimum, maximum) {
   return value;
 } // Reflect a blast at the walls or ceiling so its landing remains inside the field.
 
-export function obstacleDrop(draw = randomInt, obstacles = OBSTACLES) {
+export function obstacleDrop(draw = randomInt, obstacles = randomObstacles(draw)) {
   const layout = obstacles.map(obstacle => ({ ...obstacle })), cells = new Map(), spent = new Set();
   for (const obstacle of layout) {
     const key = `${obstacle.row}:${obstacle.column}`;

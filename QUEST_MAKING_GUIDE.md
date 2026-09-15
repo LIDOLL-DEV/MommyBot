@@ -8,6 +8,8 @@ integration should consume a unique settled round once. See [BALLDROP_GUIDE.md](
 Coin pegs add 1-5 coins each once per paid drop, including misses. Bombs may
 revisit pegs but cannot re-award them. Future quests must deduplicate by saved
 round and peg coordinates rather than reacting to animation or replay events.
+Layouts reshuffle each wager, so a coordinate is only a peg identity within its
+saved round; it must never be treated as a persistent collectible.
 
 Little Log nightly reports are read-only and grant no currency, quest progress
 or roles. Generated report prose must never trigger game actions. See

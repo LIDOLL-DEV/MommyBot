@@ -1,3 +1,4 @@
+import { OBSTACLES } from "../scripts/fixtures/balldrop-layout.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -5,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { BallDropStore, BallDropError } from "../src/balldrop/store.js";
-import { BETS, OBSTACLES, BLAST_DIRECTIONS, ballPath, obstacleDrop, payout } from "../src/balldrop/rules.js";
+import { BETS, OBSTACLE_COUNTS, randomObstacles, BLAST_DIRECTIONS, ballPath, obstacleDrop, payout } from "../src/balldrop/rules.js";
 import { WalletService } from "../src/wallet/service.js";
 import { WalletError } from "../src/wallet/client.js";
 import { IdentityStore } from "../src/auth/store.js";
@@ -17,9 +18,9 @@ import { createIdentityHandler } from "../src/auth/index.js";
 import { runWalletAction } from "../src/wallet/commands.js";
 import { createGameLogin } from "../src/games/login.js";
 
-function fixture(t, { obstacles = [] } = {}) {
+function fixture(t, { obstacles = [], randomLayout = false } = {}) {
   const directory = mkdtempSync(join(tmpdir(), "prism-drop-"));
-  const f = { funds: { alice: 5000, bob: 5000 }, ledger: new Map(), lose: null, rolls: 0 };
+  const f = { funds: { alice: 5000, bob: 5000 }, ledger: new Map(), lose: null, rolls: 0, draw: () => 0 };
   f.client = { config: { baseUrl: "https://wallet.example/", clientId: "lidollbot" }, revoke: async () => {},
     balance: async user => ({ accountId: user, coins: f.funds[user], stars: 5 }),
     operation: async (user, input) => {
@@ -39,7 +40,7 @@ function fixture(t, { obstacles = [] } = {}) {
     } };
   const open = seed => {
     f.wallet = new WalletService(join(directory, "wallet.db"), f.client);
-    f.game = new BallDropStore(join(directory, "game.db"), f.wallet, { enabled: true }, { obstacles, draw: () => { f.rolls++; return 0; } });
+    f.game = new BallDropStore(join(directory, "game.db"), f.wallet, { enabled: true }, { ...(randomLayout ? {} : { obstacles }), draw: max => { f.rolls++; return f.draw(max); } });
     if (seed) for (const user of ["alice", "bob"]) f.wallet.db.prepare("INSERT INTO online_wallets VALUES (?,?,?,?,?,?)").run(user, user, Date.now() + 86400000, user, f.client.config.baseUrl, f.client.config.clientId);
   };
   open(true);
@@ -48,6 +49,52 @@ function fixture(t, { obstacles = [] } = {}) {
   t.after(async () => { await f.wallet.close(); f.game.close(); rmSync(directory, { recursive: true, force: true }); });
   return f;
 } // Test real durable game/wallet storage with idempotent fake coins and deterministic bounce choices.
+
+test("new fields shuffle all special pegs without overlaps and drops use every entry pin", () => {
+  let seed = 891;
+  const draw = max => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return Math.floor(seed / 4294967296 * max); };
+  const layouts = new Set(), paths = new Set(), entries = new Set();
+  const positions = Object.fromEntries(Object.keys(OBSTACLE_COUNTS).map(type => [type, new Set()]));
+  for (let game = 0; game < 150; game++) {
+    const drop = obstacleDrop(draw), layout = drop.obstacles;
+    layouts.add(JSON.stringify(layout)); paths.add(JSON.stringify(drop.path)); entries.add(drop.path[0]);
+    assert.equal(new Set(layout.map(peg => `${peg.row}:${peg.column}`)).size, 28);
+    for (const [type, count] of Object.entries(OBSTACLE_COUNTS)) assert.equal(layout.filter(peg => peg.type === type).length, count);
+    for (const peg of layout) {
+      assert.ok(peg.row >= 1 && peg.row < 20 && peg.column >= 1 && peg.column <= 10);
+      positions[peg.type].add(`${peg.row}:${peg.column}`);
+    }
+    assert.equal(drop.trajectory.at(-1).row, 20);
+    assert.ok(drop.trajectory.length <= 20 + 4 * OBSTACLE_COUNTS.bomb + 1);
+  }
+  assert.equal(layouts.size, 150); assert.ok(paths.size > 140);
+  assert.deepEqual([...entries].sort(), [4, 5, 6, 7]);
+  for (const cells of Object.values(positions)) assert.ok(cells.size > 180, "Each peg type can appear across the field");
+  for (const draw of [() => 0, max => max - 1]) assert.equal(new Set(randomObstacles(draw).map(peg => `${peg.row}:${peg.column}`)).size, 28);
+});
+
+test("production layout defaults shuffle new wagers but preserve pending and replayed rounds", async t => {
+  const f = fixture(t, { randomLayout: true }); let seed = 918;
+  f.draw = max => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return Math.floor(seed / 4294967296 * max); };
+  assert.deepEqual(f.game.snapshot("alice").obstacleCounts, OBSTACLE_COUNTS); assert.equal(f.rolls, 0);
+  f.lose = "debit"; const request = randomUUID();
+  await assert.rejects(f.act({ request }), /pending/);
+  const saved = f.game.pending("alice"), rolls = f.rolls;
+  assert.equal(f.game.snapshot("alice").round, null); assert.equal(f.rolls, rolls);
+  await f.reopen(); f.lose = null;
+  const recovered = await f.game.retry("alice");
+  assert.deepEqual(recovered.round.obstacles, JSON.parse(saved.obstacles));
+  assert.deepEqual(recovered.round.trajectory, JSON.parse(saved.trajectory));
+  assert.equal(recovered.round.bonus, saved.bonus); assert.equal(f.rolls, rolls);
+  const funds = f.funds.alice;
+  assert.deepEqual((await f.act({ request })).round, recovered.round);
+  assert.equal(f.funds.alice, funds); assert.equal(f.rolls, rolls);
+  const fresh = await f.act();
+  assert.notDeepEqual(fresh.round.obstacles, recovered.round.obstacles);
+  assert.notDeepEqual(fresh.round.trajectory, recovered.round.trajectory);
+  assert.ok(f.rolls > rolls);
+  assert.deepEqual(f.game.snapshot("alice").recent[1], recovered.round);
+});
 
 test("all four entry pins, 20 bounces and reflecting walls keep the route on a 10-wide field", () => {
   for (let entry = 0; entry < 4; entry++) for (const direction of [0, 1]) {
@@ -106,7 +153,7 @@ test("coin pegs award 1-5 each once even when a bomb revisits a collected peg", 
 
 test("peg bonuses pay on misses and are journaled together with winning returns", async t => {
   for (const guess of [2, 10]) {
-    const f = fixture(t, { obstacles: OBSTACLES }), expected = obstacleDrop(() => 0);
+    const f = fixture(t, { obstacles: OBSTACLES }), expected = obstacleDrop(() => 0, OBSTACLES);
     const result = await f.act({ guess });
     assert.equal(result.round.basePayout, payout(5, guess, expected.path.at(-1)));
     assert.equal(result.round.bonus, expected.bonus); assert.ok(result.round.bonus > 0);
@@ -137,11 +184,11 @@ test("legacy database migration leaves an unpaid original drop and its payout un
   assert.equal(recovered.round.bonus, 0); assert.equal(recovered.round.payout, original.payout); assert.equal(f.funds.alice, 5005);
 });
 
-test("an uncertain entry reveals the public layout but hides its coin rolls and bomb directions", async t => {
+test("an uncertain entry hides its shuffled layout, coin rolls and bomb directions", async t => {
   const f = fixture(t, { obstacles: OBSTACLES }); f.lose = "debit";
   await assert.rejects(f.act(), /pending/);
   const state = f.game.snapshot("alice");
-  assert.deepEqual(state.obstacles, OBSTACLES); assert.equal(state.round, null);
+  assert.equal(state.obstacles, undefined); assert.equal(state.round, null);
   assert.doesNotMatch(JSON.stringify(state), /trajectory|landing|bonus|"hit"/);
   const saved = f.game.pending("alice"); await f.game.retry("alice");
   assert.equal(f.game.snapshot("alice").round.bonus, saved.bonus);

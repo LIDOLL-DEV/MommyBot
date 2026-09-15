@@ -14,6 +14,10 @@ Load pending guards before HTTP and drain wallet actions before journal close.
 Route `/balldrop`, `!balldrop`, private menus and standalone SSO consistently;
 unlink must revoke its sessions. Animation/replay cannot affect payments.
 
+Generate each new layout with `randomObstacles()` using server randomness.
+Keep the 11 blocks, nine bombs and eight coins in distinct cells, with the entry
+row clear. The fixed collision fixture belongs only in tests. Follow the
+tracker pastel palette in both CSS and canvas; label saved fields as history.
 Save each special-peg layout, full trajectory and rolled coin bonus before
 debiting. Blocks deflect two columns; bombs launch in eight directions once per
 drop; coin pegs award 1-5 coins once each. Combine landing return and bonus in

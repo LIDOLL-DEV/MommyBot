@@ -1,13 +1,14 @@
 import Database from "better-sqlite3";
 import { randomInt, randomUUID } from "node:crypto";
 import { WalletError } from "../wallet/client.js";
-import { BETS, WIDTH, HEIGHT, OBSTACLES, COIN_REWARD, BallDropError, ballDropConfig, obstacleDrop, payout } from "./rules.js";
+import { BETS, WIDTH, HEIGHT, OBSTACLE_COUNTS, COIN_REWARD, BallDropError, ballDropConfig, obstacleDrop, payout } from "./rules.js";
 export { BallDropError } from "./rules.js";
 
 export class BallDropStore {
-  constructor(filename, wallet, config = ballDropConfig(), { draw = randomInt, obstacles = OBSTACLES } = {}) {
+  constructor(filename, wallet, config = ballDropConfig(), { draw = randomInt, obstacles } = {}) {
     this.db = new Database(filename); this.db.pragma("journal_mode = WAL");
-    this.wallet = wallet; this.config = config; this.draw = draw; this.obstacles = obstacles.map(obstacle => ({ ...obstacle }));
+    this.wallet = wallet; this.config = config; this.draw = draw; this.obstacles = obstacles?.map(obstacle => ({ ...obstacle }));
+    // Leaving obstacles unset generates a fresh field per wager; explicit layouts are for controlled collision tests.
     this.db.exec(`CREATE TABLE IF NOT EXISTS balldrop_rounds (
       id TEXT PRIMARY KEY,user_id TEXT NOT NULL,request_id TEXT NOT NULL,
       bet INTEGER NOT NULL CHECK(bet IN (1,5,10,25,50,100)),guess INTEGER NOT NULL CHECK(guess BETWEEN 1 AND 10),
@@ -40,7 +41,7 @@ export class BallDropStore {
     const recent = this.db.prepare("SELECT * FROM balldrop_rounds WHERE user_id=? AND state='done' ORDER BY rowid DESC LIMIT 8").all(user);
     const receipt = this.db.prepare("SELECT request_id AS request,state FROM balldrop_rounds WHERE user_id=? ORDER BY rowid DESC LIMIT 1").get(user);
     return { enabled: this.config.enabled, bets: BETS, width: WIDTH, height: HEIGHT, rounding: "up",
-      obstacles: this.obstacles.map(obstacle => ({ ...obstacle })), coinReward: COIN_REWARD,
+      obstacleCounts: OBSTACLE_COUNTS, coinReward: COIN_REWARD,
       round: this.publicRound(latest), recent: recent.map(round => this.publicRound(round)), receipt: receipt || null,
       pending: pending ? { action: pending.state, amount: pending.state === "debit" ? pending.bet : pending.payout } : null };
   } // Return only this player's visible rounds and payment status, without credentials or hidden outcomes.

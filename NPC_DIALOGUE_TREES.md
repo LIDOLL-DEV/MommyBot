@@ -7,7 +7,9 @@ cosmetic replay must not announce a new payment. See [BALLDROP_GUIDE.md](BALLDRO
 
 Block, bomb and coin-peg notices are fixed canvas status messages. Use saved
 hits and pickup amounts, and keep the landing-return/bonus breakdown accurate.
-A replayed gold sparkle is not a newly earned coin.
+A replayed gold sparkle is not a newly earned coin. Field captions distinguish
+a new shuffled wager from a saved field; do not describe the displayed history
+as a preview of the next drop. Keep the gentle tracker-inspired voice.
 
 Little Log nightly reports are upstream model-authored Markdown attachments
 with a fixed date/ID and completeness caption in `src/reports/publisher.js`.
