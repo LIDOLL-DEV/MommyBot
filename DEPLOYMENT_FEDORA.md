@@ -43,6 +43,39 @@ the bot as the unprivileged `mommybot` account. Node.js 22 or newer is required.
 Fedora Atomic desktops, containers without systemd, and installation of llama.cpp
 or model files are outside this setup.
 
+### Littlepottchi PNG prerequisite
+
+`/doll` and its PNG test require Python 3 and Pillow. The installer now includes
+Fedora's `python3-pillow` package on first install and installs it if missing on
+updates. Earlier deployment scripts installed Python without Pillow.
+To repair an existing host, run:
+
+```bash
+sudo dnf install -y python3-pillow
+sudo -u mommybot python3 -c "from PIL import Image; print(Image.__version__)"
+```
+
+Then rerun `bash scripts/update-fedora.sh` from the checkout. This retries a failed
+deployment even if Git has no new commits. Install dependencies for the **bot's**
+interpreter, not a personal user's virtual environment.
+
+By default Linux uses `python3`. If `/etc/mommybot/mommybot.env` sets
+`LITTLEPOTTCHI_PYTHON`, that executable must have Pillow 9.1 or newer and be readable
+and executable by `mommybot`. A private interpreter under `/home` is inaccessible
+to the service's `ProtectHome=true`; use `/usr/bin/python3` or a service-accessible
+environment. Do not copy the Windows example path into Fedora's configuration.
+
+New releases include this read-only check, also run before deployment tests and
+before the active release is stopped:
+
+```bash
+sudo -u mommybot node /opt/mommybot/current/scripts/check-doll-render.mjs /etc/mommybot/mommybot.env
+```
+
+It renders a synthetic dressed doll in memory using the configured interpreter.
+It distinguishes missing Python, missing/outdated Pillow, missing files and
+permission failures without exposing Python stderr or secrets in Discord.
+
 ## First deployment
 
 Clone this repository on the Fedora host as your normal user, check out the branch
@@ -94,9 +127,9 @@ requests sudo for deployment. It does not reset changes, switch branches or
 embed Git credentials. An update deploys the current checkout even when there
 are no new commits, which also allows retrying a failed deployment.
 
-To deploy a manually prepared checkout without pulling or reinstalling system
-packages, run `sudo bash scripts/deploy-fedora.sh --update`. Run the command
-without `--update` if prerequisites need installing again. Initial deployment
+To deploy a manually prepared checkout without pulling, run
+`sudo bash scripts/deploy-fedora.sh --update`. Updates install missing required
+Pillow packages; the full build-tool installation runs without `--update`. Initial deployment
 copies the local application files, including local edits; the updater instead
 requires those edits to be committed first.
 

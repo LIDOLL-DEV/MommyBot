@@ -542,6 +542,13 @@ The real PNG test requires the same Python/Pillow environment as the bot (see
 `LITTLEPOTTCHI_PYTHON`). Run the browser fixture after changing `web/layers.js` to
 verify browser dolls still use the same garment and hair ordering.
 
+Before PNG tests on Fedora, install `python3-pillow`. Run
+`node scripts/check-doll-render.mjs` locally, or pass the service dotenv file as
+its argument to check `LITTLEPOTTCHI_PYTHON`. The preflight uses no saved player
+data and sends no messages. `littlepottchi-render-diagnostics.test.js` covers
+missing Python/Pillow, outdated Pillow, release files, permissions and timeout
+diagnostics while ensuring private process output never appears in errors.
+
 Starter-shirt regression coverage checks removal, persistence across restart,
 restoration without inventory grants, ordinary shirt ownership guards, anatomy
 visibility, and unchanged care state. The browser fixture removes the starter in

@@ -383,6 +383,10 @@ Keep accident countdowns, interval ranges and community frequency out of the
 player interface, including Care & Settings. Server accident timing still runs;
 only care, activity and toy countdowns are displayed.
 
+The dashboard buttcam sits before the care panel (below the doll on narrow screens).
+Keep its single image on the authenticated camera endpoint; moving it out of the
+settings dialog must not bypass server-selected clean/messy frames.
+
 `src/dressup/web/pastel.css` loads after the layout styles and supplies the shared
 Littlepottchi/Clothes Emporium theme. Its pink, lilac, mint and yellow palette and
 local display fonts follow Little Log's `little-tracker` theme. Keep color changes
@@ -411,6 +415,12 @@ only registered image layers through stdin and returns PNG bytes through stdout;
 it uses no shell, temporary player files, or public image route. Runtime guards
 limit rendering to two concurrent jobs and one pending check per player.
 The identity link is rechecked before a rendered image is posted.
+
+Fedora deployment installs `python3-pillow` on first install and on updates that
+lack it. `scripts/check-doll-render.mjs` renders a synthetic PNG as the service
+account before tests and release activation, honoring the configured interpreter.
+Keep operator errors classified in `DollRenderError`; do not print raw Python
+stderr or expose dependency diagnostics in the public Discord reply.
 
 Overflow uses one capacity unit per wet or messy accident, as in lidollquest's
 `_handle_diaper_overflow`. Full diapers cause discomfort; only subsequent accidents

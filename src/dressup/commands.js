@@ -1,5 +1,5 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder, escapeMarkdown } from "discord.js";
-import { renderDollPng } from "./render.js";
+import { renderDollPng, DollRenderError } from "./render.js";
 class PetShareError extends Error {}
 
 export function createPetCommands(config, identities, doll, render = renderDollPng) {
@@ -49,7 +49,10 @@ export function createPetCommands(config, identities, doll, render = renderDollP
         {name:"Activity",value:c.task ? c.task.kind === "play" ? "Playing" : "Resting" : "Ready for care",inline:true},
         {name:"Care moments",value:String(p.careCount),inline:true});
       return {content:`<@${discordId}> is checking their Littlepottchi.\n${link}`,embeds:[embed]};
-    } catch { return {content:`Littlepottchi could not be shared right now. Please try again shortly.\n${link}`}; }
+    } catch (error) {
+      if (error instanceof DollRenderError) console.warn(`[Littlepottchi PNG] ${error.message}`);
+      return {content:`Littlepottchi could not be shared right now. Please try again shortly.\n${link}`};
+    }
     finally { pending.delete(discordId); }
   } // Share only the invoking user's saved appearance or selected game stats; never serialize identity, wallet or accident schedules.
 

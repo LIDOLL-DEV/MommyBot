@@ -35,7 +35,11 @@ exec 9>/run/lock/mommybot-deploy.lock
 flock -n 9 || { echo 'Another deployment is in progress.' >&2; exit 1; }
 
 if [[ ${1:-} != --update ]]; then
-    dnf install -y nodejs npm git gcc-c++ make python3 tar util-linux shadow-utils policycoreutils
+    dnf install -y nodejs npm git gcc-c++ make python3 python3-pillow tar util-linux shadow-utils policycoreutils
+fi
+# Updates also install newly required runtime packages before release checks.
+if ! rpm -q python3-pillow >/dev/null 2>&1; then
+    dnf install -y python3 python3-pillow
 fi
 for command in node npm runuser tar restorecon; do
     command -v "$command" >/dev/null || { echo "Missing $command; run initial deployment first." >&2; exit 1; }
@@ -120,7 +124,7 @@ trap 'exit 143' TERM
 
 install -d -o mommybot -g mommybot -m 0755 "$release"
 # Copy only application inputs, so local credentials, databases and node_modules stay out.
-tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha python integrations LITTLEPOTTCHI_API.md DRESSUP_GUIDE.md CONTRIBUTOR_GUIDE.md GENERATION_TUNING_GUIDE.md QUEST_MAKING_GUIDE.md NPC_DIALOGUE_TREES.md PLAYER_CHECKLIST.md TESTING_GUIDE.md scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs scripts/check-router.mjs scripts/fixtures | tar -C "$release" -xf -
+tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha python integrations LITTLEPOTTCHI_API.md DRESSUP_GUIDE.md CONTRIBUTOR_GUIDE.md GENERATION_TUNING_GUIDE.md QUEST_MAKING_GUIDE.md NPC_DIALOGUE_TREES.md PLAYER_CHECKLIST.md TESTING_GUIDE.md scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs scripts/check-router.mjs scripts/check-doll-render.mjs scripts/fixtures | tar -C "$release" -xf -
 revision=$(git -c safe.directory="$source_dir" -C "$source_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)
 modified=$(git -c safe.directory="$source_dir" -C "$source_dir" status --porcelain 2>/dev/null || true)
 node --input-type=module - "$release/release.json" "$revision" "$stamp" "$modified" <<'NODE'
@@ -135,6 +139,7 @@ fi
 chown -R mommybot:mommybot "$release"
 cd -- "$release"
 runuser -u mommybot -- env HOME="$state" npm ci --omit=dev --no-audit --no-fund
+runuser -u mommybot -- env HOME="$state" node scripts/check-doll-render.mjs "$config"
 if [[ -d test ]]; then
     runuser -u mommybot -- env HOME="$state" node --test
 fi

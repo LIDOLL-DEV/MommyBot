@@ -252,6 +252,7 @@ const menus = createGameMenu({ getState:()=>state, act:dollAction, execute:run, 
   characterClose:()=>{ $("preview-body").checked=false; appearanceDirty=false; renderAppearance(); },
 });
 $("roll-panel").hidden = !shopPage; $("care-panel").hidden = shopPage;
+$("buttcam-panel").hidden = shopPage; // The pet dashboard shows its protected camera between the doll and care controls on phones.
 if (shopPage) {
   document.title = "Clothes Emporium · Littlepottchi";
   $("eyebrow").textContent = "A LITTLE LUCK. A LOVELY FIND.";

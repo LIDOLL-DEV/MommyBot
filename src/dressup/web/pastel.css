@@ -33,6 +33,7 @@ header nav a[aria-current] { background:#fff8fc; color:#963367; border:1px solid
   box-shadow:0 5px 0 #e7d6ed90,0 12px 28px #9671a012;
 }
 .game-dashboard { border-top:5px solid var(--pink); }
+.dashboard-camera { border-left:5px solid var(--mint); background:linear-gradient(115deg,#fffdfd,#f2ecfc); }
 button,.primary { border-radius:14px; transition:background-color .15s,border-color .15s,box-shadow .15s; }
 button:hover:not(:disabled) { background:#f4eafb; border-color:#bd91c8; }
 .primary { background:#f6c8dd; color:#66334e; border-color:#cf8db0; box-shadow:0 3px 0 #e7accb; }

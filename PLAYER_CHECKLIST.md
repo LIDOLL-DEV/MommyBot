@@ -123,7 +123,8 @@ For reminders, enable the pet checkbox and Little Log push with the same account
 - Remove the starter shirt using its **Tops & dresses ×** button in Wardrobe.
   The empty top slot stays saved; **Wear starter shirt** puts it back on for free.
 - **Character** has a separate draft preview; saving returns to the dashboard.
-- **Care & Settings** contains the camera, diaper removal, messy mode, push
+- The **Buttcam** is visible on the dashboard, above care and below the doll on phones.
+- **Care & Settings** contains diaper removal, messy mode, push
   reminders, and detailed care timers.
 - Accident schedules are hidden. Care, activity and toy timers remain visible;
   diaper status updates after accidents happen.
