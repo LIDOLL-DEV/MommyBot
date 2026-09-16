@@ -302,6 +302,8 @@ async function fetchPushCommits(event, config) {
   return event;
 }
 
+class GitHubConfigurationError extends Error {}
+
 export function readGitHubConfig(env = process.env) {
   const repositoryList = env.GITHUB_REPOSITORIES?.trim();
   const repository = repositoryList || env.GITHUB_REPOSITORY?.trim();
@@ -310,13 +312,13 @@ export function readGitHubConfig(env = process.env) {
 
   if (!repository && !token) return null;
   if (!repository || !token || !channelId) {
-    throw new Error("GitHub activity requires GITHUB_REPOSITORIES (or GITHUB_REPOSITORY), GITHUB_TOKEN, and GITHUB_ACTIVITY_CHANNEL_ID (or CHANNEL_ID)");
+    throw new GitHubConfigurationError("GitHub activity requires GITHUB_REPOSITORIES (or GITHUB_REPOSITORY), GITHUB_TOKEN, and GITHUB_ACTIVITY_CHANNEL_ID (or CHANNEL_ID)");
   }
 
   const repositories = [], seen = new Set();
   for (const name of repositoryList ? repository.split(",").map(value => value.trim()) : [repository]) {
     if (!/^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/.test(name) || [".", ".."].includes(name.split("/")[1])) {
-      throw new Error("GitHub repositories must use owner/repository format; separate GITHUB_REPOSITORIES entries with commas");
+      throw new GitHubConfigurationError("GitHub repositories must use owner/repository format; separate GITHUB_REPOSITORIES entries with commas");
     }
     if (seen.has(name.toLowerCase())) continue;
     seen.add(name.toLowerCase());
@@ -327,7 +329,7 @@ export function readGitHubConfig(env = process.env) {
 
   const requestedInterval = Number(env.GITHUB_POLL_INTERVAL_MS || DEFAULT_POLL_INTERVAL_MS);
   if (!Number.isFinite(requestedInterval) || requestedInterval < MIN_POLL_INTERVAL_MS) {
-    throw new Error(`GITHUB_POLL_INTERVAL_MS must be at least ${MIN_POLL_INTERVAL_MS}`);
+    throw new GitHubConfigurationError(`GITHUB_POLL_INTERVAL_MS must be at least ${MIN_POLL_INTERVAL_MS}`);
   }
 
   return {
@@ -412,25 +414,31 @@ export async function pollGitHubActivity(client, settings, { stopped = () => fal
   }
 } // Poll and checkpoint repositories separately; an inaccessible repository cannot block the others.
 
-export function startGitHubActivityWatcher(client) {
-  const config = readGitHubConfig();
+export function startGitHubActivityWatcher(client, { env = process.env, logger = console } = {}) {
+  let config;
+  try { config = readGitHubConfig(env); }
+  catch (error) {
+    const reason = error instanceof GitHubConfigurationError ? error.message : "Could not read GitHub settings";
+    logger.error(`[GitHub] Activity watcher disabled: ${reason}. Fix the settings and restart; MommyBot will continue starting.`);
+    return () => {}; // An optional integration's invalid settings must never crash Discord or the hosted games.
+  }
   if (!config) {
-    console.log("🐙 GitHub activity watcher is disabled");
+    logger.log("🐙 GitHub activity watcher is disabled");
     return () => {};
   }
   let stopped = false;
   let timer;
   const poll = async () => {
     try {
-      await pollGitHubActivity(client, config, { stopped: () => stopped });
+      await pollGitHubActivity(client, config, { stopped: () => stopped, logger });
     } catch (error) {
-      console.error("🐙 GitHub activity state could not be loaded:", error.message);
+      logger.error("🐙 GitHub activity state could not be loaded:", error.message);
     } finally {
       if (!stopped) timer = setTimeout(poll, config.interval);
     }
   };
 
-  console.log(`🐙 Watching GitHub activity for ${config.repositories.map(({ owner, repo }) => `${owner}/${repo}`).join(", ")}`);
+  logger.log(`🐙 Watching GitHub activity for ${config.repositories.map(({ owner, repo }) => `${owner}/${repo}`).join(", ")}`);
   void poll();
 
   return () => {

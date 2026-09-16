@@ -42,6 +42,8 @@ version-2 state map, migrate legacy state without replaying it, and preserve
 temporarily removed entries. Poll sequentially and checkpoint each successful repo
 atomically; one repo's failure must not discard another repo's saved progress.
 Tests must use mocked GitHub, Discord and AI transports, never live announcements.
+Keep configuration errors inside the optional watcher. Log a controlled diagnostic
+and return a no-op stop handler so GitHub configuration cannot crash Discord or games.
 
 ## Chat routing
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { fetchDefaultBranchPush, readGitHubConfig, pollGitHubActivity } from "../src/github/activityWatcher.js";
+import { fetchDefaultBranchPush, readGitHubConfig, pollGitHubActivity, startGitHubActivityWatcher } from "../src/github/activityWatcher.js";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -74,6 +74,29 @@ test("multiple-repository configuration overrides the legacy setting and dedupli
   }
   assert.throws(() => readGitHubConfig({ ...env, GITHUB_TOKEN: "" }), /requires/);
   assert.throws(() => readGitHubConfig({ ...env, GITHUB_POLL_INTERVAL_MS: "59999" }), /at least/);
+});
+
+test("invalid GitHub settings disable only the watcher without API calls, secret output or a startup crash", t => {
+  const errors = [], secret = "synthetic-secret-never-log";
+  const logger = { log() {}, error: message => errors.push(message) };
+  const client = { channels: { fetch: () => assert.fail("Invalid config must not reach Discord") } };
+  t.mock.method(globalThis, "fetch", () => assert.fail("Invalid config must not reach GitHub"));
+  for (const env of [
+    { GITHUB_REPOSITORY: "owner/first,owner/second", GITHUB_TOKEN: secret, CHANNEL_ID: "channel" },
+    { GITHUB_REPOSITORIES: `https://github.com/${secret}/repo`, GITHUB_TOKEN: secret, CHANNEL_ID: "channel" },
+    { GITHUB_REPOSITORIES: "owner/repo", GITHUB_TOKEN: secret },
+    { GITHUB_REPOSITORIES: "owner/repo", GITHUB_TOKEN: secret, CHANNEL_ID: "channel", GITHUB_POLL_INTERVAL_MS: "0" },
+  ]) {
+    let stop;
+    assert.doesNotThrow(() => { stop = startGitHubActivityWatcher(client, { env, logger }); });
+    assert.equal(typeof stop, "function");
+    assert.doesNotThrow(() => { stop(); stop(); });
+  }
+  assert.equal(errors.length, 4);
+  assert.ok(errors.every(message => message.includes("watcher disabled") && message.includes("MommyBot will continue starting")));
+  assert.ok(errors.every(message => !message.includes(secret)));
+  startGitHubActivityWatcher(client, { env: {}, logger })();
+  assert.equal(errors.length, 4, "Unconfigured integration remains quietly disabled");
 });
 
 async function watcherFixture(t) {

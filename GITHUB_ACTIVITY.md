@@ -32,6 +32,20 @@ list does not replay announcements. Temporarily removed repos keep their saved
 cursors and resume when restored. An API or delivery failure for one repo leaves
 its cursor unchanged and allows the other repos to continue.
 
+### An old release rejects the repository setting
+
+A stack trace naming `readConfig` and saying `GITHUB_REPOSITORY must use the
+owner/repository format` comes from the older single-repo watcher. It happens
+before token validation. Deploy the multi-repo update using
+`bash scripts/update-fedora.sh` from the server checkout, as your normal Git user.
+Restarting systemd alone does not install new code. Put the list in
+`GITHUB_REPOSITORIES`, not `GITHUB_REPOSITORY`, and omit `https://github.com/`.
+
+If you need the old release running before updating, temporarily set the singular
+variable to one real `owner/repository`, then restart. Current releases log an
+invalid-config error and disable just the watcher; the rest of MommyBot keeps
+running. Correct the protected environment file and restart to enable tracking.
+
 ## Setup
 
 1. Create a fine-grained GitHub personal access token for the private repository. Under **Repository permissions**, grant **Metadata: Read-only** and **Contents: Read-only**. Metadata allows MommyBot to see repository events; Contents allows it to retrieve commit messages for cute AI summaries. No write permission is needed.
