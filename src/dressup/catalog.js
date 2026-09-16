@@ -41,6 +41,7 @@ export function loadDressupCatalog() {
         throw new Error("Trousers and pants are retired from the clothing catalog."); // Atelier diapers and training pants remain in their separate catalog.
       if (item.warp !== undefined && !["auto", "none"].includes(item.warp)) throw new Error("Invalid clothing warp mode.");
       if (item.warpFullHem !== undefined && typeof item.warpFullHem !== "boolean") throw new Error("Invalid extended hem flag.");
+      if (item.warpPreserveHem !== undefined && typeof item.warpPreserveHem !== "boolean") throw new Error("Invalid preserved hem flag.");
       if (item.parts && (!Array.isArray(item.parts) || item.parts.some(name => !image(name)))) throw new Error("Missing garment section.");
       if (item.backParts && (!Array.isArray(item.backParts) || item.backParts.some(name => !image(name)))) throw new Error("Missing back garment section.");
       if (group === data.clothes && (!slots.includes(item.slot) || item.slot === "diaper" || !Object.hasOwn(tiers, item.rarity) ||

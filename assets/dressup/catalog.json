@@ -1654,7 +1654,9 @@
         184,
         326,
         504
-      ]
+      ],
+      "warp": "auto",
+      "warpPreserveHem": true
     },
     {
       "id": "newtq-clothing-schooluniform-2a",
@@ -1676,7 +1678,9 @@
         189,
         292,
         515
-      ]
+      ],
+      "warp": "auto",
+      "warpPreserveHem": true
     },
     {
       "id": "newtq-clothing-smock-1a",
@@ -7165,7 +7169,9 @@
         182,
         325,
         560
-      ]
+      ],
+      "warp": "auto",
+      "warpPreserveHem": true
     },
     {
       "id": "tq-clothing-schoolgirluniform-2a",
@@ -7187,7 +7193,9 @@
         185,
         300,
         480
-      ]
+      ],
+      "warp": "auto",
+      "warpPreserveHem": true
     },
     {
       "id": "tq-clothing-schoolgirluniform-3a",
@@ -7209,7 +7217,9 @@
         185,
         301,
         473
-      ]
+      ],
+      "warp": "auto",
+      "warpPreserveHem": true
     },
     {
       "id": "tq-clothing-schoolgirluniform-4a",
@@ -7231,7 +7241,9 @@
         185,
         284,
         478
-      ]
+      ],
+      "warp": "auto",
+      "warpPreserveHem": true
     },
     {
       "id": "tq-clothing-sequindress-1a",

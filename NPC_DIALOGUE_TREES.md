@@ -13,6 +13,8 @@ These games use fixed care labels, outfit notices and purchase results in
 diaper chooses the leg stance and equipped clothes adjust automatically. Do not
 tell players that a garment needs a different diaper stance. Detailed frilly hems
 keep their original shape, following lidollquest's rendering exceptions.
+School uniforms instead fit automatically with protected trim; do not tell players
+that these uniforms need a setting enabled or a separate asset-generation step.
 Keep fresh-change wording matter-of-fact and payment-retry wording tied to the
 saved operation. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
 

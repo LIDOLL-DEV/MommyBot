@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { mkdir } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { dressupFixture } from "./fixtures/dressup.mjs";
+import { fittingProfiles } from "../src/dressup/fitting.js";
 
 if (!process.env.PUPPETEER_MODULE || !process.env.CHROME_PATH) throw new Error("Set PUPPETEER_MODULE and CHROME_PATH to local browser tools.");
 const puppeteer = (await import(pathToFileURL(process.env.PUPPETEER_MODULE).href)).default;
@@ -296,6 +297,20 @@ try {
   await page.$eval('#game-menu', el => { el.scrollTop = el.scrollHeight; });
   assert.ok(await page.$eval('#confirm-choice', el => {const r=el.getBoundingClientRect();return r.top>=0 && r.bottom<=innerHeight;}), 'Confirmation remains reachable in a long collection');
   await closeMenu();
+  assert.deepEqual(errors, []); assert.deepEqual(failures, []);
+  const uniform = f.catalog.clothes.find(item => item.id === 'tq-clothing-schoolgirluniform-3a');
+  const pearl = f.catalog.diapers.find(item => item.id === 'pearl-bloomers');
+  const fitPreview = { ...f.doll.snapshot(f.user), top: uniform, outfit: {}, diaper: pearl, stance: 'wide',
+    fitProfiles: fittingProfiles({top: uniform, diaper: pearl}, f.catalog) };
+  fitPreview.base = f.catalog.bases[fitPreview.player.shape].wide;
+  assert.equal(await page.evaluate(async doll => {
+    const { drawDoll } = await import('/littlepottchi/doll.js');
+    const fitted = document.createElement('canvas'), original = document.createElement('canvas');
+    fitted.width = original.width = 387; fitted.height = original.height = 875;
+    await drawDoll(fitted, doll);
+    await drawDoll(original, { ...doll, top: { ...doll.top, warp: 'none' } });
+    return fitted.toDataURL() !== original.toDataURL();
+  }, fitPreview), true, 'Schoolgirl Uniform stretches over Pearl Bloomers in the real browser renderer');
   assert.deepEqual(errors, []); assert.deepEqual(failures, []);
   await page.click("#logout");
   await page.waitForFunction(() => !document.getElementById("signin").hidden);

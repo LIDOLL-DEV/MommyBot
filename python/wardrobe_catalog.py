@@ -65,6 +65,9 @@ def discover(source, copy_asset, previous):
         names = [copy_asset(path.relative_to(source).as_posix()) for path in paths]
         item = {"id": identifier, "name": display, "description": f"A collectible {slot} piece for your Littlepottchi wardrobe.",
                 "image": names[0], "rarity": rarity, "slot": slot, "stances": stances, "sprite": True}
+        if re.search(r"School(?:girl)?Uniform", primary.stem, re.I):
+            item["warp"] = "auto"  # These uniforms need fitting over diapers despite the reference game's frilly-hem exclusion.
+            item["warpPreserveHem"] = True  # Let the trim follow the fabric without stretching thin edge pixels into spikes.
         if len(names) > 1:
             item["parts"] = names[1:]
         if back:

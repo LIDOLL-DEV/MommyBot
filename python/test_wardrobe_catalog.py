@@ -41,6 +41,7 @@ class WardrobeImportTests(unittest.TestCase):
             art("CW/Dresses/TQ_Clothing_Gown_1bC.png", (90, 414, 260, 530), (0, 0, 200, 255))
             art("CW/Dresses/TQ_Clothing_Bodysuit_2d.png", (110, 220, 230, 450), (0, 200, 0, 255))
             art("CW/Dresses/TQ_Clothing_Bodysuit_2.png", (110, 220, 230, 450), (0, 0, 200, 255))
+            art("CW/Dresses/TQ_Clothing_SchoolgirlUniform_3A.png", (110, 220, 240, 510), (0, 80, 200, 255))
             art("CW/Dresses/TQ_Clothing_Gown_1a_BackB.png", (70, 317, 290, 413), (100, 0, 0, 255))
             art("CW/Bags/TQ_Clothing_Bag_1.png", (10, 400, 90, 470), (100, 100, 0, 255))
             art("CW/Equippables/TQ_Clothing_Mittens_1.png", (10, 400, 90, 470), (100, 100, 0, 255))
@@ -56,6 +57,9 @@ class WardrobeImportTests(unittest.TestCase):
             original = next(item for item in items if item["id"] == "tq-clothing-gown-1aa")
             self.assertEqual(original["backParts"], ["TQ_Clothing_Gown_1a_BackB.png"])
             self.assertTrue(any(item["image"] == "TQ_Clothing_Bodysuit_2d.png" for item in items))
+            uniform = next(item for item in items if item["image"] == "TQ_Clothing_SchoolgirlUniform_3A.png")
+            self.assertEqual(uniform["warp"], "auto")  # Reimports preserve the school-uniform fitting fix.
+            self.assertTrue(uniform["warpPreserveHem"])
             self.assertEqual(report["dispositions"]["faded-overlay"], 1)
             self.assertTrue(any(item["slot"] == "bag" for item in items))
             self.assertTrue(any(item["slot"] == "gloves" for item in items))

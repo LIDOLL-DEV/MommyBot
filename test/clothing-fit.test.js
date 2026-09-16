@@ -42,6 +42,15 @@ test("all packaged clothing and registered diaper silhouettes are available for 
   assert.equal(frilly.warp, "none", "Keep lidollquest's detailed-hem exception wearable without distorting its frills");
 });
 
+test("preserved trim follows the fabric instead of multiplying narrow edge pixels into spikes", () => {
+  const top = { image: "uniform.png", slot: "top" }, diaper = { image: "diaper.png", bulk: 6 };
+  const profiles = { "uniform.png": [[100, 0, 0, 0, 0], [221, 30, 30, 0, 0], [4, 5, 5, 0, 0], [112, 0, 0, 0, 0]],
+    "diaper.png": rectProfile(60, 380, 660) };
+  const peak = item => Math.max(...clothingStrips(item, diaper, profiles).map(s => s[6] / s[2]));
+  assert.ok(peak(top) > 2.5, "Unprotected thin trim exaggerates the silhouette ratio");
+  assert.ok(peak({ ...top, warpPreserveHem: true }) <= 2.000001, "Trim keeps the fabric's required 2x expansion");
+});
+
 test("multipart garments share one fit and narrow shoes follow each wide base without losing their native size", () => {
   const diaper = catalog.diapers.find(item => item.id === "ribbon-bouquet");
   const top = catalog.clothes.find(item => /TQ_Clothing_Onesie_1A/.test(item.image));
@@ -65,6 +74,26 @@ test("real PNG exports use clothing fitting rather than merely changing the base
   const fitted = await renderDollPng(state), flat = await renderDollPng({ ...state, fitProfiles: {} });
   assert.deepEqual([fitted.readUInt32BE(16), fitted.readUInt32BE(20)], [387, 875]);
   assert.notDeepEqual(fitted, flat);
+});
+
+test("school uniforms override imported no-warp rules and fit over Pearl diapers", async () => {
+  const uniforms = catalog.clothes.filter(item => /School(?:girl)?Uniform/i.test(item.image));
+  const pearl = catalog.diapers.find(item => item.id === "pearl-bloomers");
+  assert.equal(uniforms.length, 6);
+  for (const top of uniforms) {
+    assert.equal(top.warp, "auto", top.name);
+    assert.equal(top.warpPreserveHem, true, top.name);
+    const profiles = fittingProfiles({ top, diaper: pearl }, catalog);
+    assert.ok(clothingStrips(top, pearl, profiles).some(strip => strip[6] > strip[2] + 1), `${top.name} must expand over Pearl Bloomers`);
+  }
+  const top = uniforms.find(item => item.id === "tq-clothing-schoolgirluniform-3a");
+  for (const diaper of catalog.diapers.filter(item => /^pearl-/.test(item.id))) {
+    const profiles = fittingProfiles({ top, diaper }, catalog);
+    assert.ok(clothingStrips(top, diaper, profiles).some(strip => strip[6] > strip[2] + 1));
+  }
+  const state = { player: { shape: "soft", hair: catalog.hair[0], face: catalog.faces[0] }, outfit: { top },
+    top, diaper: pearl, base: catalog.bases.soft.wide };
+  assert.notDeepEqual(await renderDollPng(state), await renderDollPng({ ...state, top: { ...top, warp: "none" }, outfit: {} }));
 });
 
 test("JSON round trips preserve back-section layering and do not double draw an equipped top", () => {

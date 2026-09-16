@@ -112,6 +112,8 @@ Stockings and shoes also move with each leg when the base changes;
 native wide roller skates remain registered to the wide base. A short garment
 may still expose part of a very large diaper, as in the reference fitting rules.
 Browser dolls, Discord PNGs and editor previews share the same fitting plan.
+School uniforms stretch automatically, including over Pearl diapers. They override
+the reference game's no-stretch exception and preserve thin hem details while fitting.
 
 ## Modding tools
 

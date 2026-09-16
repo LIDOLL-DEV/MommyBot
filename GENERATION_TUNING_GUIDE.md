@@ -26,6 +26,11 @@ metadata, not a permission gate. `warp: "none"` preserves detailed hems and
 To refresh reference flags, run `python/import_clothing_fit_rules.py` with the
 lidollquest project path. Rebuild profiles after changing PNGs or diaper rectangles.
 
+School uniforms explicitly use `warp: "auto"` to override the reference game's
+no-stretch list. Their `warpPreserveHem: true` makes the final 16 pixels of trim
+follow the fabric above, avoiding spikes from nearly transparent hem pixels.
+Both settings survive imports and apply to browser dolls, PNGs and editor previews.
+
 ## Conversational routing
 
 `src/graph/router.js` decides whether ordinary chat merits a reply. Direct

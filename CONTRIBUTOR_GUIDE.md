@@ -30,6 +30,9 @@ Rebuild `assets/dressup/fit-profiles.json` with
 `py -3.11 python/bake_clothing_profiles.py` after changing artwork or diaper
 rectangles (the importer also runs it). Commit generated profiles with the art.
 Only equipped profiles are sent to the browser; original PNGs stay unchanged.
+School uniforms override imported no-warp flags. Preserve their `warp: "auto"`
+and `warpPreserveHem: true` defaults when reimporting; see the Pearl diaper
+regressions in `test/clothing-fit.test.js`.
 
 ## Chat routing
 

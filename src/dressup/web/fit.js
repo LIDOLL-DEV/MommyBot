@@ -41,10 +41,12 @@ export function clothingStrips(item, diaper, profiles) {
   const garment = silhouette(names, profiles), padding = silhouette([profileKey(diaper)], profiles);
   if (garment.top >= garment.bottom || padding.top >= padding.bottom) return full;
   const dress = item.slot === "top", fullHem = item.warpFullHem === true;
+  const hemAnchor = item.warpPreserveHem ? Math.max(garment.top, garment.bottom - 16) : H - 1;
   const start = Math.max(0, padding.top - 16), end = Math.min(H, padding.bottom + (fullHem ? 80 : 40));
   const bands = [], average = (p, y, h) => (p[y] + 2 * p[Math.floor(y + h / 2)] + p[y + h - 1]) / 4;
   for (let y = start; y < end; y += 4) {
-    const h = Math.min(4, end - y), g = average(garment.half, y, h), d = average(padding.half, y, h);
+    const h = Math.min(4, end - y), probe = y <= padding.bottom ? Math.min(y, hemAnchor) : y;
+    const g = average(garment.half, probe, h), d = average(padding.half, probe, h);
     bands.push({ y, h, raw: g > 4 && d > g ? clamp(d / g, 1, 3.5) : 1 });
   }
   const stretches = smooth(bands.map(b => b.raw), [1, 2, 1]);
@@ -61,8 +63,10 @@ export function clothingStrips(item, diaper, profiles) {
     const left = dress ? Math.round(145 - 90 * t + 12) : 0, right = dress ? Math.round(275 + 40 * t - 12) : W;
     const width = right - left, extra = width * (stretch - 1);
     let shift = extra / 2;
-    if (garment.skew > 0.25 && garment.left[y] + garment.right[y] > 0)
-      shift += (garment.left[y] - garment.right[y]) / (garment.left[y] + garment.right[y]) * extra / 2;
+    const probe = Math.min(y, hemAnchor);
+    if (garment.skew > 0.25 && garment.left[probe] + garment.right[probe] > 0)
+      shift += (garment.left[probe] - garment.right[probe]) / (garment.left[probe] + garment.right[probe]) * extra / 2;
+    // Detailed hems inherit the fabric width just above their edge instead of amplifying isolated trim pixels.
     strips.push([left, y, width, h, left - shift, y + push, width * stretch, h * boost]);
     if (dress) {
       strips.push([0, y, left, h, 0, y + push, left, h * boost]);

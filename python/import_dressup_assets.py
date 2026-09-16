@@ -98,7 +98,7 @@ def build(source):
     for group, items in [("clothes", clothes), ("diapers", diapers)]:
         old = {item["id"]: item for item in previous.get(group, [])}
         for item in items:
-            keys = ["name", "description", "rarity", "slot", "stances", "warp", "warpFullHem"] if group == "clothes" else ["stance", "fitNote", "bulk"]
+            keys = ["name", "description", "rarity", "slot", "stances", "warp", "warpFullHem", "warpPreserveHem"] if group == "clothes" else ["stance", "fitNote", "bulk"]
             for key in keys:
                 if key in old.get(item["id"], {}):
                     item[key] = old[item["id"]][key]  # Rebuilding artwork preserves the handler's saved tuning.

@@ -36,6 +36,11 @@ Trouser retirement regressions cover import exclusion (including dungaree sectio
 outside the Trousers folder), saved-outfit cleanup, hidden owned/bank entries,
 rejected equip and purchase requests, and unchanged care and historical inventory.
 Skirts and Atelier training pants must remain wearable.
+
+School-uniform regressions check all six uniforms against Pearl Bloomers, both
+Pearl diaper variants with Schoolgirl Uniform 3, protected trim geometry and real
+PNG differences. The browser fixture also checks the uniform/Pearl canvas output;
+the importer test verifies the explicit fitting overrides survive asset discovery.
 Visually inspect both body shapes and complete A/B/C garment sections whenever
 adding new assets. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
 
