@@ -48,6 +48,38 @@ running. Correct the protected environment file and restart to enable tracking.
 
 ## Setup
 
+### Diagnose missing updates without resetting progress
+
+Start with the active service logs:
+
+```bash
+sudo journalctl -u mommybot --since "12 hours ago" --no-pager -l | grep -Ei 'github|\[Release\]'
+```
+
+After deploying the diagnostic script, check the exact release and protected settings:
+
+```bash
+sudo -u mommybot node /opt/mommybot/current/scripts/check-github.mjs /etc/mommybot/mommybot.env
+```
+
+This performs read-only GitHub requests and reads saved cursors. It does not post
+to Discord, call AI, change a cursor or print token values or commit messages.
+It reports the effective repo list/channel, API statuses, default branches,
+last successful check times and whether each default-branch head differs from
+the saved head. Discord delivery permissions are not tested by this command.
+
+- `first_poll_will_set_baseline`: no saved progress for this repo; existing commits
+  will be skipped under the default `GITHUB_ANNOUNCE_EXISTING=false` setting.
+- `default_branch_has_unsaved_head`: GitHub has a head the watcher has not saved;
+  use the service logs to locate the polling or delivery failure.
+- `default_branch_at_saved_head`: the default-branch head matches saved progress;
+  confirm the expected changes were pushed to that branch and check the channel ID.
+- An Events API failure can block that repository's commit announcements even
+  when the separate commits check succeeds. Missing/invalid state must be diagnosed
+  before resetting it; deleting state starts fresh baselines and may skip missed work.
+
+### Credentials and channel
+
 1. Create a fine-grained GitHub personal access token for the private repository. Under **Repository permissions**, grant **Metadata: Read-only** and **Contents: Read-only**. Metadata allows MommyBot to see repository events; Contents allows it to retrieve commit messages for cute AI summaries. No write permission is needed.
 2. Invite MommyBot to the Discord server with **View Channel**, **Send Messages**, and **Embed Links** permissions for the destination channel.
 3. Copy the GitHub settings from `.env.example` into `.env`:

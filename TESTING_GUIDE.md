@@ -311,6 +311,10 @@ restart/reordering/removal, isolated GitHub and Discord failures, and shutdown
 during an AI summary. These checks use temporary state files and fake transports.
 Malformed GitHub settings must disable only the watcher: startup tests verify a
 safe error, no token output, no outbound calls, and a harmless shutdown handler.
+`test/github-diagnostics.test.js` verifies read-only inspection of separate and
+legacy cursors, API failures, missing state and controlled output with no token
+or private commit prose. `scripts/check-github.mjs` is an operator-triggered check;
+deployment ships it without running it or posting any announcements.
 `test/fixtures/legacy-checkpoints.json` contains synthetic SQLite rows generated
 with LangGraph 0.2.74 and SQLite saver 0.2.2, the combination that caused
 `checkpoint.pending_sends is not iterable` on the second turn. A separate test

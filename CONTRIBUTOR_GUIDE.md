@@ -44,6 +44,8 @@ atomically; one repo's failure must not discard another repo's saved progress.
 Tests must use mocked GitHub, Discord and AI transports, never live announcements.
 Keep configuration errors inside the optional watcher. Log a controlled diagnostic
 and return a no-op stop handler so GitHub configuration cannot crash Discord or games.
+Keep `scripts/check-github.mjs` read-only: bound GitHub requests, prohibit redirects,
+never touch cursor files or Discord, and omit credentials and commit text from output.
 
 ## Chat routing
 
