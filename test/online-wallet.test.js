@@ -71,7 +71,7 @@ function provider() {
 function setup(t) {
   const directory = mkdtempSync(path.join(os.tmpdir(), "mommybot-wallet-"));
   const api = provider();
-  const client = new WalletClient(walletConfig({ LIDOLLCOIN_ENABLED: "true" }), api.fetch);
+  const client = new WalletClient(walletConfig({ LIDOLLCOIN_ENABLED: "true", LIDOLLCOIN_REWARD_KEY: "synthetic-reward-key-for-tests-only-0000000000" }), api.fetch);
   const fixture = { api, client };
   const open = () => {
     fixture.store = new TouhouStore(path.join(directory, "trader.db"), catalog);

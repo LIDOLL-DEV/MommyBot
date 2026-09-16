@@ -1,3 +1,4 @@
+import {createHmac} from "node:crypto";
 import { isIP } from "node:net";
 
 export class WalletError extends Error {
@@ -23,6 +24,7 @@ function transportCode(error) {
 } // Inspect Node's aggregate connection failures as well as causes, without exposing messages, addresses or credentials.
 
 const messages = {
+  reward_authorization: "The wallet reward signing key is missing or does not match the server. Ask Doll to check the bot and tracker configuration.",
   invalid_client: "LiDollBot is not registered with Little Log's wallet API. Ask Doll to add the lidollbot wallet app.",
   invalid_token: "Your online wallet connection expired or was revoked. Use /lidollid wallet connect again.",
   insufficient_scope: "Reconnect your online wallet and approve the requested coin, star and diamond permissions.",
@@ -53,7 +55,10 @@ export function walletConfig(env = process.env) {
   }
   const clientId = env.LIDOLLCOIN_CLIENT_ID || "lidollbot";
   if (!/^[a-z0-9_-]{1,64}$/.test(clientId)) throw new Error("Invalid LIDOLLCOIN_CLIENT_ID.");
-  return { baseUrl: base.href, clientId, verificationOrigin: publicUrl.origin };
+  const rewardKey=env.LIDOLLCOIN_REWARD_KEY;
+  if(rewardKey&&!/^[A-Za-z0-9_-]{43,128}$/.test(rewardKey))throw new Error('LIDOLLCOIN_REWARD_KEY must be a server-only random base64url key.');
+  const config={baseUrl:base.href,clientId,verificationOrigin:publicUrl.origin};
+  Object.defineProperty(config,'rewardKey',{value:rewardKey});return config; // Keep the minting key out of enumerable configuration and logs.
 } // Treat wallet registration independently from the OIDC client, even when both are named lidollbot.
 
 export class WalletClient {
@@ -61,10 +66,13 @@ export class WalletClient {
   async request(route, { token, body } = {}) {
     const url = new URL(route, this.config.baseUrl);
     url.searchParams.set("client_id", this.config.clientId);
+    const signed=route==='operations'&&['credit','refund'].includes(body?.kind);
+    if(signed&&!this.config.rewardKey)throw new WalletError('reward_authorization','Server reward authorization is not configured. Ask Doll to configure the wallet reward key.',403);
+    const signature=signed?createHmac('sha256',this.config.rewardKey).update(this.config.clientId+'\n'+token+'\n'+JSON.stringify(body)).digest('hex'):null;
     let response, data;
     try {
       response = await this.fetcher(url, { method: body ? "POST" : "GET", redirect: "manual", signal: AbortSignal.timeout(15000),
-        headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body ? { "Content-Type": "application/json" } : {}) },
+        headers: { Accept: "application/json", ...(signature?{"X-Reward-Signature":signature}:{}), ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body ? { "Content-Type": "application/json" } : {}) },
         ...(body ? { body: JSON.stringify(body) } : {}) });
     } catch (error) {
       throw new WalletError("unavailable", `The online wallet could not be reached (${transportCode(error)}). Ask Doll to check the wallet URL, DNS, TLS and outbound access from the bot host.`);

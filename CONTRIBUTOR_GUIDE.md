@@ -457,3 +457,5 @@ order and keep leak randomness separate from messy interval sampling. Batch only
 guaranteed outcomes. `LittlepottchiStore.act` persists elapsed care before starting
 the action transaction so a rejected change cannot reroll its newly due leak.
 Wipe consumption and the resulting cleaned state still commit atomically.
+
+Wallet mint/refund calls must go through WalletClient so server proofs bind the exact recipient and operation. Never serialize its non-enumerable rewardKey or forward it to browsers. See ONLINE_WALLET_GUIDE.md for setup.

@@ -303,3 +303,9 @@ Package installation follows the [Fedora Node.js documentation](https://develope
 ## Diamonds
 
 Deploy the identity service with diamonds:read/diamonds:write support, then Little Log market schema 9, then MommyBot. If the lidollbot identity client has an explicit scope allowlist, extend it with both diamond scopes while preserving existing scopes and registrations. The tracker wallet app accepts an optional diamondDailyLimit (default max(1, floor(dailyLimit / 50))). Back up tracker science/market databases and bot state before upgrading. After deployment, players renew consent with /lidollid login; bot startup registers the new diamond gift choice.
+
+## Wallet reward authorization
+
+Online wallet credits and refunds now require a server-only signing key. Configure LIDOLLCOIN_REWARD_KEY to match the tracker LIDOLLCOIN_REWARD_KEYS entry for LIDOLLCOIN_CLIENT_ID (normally lidollbot). The updated WalletClient signs the exact operation, request ID and recipient token automatically. Keep the key out of browser bundles, public configuration, logs and game downloads. A missing or mismatched key rejects rewards/refunds; reconnecting the user does not resolve it. Provision both configurations before enabling purchases that may need refunds.
+
+The tracker checkout contains scripts/configure-reward-authority.mjs and SECURITY_ROLLOUT.md for private key provisioning and coordinated deployment. Deploy the signed bot client before enabling mandatory verification on the tracker. Identity password resets/disables also revoke wallet grants and report tokens after the tracker's short identity-status cache expires; reconnect or issue a new report token as appropriate.

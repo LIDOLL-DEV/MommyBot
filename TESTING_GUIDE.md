@@ -606,3 +606,5 @@ toggle, a timed messy accident, the capacity display and fresh changes. The Litt
 Log worker check also verifies approved messy copy without real push delivery.
 
 Run npm test for littlepottchi-care.test.js and little-log-bridge.test.js: saved report means, zero rates, report replay, offline wettings, exact capacity, replacement/stance, timed rewards, reminder opt-in/identity, API auth, quiet hours and lost push acknowledgements. Run scripts/check-dressup-browser.mjs with local Chrome for food/water, timed play, leaks, replacements, reminder controls and existing gacha/mobile flows. All transports and records are synthetic. See LITTLEPOTTCHI_API.md for the sibling Little Log checks.
+
+Run `node --test test/reward-authority.test.js test/online-wallet.test.js test/diamonds.test.js` for reward signing and wallet regressions. The adjacent tracker test `node tests/mommybot-diamonds-integration.mjs` exercises this real client against its HTTP API with synthetic data and no Discord calls.

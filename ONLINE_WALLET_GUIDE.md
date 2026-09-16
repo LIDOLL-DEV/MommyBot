@@ -365,3 +365,9 @@ available for the next draw, with reserved unpaid lottery prizes shown separatel
 AI-written wording is paired with application-generated payment facts and jar
 totals. The displayed amount never reveals a member's personal wallet balance;
 an AI failure uses the standard message and does not interrupt payments.
+
+## Wallet reward authorization
+
+Online wallet credits and refunds now require a server-only signing key. Configure LIDOLLCOIN_REWARD_KEY to match the tracker LIDOLLCOIN_REWARD_KEYS entry for LIDOLLCOIN_CLIENT_ID (normally lidollbot). The updated WalletClient signs the exact operation, request ID and recipient token automatically. Keep the key out of browser bundles, public configuration, logs and game downloads. A missing or mismatched key rejects rewards/refunds; reconnecting the user does not resolve it. Provision both configurations before enabling purchases that may need refunds.
+
+The tracker checkout contains scripts/configure-reward-authority.mjs and SECURITY_ROLLOUT.md for private key provisioning and coordinated deployment. Deploy the signed bot client before enabling mandatory verification on the tracker. Identity password resets/disables also revoke wallet grants and report tokens after the tracker's short identity-status cache expires; reconnect or issue a new report token as appropriate.
