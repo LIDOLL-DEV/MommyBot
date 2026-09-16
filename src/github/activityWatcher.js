@@ -302,53 +302,62 @@ async function fetchPushCommits(event, config) {
   return event;
 }
 
-function readConfig() {
-  const repository = process.env.GITHUB_REPOSITORY?.trim();
-  const token = process.env.GITHUB_TOKEN?.trim();
-  const channelId = (process.env.GITHUB_ACTIVITY_CHANNEL_ID || process.env.CHANNEL_ID)?.trim();
+export function readGitHubConfig(env = process.env) {
+  const repositoryList = env.GITHUB_REPOSITORIES?.trim();
+  const repository = repositoryList || env.GITHUB_REPOSITORY?.trim();
+  const token = env.GITHUB_TOKEN?.trim();
+  const channelId = (env.GITHUB_ACTIVITY_CHANNEL_ID || env.CHANNEL_ID)?.trim();
 
   if (!repository && !token) return null;
   if (!repository || !token || !channelId) {
-    throw new Error("GitHub activity requires GITHUB_REPOSITORY, GITHUB_TOKEN, and GITHUB_ACTIVITY_CHANNEL_ID (or CHANNEL_ID)");
+    throw new Error("GitHub activity requires GITHUB_REPOSITORIES (or GITHUB_REPOSITORY), GITHUB_TOKEN, and GITHUB_ACTIVITY_CHANNEL_ID (or CHANNEL_ID)");
   }
 
-  const [owner, repo, ...extra] = repository.split("/");
-  if (!owner || !repo || extra.length > 0) {
-    throw new Error("GITHUB_REPOSITORY must use the owner/repository format");
+  const repositories = [], seen = new Set();
+  for (const name of repositoryList ? repository.split(",").map(value => value.trim()) : [repository]) {
+    if (!/^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/.test(name) || [".", ".."].includes(name.split("/")[1])) {
+      throw new Error("GitHub repositories must use owner/repository format; separate GITHUB_REPOSITORIES entries with commas");
+    }
+    if (seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    const [owner, repo] = name.split("/");
+    repositories.push({ owner, repo });
   }
+  // Repository names are case-insensitive; duplicate entries must not create duplicate announcements.
 
-  const requestedInterval = Number(process.env.GITHUB_POLL_INTERVAL_MS || DEFAULT_POLL_INTERVAL_MS);
+  const requestedInterval = Number(env.GITHUB_POLL_INTERVAL_MS || DEFAULT_POLL_INTERVAL_MS);
   if (!Number.isFinite(requestedInterval) || requestedInterval < MIN_POLL_INTERVAL_MS) {
     throw new Error(`GITHUB_POLL_INTERVAL_MS must be at least ${MIN_POLL_INTERVAL_MS}`);
   }
 
   return {
-    owner,
-    repo,
+    repositories,
     token,
     channelId,
     interval: requestedInterval,
-    announceExisting: process.env.GITHUB_ANNOUNCE_EXISTING === "true",
-    maxAnnouncements: Math.max(1, Math.min(20, Number(process.env.GITHUB_MAX_ANNOUNCEMENTS) || 10)),
-    stateFile: path.resolve(process.env.GITHUB_STATE_FILE || "data/github-activity-state.json"),
+    announceExisting: env.GITHUB_ANNOUNCE_EXISTING === "true",
+    maxAnnouncements: Math.max(1, Math.min(20, Number(env.GITHUB_MAX_ANNOUNCEMENTS) || 10)),
+    stateFile: path.resolve(env.GITHUB_STATE_FILE || "data/github-activity-state.json"),
   };
-}
+} // Prefer the multi-repository list while preserving existing single-repository installations.
 
-export function startGitHubActivityWatcher(client) {
-  const config = readConfig();
-  if (!config) {
-    console.log("🐙 GitHub activity watcher is disabled");
-    return () => {};
+function migrateState(saved) {
+  if (saved.version === 2 && saved.repositories && typeof saved.repositories === "object" && !Array.isArray(saved.repositories)) {
+    return { version: 2, repositories: { ...saved.repositories } };
   }
+  if (saved.version !== undefined) throw new Error("Unsupported GitHub activity state version");
+  const repositories = {};
+  if (typeof saved.repository === "string") repositories[saved.repository.toLowerCase()] = saved;
+  return { version: 2, repositories };
+} // Retain the legacy repository's exact cursors; newly added repositories get their own baseline.
 
-  let stopped = false;
-  let timer;
-
-  const poll = async () => {
+export async function pollGitHubActivity(client, settings, { stopped = () => false, summarize = generateGitHubUpdateMessage, logger = console } = {}) {
+  const savedState = migrateState(await loadState(settings.stateFile));
+  for (const entry of settings.repositories) {
+    if (stopped()) return;
+    const config = { ...settings, ...entry }, repository = `${entry.owner}/${entry.repo}`, key = repository.toLowerCase();
     try {
-      const savedState = await loadState(config.stateFile);
-      const repository = `${config.owner}/${config.repo}`;
-      const state = savedState.repository === repository ? savedState : {};
+      const state = savedState.repositories[key] || {};
       const activityEvents = await fetchEvents({ ...config, lastEventId: state.lastEventId });
       const push = await fetchDefaultBranchPush(config, state);
       const events = activityEvents
@@ -356,10 +365,11 @@ export function startGitHubActivityWatcher(client) {
         .filter((event) => event.type !== "PushEvent" || event.payload?.ref !== `refs/heads/${push.defaultBranch}`)
         .concat(push.event ? [push.event] : [])
         .sort((left, right) => new Date(right.created_at) - new Date(left.created_at));
+      if (stopped()) return; // Shutdown must not publish activity after an outstanding GitHub request finishes.
 
       const isFirstCheck = !state.initializedAt && !state.lastEventId;
       if (isFirstCheck && !config.announceExisting && activityEvents.length) {
-        console.log(`🐙 GitHub activity baseline set at event ${activityEvents[0].id}`);
+        logger.log(`🐙 ${repository}: activity baseline set at event ${activityEvents[0].id}`);
       } else if (events.length) {
         const channel = await client.channels.fetch(config.channelId);
         if (!channel || typeof channel.send !== "function") {
@@ -372,33 +382,55 @@ export function startGitHubActivityWatcher(client) {
           try {
             enrichedEvent = await fetchPushCommits(event, config);
           } catch (error) {
-            console.error(`🐙 ${error.message}`);
+            logger.error(`🐙 ${repository}: ${error.message}`);
           }
-          const aiMessage = await generateGitHubUpdateMessage(enrichedEvent);
+          if (stopped()) return;
+          const aiMessage = await summarize(enrichedEvent);
+          if (stopped()) return;
           await channel.send({ embeds: [buildActivityEmbed(enrichedEvent, aiMessage)] });
         }
 
         if (events.length > announcements.length) {
-          await channel.send(`🐙 ${events.length - announcements.length} additional GitHub events were omitted to avoid flooding this channel.`);
+          if (stopped()) return;
+          await channel.send(`🐙 ${repository}: ${events.length - announcements.length} additional GitHub events were omitted to avoid flooding this channel.`);
         }
-        console.log(`🐙 Posted ${announcements.length} GitHub activit${announcements.length === 1 ? "y" : "ies"}`);
+        logger.log(`🐙 ${repository}: posted ${announcements.length} GitHub activit${announcements.length === 1 ? "y" : "ies"}`);
       }
 
-      await saveState(config.stateFile, {
+      const nextState = {
         repository,
         lastEventId: activityEvents[0]?.id ?? state.lastEventId ?? null,
         lastCommitSha: push.lastCommitSha,
         initializedAt: state.initializedAt ?? new Date().toISOString(),
         lastCheckedAt: new Date().toISOString(),
-      });
+      };
+      await saveState(config.stateFile, { version: 2, repositories: { ...savedState.repositories, [key]: nextState } });
+      savedState.repositories[key] = nextState; // Publish the cursor in memory only after the atomic state-file replacement succeeds.
     } catch (error) {
-      console.error("🐙 GitHub activity check failed:", error.message);
+      logger.error(`🐙 ${repository}: GitHub activity check failed:`, error.message);
+    }
+  }
+} // Poll and checkpoint repositories separately; an inaccessible repository cannot block the others.
+
+export function startGitHubActivityWatcher(client) {
+  const config = readGitHubConfig();
+  if (!config) {
+    console.log("🐙 GitHub activity watcher is disabled");
+    return () => {};
+  }
+  let stopped = false;
+  let timer;
+  const poll = async () => {
+    try {
+      await pollGitHubActivity(client, config, { stopped: () => stopped });
+    } catch (error) {
+      console.error("🐙 GitHub activity state could not be loaded:", error.message);
     } finally {
       if (!stopped) timer = setTimeout(poll, config.interval);
     }
   };
 
-  console.log(`🐙 Watching private GitHub activity for ${config.owner}/${config.repo}`);
+  console.log(`🐙 Watching GitHub activity for ${config.repositories.map(({ owner, repo }) => `${owner}/${repo}`).join(", ")}`);
   void poll();
 
   return () => {

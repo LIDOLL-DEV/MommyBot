@@ -34,6 +34,15 @@ School uniforms override imported no-warp flags. Preserve their `warp: "auto"`
 and `warpPreserveHem: true` defaults when reimporting; see the Pearl diaper
 regressions in `test/clothing-fit.test.js`.
 
+## GitHub activity tracking
+
+`GITHUB_REPOSITORIES` is a comma-separated list with precedence over the legacy
+`GITHUB_REPOSITORY` setting. Keep per-repo event and commit cursors in the shared
+version-2 state map, migrate legacy state without replaying it, and preserve
+temporarily removed entries. Poll sequentially and checkpoint each successful repo
+atomically; one repo's failure must not discard another repo's saved progress.
+Tests must use mocked GitHub, Discord and AI transports, never live announcements.
+
 ## Chat routing
 
 Keep routing policy in `src/graph/router.js` and bounded Discord context in

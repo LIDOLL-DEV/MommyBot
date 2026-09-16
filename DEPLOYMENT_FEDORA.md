@@ -103,7 +103,11 @@ the `/v1` suffix. The spelling `ROUTER_LAMA_URL` is intentional: it matches the
 existing code. Adjust `LLAMA_MODEL` if your server requires a model name.
 
 Leave GitHub repository/token settings empty to disable the activity watcher;
-see [GITHUB_ACTIVITY.md](GITHUB_ACTIVITY.md) to enable it. The template's sample
+use `GITHUB_REPOSITORIES=owner/repo-one,owner/repo-two` in
+`/etc/mommybot/mommybot.env` to watch multiple repos with the configured token and
+channel. The plural list overrides the legacy singular setting. Preserve the
+GitHub state file when adding repositories, and restart the service after edits.
+See [GITHUB_ACTIVITY.md](GITHUB_ACTIVITY.md) for setup. The template's sample
 values must be replaced or cleared. Do not source the configuration in a shell:
 the app reads it using dotenv, including quoted values.
 

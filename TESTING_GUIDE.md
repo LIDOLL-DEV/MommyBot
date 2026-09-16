@@ -305,6 +305,10 @@ The Node tests exercise GitHub activity fetching, empty completion handling,
 multiple conversation turns, reopening SQLite, user isolation and continuing
 legacy checkpoints. They use mocked HTTP and disposable databases and do not
 log into Discord, require a model server or open the real memory database.
+`node --test test/github-activity.test.js` also covers multi-repository parsing,
+case-insensitive deduplication, legacy cursor migration, separate baselines,
+restart/reordering/removal, isolated GitHub and Discord failures, and shutdown
+during an AI summary. These checks use temporary state files and fake transports.
 `test/fixtures/legacy-checkpoints.json` contains synthetic SQLite rows generated
 with LangGraph 0.2.74 and SQLite saver 0.2.2, the combination that caused
 `checkpoint.pending_sends is not iterable` on the second turn. A separate test
