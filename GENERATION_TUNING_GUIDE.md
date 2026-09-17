@@ -164,6 +164,28 @@ generation and balance behavior without contacting live model or wallet servers.
 The runtime checker in [DEPLOYMENT_FEDORA.md](DEPLOYMENT_FEDORA.md) checks model
 reachability; it does not validate the quality of generated text.
 
+### Cute apology classifier
+
+`src/graph/swearJarApology.js` uses `ROUTER_LAMA_URL` and
+`ROUTER_MODEL || LLAMA_MODEL` at temperature zero, with a 64-token limit and
+thinking disabled. Its dedicated prompt accepts cute apologies addressed to
+Mommy, Mommy Sakura or MommyBot and rejects plain, casual, unrelated, quoted or
+negated apologies. It receives only the candidate message, serialized as data;
+it has no conversation history, identity or payment information. Only complete
+`accept` or `reject` labels are used, after removing closed thinking blocks.
+
+The classifier runs only for possible cute apologies associated with a recent
+fine by the same person in the same channel. `SWEAR_JAR_AI_ENABLED=false`, a
+timeout or malformed output uses a conservative matcher for direct phrases
+such as "sorry mommy Sakura". It shares `SWEAR_JAR_AI_TIMEOUT_MS`. Accepted
+apologies and manners reminders use fixed copy in `src/swearJar.js`; they never
+change fines. A missing, formal or casual apology earns one "act your age"
+reminder on the next ordinary message, not repeated nags or a timer for silence.
+
+Run `node --test test/swear-jar-apology.test.js test/swear-jar.test.js` for mocked
+classifier and real SQLite integration checks. These checks validate the prompt,
+decision handling and fallback, not a live model's classification accuracy.
+
 ## Littlepottchi wetting and timed care
 
 The creator's supported anatomy comes from `CW/Body`: chest overlay, two nipple

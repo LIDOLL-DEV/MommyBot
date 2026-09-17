@@ -29,6 +29,36 @@ reminder. These warnings create no debt and never charge retroactively. If the
 wallet definitively refuses a charge, including insufficient funds, nothing is
 added to the jar. Public replies never show a member's total balance.
 
+## Cute apologies
+
+The swear notice asks for **sorry mommy**, **sorry mommy Sakura**, or
+**sorry mommybot**. A router classifier also recognizes natural, affectionate
+variations addressed to Mommy. Plain **sorry**, **my bad**, formal apologies
+without that address, quoted examples and unrelated apologies do not qualify.
+An accepted apology gets a warm acknowledgment. It does not refund the fine,
+add a reward or change any pending payment.
+
+MommyBot watches the author's next messages in the same server and channel for
+**15 minutes after their latest swear**. If they reply without a qualifying
+apology, she gives one gentle **act your age** reminder and examples. She does
+not repeatedly interrupt the conversation or send reminders just because the
+member stays silent. Commands, bots, webhooks and DMs do not trigger reminders.
+A proper apology is still accepted after that reminder. A new swear starts its
+own apology context. Unlinked members can apologize too.
+
+The classifier uses `ROUTER_LAMA_URL` and `ROUTER_MODEL` (falling back to
+`LLAMA_MODEL`), temperature zero, and the existing `SWEAR_JAR_AI_TIMEOUT_MS`.
+Only a possible cute apology with a recent matching fine goes to the model;
+it receives that message alone, without history, identities or wallet data.
+An apology in the original swear message can be acknowledged in the fine notice.
+The acknowledgment and reminder themselves use fixed text.
+
+With AI disabled or unavailable, the three direct phrases above still work,
+including capitalization, friendly punctuation and simple "I'm really sorry"
+variations. Ambiguous longer wording needs the classifier. This is a language
+classifier, so unfamiliar phrasing can be rejected; the displayed examples are
+the simplest retry. No new environment settings are required.
+
 ## Weekly lottery
 
 The week ends **Monday at 00:00 UTC**, checked once per minute after Discord is
@@ -95,6 +125,12 @@ deduplicates fines. Every debit and credit has its own permanent provider reques
 ID and original account/API binding. Only verified coin receipts complete jobs.
 Pending jobs compose with existing wallet guards and prevent unlinking until
 settled. Pausing new fines does not discard these reservations.
+
+Apologies and reminders have separate durable records in the same database,
+limited to one of each per fine. Failed sends retry automatically after outages
+or restarts. An accepted apology cancels an unsent reminder. As with fine
+notices, a crash after Discord accepts a send but before SQLite saves its flag
+can repeat that notice; it cannot create another payment.
 
 Back up this database together with identity and other bot state. Never manually
 clear a pending job or resend a prize with a new payment ID to recover a timeout.

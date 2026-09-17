@@ -188,6 +188,16 @@ recovery. A model-list PASS does not prove successful text generation.
 
 ## Swear jar and weekly lottery
 
+`test/swear-jar-apology.test.js` verifies the dedicated router classifier prompt,
+required cute Mommy address, strict decisions, data-only payload, disabled-AI
+and network fallback. `test/swear-jar.test.js` covers accepted apologies,
+same-message apologies, one manners reminder for missing/casual/formal apologies,
+author/channel/server boundaries, fifteen-minute expiry, unlinked users,
+restart/deduplication, failed sends, canceled reminders, concurrent apologies
+and slow fine generation. All model responses and Discord sends are mocked;
+test results do not establish live classifier accuracy. Run the three
+`test/swear-jar*.test.js` files explicitly with `node --test` for focused checks.
+
 The AI tests also cover the shared girl/she-her address rule after custom persona
 text, masculine-output rejection (including “boys and girls”), and accepted
 feminine wording. Existing payment tests exercise the feminine fallback notices.

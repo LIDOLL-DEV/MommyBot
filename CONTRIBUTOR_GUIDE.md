@@ -149,9 +149,18 @@ Swear-jar notification prose comes from `src/graph/swearJarMessage.js`, with a
 bounded AI timeout and the original factual message as fallback. Append payment
 status and `swearJarBalanceText` from the journal after generation and channel
 lookup; keep unallocated confirmed coins separate from reserved unpaid prizes.
-Do not send player messages, identities or balances to the model. AI prose must
+Do not send player messages, identities or balances to the prose model. AI prose must
 never control payments, account guidance or winner selection. See
 [GENERATION_TUNING_GUIDE.md](GENERATION_TUNING_GUIDE.md).
+
+`src/graph/swearJarApology.js` separately classifies a candidate apology using
+the router endpoint. Require a cute Mommy address; plain sorry/my bad must not
+qualify. Send only the candidate text as data, with no history or wallet details.
+The local fallback recognizes direct requested phrases. Scope follow-ups to the
+same author/server/channel and latest fine within fifteen minutes. Persist at
+most one acknowledgment and one manners reminder per fine, suppress pending
+reminders after acceptance, and preserve retry/shutdown behavior. Apologies do
+not alter wallet jobs, charge extra coins or refund the existing fine.
 
 Cozy Hangman lives in `src/hangman/`; see [HANGMAN_GUIDE.md](HANGMAN_GUIDE.md).
 Charge exactly one online coin before exposing a playable word. Credit one

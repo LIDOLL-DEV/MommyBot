@@ -8,6 +8,7 @@ import { WalletError } from "../src/wallet/client.js";
 import { IdentityStore } from "../src/auth/store.js";
 import { nextSwearJarDraw } from "../src/wallet/swearJar.js";
 import { createSwearJar, swearMatcher } from "../src/swearJar.js";
+import { exactSwearApology } from "../src/graph/swearJarApology.js";
 import { runWalletAction } from "../src/wallet/commands.js";
 
 const MONDAY = Date.parse("2026-09-14T00:00:00Z"), WEEK = 7 * 86_400_000;
@@ -41,7 +42,10 @@ function fixture(t, env = {}) {
     f.wallet = new WalletService(path.join(directory, "wallet.db"), f.api, { now: () => f.now });
     f.wallet.identityFor = user => f.identities.gameIdentity(user);
     f.wallet.swearJar.draw = count => { f.drawCount = count; return f.winnerIndex ?? 0; };
-    f.bot = createSwearJar(f.client, f.wallet, f.identities, env, { generateMessage: async (...args) => f.generate ? f.generate(...args) : null }); // Keep payment tests independent of live model servers.
+    f.bot = createSwearJar(f.client, f.wallet, f.identities, env, {
+      generateMessage: async (...args) => f.generate ? f.generate(...args) : null,
+      classifyApology: async (...args) => f.classify ? f.classify(...args) : exactSwearApology(args[0]),
+    }); // Keep payment and apology tests independent of live model servers.
   };
   f.channel = guild => ({ guildId: guild, isTextBased: () => true, async send(options) {
     if (f.failSend) throw new Error("Discord offline");
@@ -402,4 +406,133 @@ test("private swear jar payment retries include a balance even while payment is 
   response = await runWalletAction({ user: { id: "alice" } }, f.wallet, f.identities, "retry");
   assert.match(response.content, /Swear jar balance: \*\*1 LiDollcoins\*\*/);
   assert.equal(f.balances.get("alice"), 9);
+});
+
+test("cute apologies acknowledge the recent fine once, survive restart and never refund coins", async t => {
+  const f = fixture(t); f.link("alice");
+  await f.bot.handleMessage(f.message());
+  assert.match(f.sent[0].content, /sorry mommy Sakura/);
+  await f.restart();
+  const apology = f.message("Sorry mommy Sakura!");
+  assert.equal(await f.bot.handleMessage(apology), true);
+  assert.match(f.sent.at(-1).content, /^Thank you for apologizing/);
+  assert.deepEqual(f.sent.at(-1).allowedMentions.parse, []);
+  await f.bot.handleMessage(apology);
+  await f.restart(); await f.bot.handleMessage(apology); await f.bot.tick();
+  assert.equal(f.sent.length, 2); assert.equal(f.calls.length, 1);
+  assert.equal(f.balances.get("alice"), 9); assert.equal(f.jobs().length, 1);
+});
+
+test("generic, casual, formal and missing apologies get one act-your-age reminder, then a cute apology is accepted", async t => {
+  for (const response of ["sorry", "my bad", "I apologize for my language", "anyway, how is everyone?", "I'm sorry Mommy, I'm late for work"]) {
+    const f = fixture(t); f.link("alice");
+    await f.bot.handleMessage(f.message());
+    f.classify = async () => false;
+    assert.equal(await f.bot.handleMessage(f.message(response)), true);
+    assert.match(f.sent.at(-1).content, /act your age/);
+    assert.match(f.sent.at(-1).content, /sorry mommybot/);
+    assert.equal(await f.bot.handleMessage(f.message("still chatting")), false);
+    f.classify = async () => true;
+    await f.bot.handleMessage(f.message("Please forgive me, Mommy Sakura!"));
+    assert.match(f.sent.at(-1).content, /^Thank you for apologizing/);
+    assert.equal(f.sent.length, 3); assert.equal(f.calls.length, 1);
+    assert.equal(await f.bot.handleMessage(f.message("ordinary conversation")), false);
+  }
+});
+
+test("apology context stays with the same member, server and channel and expires after fifteen minutes", async t => {
+  const f = fixture(t); f.link("alice");
+  f.classify = async () => assert.fail("Unrelated messages must not reach the classifier");
+  assert.equal(await f.bot.handleMessage(f.message("sorry mommy")), false);
+  await f.bot.handleMessage(f.message());
+  for (const overrides of [{ guildId: "other" }, { channelId: "elsewhere" }, { author: { id: "bob", bot: false } },
+    { guildId: null }, { author: { id: "alice", bot: true } }, { webhookId: "hook" }]) {
+    assert.equal(await f.bot.handleMessage(f.message("sorry mommy", overrides)), false);
+  }
+  assert.equal(await f.bot.handleMessage(f.message("/lidollid login")), false);
+  f.now += 15 * 60_000 + 1;
+  assert.equal(await f.bot.handleMessage(f.message("sorry mommy")), false);
+  assert.equal(f.sent.length, 1);
+});
+
+test("an apology in the swear message uses friendly acknowledgment while retaining the fine", async t => {
+  const f = fixture(t); f.link("alice");
+  f.classify = async content => { assert.equal(content, "shit! sorry mommy"); return true; };
+  f.generate = async () => assert.fail("Accepted apologies should not generate another scolding");
+  await f.bot.handleMessage(f.message("shit! sorry mommy"));
+  assert.equal(f.sent.length, 1); assert.match(f.sent[0].content, /^Thank you for apologizing/);
+  assert.doesNotMatch(f.sent[0].content, /Now, a proper little apology/);
+  assert.match(f.sent[0].content, /has been put/);
+  assert.equal(f.calls.length, 1); assert.equal(f.balances.get("alice"), 9);
+});
+
+test("unlinked members can apologize without an account or any wallet operation", async t => {
+  const f = fixture(t);
+  await f.bot.handleMessage(f.message()); await f.bot.handleMessage(f.message("sorry mommybot"));
+  assert.match(f.sent.at(-1).content, /^Thank you for apologizing/);
+  assert.equal(f.calls.length, 0); assert.equal(f.jobs()[0].state, "skipped");
+});
+
+test("failed reminders and acknowledgments retry after restart without duplicate payments", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  f.failSend = true; const casual = f.message("my bad"); await f.bot.handleMessage(casual);
+  f.failSend = false; await f.restart(); await f.bot.tick();
+  assert.match(f.sent.at(-1).content, /act your age/);
+  assert.equal(f.sent.at(-1).reply.messageReference, casual.id);
+  f.failSend = true; const apology = f.message("sorry mommy"); await f.bot.handleMessage(apology);
+  f.failSend = false; await f.restart(); await f.bot.tick(); await f.bot.tick();
+  assert.match(f.sent.at(-1).content, /^Thank you for apologizing/);
+  assert.equal(f.sent.at(-1).reply.messageReference, apology.id);
+  assert.equal(f.sent.length, 3); assert.equal(f.calls.length, 1);
+});
+
+test("a proper apology cancels an unsent reminder and another swear can receive its own reminder", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  f.failSend = true; await f.bot.handleMessage(f.message("my bad"));
+  f.failSend = false; await f.bot.handleMessage(f.message("sorry mommybot"));
+  await f.bot.tick(); assert.equal(f.sent.length, 2);
+  f.now++; await f.bot.handleMessage(f.message()); await f.bot.handleMessage(f.message("my bad"));
+  assert.equal(f.sent.length, 4); assert.match(f.sent.at(-1).content, /act your age/);
+  assert.equal(f.calls.length, 2);
+});
+
+test("an apology during slow fine generation replaces the scolding and sends only one notice", async t => {
+  const f = fixture(t); f.link("alice");
+  let release, started;
+  const waiting = new Promise(resolve => { release = resolve; });
+  const generating = new Promise(resolve => { started = resolve; });
+  f.generate = async () => { started(); await waiting; return "SCOLDING"; };
+  const fine = f.bot.handleMessage(f.message()); await generating;
+  await f.bot.handleMessage(f.message("sorry mommy"));
+  release(); await fine; await f.bot.tick();
+  assert.equal(f.sent.length, 1); assert.match(f.sent[0].content, /^Thank you for apologizing/);
+  assert.doesNotMatch(f.sent[0].content, /SCOLDING/); assert.equal(f.calls.length, 1);
+});
+
+test("concurrent apologies bind to the observed fine and do not acknowledge a newer swear", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  let release;
+  const waiting = new Promise(resolve => { release = resolve; });
+  f.classify = async () => { await waiting; return true; };
+  const apology = f.message("sorry mommy");
+  const pending = [f.bot.handleMessage(apology), f.bot.handleMessage(apology)];
+  f.now++; await f.bot.handleMessage(f.message());
+  release(); await Promise.all(pending); await f.bot.tick();
+  assert.equal(f.sent.length, 3); assert.equal(f.calls.length, 2);
+  const jobs = f.jobs();
+  assert.ok(f.wallet.swearJar.apology(jobs[0].id)); assert.equal(f.wallet.swearJar.apology(jobs[1].id), undefined);
+});
+
+test("an accepted apology cancels a reminder while its retry is looking up the Discord channel", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  f.failSend = true; await f.bot.handleMessage(f.message("my bad")); f.failSend = false;
+  let release, fetching;
+  const waiting = new Promise(resolve => { release = resolve; });
+  const started = new Promise(resolve => { fetching = resolve; });
+  f.client.channels.fetch = async () => { fetching(); await waiting; return f.channel("guild"); };
+  const retry = f.bot.tick(); await started;
+  await f.bot.handleMessage(f.message("sorry mommy"));
+  release(); await retry; await f.bot.tick();
+  assert.equal(f.sent.length, 2); assert.match(f.sent.at(-1).content, /^Thank you for apologizing/);
+  assert.equal(f.calls.length, 1);
 });

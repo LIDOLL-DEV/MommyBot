@@ -2,6 +2,7 @@ import { randomInt, randomUUID } from "node:crypto";
 import { WalletError } from "./client.js";
 
 const DAY = 86_400_000;
+export const SWEAR_APOLOGY_WINDOW_MS = 15 * 60_000;
 export function nextSwearJarDraw(now) {
   const date = new Date(now);
   const midnight = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
@@ -22,12 +23,47 @@ export class SwearJar {
       notified INTEGER NOT NULL DEFAULT 0, paid_notified INTEGER NOT NULL DEFAULT 0,
       UNIQUE(guild_id, draw_at));
       CREATE INDEX IF NOT EXISTS swear_jar_pending ON swear_jar_jobs(state, user_id);
-      CREATE INDEX IF NOT EXISTS swear_jar_pool ON swear_jar_jobs(guild_id, kind, state, allocation, created);`);
+      CREATE INDEX IF NOT EXISTS swear_jar_pool ON swear_jar_jobs(guild_id, kind, state, allocation, created);
+      CREATE INDEX IF NOT EXISTS swear_jar_recent ON swear_jar_jobs(guild_id, channel_id, user_id, kind, created);
+      CREATE TABLE IF NOT EXISTS swear_jar_apologies (
+      job_id TEXT PRIMARY KEY REFERENCES swear_jar_jobs(id), message_id TEXT NOT NULL UNIQUE,
+      created INTEGER NOT NULL, notified INTEGER NOT NULL DEFAULT 0);
+      CREATE TABLE IF NOT EXISTS swear_jar_reminders (
+      job_id TEXT PRIMARY KEY REFERENCES swear_jar_jobs(id), message_id TEXT NOT NULL UNIQUE,
+      notified INTEGER NOT NULL DEFAULT 0);`);
     const previous = wallet.hasPending;
     wallet.hasPending = user => previous(user) || Boolean(this.pending(user));
   } // Load durable coin reservations before HTTP routes allow account changes or game purchases.
 
   get(id) { return this.db.prepare("SELECT * FROM swear_jar_jobs WHERE id=?").get(id); } // Read the latest payment state after asynchronous work.
+  apology(id) { return this.db.prepare("SELECT * FROM swear_jar_apologies WHERE job_id=?").get(id); } // Retrieve the acknowledgment separately from the fine's payment state.
+  reminder(id) { return this.db.prepare("SELECT * FROM swear_jar_reminders WHERE job_id=?").get(id); } // Track a single manners reminder without nagging on every message.
+
+  recordReminder(message, job) {
+    this.db.prepare("INSERT OR IGNORE INTO swear_jar_reminders (job_id,message_id) VALUES (?,?)").run(job.id, message.id);
+    return this.reminder(job.id);
+  } // Save the first follow-up that still needs a cute apology, including its reply target for retries.
+
+  recentSwear(message) {
+    const created = message.createdTimestamp ?? this.wallet.now();
+    return this.db.prepare(`SELECT * FROM swear_jar_jobs
+      WHERE guild_id=? AND channel_id=? AND user_id=? AND kind='debit' AND created BETWEEN ? AND ?
+      ORDER BY created DESC, length(message_id) DESC, message_id DESC LIMIT 1`)
+      .get(message.guildId, message.channelId, message.author.id, created - SWEAR_APOLOGY_WINDOW_MS, created);
+  } // Scope classification to this member's latest fine in this channel during the last fifteen minutes.
+
+  recordApology(message, job = this.recentSwear(message)) {
+    const duplicate = this.db.prepare("SELECT * FROM swear_jar_apologies WHERE message_id=?").get(message.id);
+    if (duplicate) return duplicate;
+    if (!job) return null;
+    const previous = this.apology(job.id);
+    if (previous) return previous; // Repeated apologies cannot walk backwards through old fines or farm replies.
+    this.db.prepare("INSERT INTO swear_jar_apologies (job_id,message_id,created) VALUES (?,?,?)")
+      .run(job.id, message.id, message.createdTimestamp ?? this.wallet.now());
+    this.db.prepare("UPDATE swear_jar_reminders SET notified=1 WHERE job_id=?").run(job.id); // Cancel an unsent reminder once the member apologizes properly.
+    return this.apology(job.id);
+  } // Remember one apology for the member's latest swear in this channel; never charge, refund or change a payment.
+
   balance(guild) {
     return this.db.prepare(`SELECT
       COALESCE(SUM(CASE WHEN kind='debit' AND state='done' AND allocation IS NULL THEN amount ELSE 0 END),0) AS available,

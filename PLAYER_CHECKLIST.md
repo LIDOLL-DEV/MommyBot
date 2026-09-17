@@ -68,6 +68,10 @@
   uncertain payments and refunds retain their original IDs for recovery.
 - A server message containing listed swearing costs **1 coin**, even with several
   swear words. MommyBot replies to explain the charge or account problem.
+- After swearing, say **sorry mommy**, **sorry mommy Sakura**, or **sorry mommybot**
+  in the same channel within fifteen minutes. Cute apologies get a thank-you;
+  a plain "sorry", "my bad", or skipping the apology gets one **act your age**
+  reminder on your next message. The original fine still applies.
 - Each swear-jar notice includes an AI-written reminder or celebration and the
   current server jar balance. Reserved lottery prizes are shown separately.
   Standard wording and the balance still appear if the AI server is unavailable.
