@@ -175,10 +175,13 @@ negated apologies. It receives only the candidate message, serialized as data;
 it has no conversation history, identity or payment information. Only complete
 `accept` or `reject` labels are used, after removing closed thinking blocks.
 
-The classifier runs only for possible cute apologies associated with a recent
-fine by the same person in the same channel. `SWEAR_JAR_AI_ENABLED=false`, a
-timeout or malformed output uses a conservative matcher for direct phrases
-such as "sorry mommy Sakura". It shares `SWEAR_JAR_AI_TIMEOUT_MS`. Accepted
+Direct phrases such as "sorry mommy Sakura" are matched locally first, including
+bold formatting, capitalization and friendly punctuation. A match proceeds
+straight to positive chat generation without a router request. The classifier
+runs only for other possible cute apologies associated with a recent fine by
+the same person in the same channel. With `SWEAR_JAR_AI_ENABLED=false`, a timeout
+or malformed output, those nonmatching messages remain unaccepted. Classification
+shares `SWEAR_JAR_AI_TIMEOUT_MS`. Accepted
 apologies and manners reminders use the chat generator in
 `src/graph/swearJarMessage.js`, with fixed fallback copy in `src/swearJar.js`.
 Acknowledgments accept the apology without asking for another; reminders must

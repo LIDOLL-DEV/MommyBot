@@ -156,7 +156,8 @@ never control payments, account guidance or winner selection. See
 `src/graph/swearJarApology.js` separately classifies a candidate apology using
 the router endpoint. Require a cute Mommy address; plain sorry/my bad must not
 qualify. Send only the candidate text as data, with no history or wallet details.
-The local fallback recognizes direct requested phrases. Scope follow-ups to the
+Match direct requested phrases locally before any classifier request; route
+matches to positive chat generation and classify only other candidates. Scope follow-ups to the
 same author/server/channel and latest fine within fifteen minutes. Persist at
 most one acknowledgment and one manners reminder per fine, suppress pending
 reminders after acceptance, and preserve retry/shutdown behavior. Apologies do

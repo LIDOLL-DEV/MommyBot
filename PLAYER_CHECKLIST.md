@@ -74,6 +74,8 @@
   reminder on your next message. The original fine still applies.
 - Apology thanks and manners reminders use Sakura's chat-generated wording,
   with standard replies available if the AI is offline.
+- The three suggested apology phrases are recognized directly, including bold
+  formatting and capitalization changes. Other wording is checked by the AI.
 - Each swear-jar notice includes an AI-written reminder or celebration and the
   current server jar balance. Reserved lottery prizes are shown separately.
   Standard wording and the balance still appear if the AI server is unavailable.

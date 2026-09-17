@@ -8,7 +8,7 @@ import { WalletError } from "../src/wallet/client.js";
 import { IdentityStore } from "../src/auth/store.js";
 import { nextSwearJarDraw } from "../src/wallet/swearJar.js";
 import { createSwearJar, swearMatcher } from "../src/swearJar.js";
-import { exactSwearApology } from "../src/graph/swearJarApology.js";
+import { classifySwearApology, exactSwearApology } from "../src/graph/swearJarApology.js";
 import { runWalletAction } from "../src/wallet/commands.js";
 
 const MONDAY = Date.parse("2026-09-14T00:00:00Z"), WEEK = 7 * 86_400_000;
@@ -579,4 +579,24 @@ test("a proper apology during reminder generation cancels the stale scolding", a
   assert.equal(f.sent.length, 2); assert.equal(f.sent.at(-1).content, "Mommy accepts your sweet apology!");
   assert.ok(f.sent.every(message => !message.content.includes("STALE REMINDER")));
   assert.equal(f.calls.length, 1);
+});
+
+test("each advertised direct apology goes straight to positive chat generation without a router call", async t => {
+  const f = fixture(t); f.link("alice");
+  let routerCalls = 0;
+  const kinds = [];
+  f.classify = (text, options) => classifySwearApology(text, { ...options, fetcher: async () => {
+    routerCalls++;
+    return { ok: true, json: async () => ({ choices: [{ message: { content: "reject" } }] }) };
+  } });
+  f.generate = async kind => { kinds.push(kind); return kind === "apology" ? "Mommy accepts your sweet apology!" : null; };
+  for (const text of ["**sorry mommy**", "**sorry mommy Sakura**", "**sorry mommybot**"]) {
+    f.now++;
+    await f.bot.handleMessage(f.message());
+    assert.equal(await f.bot.handleMessage(f.message(text)), true);
+    assert.equal(f.sent.at(-1).content, "Mommy accepts your sweet apology!");
+  }
+  assert.equal(routerCalls, 0);
+  assert.deepEqual(kinds, ["debit", "apology", "debit", "apology", "debit", "apology"]);
+  assert.equal(f.calls.length, 3); assert.equal(f.balances.get("alice"), 7);
 });

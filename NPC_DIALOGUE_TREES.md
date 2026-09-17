@@ -29,6 +29,8 @@ penalties: apologizing does not refund coins. The classifier prompt lives in
 `src/graph/swearJarApology.js`; reply prompts use the chat endpoint through
 `src/graph/swearJarMessage.js`. Fixed fallbacks and accepted-phrase examples live
 in `src/swearJar.js`. Accepted apologies cancel reminders still being generated.
+The three direct phrases bypass the classifier and select positive chat wording
+immediately; other candidate apologies still use the classifier.
 
 Sakura's router distinguishes an invitation to speak from a conversation
 between other members. Recent questions and their answers can continue without

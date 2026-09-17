@@ -35,7 +35,26 @@ test("plain apologies and casual replies cannot qualify even with a permissive m
 
 test("explicit classifier rejection is respected and never displayed as generated chat", async () => {
   assert.equal(await classifySwearApology("I'm not sorry mommy", { env: {}, fetcher: async () => response("reject") }), false);
-  assert.equal(await classifySwearApology("sorry mommy", { env: {}, fetcher: async () => response("reject") }), false);
+  assert.equal(await classifySwearApology("please forgive me mommy", { env: {}, fetcher: async () => response("reject") }), false);
+});
+
+test("direct cute apologies bypass the classifier even if it would reject them", async () => {
+  let calls = 0;
+  for (const text of ["sorry mommy", "sorry mommy Sakura", "sorry mommybot", "**sorry mommy**", "**sorry mommy Sakura**", "**sorry mommybot**", "SORRY MOMMY!", "  sorry   mommy Sakura  ", "I'm really sorry, Mommy 💗"]) {
+    assert.equal(await classifySwearApology(text, { env: {}, fetcher: async () => { calls++; return response("reject"); } }), true, text);
+  }
+  assert.equal(calls, 0, "Exact phrases must never contact the classification endpoint");
+});
+
+test("quoted, negated and longer messages containing an exact phrase still require classification", async () => {
+  const seen = [];
+  for (const text of ['"sorry mommy"', "not sorry mommy", "sorry mommy, but whatever", "sorry mommy, I'm late", "sorry mommy?", "Please forgive me, mommy Sakura"]) {
+    assert.equal(await classifySwearApology(text, { env: {}, fetcher: async (_url, options) => {
+      seen.push(JSON.parse(JSON.parse(options.body).messages[1].content).message);
+      return response("reject");
+    } }), false, text);
+  }
+  assert.equal(seen.length, 6);
 });
 
 test("disabled or unavailable AI recognizes only direct cute phrases", async t => {

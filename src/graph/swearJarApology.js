@@ -35,12 +35,11 @@ export function isSwearApologyCandidate(content) {
 export function exactSwearApology(content) {
   const text = normalize(content).replace(/[*_~]/g, "").replace(/[.!\s\p{Extended_Pictographic}\uFE0F]+$/gu, "");
   return /^(?:(?:i'm|im|i am) )?(?:(?:so|really|very) )*sorry[ ,]+mommy(?:bot| sakura)?$/u.test(text);
-} // Keep the requested direct phrases available during AI outages without guessing at ambiguous messages.
+} // Recognize direct cute apologies before classification, without guessing at ambiguous messages.
 
 export async function classifySwearApology(content, { env = process.env, fetcher = fetch } = {}) {
-  if (!isSwearApologyCandidate(content)) return false;
-  const fallback = () => exactSwearApology(content);
-  if (env.SWEAR_JAR_AI_ENABLED === "false") return fallback();
+  if (exactSwearApology(content)) return true; // The advertised phrases always qualify and never wait for or risk rejection by the router.
+  if (!isSwearApologyCandidate(content) || env.SWEAR_JAR_AI_ENABLED === "false") return false;
   const requested = Number(env.SWEAR_JAR_AI_TIMEOUT_MS);
   const timeout = Number.isInteger(requested) && requested >= 1000 && requested <= 15000 ? requested : 8000;
   try {
@@ -61,7 +60,7 @@ export async function classifySwearApology(content, { env = process.env, fetcher
     if (answer !== "accept" && answer !== "reject") throw new Error("Invalid apology decision");
     return answer === "accept";
   } catch (error) {
-    console.error(`[Swear jar] Apology classifier unavailable (${modelFailure(error)}); using exact apology phrases.`);
-    return fallback();
+    console.error(`[Swear jar] Apology classifier unavailable (${modelFailure(error)}); the nonmatching apology was not accepted.`);
+    return false;
   }
 } // Classify only a candidate message; never expose history, account details or balances or let a decision move coins.

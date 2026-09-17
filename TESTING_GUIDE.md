@@ -198,6 +198,11 @@ and slow fine generation. All model responses and Discord sends are mocked;
 test results do not establish live classifier accuracy. Run the three
 `test/swear-jar*.test.js` files explicitly with `node --test` for focused checks.
 
+Direct-match tests assert that all three advertised phrases, including bold
+formatting and case/spacing variations, make zero router requests and select
+positive chat generation. Quoted, negated and longer messages still require
+classification; merely containing a direct phrase does not bypass that check.
+
 The AI tests verify apology/reminder prompts use the chat endpoint and model,
 including the required "act your age" phrase and fallback on unusable output.
 Integration checks verify generated text replaces static replies, examples stay
