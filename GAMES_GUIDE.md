@@ -1,7 +1,7 @@
 # Games in Little Log
 
 Open **Games** at https://lidoll.dev/tracker/#games. Anyone with a LiD0llID
-account can play Diaper Atelier, Cozy Hangman and Touhou Trader. Discord
+account can play Diaper Atelier, Cozy Hangman, Go Fish and Touhou Trader. Discord
 membership is optional. Games open in a separate tab and require internet.
 
 Press **Sign in with LiD0llID**, register if needed, and approve wallet access
@@ -14,6 +14,7 @@ wallet. Sign-in itself does not charge coins or stars. Game prices stay unchange
 | Cozy Hangman | /hangman/login | 1 coin per round; 1 coin earned per newly revealed letter position |
 | Touhou Trader | /touhou/login | 1 star or 25 coins per adoption |
 | Prism Drop | /balldrop/login | Bet 1, 5, 10, 25, 50 or 100 coins; returns depend on your landing guess |
+| Go Fish | /gofish/login | 1 coin per game against the computer; 1 coin per book of four you complete. Games against a friend are free |
 
 Prism Drop is also available from `/menu`, `/balldrop` and the direct bot page
 `https://bot.lidoll.dev/balldrop/`. Its 10-by-20 field has random entry pins 4-7,
@@ -86,7 +87,7 @@ No deployment is performed by preparing this patch.
 
 Existing LiD0llID and wallet features must be enabled with matching client IDs.
 The registered /auth/callback and existing consent scopes are reused; no new
-OIDC client or redirect URI is needed. Proxy /auth/, /diapers/, /hangman/ and
+OIDC client or redirect URI is needed. Proxy /auth/, /diapers/, /hangman/, /gofish/ and
 /touhou/ to the bot's auth listener. Tracker game redirects continue using
 LIDOLLBOT_PUBLIC_ORIGIN (default https://bot.lidoll.dev).
 

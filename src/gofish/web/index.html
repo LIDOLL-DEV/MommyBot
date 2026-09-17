@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fff5fa"><title>Go Fish · LiDollBot</title><link rel="stylesheet" href="/gofish/atelier.css"><link rel="stylesheet" href="/gofish/style.css"><script src="/gofish/app.js" defer></script></head>
+<body>
+  <a class="skip-link" href="#table">Skip to the game</a>
+  <header class="topbar"><a class="brand" href="/gofish/"><span class="sigil" aria-hidden="true">🐟</span><span>Go Fish<small>a LiDollBot card pond</small></span></a><div class="account-tools"><a class="quiet" href="/gofish/login">LiD0llID sign-in</a><a class="quiet" href="https://lidoll.dev/tracker/#games">Games</a><span class="wallet-pill">✧ <strong id="balance">—</strong> LiDollcoins</span><button id="refresh" class="quiet" type="button">Refresh</button><button id="logout" class="quiet" type="button" hidden>Sign out</button></div></header>
+  <main class="shell">
+    <section class="welcome" id="welcome"><div><p class="eyebrow">ASK KINDLY. COLLECT FOURS.</p><h1>Got any<br> <em>sevens?</em></h1><p class="welcome-copy">Ask for a rank you're holding. Take every match.<br> Collect four of a kind and lay down a book.</p><p id="greeting" class="greeting">Your card pond is getting ready…</p></div><aside class="rules-card"><span class="rules-flower" aria-hidden="true">🐠</span><p class="eyebrow">TWO WAYS TO PLAY</p><h2>Against me.<br> Or a friend.</h2><p><strong>1 coin</strong> to play the computer.<br> <strong>1 coin</strong> for every book you complete.</p><p class="muted fine">Friend games are completely free<br> and never touch your wallet.</p></aside></section>
+    <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+    <div id="table" hidden>
+      <section id="pending" class="payment-note" hidden><div><strong>One little payment to finish</strong><p id="pending-copy"></p></div><button id="retry" class="primary" type="button">Retry payment</button></section>
+      <p id="board-note" class="control-note" role="status" hidden></p>
+
+      <section id="lobby-panel" class="choices" hidden>
+        <article class="choice solo-choice"><p class="eyebrow">A QUIET GAME</p><h2>Play the computer</h2><p class="fine muted">I'll ask fairly — I only remember what you've asked me for out loud, never what's in your hand.</p><button id="play-solo" class="primary" type="button">Play for 1 LiDollcoin ✧</button><p class="muted fine">Every book of four pays you 1 coin back.</p></article>
+        <article class="choice friend-choice"><p class="eyebrow">A GAME WITH A FRIEND · ALWAYS FREE</p><h2>Play a friend</h2>
+          <div class="friend-actions"><button id="make-code" class="primary" type="button">Get an invite code</button><button id="make-open" class="quiet" type="button">Open a table anyone can join</button></div>
+          <form id="join-form" class="join-form"><label for="join-code">Have a code from a friend?</label><div class="join-row"><input id="join-code" name="code" type="text" inputmode="latin" autocomplete="off" spellcheck="false" maxlength="9" placeholder="ABCD-2345" aria-describedby="join-help"><button id="join" class="quiet" type="submit">Join</button></div><p id="join-help" class="muted fine">Codes look like ABCD-2345. You can also be challenged in Discord with <code>/gofish friend:@name</code>.</p></form>
+          <div id="lobby" hidden><p class="eyebrow">TABLES WAITING FOR A PLAYER</p><ul id="lobby-list" class="lobby-list"></ul></div>
+        </article>
+      </section>
+
+      <section id="waiting" class="waiting-card" hidden><p class="eyebrow">YOUR TABLE IS SET</p><h2 id="waiting-title">Waiting for your friend…</h2><p id="waiting-copy">Share this code. The table stays open for half an hour.</p><p class="code-display"><strong id="code-value">—</strong><button id="copy-code" class="quiet" type="button">Copy</button></p><button id="cancel-wait" class="quiet" type="button">Close this table</button></section>
+
+      <section id="board" class="board" hidden aria-labelledby="board-title">
+        <div class="opponent"><div><p class="eyebrow">ACROSS THE POND</p><h2 id="opponent-name">Your opponent</h2><p id="opponent-cards" class="muted fine">7 cards in hand</p></div><div class="backs" id="opponent-backs" aria-hidden="true"></div></div>
+        <p id="turn-banner" class="turn-banner" role="status" aria-live="polite">Your turn.</p>
+        <div class="books-row"><div><p class="eyebrow">THEIR BOOKS</p><div id="their-books" class="books"><span class="muted fine">None yet</span></div></div><div class="pond-pile"><p class="eyebrow">POND</p><strong id="pond-count">0</strong><span class="muted fine">cards left</span></div><div><p class="eyebrow">YOUR BOOKS</p><div id="your-books" class="books"><span class="muted fine">None yet</span></div></div></div>
+        <h3 id="board-title">Your hand — tap a rank to ask for it</h3>
+        <div id="hand" class="hand" aria-label="Your hand"></div>
+        <details class="log-details"><summary>Recent asks</summary><ul id="log" class="log"></ul></details>
+        <div class="board-bottom"><span class="muted fine">You must hold a rank to ask for it.</span><button id="leave" class="quiet" type="button">Leave this game</button></div>
+      </section>
+
+      <div class="summary"><div><span>Games played</span><strong id="played">0</strong></div><div><span>Games won</span><strong id="won">0</strong></div><div><span>Coins earned</span><strong id="total-earned">0</strong></div></div>
+      <section class="how-to"><div><span class="step">01</span><h3>Ask for a rank</h3><p>Tap any rank in your hand. If they're holding it, you take every one and ask again.</p></div><div><span class="step">02</span><h3>Go fish</h3><p>No match? Draw from the pond. Fish the very rank you asked for and your turn continues.</p></div><div><span class="step">03</span><h3>Lay down books</h3><p>Four of a kind is a book. Against the computer, each one you complete pays a coin.</p></div></section>
+    </div><footer class="site-footer"><span>🐟 Go Fish · LiDollBot</span><span>Ask kindly. Collect fours.</span></footer>
+  </main>
+  <dialog id="leave-dialog" aria-labelledby="leave-title"><h2 id="leave-title">Leave this game?</h2><p id="leave-copy">Coins you've already earned stay yours. The entry coin isn't refunded.</p><div class="dialog-actions"><button id="leave-cancel" class="quiet" type="button">Keep playing</button><button id="leave-confirm" class="primary" type="button">Leave this game</button></div></dialog>
+</body></html>

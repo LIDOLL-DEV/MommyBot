@@ -11,6 +11,7 @@ import { initializeGacha } from "../gacha/index.js";
 import { IdentityMenus } from "./menu.js";
 import { initializeHangman } from "../hangman/index.js";
 import { initializeBallDrop } from "../balldrop/index.js";
+import { initializeGoFish } from "../gofish/index.js";
 import { initializeTouhouWeb } from "../touhou/web.js";
 import { createGameLogin } from "../games/login.js";
 import { CoinLeaderboard, createLeaderboardWeb } from "../leaderboard/web.js";
@@ -38,18 +39,20 @@ export function buildIdentityCommand() {
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));
 } // Add a dedicated command without replacing the trader or any other application's commands.
 
-export function createIdentityHandler(store, config, wallet = null, gacha = null, trader = null, hangman = null, touhouWeb = null, balldrop = null) {
-  const accountAction = (interaction, action, options) => runIdentityAction(interaction, store, config, wallet, gacha, action, options, hangman, touhouWeb, balldrop);
+export function createIdentityHandler(store, config, wallet = null, gacha = null, trader = null, hangman = null, touhouWeb = null, balldrop = null, gofish = null) {
+  const accountAction = (interaction, action, options) => runIdentityAction(interaction, store, config, wallet, gacha, action, options, hangman, touhouWeb, balldrop, gofish);
   const menus = new IdentityMenus({
     accountAction, walletAction: (interaction, action, options) => runWalletAction(interaction, wallet, store, action, options),
     atelier: gacha?.linkMessage, trader: trader?.openMenu, hangman: hangman?.linkMessage,
     balldrop: balldrop?.linkMessage,
+    gofish: gofish?.linkMessage,
     leaderboardUrl: wallet ? `${config.origin}/leaderboard/` : null,
   }); // Menus share the slash-command actions, including linked-role assignment and payment recovery.
   return async interaction => {
     if (await menus.handleInteraction(interaction)) return true;
     if (hangman && await hangman.handleInteraction(interaction)) return true;
     if (balldrop && await balldrop.handleInteraction(interaction)) return true;
+    if (gofish && await gofish.handleInteraction(interaction)) return true;
     if (gacha && await gacha.handleInteraction(interaction)) return true;
     const unlinkButton = interaction.isButton?.() && interaction.customId?.startsWith("lidollid:unlink:");
     const combined=Boolean(wallet?.stageIdentity);
@@ -67,7 +70,7 @@ export function createIdentityHandler(store, config, wallet = null, gacha = null
   }; // Only Discord's authenticated interaction user can read, confirm or remove their link; replies stay private.
 }
 
-export async function runIdentityAction(interaction, store, config, wallet, gacha, action, options = interaction.options, hangman = null, touhouWeb = null, balldrop = null) {
+export async function runIdentityAction(interaction, store, config, wallet, gacha, action, options = interaction.options, hangman = null, touhouWeb = null, balldrop = null, gofish = null) {
     const combined = Boolean(wallet?.stageIdentity);
     let content;
     let components = [];
@@ -102,6 +105,7 @@ export async function runIdentityAction(interaction, store, config, wallet, gach
           gacha?.revoke(discordId); // Invalidate every browser game session when its identity link is removed.
           hangman?.revoke(discordId);
           balldrop?.revoke(discordId);
+          gofish?.revoke(discordId);
           touhouWeb?.revoke(discordId);
           content = "Your LiDollBot account link, wallet connection and pending sign-ins were removed. Your stars, LiDollcoins, Touhou collection and awarded Discord role stay. Your shared LiD0llID browser session remains signed in.\nReady to test again? Run /lidollid login for a fresh link. To choose a different LiD0llID, sign out in your browser first or open the fresh link in a private window.";
           break;
@@ -123,24 +127,25 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   const gacha = initializeGacha(config, store, wallet);
   const hangman = initializeHangman(config, store, wallet);
   const balldrop = initializeBallDrop(config, store, wallet); // Register pending bet guards before opening the shared listener.
+  const gofish = initializeGoFish(config, store, wallet); // Register pending book rewards before opening the shared listener.
   const touhouWeb = initializeTouhouWeb(config, store, trader, client);
-  const games = Object.fromEntries([["diapers", gacha, "Diaper Atelier"], ["clothes", gacha, "Clothes Emporium"], ["littlepottchi", gacha, "Littlepottchi"], ["hangman", hangman, "Cozy Hangman"], ["balldrop", balldrop, "Prism Drop"], ["touhou", touhouWeb, "Touhou Trader"]]
+  const games = Object.fromEntries([["diapers", gacha, "Diaper Atelier"], ["clothes", gacha, "Clothes Emporium"], ["littlepottchi", gacha, "Littlepottchi"], ["hangman", hangman, "Cozy Hangman"], ["balldrop", balldrop, "Prism Drop"], ["gofish", gofish, "Go Fish"], ["touhou", touhouWeb, "Touhou Trader"]]
     .filter(([, game]) => game).map(([key, game, title]) => [key, { sessions: game.sessions, title }]));
   const gameLogin = createGameLogin(config, store, createOidc(config, Boolean(wallet), { statePrefix: "game." }), games, Date.now, wallet);
   const leaderboardWeb = wallet ? createLeaderboardWeb(config, new CoinLeaderboard(store, wallet)) : null;
-  const gameWeb = async (request, response) => Boolean(await leaderboardWeb?.(request, response) || await gameLogin.route(request, response) || await gacha?.web(request, response) || await hangman?.web(request, response) || await balldrop?.web(request, response) || await touhouWeb?.web(request, response));
+  const gameWeb = async (request, response) => Boolean(await leaderboardWeb?.(request, response) || await gameLogin.route(request, response) || await gacha?.web(request, response) || await hangman?.web(request, response) || await balldrop?.web(request, response) || await gofish?.web(request, response) || await touhouWeb?.web(request, response));
   const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet,gameWeb);
   try {
     await new Promise((resolve, reject) => { server.once("error", reject); server.listen(config.port, config.host, resolve); });
-  } catch (error) { gacha?.close(); hangman?.close(); balldrop?.close(); store.close(); throw error; }
-  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();gacha?.prune();hangman?.prune();balldrop?.prune();touhouWeb?.prune();gameLogin.prune();}, 60000);
+  } catch (error) { gacha?.close(); hangman?.close(); balldrop?.close(); gofish?.close(); store.close(); throw error; }
+  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();gacha?.prune();hangman?.prune();balldrop?.prune();gofish?.prune();touhouWeb?.prune();gameLogin.prune();}, 60000);
   cleanup.unref();
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {
-    handleInteraction: createIdentityHandler(store, config, wallet, gacha, trader, hangman, touhouWeb, balldrop),
+    handleInteraction: createIdentityHandler(store, config, wallet, gacha, trader, hangman, touhouWeb, balldrop, gofish),
     identities: store, // Share verified Discord links with the swear jar's server-membership checks.
-    handleMessage: async message => Boolean(await gacha?.handleMessage(message) || await hangman?.handleMessage(message) || await balldrop?.handleMessage(message)),
-    closeGames: () => { gacha?.close(); hangman?.close(); balldrop?.close(); }, // Game journals remain open until wallet actions drain at shutdown.
+    handleMessage: async message => Boolean(await gacha?.handleMessage(message) || await hangman?.handleMessage(message) || await balldrop?.handleMessage(message) || await gofish?.handleMessage(message)),
+    closeGames: () => { gacha?.close(); hangman?.close(); balldrop?.close(); gofish?.close(); }, // Game journals remain open until wallet actions drain at shutdown.
     async registerGuild(guild) {
       try { await guild.commands.create(buildIdentityCommand()); }
       catch { console.error(`[LiD0llID] Could not register /lidollid in guild ${guild.id}.`); }
@@ -149,6 +154,7 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
       await gacha?.registerGuild(guild);
       await hangman?.registerGuild(guild);
       await balldrop?.registerGuild(guild);
+      await gofish?.registerGuild(guild);
     },
     async close() {
       clearInterval(cleanup);

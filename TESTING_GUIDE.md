@@ -241,6 +241,17 @@ reach normal bot routing. Inspect saved journals for pending payments instead
 of manually issuing replacement charges or prizes. See
 [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for scheduling and recovery behavior.
 
+## Go Fish
+
+`test/gofish.test.js` covers the rules engine over many randomised games
+(termination, all thirteen books, no lost cards), the computer's log-only
+knowledge, one-coin entry and per-book rewards, masked tables that never leak the
+pond or the opponent's hand, invalid and out-of-turn asks, replayed requests,
+friend games that never reach the wallet, all three matchmaking doors, challenge
+binding and expiry, leaving and forfeits, pending rewards at daily caps, declined
+and lost payments, restart durability, account pinning, the real HTTP routes with
+CSRF and polling, and the slash, prefix and challenge commands.
+
 ## Cozy Hangman
 
 `test/hangman.test.js` covers one-coin entry, per-occurrence letter rewards,

@@ -71,6 +71,37 @@ Load pending guards before HTTP and drain wallet actions before journal close.
 Route `/balldrop`, `!balldrop`, private menus and standalone SSO consistently;
 unlink must revoke its sessions. Animation/replay cannot affect payments.
 
+Go Fish lives in `src/gofish/`; see [GOFISH_GUIDE.md](GOFISH_GUIDE.md). Keep the
+rules engine in `rules.js` pure and injectable: the shuffle, the computer's choice
+and every deal take the caller's randomness so tests stay deterministic. Preserve
+standard play — you may only ask for a rank you hold, a match hands over every
+copy and repeats the turn, a miss draws one card and repeats the turn only on the
+asked rank, four of a kind lays down at once, and an emptied hand redraws while
+the pond lasts. Thirteen books must always be reachable; a game that cannot end
+is a bug, not a stalemate.
+
+The computer opponent must stay honest. Derive its knowledge only from the shared
+log both players can see, never from `hands.guest`, `hands.host` or the deck.
+Asking proves the asker held that rank unless the same ask booked it; taking every
+copy retires that knowledge. Never send the pond, the opponent's hand or a drawn
+card to a browser: the log records ranks, counts and whether a wish was fished.
+
+Only solo games touch the wallet, and only for the player's own books — 1 coin to
+deal, 1 coin per book completed by an ask. Books dealt into an opening hand and
+every book the computer makes pay nothing. Friend games must never reach the
+wallet, never take the wallet lock, and must settle inside one immediate
+transaction; their replay safety comes from the per-seat saved request ID rather
+than a payment journal. Keep the solo journal identical in shape to Hangman's:
+one pending job per player, a failed entry cancels its table, and a lost response
+retries the saved operation ID instead of dealing again.
+
+Matchmaking has three doors — invite code, Discord challenge and open table — and
+they must stay distinguishable. Only `visibility='open'` tables appear in a lobby;
+codes and challenges never do. A challenge binds `invited_id` and only that player
+may take the seat. Report a host pasting their own code as their own code before
+the one-game-per-player check, or the message reads as the player's mistake.
+Retire expired invites in `prune()` so their host is not locked out.
+
 Generate each new layout with `randomObstacles()` using server randomness.
 Keep the 11 blocks, nine bombs and eight coins in distinct cells, with the entry
 row clear. The fixed collision fixture belongs only in tests. Follow the

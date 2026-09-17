@@ -14,9 +14,9 @@ const IDLE_MS = 5 * 60_000;
 class MenuError extends Error {}
 
 export class IdentityMenus {
-  constructor({ accountAction, walletAction, atelier, trader, hangman, balldrop, leaderboardUrl, now = Date.now }) {
+  constructor({ accountAction, walletAction, atelier, trader, hangman, balldrop, gofish, leaderboardUrl, now = Date.now }) {
     this.accountAction = accountAction; this.walletAction = walletAction;
-    this.atelier = atelier; this.trader = trader; this.hangman = hangman; this.now = now;
+    this.atelier = atelier; this.trader = trader; this.hangman = hangman; this.gofish = gofish; this.now = now;
     this.balldrop = balldrop;
     this.sessions = new Map();
     this.leaderboardUrl = leaderboardUrl; // A public read-only link opens the coin page directly from Discord.
@@ -74,6 +74,7 @@ export class IdentityMenus {
       if (this.atelier) games.push(this.button(s, "atelier", "Diaper Atelier"));
       if (this.hangman) games.push(this.button(s, "hangman", "Cozy Hangman"));
       if (this.balldrop) games.push(this.button(s, "balldrop", "Prism Drop"));
+      if (this.gofish) games.push(this.button(s, "gofish", "Go Fish"));
       if (this.leaderboardUrl) games.push(new ButtonBuilder().setStyle(ButtonStyle.Link)
         .setLabel("Coin leaderboard").setEmoji("🏆").setURL(this.leaderboardUrl));
       if (games.length) components.push(row(...games));
@@ -140,7 +141,7 @@ export class IdentityMenus {
   } // Owner, guild, revision and busy checks protect buttons, selections and forms against stale or concurrent requests.
 
   async dispatch(s, action, interaction) {
-    const homeActions = ["login", "status", "balance", "retry", "disconnect", "unlink", "atelier", "trader", "hangman", "balldrop", "gift-coins", "gift-stars", "gift-diamonds", "gift-retry", "code-submit", "send-coins", "send-diamonds"];
+    const homeActions = ["login", "status", "balance", "retry", "disconnect", "unlink", "atelier", "trader", "hangman", "balldrop", "gofish", "gift-coins", "gift-stars", "gift-diamonds", "gift-retry", "code-submit", "send-coins", "send-diamonds"];
     if (homeActions.includes(action) && s.screen !== "home") throw new MenuError("Return to the main menu first.");
     if (action === "home") {
       s.screen = "home"; s.intent = null; s.recipient = null; s.amount = null;
@@ -162,6 +163,8 @@ export class IdentityMenus {
       s.banner = this.hangman(s.user);
     } else if (action === "balldrop" && this.balldrop) {
       s.banner = this.balldrop(s.user);
+    } else if (action === "gofish" && this.gofish) {
+      s.banner = this.gofish(s.user);
     } else if (action === "trader" && this.trader) {
       await interaction.followUp({ ...await this.trader(interaction), ...privateReply });
       s.banner = "Your Touhou Trader menu is open below.";

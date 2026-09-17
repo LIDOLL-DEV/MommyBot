@@ -88,6 +88,11 @@ export async function runWalletAction(interaction, wallet, identities, action, o
           response = { content: result.action === "start" ? "Your hangman entry is paid. Use /hangman to continue the same word." : `Your ${result.amount}-coin hangman letter reward is paid. Use /hangman to continue.` };
           break;
         }
+        if (wallet.gofish?.pending(user)) {
+          const result = await wallet.gofish.retry(user);
+          response = { content: result.action === "create" ? "Your Go Fish entry is paid. Use /gofish to continue the same game." : `Your ${result.amount}-coin Go Fish book reward is paid. Use /gofish to continue.` };
+          break;
+        }
         if (wallet.balldrop?.pending(user)) {
           const result = await wallet.balldrop.retry(user);
           response = { content: `Your ball drop is settled. Pocket ${result.round.landing}; ${result.round.payout} LiDollcoins returned on your ${result.round.bet}-coin bet. Use /balldrop to view it.` };
