@@ -162,6 +162,13 @@ most one acknowledgment and one manners reminder per fine, suppress pending
 reminders after acceptance, and preserve retry/shutdown behavior. Apologies do
 not alter wallet jobs, charge extra coins or refund the existing fine.
 
+Generate apology acknowledgments and manners reminders through the existing
+chat generator with `apology` and `reminder` notice types. Keep classification
+on the router. Chat receives the notice type, not member text or history.
+Retain fixed fallback wording and append accepted apology examples to reminders;
+reject reminder prose missing "act your age". Recheck accepted-apology state
+after generation so a delayed scolding cannot overwrite a proper apology.
+
 Cozy Hangman lives in `src/hangman/`; see [HANGMAN_GUIDE.md](HANGMAN_GUIDE.md).
 Charge exactly one online coin before exposing a playable word. Credit one
 coin per newly revealed position, recording the guess and credit reservation

@@ -22,11 +22,13 @@ saved operation. See [DRESSUP_GUIDE.md](DRESSUP_GUIDE.md).
 
 Swear-jar follow-ups run before ordinary chat. The fine notice requests a cute
 "sorry mommy", "sorry mommy Sakura" or "sorry mommybot". An accepted apology
-gets fixed warm thanks. A missing or unsuitable apology gets one fixed
+gets chat-generated warm thanks. A missing or unsuitable apology gets one generated
 "act your age" reminder with those examples on the member's next message in
 the same channel within fifteen minutes. Keep this gentle and avoid additional
 penalties: apologizing does not refund coins. The classifier prompt lives in
-`src/graph/swearJarApology.js`; response copy lives in `src/swearJar.js`.
+`src/graph/swearJarApology.js`; reply prompts use the chat endpoint through
+`src/graph/swearJarMessage.js`. Fixed fallbacks and accepted-phrase examples live
+in `src/swearJar.js`. Accepted apologies cancel reminders still being generated.
 
 Sakura's router distinguishes an invitation to speak from a conversation
 between other members. Recent questions and their answers can continue without

@@ -198,6 +198,13 @@ and slow fine generation. All model responses and Discord sends are mocked;
 test results do not establish live classifier accuracy. Run the three
 `test/swear-jar*.test.js` files explicitly with `node --test` for focused checks.
 
+The AI tests verify apology/reminder prompts use the chat endpoint and model,
+including the required "act your age" phrase and fallback on unusable output.
+Integration checks verify generated text replaces static replies, examples stay
+visible, failures retain fallback wording, and apologies cancel reminders during
+generation. An apology arriving during the original fine's generation replaces
+its scolding with an acknowledgment while keeping the payment details intact.
+
 The AI tests also cover the shared girl/she-her address rule after custom persona
 text, masculine-output rejection (including “boys and girls”), and accepted
 feminine wording. Existing payment tests exercise the feminine fallback notices.

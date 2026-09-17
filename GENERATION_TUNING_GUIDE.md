@@ -127,7 +127,8 @@ Ranks and unavailable-wallet states are calculated by application code.
 ## Swear-jar replies
 
 `src/graph/swearJarMessage.js` calls the existing chat AI server for a warm,
-playful reminder or a lottery celebration. `LLAMA_BASE_URL` selects the chat
+playful swear reminder, lottery celebration, accepted-apology acknowledgment or
+manners reminder. `LLAMA_BASE_URL` selects the chat
 server, `LLAMA_MODEL` selects the model, and `SYSTEM_PROMPT` supplies MommyBot's
 established voice. The router server does not generate these notices.
 
@@ -141,7 +142,7 @@ fallbacks address the recipient as a sweet girl.
 
 The request uses temperature `0.8`, a `192`-token output limit and
 `chat_template_kwargs.enable_thinking=false`. It requests one or two short
-sentences and sends only whether this is a swear reminder or a lottery notice.
+sentences and sends only the notice type: debit, credit, apology or reminder.
 Original Discord messages, chat history, account identifiers and balances are
 excluded. The model writes friendly prose; application code supplies payment
 facts, required account/login guidance, winner mentions and live jar totals.
@@ -178,8 +179,13 @@ The classifier runs only for possible cute apologies associated with a recent
 fine by the same person in the same channel. `SWEAR_JAR_AI_ENABLED=false`, a
 timeout or malformed output uses a conservative matcher for direct phrases
 such as "sorry mommy Sakura". It shares `SWEAR_JAR_AI_TIMEOUT_MS`. Accepted
-apologies and manners reminders use fixed copy in `src/swearJar.js`; they never
-change fines. A missing, formal or casual apology earns one "act your age"
+apologies and manners reminders use the chat generator in
+`src/graph/swearJarMessage.js`, with fixed fallback copy in `src/swearJar.js`.
+Acknowledgments accept the apology without asking for another; reminders must
+include "act your age" and get fixed accepted-phrase examples appended. Only
+the notice type reaches chat, and generated replies never change fines.
+An accepted apology during slow generation cancels a pending reminder or replaces
+the original fine's scolding. A missing, formal or casual apology earns one "act your age"
 reminder on the next ordinary message, not repeated nags or a timer for silence.
 
 Run `node --test test/swear-jar-apology.test.js test/swear-jar.test.js` for mocked

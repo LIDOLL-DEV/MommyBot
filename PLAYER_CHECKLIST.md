@@ -72,6 +72,8 @@
   in the same channel within fifteen minutes. Cute apologies get a thank-you;
   a plain "sorry", "my bad", or skipping the apology gets one **act your age**
   reminder on your next message. The original fine still applies.
+- Apology thanks and manners reminders use Sakura's chat-generated wording,
+  with standard replies available if the AI is offline.
 - Each swear-jar notice includes an AI-written reminder or celebration and the
   current server jar balance. Reserved lottery prizes are shown separately.
   Standard wording and the balance still appear if the AI server is unavailable.

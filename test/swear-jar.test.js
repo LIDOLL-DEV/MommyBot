@@ -458,7 +458,7 @@ test("apology context stays with the same member, server and channel and expires
 test("an apology in the swear message uses friendly acknowledgment while retaining the fine", async t => {
   const f = fixture(t); f.link("alice");
   f.classify = async content => { assert.equal(content, "shit! sorry mommy"); return true; };
-  f.generate = async () => assert.fail("Accepted apologies should not generate another scolding");
+  f.generate = async kind => { assert.equal(kind, "apology"); return "Thank you for apologizing, darling!"; };
   await f.bot.handleMessage(f.message("shit! sorry mommy"));
   assert.equal(f.sent.length, 1); assert.match(f.sent[0].content, /^Thank you for apologizing/);
   assert.doesNotMatch(f.sent[0].content, /Now, a proper little apology/);
@@ -501,7 +501,10 @@ test("an apology during slow fine generation replaces the scolding and sends onl
   let release, started;
   const waiting = new Promise(resolve => { release = resolve; });
   const generating = new Promise(resolve => { started = resolve; });
-  f.generate = async () => { started(); await waiting; return "SCOLDING"; };
+  f.generate = async kind => {
+    if (kind === "apology") return "Thank you for apologizing, darling!";
+    started(); await waiting; return "SCOLDING";
+  };
   const fine = f.bot.handleMessage(f.message()); await generating;
   await f.bot.handleMessage(f.message("sorry mommy"));
   release(); await fine; await f.bot.tick();
@@ -534,5 +537,46 @@ test("an accepted apology cancels a reminder while its retry is looking up the D
   await f.bot.handleMessage(f.message("sorry mommy"));
   release(); await retry; await f.bot.tick();
   assert.equal(f.sent.length, 2); assert.match(f.sent.at(-1).content, /^Thank you for apologizing/);
+  assert.equal(f.calls.length, 1);
+});
+
+test("chat-generated reminders and thanks replace static replies while preserving examples and one fine", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  const kinds = [];
+  f.generate = async kind => { kinds.push(kind); return kind === "apology" ? "Such sweet manners, darling! Mommy accepts your apology." : "Act your age, darling; Mommy is waiting for a sweeter apology."; };
+  await f.bot.handleMessage(f.message("my bad"));
+  assert.match(f.sent.at(-1).content, /^Act your age, darling/);
+  assert.match(f.sent.at(-1).content, /\*\*sorry mommy Sakura\*\*/);
+  const apology = f.message("sorry mommybot");
+  await f.bot.handleMessage(apology); await f.bot.handleMessage(apology); await f.bot.tick();
+  assert.equal(f.sent.at(-1).content, "Such sweet manners, darling! Mommy accepts your apology.");
+  assert.deepEqual(kinds, ["reminder", "apology"]);
+  assert.equal(f.calls.length, 1); assert.equal(f.sent.length, 3);
+});
+
+test("chat failures fall back to the original apology and manners wording", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  f.generate = async () => { throw new Error("chat offline"); };
+  await f.bot.handleMessage(f.message("my bad"));
+  assert.match(f.sent.at(-1).content, /act your age/);
+  await f.bot.handleMessage(f.message("sorry mommy"));
+  assert.match(f.sent.at(-1).content, /^Thank you for apologizing/);
+  assert.equal(f.calls.length, 1);
+});
+
+test("a proper apology during reminder generation cancels the stale scolding", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  let release, started;
+  const waiting = new Promise(resolve => { release = resolve; });
+  const generating = new Promise(resolve => { started = resolve; });
+  f.generate = async kind => {
+    if (kind === "apology") return "Mommy accepts your sweet apology!";
+    started(); await waiting; return "Act your age, sweet girl. STALE REMINDER";
+  };
+  const reminder = f.bot.handleMessage(f.message("my bad")); await generating;
+  await f.bot.handleMessage(f.message("sorry mommy"));
+  release(); await reminder; await f.bot.tick();
+  assert.equal(f.sent.length, 2); assert.equal(f.sent.at(-1).content, "Mommy accepts your sweet apology!");
+  assert.ok(f.sent.every(message => !message.content.includes("STALE REMINDER")));
   assert.equal(f.calls.length, 1);
 });

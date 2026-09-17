@@ -72,3 +72,30 @@ test("masculine swear-jar wording falls back, while feminine wording is accepted
   }
   assert.equal(await generate("Mind your words, sweet girl!"), "Mind your words, sweet girl!");
 });
+
+test("apology acknowledgments and manners reminders use the chat endpoint and distinct persona prompts", async () => {
+  for (const kind of ["apology", "reminder"]) {
+    const wording = kind === "apology" ? "What sweet manners, darling! Mommy accepts your apology." : "Act your age, sweet girl, and give Mommy a cute little apology.";
+    assert.equal(await generateSwearJarMessage(kind, {
+      env: { LLAMA_BASE_URL: "http://chat.example/v1", LLAMA_MODEL: "chat-model", ROUTER_LAMA_URL: "http://router.example/v1", ROUTER_MODEL: "classifier", SYSTEM_PROMPT: "Sakura's warm voice." },
+      fetcher: async (url, options) => {
+        assert.equal(url, "http://chat.example/v1/chat/completions");
+        const body = JSON.parse(options.body);
+        assert.equal(body.model, "chat-model"); assert.match(body.messages[0].content, /Sakura's warm voice/);
+        assert.equal(body.messages.length, 2);
+        assert.match(body.messages[1].content, kind === "apology" ? /Do not scold her again/ : /Include the exact phrase "act your age"/);
+        assert.match(body.messages[1].content, /Do not discuss payments, refunds/);
+        return { ok: true, json: async () => ({ choices: [{ message: { content: wording } }] }) };
+      },
+    }), wording);
+  }
+});
+
+test("apology generation retains fallbacks for disabled AI, failures and unusable reminder text", async t => {
+  t.mock.method(console, "error", () => {});
+  for (const kind of ["apology", "reminder"]) {
+    assert.equal(await generateSwearJarMessage(kind, { env: { SWEAR_JAR_AI_ENABLED: "false" }, fetcher: async () => assert.fail("Disabled") }), null);
+    assert.equal(await generateSwearJarMessage(kind, { env: {}, fetcher: async () => { throw new DOMException("PRIVATE", "TimeoutError"); } }), null);
+  }
+  assert.equal(await generateSwearJarMessage("reminder", { env: {}, fetcher: async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: "Try again, sweet girl." } }] }) }) }), null);
+});
