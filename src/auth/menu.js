@@ -75,7 +75,8 @@ export class IdentityMenus {
       if (this.hangman) games.push(this.button(s, "hangman", "Cozy Hangman"));
       if (this.balldrop) games.push(this.button(s, "balldrop", "Prism Drop"));
       if (this.gofish) games.push(this.button(s, "gofish", "Go Fish"));
-      if (this.leaderboardUrl) games.push(new ButtonBuilder().setStyle(ButtonStyle.Link)
+      // Use the wallet row's fifth slot so all five games and the admin row fit Discord's component limits.
+      if (this.leaderboardUrl) components[2].addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link)
         .setLabel("Coin leaderboard").setEmoji("🏆").setURL(this.leaderboardUrl));
       if (games.length) components.push(row(...games));
       if (this.isAdmin(interaction)) components.push(row(this.button(s, "gift-coins", "Gift coins", ButtonStyle.Primary),

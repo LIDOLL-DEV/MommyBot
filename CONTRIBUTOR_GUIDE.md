@@ -275,6 +275,11 @@ all transfers before rolling back to older code, which cannot enforce these
 reservations. Preserve the table and provider receipts; do not restore balances
 or delete journals to recover payments. No new environment settings are needed.
 
+Keep the coin leaderboard in the wallet controls row: all five games (including
+Go Fish) fill the game row. Discord allows five buttons per row and five rows;
+the administrator gift controls already use the fifth row. Test the complete
+configuration when adding menu entries.
+
 The private `/menu` hub and `/lidollid [wallet] menu` aliases live in
 `src/auth/menu.js`. Keep their owner/guild binding, five-minute expiry, bounded
 session count, revision checks and in-flight lock. Route menu actions through

@@ -173,7 +173,10 @@ deduplication, tied ranks, zero versus unavailable balances, one-minute caching,
 concurrent visitors, bounded provider reads, account/grant changes during reads,
 unlink during refresh and public HTTP routing without tokens or payment actions.
 `test/account-menu.test.js` checks the direct link across aliases and Discord
-component limits, including the full administrator menu with all games.
+component limits, including the full administrator menu with all five games
+(Touhou Trader, Diaper Atelier, Cozy Hangman, Prism Drop and Go Fish). It also
+returns home from account confirmation with every feature enabled; both initial
+replies and edited menus must stay within five buttons per row and five rows.
 
 Set `PUPPETEER_MODULE` to the local puppeteer-core entry file and `CHROME_PATH`
 to Chrome, then run `node scripts/check-leaderboard-browser.mjs`. It verifies

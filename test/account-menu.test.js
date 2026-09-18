@@ -79,15 +79,20 @@ test("account menu aliases show private pastel controls and hide administrator g
 });
 
 test("coin leaderboard opens directly from every account menu alias within Discord component limits", async () => {
-  const { menus } = fixture({ leaderboardUrl: "https://bot.example/leaderboard/", hangman: () => "Hangman", balldrop: () => "Prism Drop" });
+  const { menus } = fixture({ leaderboardUrl: "https://bot.example/leaderboard/", hangman: () => "Hangman",
+    balldrop: () => "Prism Drop", gofish: () => "Go Fish" }); // Include every game: the fifth game previously overflowed the leaderboard row.
   for (const admin of [false, true]) for (const command of ["menu", "lidollid"]) for (const group of [null, "wallet"]) {
     const ui = driver(event => menus.handleInteraction(event), { admin, command, group });
     await ui.invoke();
     const link = ui.controls().find(component => component.label === "Coin leaderboard");
     assert.equal(link.style, 5); assert.equal(link.url, "https://bot.example/leaderboard/");
     assert.equal(link.custom_id, undefined); assert.equal(ui.reply.flags, 64);
-    assert.ok(ui.find("hangman")); assert.ok(ui.find("balldrop")); assert.ok(ui.find("balance"));
+    for (const action of ["trader", "atelier", "hangman", "balldrop", "gofish", "balance", "send-coins", "send-diamonds"]) assert.ok(ui.find(action));
+    assert.equal(Boolean(ui.find("gift-coins")), admin);
     assert.ok(ui.reply.components.length <= 5); assert.ok(ui.reply.components.every(row => row.toJSON().components.length <= 5));
+    await ui.click("disconnect"); await ui.click("home"); // Returning from a confirmation must also render a valid full menu.
+    assert.ok(ui.find("gofish"));
+    assert.equal(ui.controls().filter(component => component.label === "Coin leaderboard").length, 1);
   }
 });
 
