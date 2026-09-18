@@ -7,6 +7,10 @@ durable cursors, lost Discord receipts, offline/stale events, malformed feeds,
 paging, escaped names and shutdown. Pair with the game server's
 `test/online-feed.test.mjs` for authenticated entry and reconnect suppression.
 See [MMO_ONLINE_GUIDE.md](MMO_ONLINE_GUIDE.md) for the deployment smoke test.
+`test/mmo-diagnostics.test.js` checks read-only probes, HTTP/network errors,
+Discord permission overwrites and role mentionability without printing secrets
+or advancing saved progress. Operators can run `scripts/check-mmo-online.mjs`
+with the active dotenv file; a generic game `/health` check alone is insufficient.
 
 ## Role-based pronouns
 

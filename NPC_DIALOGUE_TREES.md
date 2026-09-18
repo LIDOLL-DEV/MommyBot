@@ -2,6 +2,7 @@
 
 LiDollMMO arrival copy lives in `src/mmo/online.js`: "[Character] just joined
 LiDollMMO. Come say hello!" It is fixed Discord announcement copy, not NPC dialogue.
+Each notice also links **Play LiDollMMO** to `https://lidoll.dev/`.
 
 ## Member address
 

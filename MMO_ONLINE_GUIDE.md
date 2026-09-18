@@ -4,6 +4,7 @@ MommyBot posts signed-in character arrivals to **#whos-online**
 (`1550612967253352528`). Example: **Doll just joined LiDollMMO. Come say hello!**
 The message uses the in-game character name and pings the server role named
 **lidollmmo**. Other roles, users and everyone/here mentions are suppressed.
+Every announcement includes a **Play LiDollMMO** link to https://lidoll.dev/.
 Guests, sign-in alone, cloud/companion reads and character creation do not count:
 the authenticated character must enter the shared game world.
 
@@ -45,6 +46,45 @@ Create exactly one role named **lidollmmo** (case-insensitive). Make that role
 mentionable, or give MommyBot Mention Everyone permission in #whos-online.
 If the role is missing, ambiguous or cannot be pinged, the bot logs the specific
 problem and retries; it does not silently send without the requested tag.
+
+## Diagnose missing announcements
+
+The game server's `GET /health` is only a liveness check. A 200 response does
+not prove that its join feed is enabled, the shared secrets match, or the bot
+can send/tag the destination channel.
+
+After deploying MommyBot's diagnostic update, run:
+
+```sh
+sudo -u mommybot node /opt/mommybot/current/scripts/check-mmo-online.mjs /etc/mommybot/mommybot.env
+sudo journalctl -u mommybot -n 200 --no-pager | grep LiDollMMO
+```
+
+The check makes only GET requests and opens saved progress read-only. It reports
+feature enablement, feed access, cursor/baseline state, newest event age/online
+status, channel permissions and role mentionability. It prints no secrets,
+character names or remote error bodies and never posts a Discord message.
+It reads the environment file; restart the running services after editing their
+settings. A passing check does not prove an older process loaded the same file.
+
+Without the new script, this unauthenticated request distinguishes basic cases:
+
+```sh
+curl -i http://127.0.0.1:4191/integrations/mommybot/joins
+```
+
+Use the game server's LAN address if it is on another host. **401 is expected
+without the secret** and proves the protected route exists. **404** means wrong
+URL or an older game-server deployment. **503** means the feed is disabled or
+unavailable; verify `MOMMYBOT_ONLINE_TOKEN` on the game server and restart it.
+The read-only script checks with MommyBot's configured secret: an authenticated
+**401** indicates mismatched credentials.
+
+New runtime logs distinguish disabled configuration, successful first baseline,
+HTTP status, network errors such as `ECONNREFUSED`, missing/unmentionable roles,
+Discord error codes, skipped offline/stale joins and successful delivery IDs.
+If the feed works but has no arrivals, leave the MMO for over two minutes, wait
+for the bot's first successful poll, then rejoin a shared zone while signed in.
 
 ## Timing and recovery
 

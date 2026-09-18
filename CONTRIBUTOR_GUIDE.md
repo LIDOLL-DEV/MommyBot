@@ -7,6 +7,10 @@ dedicated credential server-side, cursor/attempt journal durable, and Discord
 mentions restricted to the destination server's resolved lidollmmo role. The game records authenticated presence inside its command
 transaction; never replace this with client-reported sign-in or browser pings.
 See [MMO_ONLINE_GUIDE.md](MMO_ONLINE_GUIDE.md) for the two-service setup and retry policy.
+The publisher and read-only diagnostic share `src/mmo/feed.js` transport and
+validation. Keep diagnostic output to fixed error codes and counts, never token
+values, player names or remote bodies. The check script must never publish or
+create/advance the delivery database.
 
 ## Member pronouns
 
