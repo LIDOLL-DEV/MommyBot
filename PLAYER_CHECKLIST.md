@@ -2,6 +2,10 @@
 
 ## Server administration
 
+- Choose **She/Her**, **He/Him** or **It's Complicated** for Sakura's pronouns
+  and forms of address. It's Complicated uses they/them. Conflicting or missing
+  selections use neutral wording. Remove old pronoun reactions when switching.
+
 - Server Administrators can sign into `/admin/` with their Discord-linked
   LiD0llID to manage chat/welcome/swear-jar switches, starboard and reaction roles.
 - Admins can add several emoji/role choices to one message in the panel using

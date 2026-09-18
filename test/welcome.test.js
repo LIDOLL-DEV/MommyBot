@@ -12,7 +12,7 @@ function fixture(options = {}) {
   const sent = [], generated = [];
   const channel = { guildId: member.guild.id, isTextBased: () => true, send: async body => { sent.push(body); } };
   const client = { channels: { fetch: async id => { assert.equal(id, WELCOME_CHANNEL_ID); return channel; } } };
-  const welcome = createMemberWelcome(client, { env: {}, generateMessage: async input => { generated.push(input); return "Welcome, sweet girl! We're happy you're here."; }, ...options });
+  const welcome = createMemberWelcome(client, { env: {}, generateMessage: async input => { generated.push(input); return "Welcome, sweetheart! We're happy you're here."; }, ...options });
   return { sent, generated, channel, client, welcome };
 } // Replace only Discord transport and inference so tests cannot post to the real server.
 
@@ -20,8 +20,8 @@ test("new-member generation uses .250 independently of chat/router overrides and
   const calls = [];
   assert.equal(await generateWelcomeMessage({
     env: { LLAMA_BASE_URL: "http://other.example/v1", ROUTER_LAMA_URL: "http://router.example/v1", LLAMA_MODEL: "mommy-model", SYSTEM_PROMPT: "Be warm." },
-    fetcher: async (url, options) => { calls.push({ url, options }); return answer("<think>private reasoning</think>Welcome, sweet girl!"); },
-  }), "Welcome, sweet girl!");
+    fetcher: async (url, options) => { calls.push({ url, options }); return answer("<think>private reasoning</think>Welcome, sweetheart!"); },
+  }), "Welcome, sweetheart!");
   assert.equal(calls[0].url, "http://192.168.1.250:9090/v1/chat/completions");
   const { options } = calls[0], payload = JSON.parse(options.body);
   assert.equal(options.method, "POST"); assert.equal(options.redirect, "error"); assert.ok(options.signal instanceof AbortSignal);
@@ -51,7 +51,7 @@ test("welcome tags only the newcomer and always links the verified rules message
   assert.equal(await f.welcome.handleMemberAdd(member), true);
   assert.equal(f.sent.length, 1);
   const message = f.sent[0];
-  assert.ok(message.content.startsWith(`<@${member.user.id}> Welcome, sweet girl!`));
+  assert.ok(message.content.startsWith(`<@${member.user.id}> Welcome, sweetheart!`));
   assert.match(message.content, new RegExp(`https://discord.com/channels/${member.guild.id}/${RULES_CHANNEL_ID}/${RULES_MESSAGE_ID}`));
   for (const text of ["read the server rules", "see the whole server", "LiD0llID", "/menu", "Connect / renew", "Enter sign-in code", "/lidollid confirm", "/lidollid status"]) assert.ok(message.content.includes(text), text);
   assert.deepEqual(message.allowedMentions, { parse: [], users: [member.user.id], repliedUser: false });
@@ -63,7 +63,7 @@ test("inference failures retain the rules and registration instructions without 
   for (const generateMessage of [async () => null, async () => { throw new Error("PRIVATE"); }, async () => "@everyone PRIVATE"]) {
     const f = fixture({ generateMessage });
     assert.equal(await f.welcome.handleMemberAdd(member), true);
-    assert.match(f.sent[0].content, /Welcome, sweet girl/); assert.match(f.sent[0].content, /Enter sign-in code/);
+    assert.match(f.sent[0].content, /Welcome, sweetheart/); assert.match(f.sent[0].content, /Enter sign-in code/);
     assert.doesNotMatch(f.sent[0].content, /PRIVATE|@everyone/);
   }
 });
@@ -73,10 +73,10 @@ test("duplicate events share an in-flight welcome and a later genuine rejoin get
   const f = fixture({ generateMessage: () => new Promise(resolve => { release = resolve; }) });
   const first = f.welcome.handleMemberAdd(member), duplicate = f.welcome.handleMemberAdd(member);
   assert.equal(first, duplicate);
-  await new Promise(resolve => setImmediate(resolve)); release("Welcome, sweet girl!");
+  await new Promise(resolve => setImmediate(resolve)); release("Welcome, sweetheart!");
   await first; assert.equal(await f.welcome.handleMemberAdd(member), false); assert.equal(f.sent.length, 1);
   const rejoin = f.welcome.handleMemberAdd({ ...member, joinedTimestamp: 2000 });
-  await new Promise(resolve => setImmediate(resolve)); release("Welcome back, sweet girl!");
+  await new Promise(resolve => setImmediate(resolve)); release("Welcome back, sweetheart!");
   await rejoin; assert.equal(f.sent.length, 2); assert.notEqual(f.sent[0].nonce, f.sent[1].nonce);
 });
 
@@ -102,7 +102,7 @@ test("shutdown waits for active work and does not start a send after pending inf
   let stopped = false;
   const closing = f.welcome.stop().then(() => { stopped = true; });
   await new Promise(resolve => setImmediate(resolve)); assert.equal(stopped, false);
-  release("Welcome, sweet girl!"); await closing; await pending;
+  release("Welcome, sweetheart!"); await closing; await pending;
   assert.equal(stopped, true); assert.equal(f.sent.length, 0);
 });
 

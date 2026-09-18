@@ -2,6 +2,7 @@ import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import { buildGraph } from "../../graph/graph.js";
 import { conversationContext } from "../conversation.js";
 import { addressedByName } from "../../graph/router.js";
+import { currentPronouns } from "../pronouns.js";
 
 export function createMessageHandler({ getGraph, contextReader = conversationContext, logger = console }) {
   const queues = new Map();
@@ -12,7 +13,8 @@ export function createMessageHandler({ getGraph, contextReader = conversationCon
       const routing = await contextReader(message, botId);
       direct ||= routing.replyTo === "sakura";
       const graph = await getGraph();
-      const result = await graph.invoke({ messages: [new HumanMessage(message.content)], force_respond: direct, routing_context: routing }, {
+      const pronouns = message.guildId ? await currentPronouns(message.guild, message.author.id, message.member) : "they/them";
+      const result = await graph.invoke({ messages: [new HumanMessage(message.content)], force_respond: direct, routing_context: routing, member_pronouns: pronouns }, {
         configurable: { thread_id: message.author.id },
       }); // Keep durable per-member memory, but supply fresh channel context for every routing decision.
       const finalMessage = result.messages?.at(-1);

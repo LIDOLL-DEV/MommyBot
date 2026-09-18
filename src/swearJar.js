@@ -1,6 +1,7 @@
 import { swearJarPaymentText, swearJarBalanceText } from "./wallet/swearJar.js";
 import { generateSwearJarMessage } from "./graph/swearJarMessage.js";
 import { classifySwearApology, isSwearApologyCandidate } from "./graph/swearJarApology.js";
+import { currentPronouns } from "./bot/pronouns.js";
 
 export const DEFAULT_SWEAR_WORDS = [
   "fuck", "fucks", "fucked", "fucking", "fucker", "fuckers", "motherfucker", "motherfuckers", "motherfucking",
@@ -16,9 +17,9 @@ export function swearMatcher(words = DEFAULT_SWEAR_WORDS) {
   return content => Boolean(pattern?.test(String(content ?? "").normalize("NFKC").toLowerCase()));
 } // Match explicit whole words without charging innocent substrings such as class, Scunthorpe or hello.
 
-const APOLOGY_REPLY = "Thank you for apologizing, sweet girl. MommyBot appreciates you owning it. Let's try gentle words next time. 💗";
+const APOLOGY_REPLY = "Thank you for apologizing, sweetheart. MommyBot appreciates you owning it. Let's try gentle words next time. 💗";
 const APOLOGY_REQUEST = "Now, a proper little apology for Mommy, please: **sorry mommy**, **sorry mommy Sakura**, or **sorry mommybot**.";
-const APOLOGY_REMINDER = `Mind your manners and act your age, sweet girl. Mommy is still waiting for your cute apology! ${APOLOGY_REQUEST}`;
+const APOLOGY_REMINDER = `Mind your manners and act your age, sweetheart. Mommy is still waiting for your cute apology! ${APOLOGY_REQUEST}`;
 
 export function swearJarStatus(env = process.env, { wallet = env.LIDOLLCOIN_ENABLED === "true", identities = env.LIDOLLID_ENABLED === "true" } = {}) {
   if (!wallet || !identities) return "OFF: requires LIDOLLID_ENABLED=true and LIDOLLCOIN_ENABLED=true.";
@@ -44,8 +45,9 @@ export function createSwearJar(client, wallet, identities, env = process.env, {
     if ((job.notified && !paidFollowup) || notices.has(job.id)) return;
     notices.add(job.id);
     try {
+      const pronouns = await currentPronouns(message?.guild || client.guilds?.cache?.get(job.guild_id), job.user_id, message?.member);
       let wording = job.kind === "debit" && jar.apology(job.id) ? "apology" : job.kind;
-      let prose = await generateMessage(wording, { env }).catch(() => null);
+      let prose = await generateMessage(wording, { env, pronouns }).catch(() => null);
       let channel;
       if (!message) {
         if (job.kind === "credit" && env.SWEAR_JAR_CHANNEL_ID) {
@@ -56,20 +58,20 @@ export function createSwearJar(client, wallet, identities, env = process.env, {
       }
       if (job.kind === "debit" && wording !== "apology" && jar.apology(job.id)) {
         wording = "apology";
-        prose = await generateMessage(wording, { env }).catch(() => null);
+        prose = await generateMessage(wording, { env, pronouns }).catch(() => null);
       } // An apology arriving during generation replaces the old scolding with a chat-generated acknowledgment.
       job = jar.get(job.id); // Generation and channel lookup may outlast a payment; refresh facts immediately before sending.
       const apology = job.kind === "debit" ? jar.apology(job.id) : null;
       let content;
       if (job.kind === "debit") {
-        content = "Sweet girl, MommyBot asks you to put **1 coin in the swear jar** for swearing. ";
+        content = "Sweetheart, MommyBot asks you to put **1 coin in the swear jar** for swearing. ";
         content += job.reason === "unlinked" ? "You need to make a **LiD0llID account** if you don't have one, then register it with MommyBot using /lidollid login. No coin was collected." :
           job.reason === "wallet" ? "Please use /lidollid login to connect your wallet. No coin was collected." :
           job.state === "pending" ? "Your 1-coin payment is pending. Use /lidollid wallet retry if needed; MommyBot will retry automatically." : swearJarPaymentText(job);
         if (!apology) content += `\n\n${APOLOGY_REQUEST}`;
       } else {
         content = paidFollowup ? `<@${job.user_id}>, ${swearJarPaymentText(job)}` :
-          `The weekly swear jar lottery winner is <@${job.user_id}>! Congratulations, sweet girl! **${job.amount} LiDollcoins** ${job.state === "done" ? "have been gifted to your wallet!" : "are reserved for you. Use /lidollid login to connect your wallet, then /lidollid wallet retry to collect your prize."}`;
+          `The weekly swear jar lottery winner is <@${job.user_id}>! Congratulations, sweetheart! **${job.amount} LiDollcoins** ${job.state === "done" ? "have been gifted to your wallet!" : "are reserved for you. Use /lidollid login to connect your wallet, then /lidollid wallet retry to collect your prize."}`;
       }
       const intro = apology ? prose || APOLOGY_REPLY : prose;
       content = `${intro ? `${intro}\n\n` : ""}${content}\n\n${swearJarBalanceText(jar.balance(job.guild_id))}`;
@@ -91,7 +93,8 @@ export function createSwearJar(client, wallet, identities, env = process.env, {
     if (current.notified || !job.notified || notices.has(job.id) || notices.has(key) || kind === "reminder" && jar.apology(job.id)) return;
     notices.add(key);
     try {
-      const prose = await generateMessage(kind, { env }).catch(() => null);
+      const pronouns = await currentPronouns(message?.guild || client.guilds?.cache?.get(job.guild_id), job.user_id, message?.member);
+      const prose = await generateMessage(kind, { env, pronouns }).catch(() => null);
       if (kind === "reminder" && jar.apology(job.id)) return; // A proper apology during generation cancels the pending scolding.
       const content = kind === "apology" ? prose || APOLOGY_REPLY : prose ? `${prose}\n\n${APOLOGY_REQUEST}` : APOLOGY_REMINDER;
       const options = { content, allowedMentions: { parse: [], users: [], repliedUser: true } };

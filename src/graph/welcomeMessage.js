@@ -1,15 +1,16 @@
 import { buildSystemPrompt } from "./prompt.js";
 import { modelEndpoint, modelFailure } from "./connection.js";
+import { pronounInstruction, mismatchedAddress } from "../bot/pronouns.js";
 
-export function welcomeProse(raw) {
+export function welcomeProse(raw, pronouns = "they/them") {
   if (typeof raw !== "string") return null;
   const text = raw.replace(/<think\b[^>]*>[\s\S]*?<\/think>/gi, "").trim().replace(/^(["'])|(["'])$/g, "").trim();
   if (!text || text.length > 500 || /<|>|```|@|https?:|www\.|\d|\/lidollid|\/menu/i.test(text)) return null;
-  if (/\b(?:boys?|men|man|guys?|dudes?|sons?|sir|mister|mr|gentlem[ae]n|lads?|bros?|brothers?|prince|king|male|he|him|his|himself)\b/i.test(text)) return null;
+  if (mismatchedAddress(text, pronouns)) return null;
   return text;
-} // Keep reasoning, mentions, links and masculine address out of the generated greeting; the bot supplies exact onboarding facts.
+} // Keep reasoning, mentions, links and mismatched address out of greetings; the bot supplies exact onboarding facts.
 
-export async function generateWelcomeMessage({ env = process.env, fetcher = fetch } = {}) {
+export async function generateWelcomeMessage({ env = process.env, fetcher = fetch, pronouns = "they/them" } = {}) {
   if (env.WELCOME_AI_ENABLED === "false") return null;
   const requestedTimeout = Number(env.WELCOME_AI_TIMEOUT_MS);
   const timeout = Number.isInteger(requestedTimeout) && requestedTimeout >= 1000 && requestedTimeout <= 15000 ? requestedTimeout : 8000;
@@ -20,14 +21,14 @@ export async function generateWelcomeMessage({ env = process.env, fetcher = fetc
       body: JSON.stringify({ model: env.LLAMA_MODEL || "default", temperature: 0.8, max_tokens: 192,
         chat_template_kwargs: { enable_thinking: false },
         messages: [
-          { role: "system", content: `${buildSystemPrompt(env)}\nWrite one or two warm, welcoming sentences for a girl who just joined our Discord server. Help her feel included and gently encourage her to read the rules and complete account registration. Be friendly, never humiliating, sexual or graphic. Output only your greeting without reasoning, quotes, headings or code fences. Do not include names, mentions, links, numbers or commands. The application appends the newcomer mention, exact rules link and LiD0llID registration steps. Never invent server rules or say registration is optional, already complete, or that access has already been granted.` },
-          { role: "user", content: "Welcome a new girl to our community and encourage her to get settled in. /no_think" },
+          { role: "system", content: `${buildSystemPrompt(env)}\n${pronounInstruction(pronouns)}\nWrite one or two warm, welcoming sentences for a member who just joined our Discord server. Help this member feel included and gently encourage them to read the rules and complete account registration. Be friendly, never humiliating, sexual or graphic. Output only your greeting without reasoning, quotes, headings or code fences. Do not include names, mentions, links, numbers or commands. The application appends the newcomer mention, exact rules link and LiD0llID registration steps. Never invent server rules or say registration is optional, already complete, or that access has already been granted.` },
+          { role: "user", content: "Welcome this new member to our community and encourage them to get settled in. /no_think" },
         ],
       }),
     });
     if (!response.ok) throw Object.assign(new Error("Welcome generation failed"), { status: response.status });
     const data = await response.json();
-    const text = welcomeProse(data?.choices?.[0]?.message?.content);
+    const text = welcomeProse(data?.choices?.[0]?.message?.content, pronouns);
     if (!text) throw new Error("Unusable greeting");
     return text;
   } catch (error) {

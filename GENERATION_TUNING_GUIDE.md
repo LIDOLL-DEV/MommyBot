@@ -1,5 +1,16 @@
 # MommyBot generation tuning
 
+## Role-based pronouns
+
+The shared system prompt overrides legacy all-feminine persona instructions.
+Current She/Her, He/Him and It's Complicated roles select she/her, he/him and
+they/them respectively. Missing/conflicting roles use neutral wording. Chat gets
+fresh role context each turn; welcomes and swear-jar prompts receive only the
+canonical pronouns, not role lists or member profiles. Short generated notices
+with conflicting gendered address fall back to neutral wording. Full chat relies
+on model adherence to the current-role prompt; do not blindly replace pronouns
+in prose that may discuss other people or quote someone.
+
 ## Admin controls
 
 The `/admin/` panel uses fixed interface text, not model generation. Per-server

@@ -21,4 +21,5 @@ export const SakuraState = Annotation.Root({
   }),
   routing_context: Annotation({ default: () => null }), // Replace channel context each turn; never infer activity from a user's old cross-channel memory.
   routing_reason: Annotation({ default: () => "" }), // Keep a short observable reason for responding or staying silent.
+  member_pronouns: Annotation({ default: () => "they/them" }), // Replace per turn so saved history cannot override current server roles.
 });

@@ -1,5 +1,15 @@
 # Contributing to MommyBot
 
+## Member pronouns
+
+`src/bot/pronouns.js` matches the She/Her, He/Him and It's Complicated role names.
+Refresh current guild membership for generated replies; never infer gender from
+usernames or carry one server's role into DMs. Supply the canonical pronoun value
+each graph turn so saved checkpoints cannot override role changes. Welcomes and
+all swear-jar notices use the same role context and neutral static fallbacks.
+Keep the shared prompt's role rule after custom persona text so older configured
+instructions to call everyone a girl no longer control member address.
+
 ## Admin and community features
 
 `src/admin/` owns `/admin/`, live Administrator checks, server-specific settings,

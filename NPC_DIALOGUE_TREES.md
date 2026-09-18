@@ -1,5 +1,12 @@
 # NPC dialogue notes
 
+## Member address
+
+Sakura uses a member's current pronoun role: She/Her, He/Him or It's Complicated
+(they/them). Never hard-code every member as a girl. Neutral fallback greetings,
+fines, prizes and apology replies use "sweetheart"; Mommy still refers to Sakura.
+Members without an unambiguous role and mixed groups receive neutral address.
+
 ## Admin and community copy
 
 The server admin panel has fixed labels and audit notices in `src/admin/`.

@@ -1,5 +1,14 @@
 # Testing MommyBot
 
+## Role-based pronouns
+
+Run `node --test test/pronouns.test.js test/swear-jar-ai.test.js test/swear-jar.test.js test/welcome.test.js`.
+Tests cover role-name normalization, neutral/conflicting roles, fresh membership,
+role changes through real conversation checkpoints, DM isolation, recipient-aware
+generated wording and neutral fallbacks. Swear-jar retries re-read roles without
+charging twice. After deployment, check chat with each of the three roles and
+switch roles between replies; no conversation database reset is needed.
+
 ## Admin, starboard and reaction roles
 
 Run `node --test test/admin-community.test.js test/admin-web.test.js test/lidollid.test.js`.

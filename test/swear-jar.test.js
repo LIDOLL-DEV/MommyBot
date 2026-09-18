@@ -288,6 +288,22 @@ test("failed Discord notices retry independently without charging again", async 
   assert.equal(f.sent[0].reply.messageReference, "100");
 });
 
+test("swear notices and apology retries use current role pronouns with neutral factual fallbacks", async t => {
+  const f = fixture(t); f.link("alice");
+  let role = "She/Her";
+  f.client.guilds.cache.get("guild").members.fetch = async () => ({ user: { id: "alice" }, roles: { cache: new Map([["role", { name: role }]]) } });
+  const generated = []; f.generate = async (kind, options) => { generated.push([kind, options.pronouns]); return null; };
+  f.failSend = true; await f.bot.handleMessage(f.message());
+  role = "He/Him"; f.failSend = false; await f.bot.tick();
+  assert.deepEqual(generated.slice(0, 2), [["debit", "she/her"], ["debit", "he/him"]]);
+  await f.bot.handleMessage(f.message("okay"));
+  assert.deepEqual(generated.at(-1), ["reminder", "he/him"]);
+  role = "It's Complicated"; await f.bot.handleMessage(f.message("sorry mommy"));
+  assert.deepEqual(generated.at(-1), ["apology", "they/them"]);
+  assert.equal(f.calls.length, 1);
+  for (const payload of f.sent) assert.doesNotMatch(payload.content, /sweet girl|sweet boy/i);
+});
+
 test("shutdown drains an in-flight reply even when the same message is delivered again", async t => {
   const f = fixture(t); f.link("alice");
   let release, beginReply;

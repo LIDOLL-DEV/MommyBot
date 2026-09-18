@@ -15,8 +15,8 @@ test("swear-jar prose uses the chat AI endpoint and configured persona without s
   assert.equal(options.method, "POST"); assert.equal(options.redirect, "error"); assert.ok(options.signal instanceof AbortSignal);
   assert.equal(payload.model, "mommy-model"); assert.equal(payload.chat_template_kwargs.enable_thinking, false);
   assert.match(payload.messages[0].content, /Speak warmly as MommyBot/);
-  assert.match(payload.messages[1].content, /mind her language/);
-  assert.match(payload.messages[0].content, /Always refer to every community member as a girl/);
+  assert.match(payload.messages[1].content, /mind their language/);
+  assert.match(payload.messages[0].content, /current Discord pronoun-role context/);
   assert.equal(payload.messages.length, 2);
   assert.doesNotMatch(options.body, /discord_id|account_id|guild_id|user_id|bearer/i);
 });
@@ -55,27 +55,28 @@ test("AI can be paused without contacting the server", async () => {
   assert.equal(await generateSwearJarMessage("debit", { env: { SWEAR_JAR_AI_ENABLED: "false" }, fetcher: async () => assert.fail("AI should be disabled") }), null);
 });
 
-test("the girl address rule follows both default and custom personas, including the shared chat and announcement prompt", () => {
+test("role-based address overrides legacy gender rules in default and custom personas", () => {
   for (const prompt of [SYSTEM_PROMPT, buildSystemPrompt({}), buildSystemPrompt({ SYSTEM_PROMPT: "Custom persona: call everyone boys." })]) {
-    assert.match(prompt, /Always refer to every community member as a girl/);
-    assert.match(prompt, /she\/her pronouns/);
-    assert.match(prompt, /Never use 'boys and girls'/);
+    assert.match(prompt, /current Discord pronoun-role context/);
+    assert.match(prompt, /He\/Him means he\/him/);
+    assert.match(prompt, /Current role context overrides older conversation/);
   }
   assert.ok(buildSystemPrompt({ SYSTEM_PROMPT: "Custom persona." }).startsWith("Custom persona.\n\nMEMBER ADDRESS RULE:"));
 });
 
-test("masculine swear-jar wording falls back, while feminine wording is accepted", async t => {
+test("unknown-member swear-jar wording rejects gendered address and accepts neutral wording", async t => {
   t.mock.method(console, "error", () => {});
   const generate = content => generateSwearJarMessage("debit", { env: {}, fetcher: async () => ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) }) });
   for (const content of ["Be a good boy!", "Let's be good little boys and girls!", "Mind your words, young man.", "He's our winner!", "A prize for him.", "Congratulations, sir!"]) {
     assert.equal(await generate(content), null, content);
   }
-  assert.equal(await generate("Mind your words, sweet girl!"), "Mind your words, sweet girl!");
+  assert.equal(await generate("Mind your words, sweet girl!"), null);
+  assert.equal(await generate("Mind your words, sweetheart!"), "Mind your words, sweetheart!");
 });
 
 test("apology acknowledgments and manners reminders use the chat endpoint and distinct persona prompts", async () => {
   for (const kind of ["apology", "reminder"]) {
-    const wording = kind === "apology" ? "What sweet manners, darling! Mommy accepts your apology." : "Act your age, sweet girl, and give Mommy a cute little apology.";
+    const wording = kind === "apology" ? "What sweet manners, darling! Mommy accepts your apology." : "Act your age, sweetheart, and give Mommy a cute little apology.";
     assert.equal(await generateSwearJarMessage(kind, {
       env: { LLAMA_BASE_URL: "http://chat.example/v1", LLAMA_MODEL: "chat-model", ROUTER_LAMA_URL: "http://router.example/v1", ROUTER_MODEL: "classifier", SYSTEM_PROMPT: "Sakura's warm voice." },
       fetcher: async (url, options) => {
@@ -83,7 +84,7 @@ test("apology acknowledgments and manners reminders use the chat endpoint and di
         const body = JSON.parse(options.body);
         assert.equal(body.model, "chat-model"); assert.match(body.messages[0].content, /Sakura's warm voice/);
         assert.equal(body.messages.length, 2);
-        assert.match(body.messages[1].content, kind === "apology" ? /Do not scold her again/ : /Include the exact phrase "act your age"/);
+        assert.match(body.messages[1].content, kind === "apology" ? /Do not scold this member again/ : /Include the exact phrase "act your age"/);
         assert.match(body.messages[1].content, /Do not discuss payments, refunds/);
         return { ok: true, json: async () => ({ choices: [{ message: { content: wording } }] }) };
       },

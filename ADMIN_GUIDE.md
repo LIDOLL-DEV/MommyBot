@@ -18,6 +18,16 @@ SSO is later disabled.
 
 ## Server controls
 
+Pronoun roles are matched by name: **She/Her** uses she/her, **He/Him** uses
+he/him, and **It's Complicated** uses they/them with neutral address. Case and
+spacing are ignored; straight and curly apostrophes work. No role IDs or extra
+environment variables are needed. Keep these names when setting up reaction roles.
+It's Complicated takes precedence; holding both gendered roles, having neither,
+or an unavailable membership lookup produces neutral wording. DMs use neutral
+wording because they have no server role context. Roles are refreshed for each
+reply, including retried swear-jar notices. Assign only the intended pronoun role
+to avoid conflicting selections; reaction roles allow multiple choices.
+
 Choose a server and press **Save server settings** after making changes.
 Conversation replies, new swear-jar fines/apologies, and member welcomes can each
 be paused for this server. Global environment switches and `CHANNEL_ID` still

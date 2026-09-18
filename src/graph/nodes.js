@@ -4,6 +4,7 @@ import { SYSTEM_PROMPT } from "./prompt.js";
 import { completionText } from "./completion.js";
 import { modelEndpoint, modelFailure } from "./connection.js";
 import { decideResponse } from "./router.js";
+import { pronounInstruction } from "../bot/pronouns.js";
 
 export async function routerNode(state) {
   const decision = await decideResponse(state);
@@ -21,7 +22,7 @@ export async function sakuraLLMNode(state) {
   let baseUrl = "invalid configuration";
   const model = process.env.LLAMA_MODEL || "default";
   
-  const systemMsg = { role: "system", content: SYSTEM_PROMPT };
+  const systemMsg = { role: "system", content: `${SYSTEM_PROMPT}\n\nCURRENT MEMBER: ${pronounInstruction(state.member_pronouns)} Other members have unknown pronouns unless their own role context is supplied; use neutral wording for them.` };
   const conversationHistory = state.messages.map(m => ({
     role: m instanceof HumanMessage ? 'user' : 'assistant',
     content: m.content

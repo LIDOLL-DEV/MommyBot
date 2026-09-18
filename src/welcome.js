@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { generateWelcomeMessage, welcomeProse } from "./graph/welcomeMessage.js";
+import { currentPronouns } from "./bot/pronouns.js";
 
 export const WELCOME_CHANNEL_ID = "1548848205092094034";
 export const RULES_CHANNEL_ID = "1477184919515041874";
@@ -17,7 +18,8 @@ export function createMemberWelcome(client, { env = process.env, generateMessage
   async function send(member, key) {
     const channel = await client.channels.fetch(channelId);
     if (stopped || !channel?.isTextBased() || typeof channel.send !== "function" || channel.guildId !== member.guild.id) return false;
-    const prose = welcomeProse(await generateMessage({ env }).catch(() => null)) || "Welcome, sweet girl! We're so glad you're here. Let's help you get settled into your new little community. 🌸";
+    const pronouns = await currentPronouns(member.guild, member.user.id, member);
+    const prose = welcomeProse(await generateMessage({ env, pronouns }).catch(() => null), pronouns) || "Welcome, sweetheart! We're so glad you're here. Let's help you get settled into your new little community. 🌸";
     if (stopped) return false;
     const rulesUrl = `https://discord.com/channels/${member.guild.id}/${rulesChannelId}/${rulesMessageId}`;
     const content = `<@${member.user.id}> ${prose}\n\n` +
