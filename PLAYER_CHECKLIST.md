@@ -1,5 +1,11 @@
 # MommyBot player checklist
 
+## Friends online
+
+- Signed-in LiDollMMO characters entering the shared world appear in #whos-online
+  after the integration is enabled. Announcements use character names and ping
+  the **lidollmmo** role. Brief reconnects do not post again.
+
 ## Server administration
 
 - Choose **She/Her**, **He/Him** or **It's Complicated** for Sakura's pronouns

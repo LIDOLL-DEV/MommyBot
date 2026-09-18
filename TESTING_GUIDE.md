@@ -1,5 +1,13 @@
 # Testing MommyBot
 
+## LiDollMMO arrivals
+
+`test/mmo-online.test.js` covers opt-in/LAN configuration, future-only startup,
+durable cursors, lost Discord receipts, offline/stale events, malformed feeds,
+paging, escaped names and shutdown. Pair with the game server's
+`test/online-feed.test.mjs` for authenticated entry and reconnect suppression.
+See [MMO_ONLINE_GUIDE.md](MMO_ONLINE_GUIDE.md) for the deployment smoke test.
+
 ## Role-based pronouns
 
 Run `node --test test/pronouns.test.js test/swear-jar-ai.test.js test/swear-jar.test.js test/welcome.test.js`.

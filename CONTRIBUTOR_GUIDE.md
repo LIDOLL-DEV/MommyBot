@@ -1,5 +1,13 @@
 # Contributing to MommyBot
 
+## LiDollMMO arrivals
+
+`src/mmo/online.js` consumes LiDollQuest server's protected join feed. Keep the
+dedicated credential server-side, cursor/attempt journal durable, and Discord
+mentions restricted to the destination server's resolved lidollmmo role. The game records authenticated presence inside its command
+transaction; never replace this with client-reported sign-in or browser pings.
+See [MMO_ONLINE_GUIDE.md](MMO_ONLINE_GUIDE.md) for the two-service setup and retry policy.
+
 ## Member pronouns
 
 `src/bot/pronouns.js` matches the She/Her, He/Him and It's Complicated role names.

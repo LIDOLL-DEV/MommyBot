@@ -14,6 +14,7 @@ import { readFileSync } from "node:fs";
 import { createMemberWelcome } from "./welcome.js";
 import { createReportPublisher } from "./reports/publisher.js";
 import { initializeCommunity } from "./admin/index.js";
+import { createOnlinePublisher } from "./mmo/online.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -39,6 +40,7 @@ async function main() {
   const community = initializeCommunity(client);
   const welcome = createMemberWelcome(client);
   const reports = createReportPublisher(client); // Open durable report delivery storage before Discord starts.
+  const mmoOnline = createOnlinePublisher(client); // Read only authenticated game-server arrivals, independently of bot account linking.
   client.on(Events.GuildMemberAdd, member => { if (community.enabled(member.guild.id, "welcomes")) void welcome.handleMemberAdd(member); }); // Server admins can pause welcomes without changing global deployment settings.
   const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
   const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
@@ -81,6 +83,7 @@ async function main() {
     stopGitHubWatcher = startGitHubActivityWatcher(client);
     community.start(); // Partial reaction events and periodic reconciliation use the same saved per-server settings as the admin panel.
     reports?.start(); // Poll completed nightly and explicitly shared reports independently of chat and wallet configuration.
+    mmoOnline?.start();
     swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
     void reportModelEndpoints().catch(() => console.error("[Brain] Startup probe could not finish; run scripts/check-runtime.mjs."));
     if (identity) for (const guild of client.guilds.cache.values()) void identity.registerGuild(guild);
@@ -99,6 +102,7 @@ async function main() {
     console.log("\n🌸 Sakura is going to sleep... Sweet dreams!");
     stopGitHubWatcher();
     await reports?.stop(); // Finish report receipts before closing storage or disconnecting Discord.
+    await mmoOnline?.stop();
     await welcome.stop(); // Stop new greetings and finish any Discord send before destroying the client.
     await swearJar?.stop(); // Stop scheduled draws and finish replies before closing identity or wallet storage.
     await identity?.close(); // Finish browser callbacks before closing account storage.

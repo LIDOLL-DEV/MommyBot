@@ -1,5 +1,8 @@
 # MommyBot generation tuning
 
+LiDollMMO online notices use fixed, gender-neutral wording and escaped character
+names. They do not call the model or include game activity beyond joining.
+
 ## Role-based pronouns
 
 The shared system prompt overrides legacy all-feminine persona instructions.

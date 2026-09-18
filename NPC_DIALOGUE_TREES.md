@@ -1,5 +1,8 @@
 # NPC dialogue notes
 
+LiDollMMO arrival copy lives in `src/mmo/online.js`: "[Character] just joined
+LiDollMMO. Come say hello!" It is fixed Discord announcement copy, not NPC dialogue.
+
 ## Member address
 
 Sakura uses a member's current pronoun role: She/Her, He/Him or It's Complicated
