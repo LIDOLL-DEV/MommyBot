@@ -50,9 +50,21 @@ nonce deduplication window.
 ## Reaction roles
 
 Create a message in Discord, select its channel, and paste its link or ID into
-the panel. Choose an emoji and role, then **Save mapping & add emoji**. Existing
-normal reactions are synchronized too. Different emoji/role mappings may share
-a message; each role can have only one mapping per server.
+the panel. Choose an emoji and role, then press **Add another emoji / role** for
+each additional choice on that message. **Save choices & add emojis** saves up
+to twenty choices together and adds their reactions. Existing normal reactions
+are synchronized too. Members can react to several choices to receive several
+roles. Each choice needs a different emoji and role; each role can have only one
+mapping per server. Invalid or conflicting choices prevent the entire batch
+from being saved. Existing mappings remain unchanged. The message stays selected
+after saving so you can add more choices without pasting its link again.
+
+Emoji fields in reaction roles and starboard accept actual Unicode symbols (for
+example `♀️`), server custom emoji names like `:female_emoji:`, full
+`<:name:id>` / `<a:name:id>` codes, or custom emoji IDs. Names must match a custom
+emoji in the selected server. For standard emoji, paste the symbol itself.
+If multiple custom emojis share a name, use the full code or ID. Saved mappings
+use the resolved ID, so renaming a custom emoji does not break its mapping.
 
 Reacting grants the role; unreacting removes it **only if this mapping granted
 it**. Roles already held are preserved. Reaction clears and source deletion

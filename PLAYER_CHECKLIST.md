@@ -4,7 +4,9 @@
 
 - Server Administrators can sign into `/admin/` with their Discord-linked
   LiD0llID to manage chat/welcome/swear-jar switches, starboard and reaction roles.
-- React to configured messages to receive a role; removing the reaction removes
+- Admins can add several emoji/role choices to one message in the panel using
+  **Add another emoji / role**, then **Save choices & add emojis**.
+- React to several choices to receive several roles; removing a reaction removes
   a role granted by that mapping. A role you already held is kept.
 - Starboard excludes self-stars and bots. Server admins choose the emoji,
   threshold and public source channels. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md).

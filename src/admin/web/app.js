@@ -15,6 +15,19 @@ function options(id, items, empty = null) {
   if (empty) select.add(new Option(empty, ""));
   for (const item of items) select.add(new Option(item.name, item.id));
 } // Render Discord names as text, never as HTML supplied by a server or member.
+function addChoice() {
+  const container = $("roleChoices");
+  if (container.children.length >= 20) { notice("Save these choices before adding more (up to twenty per save).", true); return; }
+  const row = document.createElement("div"), emojiLabel = document.createElement("label"), roleLabel = document.createElement("label");
+  const emoji = document.createElement("input"), role = document.createElement("select"), remove = document.createElement("button");
+  row.className = "role-choice"; emojiLabel.textContent = "Emoji"; roleLabel.textContent = "Role";
+  emoji.className = "choice-emoji"; emoji.required = true; emoji.maxLength = 80; emoji.placeholder = "🌸 or :emoji_name:";
+  role.className = "choice-role"; role.required = true; role.add(new Option("Choose a role", ""));
+  for (const item of state.roles) role.add(new Option(item.name, item.id));
+  remove.type = "button"; remove.textContent = "Remove choice";
+  remove.addEventListener("click", () => { row.remove(); if (!container.children.length) addChoice(); });
+  emojiLabel.append(emoji); roleLabel.append(role); row.append(emojiLabel, roleLabel, remove); container.append(row);
+} // Each row is one independently selectable Discord emoji/role pair; names remain text-only.
 function render() {
   const settings = state.settings;
   for (const key of ["chat", "swearJar", "welcomes"]) $(key).checked = settings[key];
@@ -23,7 +36,10 @@ function render() {
   options("sources", state.channels.filter(channel => channel.public));
   for (const option of $("sources").options) option.selected = settings.starboard.sources.includes(option.value);
   $("starEmoji").value = settings.starboard.emoji; $("threshold").value = settings.starboard.threshold;
-  options("roleChannel", state.channels); options("role", state.roles, "Choose a role");
+  const previousChannel = $("roleChannel").value;
+  options("roleChannel", state.channels);
+  if (state.channels.some(channel => channel.id === previousChannel)) $("roleChannel").value = previousChannel;
+  if (!$("roleChoices").children.length) addChoice();
   $("connection").textContent = `${state.status.connected ? "● Connected" : "○ Connecting"} · ${state.status.ping} ms · Chat channel: ${state.status.chatChannel} · Swear jar: ${state.status.swearJarAvailable ? "available" : "disabled in deployment"} · Welcomes: ${state.status.welcomesAvailable ? "available" : "disabled in deployment"}`;
   $("bindings").replaceChildren();
   for (const binding of state.bindings) {
@@ -49,6 +65,7 @@ function render() {
   if (!state.audit.length) $("audit").textContent = "Your server's changes will appear here.";
 } // Show saved server settings, mappings and a compact audit history without rendering untrusted markup.
 async function loadGuild() {
+  if (selected !== $("guild").value) { $("roleChoices").replaceChildren(); $("message").value = ""; }
   selected = $("guild").value;
   if (!selected) return;
   state = await api(`state?guild=${encodeURIComponent(selected)}`); render();
@@ -70,9 +87,11 @@ $("roleForm").addEventListener("submit", event => { event.preventDefault(); void
   let message = $("message").value.trim(), channel = $("roleChannel").value;
   const link = /^https:\/\/(?:(?:canary|ptb)\.)?discord(?:app)?\.com\/channels\/(\d+)\/(\d+)\/(\d+)$/.exec(message);
   if (link) { if (link[1] !== selected) throw new Error("That message belongs to another server."); channel = link[2]; message = link[3]; }
-  await action({ action: "reaction-add", channel, message, role: $("role").value, emoji: $("roleEmoji").value });
-  $("message").value = ""; $("roleEmoji").value = "";
+  const choices = [...$("roleChoices").children].map(row => ({ role: row.querySelector(".choice-role").value, emoji: row.querySelector(".choice-emoji").value }));
+  await action({ action: "reaction-add", channel, message, choices });
+  $("roleChoices").replaceChildren(); addChoice(); // Keep the message selected so admins can add more choices to it.
 }); });
+$("addChoice").addEventListener("click", () => { addChoice(); $("roleChoices").lastElementChild.querySelector("input").focus(); });
 $("guild").addEventListener("change", () => void run(loadGuild));
 $("refresh").addEventListener("click", () => void run(loadGuild));
 $("sync").addEventListener("click", () => void run(() => action({ action: "sync" })));

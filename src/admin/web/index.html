@@ -19,15 +19,15 @@
       </fieldset></section>
       <div class="save"><button class="primary" type="submit">Save server settings</button></div>
     </form>
-    <section class="card"><p class="eyebrow">A PLACE TO BELONG</p><h2>Reaction roles</h2><p>Choose an existing message and the role its emoji should grant. Removing the reaction removes the role if this mapping granted it.</p>
+    <section class="card"><p class="eyebrow">A PLACE TO BELONG</p><h2>Reaction roles</h2><p>Choose an existing message, then add an emoji and role for each choice. Members can react to several choices. Removing a reaction removes the role if its mapping granted it.</p>
       <form id="roleForm"><fieldset class="role-form">
         <label>Message channel<select id="roleChannel" required></select></label>
         <label>Message ID or Discord message link<input id="message" required placeholder="Paste a message link" maxlength="200"></label>
-        <label>Emoji<input id="roleEmoji" required placeholder="🌸 or <:name:id>" maxlength="80"></label>
-        <label>Role<select id="role" required></select></label>
-        <button type="submit" class="primary">Save mapping &amp; add emoji</button>
+        <div id="roleChoices" class="role-choices"></div>
+        <div class="role-actions"><button type="button" id="addChoice">Add another emoji / role</button>
+          <button type="submit" class="primary">Save choices &amp; add emojis</button></div>
       </fieldset></form>
-      <p class="muted">Existing reactions are synchronized too. Only non-privileged roles below your role and Sakura’s role appear. Each role can have one mapping. Removing a mapping keeps existing member roles.</p>
+      <p class="muted">Paste a standard emoji symbol, or enter a server custom emoji like :female_emoji:. Full &lt;:name:id&gt; codes and emoji IDs work too. Existing reactions are synchronized. Only non-privileged roles below your role and Sakura’s role appear. Each role can have one mapping. Removing a mapping keeps existing member roles.</p>
       <ul id="bindings" class="items"></ul>
     </section>
     <section class="card"><p class="eyebrow">RECENT ACTIVITY</p><h2>Admin journal</h2><ul id="audit" class="items"></ul></section>

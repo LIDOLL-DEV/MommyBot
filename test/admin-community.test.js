@@ -85,6 +85,53 @@ test("reaction add/remove grants and removes only roles owned by that mapping", 
   assert.equal(f.user.roles.cache.has(ids.role), true); assert.equal(f.removed.length, 1);
 });
 
+test("several emoji/role choices on one message grant and remove independently", async t => {
+  const f = adminFixture(t), seeded = [], moonVoters = new Map([[ids.user, f.user.user]]);
+  const moon = { ...f.reaction, emoji: { name: "🌙", id: null }, users: { fetch: async () => moonVoters } };
+  f.message.reactions.cache.set("🌙", moon); f.message.react = async emoji => seeded.push(emoji);
+  f.voters.set(ids.user, f.user.user);
+  await f.service.act(f.session, { action: "reaction-add", guild: ids.guild, channel: ids.source, message: ids.message,
+    choices: [{ emoji: "⭐", role: ids.role }, { emoji: "🌙", role: ids.role2 }] });
+  assert.deepEqual(seeded, ["⭐", "🌙"]); assert.equal(f.store.bindings(ids.guild).length, 2);
+  assert.equal(f.user.roles.cache.has(ids.role), true); assert.equal(f.user.roles.cache.has(ids.role2), true);
+  f.voters.clear(); await f.community.handleReaction(f.reaction, f.user.user);
+  assert.equal(f.user.roles.cache.has(ids.role), false); assert.equal(f.user.roles.cache.has(ids.role2), true);
+  await f.community.stop(); f.community = createCommunityFeatures(f.client, f.store, { logger: { error: () => {} } });
+  moonVoters.clear(); await f.community.tick();
+  assert.equal(f.user.roles.cache.has(ids.role2), false);
+}); // Existing reactions synchronize on save, and each emoji retains its own ownership journal across restart.
+
+test("invalid or conflicting batches save no partial mappings and seed no emojis", async t => {
+  const f = adminFixture(t), seeded = [];
+  f.message.react = async emoji => seeded.push(emoji);
+  const choices = [{ emoji: "⭐", role: ids.role }, { emoji: "🌙", role: ids.role2 }];
+  const input = { action: "reaction-add", guild: ids.guild, channel: ids.source, message: ids.message, choices };
+  for (const invalid of [[], Array(21).fill(choices[0]), [null], [choices[0], choices[0]],
+    [choices[0], { ...choices[1], emoji: "⭐️" }], [{ role: "bad", emoji: "⭐" }]]) {
+    await assert.rejects(f.service.act(f.session, { ...input, choices: invalid }));
+  }
+  f.role2.permissions = new PermissionsBitField([P.Administrator]);
+  await assert.rejects(f.service.act(f.session, input), /non-privileged/);
+  assert.equal(f.store.bindings(ids.guild).length, 0); assert.equal(f.store.history(ids.guild).length, 0);
+  f.role2.permissions = new PermissionsBitField();
+  const existing = f.store.addBinding(ids.guild, { channel: ids.source, message: ids.message, ...choices[1] }, ids.admin);
+  await assert.rejects(f.service.act(f.session, input), /already has a mapping/);
+  assert.deepEqual(f.store.bindings(ids.guild).map(row => row.id), [existing.id]);
+  assert.equal(f.store.history(ids.guild).length, 1); assert.deepEqual(seeded, []);
+  await f.service.act(f.session, { ...input, choices: [choices[0]] });
+  assert.equal(f.store.bindings(ids.guild).length, 2); // Adding more choices preserves those already saved on the message.
+});
+
+test("an emoji seed failure retains the batch and continues adding the remaining choices", async t => {
+  const f = adminFixture(t), seeded = [];
+  f.message.react = async emoji => { if (emoji === "⭐") throw new Error("PRIVATE"); seeded.push(emoji); };
+  await f.service.act(f.session, { action: "reaction-add", guild: ids.guild, channel: ids.source, message: ids.message,
+    choices: [{ emoji: "⭐", role: ids.role }, { emoji: "🌙", role: ids.role2 }] });
+  assert.equal(f.store.bindings(ids.guild).length, 2); assert.deepEqual(seeded, ["🌙"]);
+  assert.ok(f.store.history(ids.guild).some(row => row.action === "reaction.seed-failed"));
+  assert.doesNotMatch(JSON.stringify(f.store.history(ids.guild)), /PRIVATE/);
+});
+
 test("role ownership survives runtime restart and offline reaction changes recover", async t => {
   const f = adminFixture(t), binding = f.bind(); f.voters.set(ids.user, f.user.user);
   f.rolesFailed = true; await f.community.syncBinding(binding);

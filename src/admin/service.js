@@ -1,6 +1,7 @@
 import { PermissionFlagsBits as P, ChannelType } from "discord.js";
-import { AdminError, discordId, emojiKey } from "./store.js";
+import { AdminError, discordId } from "./store.js";
 import { selfServiceRole, textChannel } from "./access.js";
+import { guildEmojiResolver } from "./emojis.js";
 
 export function createAdminService(client, store, access, community, env = process.env) {
   return {
@@ -21,11 +22,12 @@ export function createAdminService(client, store, access, community, env = proce
     async act(session, input) {
       if (!input || typeof input !== "object" || Array.isArray(input)) throw new AdminError("Invalid admin request.");
       const { guild, member } = await access.require(session, input.guild);
+      const resolveEmoji = guildEmojiResolver(guild);
       if (input.action === "settings") {
         if ([input.chat, input.swearJar, input.welcomes].some(value => typeof value !== "boolean")) throw new AdminError("Choose on or off for each bot control.");
         const board = input.starboard;
         if (!board || typeof board.enabled !== "boolean" || !Number.isInteger(board.threshold) || board.threshold < 1 || board.threshold > 100 || !Array.isArray(board.sources) || board.sources.length > 50) throw new AdminError("Choose a star threshold from one to one hundred and at most fifty source channels.");
-        const normalized = { enabled: board.enabled, channel: board.channel || "", threshold: board.threshold, emoji: emojiKey(board.emoji), sources: [...new Set(board.sources.map(discordId))] };
+        const normalized = { enabled: board.enabled, channel: board.channel || "", threshold: board.threshold, emoji: await resolveEmoji(board.emoji), sources: [...new Set(board.sources.map(discordId))] };
         if (normalized.enabled || normalized.channel) {
           const target = await textChannel(guild, normalized.channel, [P.ViewChannel, P.ReadMessageHistory, P.SendMessages, P.EmbedLinks]);
           if (normalized.enabled && !normalized.sources.length) throw new AdminError("Choose at least one public source channel.");
@@ -36,26 +38,33 @@ export function createAdminService(client, store, access, community, env = proce
             if (source.nsfw && !target.nsfw) throw new AdminError("Age-restricted source channels need an age-restricted starboard.");
           }
         }
-        if (/^\d+$/.test(normalized.emoji) && !await guild.emojis.fetch(normalized.emoji).catch(() => null)) throw new AdminError("Choose a custom emoji from this server.");
         const { actor } = await access.require(session, guild.id);
         store.save(guild.id, { chat: input.chat, swearJar: input.swearJar, welcomes: input.welcomes, starboard: normalized }, actor);
         return { ok: true, message: "Settings saved. Existing highlights refresh during synchronization; new reactions use these settings now." };
       }
       if (input.action === "reaction-add") {
         const channel = await textChannel(guild, input.channel, [P.ViewChannel, P.ReadMessageHistory, P.AddReactions]);
-        const role = await guild.roles.fetch(discordId(input.role)), bot = await guild.members.fetchMe();
-        if (!selfServiceRole(role, guild, bot, member)) throw new AdminError("Choose a non-privileged role below both your role and the bot's role.");
+        const selected = input.choices ?? [{ role: input.role, emoji: input.emoji }]; // Older clients can still save one choice.
+        if (!Array.isArray(selected) || !selected.length || selected.length > 20) throw new AdminError("Add between one and twenty emoji/role choices.");
+        const choices = await Promise.all(selected.map(async choice => {
+          if (!choice || typeof choice !== "object" || Array.isArray(choice)) throw new AdminError("Choose an emoji and role for every row.");
+          return { role: discordId(choice.role), emoji: await resolveEmoji(choice.emoji) };
+        }));
+        if (new Set(choices.map(choice => choice.role)).size !== choices.length || new Set(choices.map(choice => choice.emoji)).size !== choices.length) throw new AdminError("Use a different emoji and role for each choice.");
+        const roles = await Promise.all(choices.map(choice => guild.roles.fetch(choice.role))), bot = await guild.members.fetchMe();
+        if (roles.some(role => !selfServiceRole(role, guild, bot, member))) throw new AdminError("Choose non-privileged roles below both your role and the bot's role.");
         const message = await channel.messages.fetch(discordId(input.message)).catch(() => null);
         if (!message || message.guildId !== guild.id) throw new AdminError("Message not found in the selected channel.");
-        const emoji = emojiKey(input.emoji);
-        if (/^\d+$/.test(emoji) && !await guild.emojis.fetch(emoji).catch(() => null)) throw new AdminError("Choose a custom emoji from this server.");
         const { actor, member: current } = await access.require(session, guild.id);
-        if (!selfServiceRole(role, guild, await guild.members.fetchMe(), current)) throw new AdminError("Role permissions changed. Refresh and try again.");
-        const binding = store.addBinding(guild.id, { channel: channel.id, message: message.id, role: role.id, emoji }, actor);
-        try { await message.react(emoji); }
-        catch { store.audit(guild.id, actor, "reaction.seed-failed", "Mapping saved, but the emoji could not be added. Check Add Reactions permission and add the emoji manually."); }
-        await community.syncBinding(binding);
-        return { ok: true, message: "Reaction role saved. Removing a reaction removes roles granted by this mapping. Check the activity log for synchronization errors." };
+        const currentBot = await guild.members.fetchMe();
+        if (roles.some(role => !selfServiceRole(role, guild, currentBot, current))) throw new AdminError("Role permissions changed. Refresh and try again.");
+        const bindings = store.addBindings(guild.id, { channel: channel.id, message: message.id, choices }, actor);
+        for (const { emoji } of choices) {
+          try { await message.react(emoji); }
+          catch { store.audit(guild.id, actor, "reaction.seed-failed", `Mapping saved, but emoji ${emoji} could not be added. Check Add Reactions permission and add the emoji manually.`); }
+        }
+        for (const binding of bindings) await community.syncBinding(binding);
+        return { ok: true, message: `${bindings.length} reaction-role mapping${bindings.length === 1 ? "" : "s"} saved. Removing a reaction removes roles granted by these mappings. Check the activity log for synchronization errors.` };
       }
       if (input.action === "reaction-delete") {
         const binding = store.binding(String(input.id));

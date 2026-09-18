@@ -6,6 +6,13 @@
 starboard and reaction roles. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md). Reuse profile-only
 SSO and separate Discord-link-bound sessions; never authorize by display name or
 browser guild ID. Recheck permissions for reads/writes and enforce origin/CSRF.
+Reaction-role forms submit a `choices` array of emoji/role pairs for one message.
+Validate every choice before saving the batch in one transaction, then seed and
+sync each mapping. Keep legacy single-choice requests working and preserve
+per-mapping ownership journals when adding choices to an existing message.
+Resolve custom emoji names through `src/admin/emojis.js` before duplicate checks
+or persistence. Keep runtime keys as Discord IDs or normalized Unicode; reject
+unknown/ambiguous names instead of guessing which role reaction was intended.
 Preserve role hierarchy and ownership checks, public source-channel restrictions,
 reaction pagination and durable post IDs/retries. Drain HTTP and reaction work
 before closing `data/admin.db`. Server controls gate new chat, swear-jar and

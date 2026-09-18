@@ -60,6 +60,9 @@ export class AdminStore {
     })();
     return row;
   } // Each self-service role has a single binding, so removing a reaction cannot conflict with another mapping.
+  addBindings(guild, input, actor) {
+    return this.db.transaction(() => input.choices.map(choice => this.addBinding(guild, { channel: input.channel, message: input.message, ...choice }, actor)))();
+  } // Save all emoji/role choices together; a conflict or mapping limit rolls back the entire batch.
   deleteBinding(id, actor) {
     const row = this.binding(id); if (!row) return;
     this.db.transaction(() => {

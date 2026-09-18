@@ -7,7 +7,12 @@ Real SQLite and local HTTP tests use synthetic Discord to cover live Administrat
 checks, unlink/logout, wallet-free SSO, CSRF/origin/body limits, role hierarchy and
 grant ownership, offline recovery, starboard thresholds, edits/deletion, privacy,
 failed sends, pagination and partial events. Run `npm test` before deployment.
-`scripts/check-admin-browser.mjs` exercises settings, reaction-role mapping,
+Reaction-role tests cover batches, validation/transaction rollback, independent
+role removal, offline recovery and partial emoji-seeding failure.
+`test/admin-emojis.test.js` covers server name resolution, ambiguous/missing names,
+animated/full codes, alias duplicates, and custom reaction-role/starboard events.
+`scripts/check-admin-browser.mjs` exercises settings, adding/removing multiple
+emoji/role form rows and saving them on one message, mapping removal,
 sign-out, CSP and mobile overflow with local Chrome/Puppeteer; screenshots go to
 `data/admin-review/`. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md) for setup and permissions.
 

@@ -7,7 +7,7 @@ import { createAdminService } from "../../src/admin/service.js";
 import { createCommunityFeatures } from "../../src/admin/community.js";
 
 export const ids = { guild: "111111111111111111", source: "222222222222222222", board: "333333333333333333",
-  message: "444444444444444444", role: "555555555555555555", admin: "666666666666666666", user: "777777777777777777", bot: "888888888888888888", other: "999999999999999999" };
+  message: "444444444444444444", role: "555555555555555555", role2: "555555555555555556", admin: "666666666666666666", user: "777777777777777777", bot: "888888888888888888", other: "999999999999999999" };
 export function adminFixture(t) {
   const f = { posts: new Map(), sent: [], edited: [], deleted: [], added: [], removed: [], logs: [], voters: new Map(), rolesFailed: false };
   f.store = new AdminStore(":memory:"); f.identities = new IdentityStore(":memory:");
@@ -23,8 +23,10 @@ export function adminFixture(t) {
   f.admin = makeMember(ids.admin, [P.Administrator]); f.user = makeMember(ids.user); f.bot = makeMember(ids.bot, [P.ManageRoles]);
   f.members = new Map([[ids.admin, f.admin], [ids.user, f.user], [ids.bot, f.bot]]);
   f.everyone = { id: ids.guild, name: "@everyone", position: 0, permissions: new PermissionsBitField() };
+  f.role2 = { ...f.role, id: ids.role2, name: "Moon club" };
+  f.roles = new Collection([[ids.role, f.role], [ids.role2, f.role2], [ids.guild, f.everyone]]);
   f.guild = { id: ids.guild, name: "Flower garden", ownerId: ids.admin,
-    roles: { everyone: f.everyone, fetch: async id => id ? (id === ids.role ? f.role : null) : new Collection([[ids.role, f.role], [ids.guild, f.everyone]]) },
+    roles: { everyone: f.everyone, fetch: async id => id ? f.roles.get(id) || null : f.roles },
     members: { fetchMe: async () => f.bot, fetch: async input => {
       const member = f.members.get(typeof input === "string" ? input : input.user);
       if (!member) throw Object.assign(new Error("Unknown member"), { code: 10007 });
@@ -43,7 +45,8 @@ export function adminFixture(t) {
   f.source = makeChannel(ids.source); f.board = makeChannel(ids.board);
   f.channels = new Collection([[ids.source, f.source], [ids.board, f.board]]);
   f.guild.channels = { fetch: async id => id ? f.channels.get(id) || null : f.channels };
-  f.guild.emojis = { fetch: async () => null };
+  f.emojis = new Collection();
+  f.guild.emojis = { fetch: async id => id ? f.emojis.get(id) || null : f.emojis };
   f.message = { id: ids.message, guildId: ids.guild, channelId: ids.source,
     author: { id: ids.admin, username: "Doll", bot: false }, content: "A lovely moment", attachments: new Map(),
     reactions: { cache: new Collection() }, react: async () => {},
