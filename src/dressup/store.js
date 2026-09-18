@@ -36,10 +36,21 @@ export class LittlepottchiStore {
 
   save(user, player) { this.db.prepare("INSERT INTO littlepottchi_players VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET data=excluded.data").run(user, JSON.stringify(player)); }
 
-  owned(user, slot, id) {
+  owned(user, slot, id) { return this.available(user, slot, id) > 0; }
+
+  available(user, slot, id) {
     const store = slot === "diaper" ? this.diapers : this.clothes;
-    return Boolean(store.db.prepare("SELECT 1 FROM diaper_items WHERE owner=? AND design=? AND lock_id IS NULL LIMIT 1").get(user, id));
-  } // Reserved sale copies cannot be worn; another available copy preserves the design entitlement.
+    return store.db.prepare("SELECT COUNT(*) quantity FROM diaper_items WHERE owner=? AND design=? AND lock_id IS NULL").get(user, id).quantity;
+  } // Reserved sale copies can be neither worn nor burned; another available copy preserves the design entitlement.
+
+  soiled(player) { return player.outfit.diaper && (player.care.wetness || player.care.mess) ? player.outfit.diaper : null; }
+  // Only an owned copy fills the diaper slot, so the free Cloud Tapes fallback and a clean diaper never burn.
+
+  burn(user, design) {
+    const copy = this.diapers.db.prepare("SELECT id FROM diaper_items WHERE owner=? AND design=? AND lock_id IS NULL ORDER BY created LIMIT 1").get(user, design);
+    if (copy) this.diapers.db.prepare("DELETE FROM diaper_items WHERE id=?").run(copy.id);
+    return copy ? design : null;
+  } // Destroy the oldest available copy so a used diaper leaves circulation instead of being worn again.
 
   resolve(user, player) {
     const outfit = {}, removed = [];
@@ -67,6 +78,7 @@ export class LittlepottchiStore {
   act(user, input) {
     if (!input || typeof input !== "object" || Array.isArray(input)) throw new GachaError("Invalid doll action.");
     const player = this.player(user); // Commit elapsed accidents before validating an action: rejected changes must not reroll leaks.
+    let used = null; // The design worn while it was wet or messy, set once a taken-off diaper is committed to the fire.
     return this.db.transaction(() => {
       if (input.action === "appearance") {
         if (input.gender !== undefined && (typeof input.gender !== "string" || input.gender.trim().length > 32 || /[\x00-\x1f]/.test(input.gender))) throw new GachaError("Use up to 32 characters for the doll's gender.");
@@ -76,28 +88,34 @@ export class LittlepottchiStore {
         if (input.gender !== undefined) player.gender = input.gender.trim();
         if (input.anatomy !== undefined) updateAnatomy(this.catalog, player, input.anatomy);
       } else if (input.action === "equip") {
-        const slot = input.slot;
+        const slot = input.slot, soiled = slot === "diaper" ? this.soiled(player) : null;
         if (!slots.includes(slot)) throw new GachaError("Unknown clothing slot.");
         if (input.design === null) {
           delete player.outfit[slot];
           if (slot === "top") player.starterTopEnabled = false; // An empty top slot must not silently put the default shirt back on.
-          if (slot === "diaper" && !player.diaperFree) { player.diaperFree = true; this.care.removeDiaper(player); }
+          if (slot === "diaper" && !player.diaperFree) { player.diaperFree = true; used = soiled; this.care.removeDiaper(player); }
         }
         else {
           const item = (slot === "diaper" ? this.catalog.diapers : this.catalog.clothes).find(item => item.id === input.design && (slot === "diaper" || item.slot === slot));
           const starterShirt = slot === "top" && item?.id === this.starterTop.id;
-          if (!item || (!starterShirt && !this.owned(user, slot, item.id))) throw new GachaError("You need an available copy in your collection to wear this item.");
+          const spare = item && slot === "diaper" ? this.available(user, slot, item.id) - (soiled === item.id ? 1 : 0) : 0;
+          if (!item || (!starterShirt && (slot === "diaper" ? spare < 1 : !this.owned(user, slot, item.id)))) throw new GachaError(soiled && soiled === item?.id
+            ? "The soiled diaper burns during a change. Keep a second copy of that design, or choose another one."
+            : "You need an available copy in your collection to wear this item.");
           if (slot === "diaper") delete player.outfit.underwear;
           player.outfit[slot] = item.id;
           if (starterShirt) player.starterTopEnabled = true; // The free starter can be worn again without granting a sellable inventory copy.
-          if (slot === "diaper") { this.care.change(player); player.diaperFree = false; }
+          if (slot === "diaper") { this.care.change(player); used = soiled; player.diaperFree = false; }
         }
       } else if (input.action === "change") {
-        const item = this.catalog.diapers.find(item => item.id === input.design);
-        if (!item || (item.id !== "cloud-tapes" && !this.owned(user, "diaper", item.id))) throw new GachaError("Choose a replacement diaper from your collection or the starter supply.");
-        if (item.id === "cloud-tapes" && !this.owned(user, "diaper", item.id)) delete player.outfit.diaper;
+        const item = this.catalog.diapers.find(item => item.id === input.design), soiled = this.soiled(player);
+        const spare = item ? this.available(user, "diaper", item.id) - (soiled === item.id ? 1 : 0) : 0;
+        if (!item || (item.id !== "cloud-tapes" && spare < 1)) throw new GachaError(soiled && soiled === item?.id
+          ? "The soiled diaper burns during a change. Keep a second copy of that design, or choose another one."
+          : "Choose a replacement diaper from your collection or the starter supply.");
+        if (item.id === "cloud-tapes" && spare < 1) delete player.outfit.diaper;
         else player.outfit.diaper = item.id;
-        delete player.outfit.underwear; this.care.change(player); player.diaperFree = false;
+        delete player.outfit.underwear; this.care.change(player); used = soiled; player.diaperFree = false;
       } else if (input.action === "wipe") {
         if (!player.care.needsWipe) throw new GachaError("Your doll does not need a wipe right now.");
         const consumed = this.db.prepare("UPDATE care_supplies SET wipes=wipes-1 WHERE user_id=? AND wipes>0").run(user);
@@ -111,11 +129,12 @@ export class LittlepottchiStore {
           player.care.recipient = input.enabled ? { issuer: identity.issuer, subject: identity.subject } : null;
         }
       }
+      const burned = used ? this.burn(user, used) : null; // Burn only after every validation has passed, so a rejected action keeps the diaper.
       const resolved = this.resolve(user, player);
       delete player.outfit.underwear; // Retire the old slot without resetting accumulated wetness or any care timer.
       for (const slot of slots) if (!resolved.outfit[slot]) delete player.outfit[slot];
       this.save(user, player);
-      return { ...this.snapshot(user), removed: resolved.removed };
+      return { ...this.snapshot(user), removed: resolved.removed, burned };
     }).immediate();
   } // Validate actions and save atomically; browser input never grants clothing or wallet currency.
 

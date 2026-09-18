@@ -15,6 +15,7 @@ import { initializeGoFish } from "../gofish/index.js";
 import { initializeTouhouWeb } from "../touhou/web.js";
 import { createGameLogin } from "../games/login.js";
 import { CoinLeaderboard, createLeaderboardWeb } from "../leaderboard/web.js";
+import { initializeAdmin } from "../admin/index.js";
 
 export function buildIdentityCommand() {
   return new SlashCommandBuilder().setName("lidollid").setDescription("Connect your LiD0llID account")
@@ -117,7 +118,7 @@ export async function runIdentityAction(interaction, store, config, wallet, gach
     return { content, components };
 } // Reuse the same account validation, revocation and role behavior from slash commands and menu buttons.
 
-export async function initializeIdentity(wallet = null, trader = null, client = null) {
+export async function initializeIdentity(wallet = null, trader = null, client = null, community = null) {
   const config = authConfig();
   if (!config) return null;
   fs.mkdirSync(fileURLToPath(new URL("../../data/", import.meta.url)), { recursive: true });
@@ -129,16 +130,18 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   const balldrop = initializeBallDrop(config, store, wallet); // Register pending bet guards before opening the shared listener.
   const gofish = initializeGoFish(config, store, wallet); // Register pending book rewards before opening the shared listener.
   const touhouWeb = initializeTouhouWeb(config, store, trader, client);
+  const admin = initializeAdmin(config, store, client, community);
   const games = Object.fromEntries([["diapers", gacha, "Diaper Atelier"], ["clothes", gacha, "Clothes Emporium"], ["littlepottchi", gacha, "Littlepottchi"], ["hangman", hangman, "Cozy Hangman"], ["balldrop", balldrop, "Prism Drop"], ["gofish", gofish, "Go Fish"], ["touhou", touhouWeb, "Touhou Trader"]]
     .filter(([, game]) => game).map(([key, game, title]) => [key, { sessions: game.sessions, title }]));
+  if (admin) games.admin = admin;
   const gameLogin = createGameLogin(config, store, createOidc(config, Boolean(wallet), { statePrefix: "game." }), games, Date.now, wallet);
   const leaderboardWeb = wallet ? createLeaderboardWeb(config, new CoinLeaderboard(store, wallet)) : null;
-  const gameWeb = async (request, response) => Boolean(await leaderboardWeb?.(request, response) || await gameLogin.route(request, response) || await gacha?.web(request, response) || await hangman?.web(request, response) || await balldrop?.web(request, response) || await gofish?.web(request, response) || await touhouWeb?.web(request, response));
+  const gameWeb = async (request, response) => Boolean(await leaderboardWeb?.(request, response) || await gameLogin.route(request, response) || await admin?.web(request, response) || await gacha?.web(request, response) || await hangman?.web(request, response) || await balldrop?.web(request, response) || await gofish?.web(request, response) || await touhouWeb?.web(request, response));
   const server = createAuthServer(config, store, createOidc(config,Boolean(wallet)),wallet,gameWeb);
   try {
     await new Promise((resolve, reject) => { server.once("error", reject); server.listen(config.port, config.host, resolve); });
   } catch (error) { gacha?.close(); hangman?.close(); balldrop?.close(); gofish?.close(); store.close(); throw error; }
-  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();gacha?.prune();hangman?.prune();balldrop?.prune();gofish?.prune();touhouWeb?.prune();gameLogin.prune();}, 60000);
+  const cleanup = setInterval(() => {store.prune();wallet?.pruneProofs();gacha?.prune();hangman?.prune();balldrop?.prune();gofish?.prune();touhouWeb?.prune();gameLogin.prune();admin?.sessions.prune();}, 60000);
   cleanup.unref();
   console.log(`[LiD0llID] Callback listener ready on ${config.host}:${config.port}.`);
   return {

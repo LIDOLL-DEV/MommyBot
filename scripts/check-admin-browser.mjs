@@ -1,0 +1,51 @@
+import assert from "node:assert/strict";
+import { createServer } from "node:http";
+import { mkdir } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
+import { adminFixture, ids } from "../test/fixtures/admin-fixture.js";
+import { AdminSessions, createAdminWeb } from "../src/admin/web.js";
+
+if (!process.env.PUPPETEER_MODULE || !process.env.CHROME_PATH) throw new Error("Set PUPPETEER_MODULE and CHROME_PATH to local browser tools.");
+const puppeteer = (await import(pathToFileURL(process.env.PUPPETEER_MODULE).href)).default;
+const cleanup = [], f = adminFixture({ after: work => cleanup.push(work) });
+let browser, server;
+try {
+  const config = { origin: "http://127.0.0.1" }, sessions = new AdminSessions(f.store.db, f.identities);
+  const web = createAdminWeb(config, sessions, f.service), token = sessions.openForIdentity(f.identity);
+  server = createServer(async (req, res) => { if (!await web(req, res)) res.writeHead(404).end(); });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  config.origin = `http://127.0.0.1:${server.address().port}`;
+  browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH, headless: true, pipe: true });
+  console.log("Admin check: browser launched.");
+  const page = await browser.newPage(), errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  page.on("console", message => { if (/Content Security Policy|Refused to/i.test(message.text())) errors.push(message.text()); });
+  await page.setCookie({ name: "admin_session", value: token, url: config.origin });
+  await page.setViewport({ width: 1440, height: 1000 });
+  await page.goto(`${config.origin}/admin/`);
+  await page.waitForFunction(() => !document.getElementById("panel").hidden && !document.getElementById("guild").disabled);
+  console.log("Admin check: panel loaded.");
+  await page.click("#starEnabled"); await page.select("#starChannel", ids.board); await page.select("#sources", ids.source);
+  await page.click("#chat"); await page.click("#settings button[type=submit]");
+  await page.waitForFunction(() => document.getElementById("notice").textContent.includes("Settings saved"));
+  assert.equal(f.store.settings(ids.guild).chat, false); assert.equal(f.store.settings(ids.guild).starboard.enabled, true);
+  await page.select("#roleChannel", ids.source); await page.select("#role", ids.role);
+  await page.type("#message", `https://discord.com/channels/${ids.guild}/${ids.source}/${ids.message}`); await page.type("#roleEmoji", "🌸");
+  await page.click("#roleForm button[type=submit]");
+  await page.waitForSelector("#bindings button"); assert.equal(f.store.bindings(ids.guild).length, 1);
+  await mkdir("data/admin-review", { recursive: true });
+  await page.screenshot({ path: "data/admin-review/desktop.png", fullPage: true });
+  await page.setViewport({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "Mobile layout must not scroll sideways");
+  await page.screenshot({ path: "data/admin-review/mobile.png", fullPage: true });
+  page.on("dialog", dialog => dialog.accept()); await page.click("#bindings button");
+  await page.waitForFunction(() => document.getElementById("bindings").textContent.includes("No reaction roles"));
+  assert.equal(f.store.bindings(ids.guild).length, 0);
+  await page.click("#logout"); await page.waitForFunction(() => !document.getElementById("login").hidden && document.getElementById("panel").hidden);
+  assert.equal(sessions.get(token), null); assert.deepEqual(errors, []);
+  console.log("Admin browser check passed: settings, reaction roles, mobile layout, CSP, logout. Synthetic Discord only.");
+} finally {
+  await browser?.close();
+  if (server) await new Promise(resolve => { server.close(resolve); server.closeAllConnections(); });
+  for (const work of cleanup) await work();
+}

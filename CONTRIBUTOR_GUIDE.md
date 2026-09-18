@@ -1,5 +1,17 @@
 # Contributing to MommyBot
 
+## Admin and community features
+
+`src/admin/` owns `/admin/`, live Administrator checks, server-specific settings,
+starboard and reaction roles. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md). Reuse profile-only
+SSO and separate Discord-link-bound sessions; never authorize by display name or
+browser guild ID. Recheck permissions for reads/writes and enforce origin/CSRF.
+Preserve role hierarchy and ownership checks, public source-channel restrictions,
+reaction pagination and durable post IDs/retries. Drain HTTP and reaction work
+before closing `data/admin.db`. Server controls gate new chat, swear-jar and
+welcome events only; saved payments/lotteries must keep recovering. No game
+catalog or modding-editor schema changes are needed for this panel.
+
 ## Littlepottchi wardrobe
 
 The catalog now covers 929 wearable items. Maintain folder-based discovery in
@@ -189,7 +201,9 @@ the router endpoint. Require a cute Mommy address; plain sorry/my bad must not
 qualify. Send only the candidate text as data, with no history or wallet details.
 Match direct requested phrases locally before any classifier request; route
 matches to positive chat generation and classify only other candidates. Scope follow-ups to the
-same author/server/channel and latest fine within fifteen minutes. Persist at
+same author/server/channel and latest fine within fifteen minutes. Keep the
+Momma alias in the candidate gate, direct matcher and classifier prompt together.
+Persist at
 most one acknowledgment and one manners reminder per fine, suppress pending
 reminders after acceptance, and preserve retry/shutdown behavior. Apologies do
 not alter wallet jobs, charge extra coins or refund the existing fine.
@@ -444,7 +458,7 @@ Preserve paused countdowns across toggles, lifetime
 totals across changes, and old wetting state during migration. Both accident
 types share bulk. Keep the bridge and service worker's `mess` notification aligned.
 
-Care simulation lives in src/dressup/care.js; browser, background ticks and the Little Log API all use the same saved state. Preserve collectible ownership, server timing and identity-bound reminder opt-in. See LITTLEPOTTCHI_API.md for bridge installation and protocol.
+Care simulation lives in src/dressup/care.js; browser, background ticks and the Little Log API all use the same saved state. Preserve server timing and identity-bound reminder opt-in. The one deliberate ownership loss is the burn in `LittlepottchiStore`: taking off a wet or messy diaper deletes one available copy of that design. Burn only after every validation has passed, never touch a copy locked for a pending sale, and keep the free starter supply unburnable. See LITTLEPOTTCHI_API.md for bridge installation and protocol.
 
 ### Littlepottchi picture menus
 

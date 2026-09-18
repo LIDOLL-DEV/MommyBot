@@ -1,0 +1,96 @@
+# Sakura admin panel, starboard and reaction roles
+
+## Sign in
+
+After deploying and restarting, open **https://bot.lidoll.dev/admin/**, or append
+`/admin/` to `LIDOLLID_PUBLIC_ORIGIN`. The panel uses the existing HTTPS listener
+and registered `/auth/callback`; no extra port, client or wallet consent is needed.
+Your reverse proxy must forward `/admin/` alongside the existing auth/game routes.
+
+First run `/lidollid login` and finish `/lidollid confirm` in Discord. Sign into
+the panel with that same LiD0llID. It lists only servers where the linked Discord
+account has **Administrator** permission and MommyBot is present. Manage Server
+alone is insufficient. Every server read/write rechecks membership and permission;
+unlinking or losing Administrator permission removes access. Sessions use separate
+HttpOnly cookies, expire after eight hours, and can be ended with Sign out.
+The panel requires `LIDOLLID_ENABLED=true`; saved reaction features continue if
+SSO is later disabled.
+
+## Server controls
+
+Choose a server and press **Save server settings** after making changes.
+Conversation replies, new swear-jar fines/apologies, and member welcomes can each
+be paused for this server. Global environment switches and `CHANNEL_ID` still
+apply. Saved payments, pending notices and weekly draws continue recovering;
+account commands and games remain available. The dashboard shows connection
+status, gateway ping and feature availability without exposing secrets or wallets.
+
+## Starboard
+
+Initially off. Choose a highlight channel, public source channels, emoji
+(default **⭐**) and threshold (default **3**), then enable and save. Distinct human
+normal reactions count; bots, self-stars and super reactions do not. Bot-authored
+messages are excluded. Custom emoji must belong to this server.
+
+Each qualifying source gets one highlight with its text, author, count, jump
+link, and an eligible non-spoiler image attachment. Counts and edits update the
+post. Falling below the threshold, deleting the source, removing its source
+channel or disabling starboard removes the highlight during synchronization.
+Sources must be text/announcement channels visible to `@everyone`; threads and
+private sources are unsupported. Age-restricted sources require an age-restricted
+destination. The highlight channel cannot also be a source.
+
+There is no channel-history scan: new reaction events and already tracked messages
+are synchronized. Untracked messages that became eligible entirely while offline
+need another reaction event. Failed first-publication attempts are saved for retry.
+Discord nonce protection reduces short-interruption duplicates; a crash after a
+send but before saving its ID can still duplicate a highlight outside Discord's
+nonce deduplication window.
+
+## Reaction roles
+
+Create a message in Discord, select its channel, and paste its link or ID into
+the panel. Choose an emoji and role, then **Save mapping & add emoji**. Existing
+normal reactions are synchronized too. Different emoji/role mappings may share
+a message; each role can have only one mapping per server.
+
+Reacting grants the role; unreacting removes it **only if this mapping granted
+it**. Roles already held are preserved. Reaction clears and source deletion
+reconcile bot-owned grants. Removing a mapping stops managing it and retains
+existing roles and reactions. Reacting members need no LiD0llID account.
+
+Everyone, managed/integration, admin and moderation roles are excluded. The bot's
+highest role must be above the target role; non-owner admins must also outrank it.
+Runtime checks refuse roles that become privileged/unmanageable. See Discord's
+[role hierarchy rules](https://github.com/discord/discord-api-docs/blob/main/developers/topics/permissions.mdx).
+
+## Permissions and recovery
+
+- Sources: View Channel and Read Message History.
+- Starboard destination: View Channel, Read Message History, Send Messages,
+  Embed Links. Manage Messages is unnecessary for the bot's own highlights.
+- Reaction roles: Manage Roles and a higher bot role; Add Reactions to seed emoji.
+
+The client requests Guild Message Reactions and partial message/reaction/user
+events, following the [discord.js reaction guide](https://discordjs.guide/legacy/popular-topics/reactions).
+Keep the existing Message Content intent enabled and restart after deploying.
+No additional privileged reaction intent toggle is required.
+
+Sync runs on events, startup, **Sync reactions**, and every five minutes. It
+fetches current reactions/roles to reconcile offline changes. Limits per server:
+one hundred mappings and fifty starboard sources; ten thousand normal reactors
+per message emoji. Errors appear in the admin journal; correct permissions and
+press Sync reactions. Configuration, grants, highlights, pending publications and
+the latest two hundred audit entries per server live in **data/admin.db**. The
+panel shows the latest thirty. Back this up with the other databases; Fedora's
+shared `data/` directory already survives deployment. Deleting it loses ownership
+records for existing roles and highlights.
+
+## Tests
+
+Run `npm test`, or
+`node --test test/admin-community.test.js test/admin-web.test.js test/lidollid.test.js`.
+With `PUPPETEER_MODULE` and `CHROME_PATH` pointing to local tools, run
+`node scripts/check-admin-browser.mjs` for desktop/mobile screenshots under
+`data/admin-review/`. All checks use synthetic Discord and disposable databases;
+they do not send live messages or move currency.

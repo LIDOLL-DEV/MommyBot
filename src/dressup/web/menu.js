@@ -21,11 +21,13 @@ export function createGameMenu({ getState, act, execute, error, characterOpen, c
     const s = getState(), d = s.doll, c = d.player.care;
     if (kind === "change") {
       const owned = new Map(d.ownedDiapers.map(row => [row.design,row]));
+      const soiled = c.wetness || c.mess ? d.player.outfit.diaper : null; // The worn copy burns during this change, so it cannot also be the replacement.
+      const spare = item => (owned.get(item.id)?.available || 0) - (soiled === item.id ? 1 : 0);
       return s.catalog.diapers.filter(item => item.id === "cloud-tapes" || owned.has(item.id)).map(item => ({
         id:item.id, name:s.diapers.find(row => row.id === item.id).name, art:item,
         detail:`Bulk ${item.bulk} · ${item.stance === "wide" ? "Wide" : "Regular"} stance`,
-        tag:item.id === "cloud-tapes" ? "Free starter" : `${owned.get(item.id).available} available`,
-        wearing:d.diaper?.id === item.id, blocked:item.id !== "cloud-tapes" && !owned.get(item.id)?.available,
+        tag:item.id === "cloud-tapes" ? "Free starter" : `${spare(item)} available`,
+        wearing:d.diaper?.id === item.id, blocked:item.id !== "cloud-tapes" && spare(item) < 1,
         action:{action:"change",design:item.id},
       }));
     }
@@ -71,7 +73,7 @@ export function createGameMenu({ getState, act, execute, error, characterOpen, c
     $("selection-label").textContent=choice?.name || "No action available right now.";
     $("confirm-choice").textContent={change:"Fresh Change",food:"Feed",toys:"Activate",routine:"Start"}[kind] || "Use selected";
     $("confirm-choice").disabled=busy || !choice || choice.blocked || cleanup;
-    $("menu-hint").textContent=kind==="change" ? "Choose an unlocked diaper. Fresh changes reuse the design." : kind==="food" ? "Choose a snack. Pantry food is free." : kind==="toys" ? d.player.care.toy ? "A toy is already active. Stop it on the dashboard to switch." : "Choose a reusable toy. All sessions are free." : d.player.care.task ? "An activity is already running." : "Choose a timed activity.";
+    $("menu-hint").textContent=kind==="change" ? d.player.care.wetness || d.player.care.mess ? "Choose an unlocked diaper. The used one is burned during this change." : "Choose an unlocked diaper. A clean diaper stays in your collection." : kind==="food" ? "Choose a snack. Pantry food is free." : kind==="toys" ? d.player.care.toy ? "A toy is already active. Stop it on the dashboard to switch." : "Choose a reusable toy. All sessions are free." : d.player.care.task ? "An activity is already running." : "Choose a timed activity.";
   } // Preserve keyboard focus and selection during background updates; recheck cleanup before enabling the final action.
 
   function open(next, source) {

@@ -1,5 +1,14 @@
 # MommyBot player checklist
 
+## Server administration
+
+- Server Administrators can sign into `/admin/` with their Discord-linked
+  LiD0llID to manage chat/welcome/swear-jar switches, starboard and reaction roles.
+- React to configured messages to receive a role; removing the reaction removes
+  a role granted by that mapping. A role you already held is kept.
+- Starboard excludes self-stars and bots. Server admins choose the emoji,
+  threshold and public source channels. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
+
 ## Dress and care for your doll
 
 - Browse the **929-piece** clothing catalog using slot filters, search, and
@@ -76,6 +85,7 @@
   with standard replies available if the AI is offline.
 - The three suggested apology phrases are recognized directly, including bold
   formatting and capitalization changes. Other wording is checked by the AI.
+- **Sorry momma** and **sorry momma Sakura** also get direct recognition.
 - Each swear-jar notice includes an AI-written reminder or celebration and the
   current server jar balance. Reserved lottery prizes are shown separately.
   Standard wording and the balance still appear if the AI server is unavailable.
@@ -117,14 +127,18 @@ diaper capacity makes the doll uncomfortable. Further accidents roll for leaks:
 10% at one bulk over capacity, 20% at two over, up to 100%. The dashboard shows
 the next accident's chance. A contained full diaper can be changed without a wipe;
 an actual leak requires one baby wipe first. Select a fresh replacement to empty
-the diaper and update the stance. Designs stay collected and starters are free.
+the diaper and update the stance. A wet or messy diaper is burned during that
+change and leaves your collection, so keep spare copies of a favorite design;
+changing a clean diaper keeps it, and the free Cloud Tapes starter never burns.
 For reminders, enable the pet checkbox and Little Log push with the same account.
 
 ### Picture menus
 
 - **Fresh Change** opens your diaper pictures. Choose a card, check its bulk and
-  stance, then confirm. Search filters your unlocked designs; Cloud Tapes remains
-  available as a free starter. Close or Escape cancels without changing the doll.
+  stance, then confirm. Each card counts the copies that remain available after
+  this change, so the diaper being burned is already deducted. Search filters your
+  unlocked designs; Cloud Tapes remains available as a free starter. Close or
+  Escape cancels without changing the doll.
 - If cleanup is required, use one owned wipe inside Fresh Change, or follow its
   Atelier link to buy one. Then select and confirm the new diaper.
 - **Food**, **Toys**, and **Play & Rest** use picture choices and a confirmation.

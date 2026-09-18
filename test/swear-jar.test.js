@@ -600,3 +600,18 @@ test("each advertised direct apology goes straight to positive chat generation w
   assert.deepEqual(kinds, ["debit", "apology", "debit", "apology", "debit", "apology"]);
   assert.equal(f.calls.length, 3); assert.equal(f.balances.get("alice"), 7);
 });
+
+test("sorry momma passes the message gate and selects positive chat without calling the classifier", async t => {
+  const f = fixture(t); f.link("alice"); await f.bot.handleMessage(f.message());
+  let routerCalls = 0;
+  const kinds = [];
+  f.classify = (text, options) => classifySwearApology(text, { ...options, fetcher: async () => {
+    routerCalls++;
+    return { ok: true, json: async () => ({ choices: [{ message: { content: "reject" } }] }) };
+  } });
+  f.generate = async kind => { kinds.push(kind); return "Momma accepts your sweet apology!"; };
+  assert.equal(await f.bot.handleMessage(f.message("sorry momma")), true);
+  assert.equal(f.sent.at(-1).content, "Momma accepts your sweet apology!");
+  assert.deepEqual(kinds, ["apology"]); assert.equal(routerCalls, 0);
+  assert.equal(f.calls.length, 1); assert.equal(f.balances.get("alice"), 9);
+});

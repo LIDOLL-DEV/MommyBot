@@ -100,7 +100,7 @@ function renderCare() {
   $("wetness").max = bulk || 1; $("wetness").value = Math.min(d.usedBulk, bulk || 1);
   $("wetness-label").textContent = `${d.usedBulk} / ${bulk} bulk`;
   $("accident-counts").textContent = `${c.wetness} wetting${c.wetness === 1 ? "" : "s"} · ${c.mess} messy accident${c.mess === 1 ? "" : "s"}. Each messy accident uses ${d.messyRules.bulkPerAccident} bulk.`;
-  $("leak-status").textContent = !d.diaper ? "Diaper-free. Accidents will need a baby wipe." : c.leaking ? c.needsWipe ? "Leaking — use one baby wipe before changing." : "Cleaned up — ready for a fresh change." : c.uncomfortable ? "Full and uncomfortable — no leak yet." : c.mess ? "Messy — ready for a fresh change." : c.wetness ? "Wet, with room left. You can change whenever you like." : "Fresh and comfortable.";
+  $("leak-status").textContent = !d.diaper ? "Diaper-free. Accidents will need a baby wipe." : c.leaking ? c.needsWipe ? "Leaking — use one baby wipe before changing." : "Cleaned up — ready for a fresh change." : c.uncomfortable ? "Full and uncomfortable — no leak yet." : c.mess ? "Messy — a fresh change burns this diaper." : c.wetness ? "Wet, with room left. A change now burns this diaper." : "Fresh and comfortable.";
   $("overflow-status").textContent = d.diaper && d.overflow.full ? `${d.overflow.excess} over capacity · ${d.overflow.nextLeakChance}% leak chance on the next accident` : "";
   $("leak-status").className = c.leaking ? "leaking" : "";
   $("pet-reminders").checked = c.reminders; $("messy-mode").checked = c.messyMode;
@@ -147,7 +147,13 @@ async function run(work) {
 async function dollAction(input) {
   petGeneration++;
   state.doll = await api("/littlepottchi/api/doll", input); renderDoll(); renderGallery();
-} // Pet actions never debit the wallet; cleanup consumes an already-purchased wipe atomically on the server.
+  const burned = state.doll.burned;
+  if (burned) {
+    const name = state.diapers.find(row => row.id === burned)?.name || burned;
+    const left = state.doll.ownedDiapers.find(row => row.design === burned)?.available || 0;
+    notice(`The used ${name} went in the fire. ${left} available in your collection.`);
+  }
+} // Pet actions never debit the wallet; cleanup consumes an already-purchased wipe and a soiled diaper atomically on the server.
 
 async function purchase(action, item = null) {
   const key = requestKey();

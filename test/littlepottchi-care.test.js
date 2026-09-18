@@ -37,7 +37,7 @@ test("messy intervals include 10 and 14 hours, vary per accident and persist acr
     assert.ok(draws < delays.length, "Existing countdowns must not be rerolled.");
     return delays[draws++] * HOUR;
   };
-  f.doll.care.importAnalysis(report(f.now,0)); f.seed(f.diapers,"ribbon-bouquet");
+  f.doll.care.importAnalysis(report(f.now,0)); f.seed(f.diapers,"ribbon-bouquet"); f.seed(f.diapers,"ribbon-bouquet");
   f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
   let d = f.doll.act(f.user,{action:"messy-mode",enabled:true});
   const first = f.now + 10 * HOUR;
@@ -51,7 +51,8 @@ test("messy intervals include 10 and 14 hours, vary per accident and persist acr
   assert.equal(f.doll.snapshot(f.user).player.care.mess,3); assert.equal(draws,4);
   f.doll = new LittlepottchiStore(f.clothes,f.diapers,f.catalog,() => f.now);
   f.doll.care.random = () => { throw Error("An existing countdown must survive restart and changes."); };
-  assert.equal(f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"}).player.care.nextMessAt,deadline);
+  const replaced = f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
+  assert.equal(replaced.player.care.nextMessAt,deadline); assert.equal(replaced.burned,"ribbon-bouquet");
   f.doll.act(f.user,{action:"messy-mode",enabled:false}); f.now += 100 * HOUR;
   d = f.doll.act(f.user,{action:"messy-mode",enabled:true});
   assert.equal(d.player.care.nextMessAt,f.now + 13 * HOUR); assert.equal(d.player.care.messings,3);
@@ -70,12 +71,12 @@ test("wet and messy accidents share bulk; fresh replacement clears both and pres
   d = f.doll.act(f.user,{action:"change",design:"cloud-tapes"});
   assert.equal(d.usedBulk,0); assert.equal(d.player.care.mess,0); assert.equal(d.player.care.leaking,false);
   assert.equal(d.player.care.nextMessAt,nextMess); assert.equal(d.player.care.nextWettingAt,nextWet);
-  assert.equal(d.player.care.messings,1); assert.equal(d.stance,"narrow");
-  assert.equal(f.coins,1000); assert.equal(f.diapers.snapshot(f.user).owned[0].quantity,1);
+  assert.equal(d.player.care.messings,1); assert.equal(d.stance,"narrow"); assert.equal(d.burned,"ribbon-bouquet");
+  assert.equal(f.coins,1000); assert.deepEqual(f.diapers.snapshot(f.user).owned,[]);
 });
 
 test("offline messy accidents catch up once and current messy reminders are cancelled by a fresh change", t => {
-  const f = fixture(t); f.doll.care.importAnalysis(report(f.now,0)); f.seed(f.diapers,"ribbon-bouquet");
+  const f = fixture(t); f.doll.care.importAnalysis(report(f.now,0)); f.seed(f.diapers,"ribbon-bouquet"); f.seed(f.diapers,"ribbon-bouquet");
   f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
   f.doll.act(f.user,{action:"reminders",enabled:true});
   const started = f.doll.act(f.user,{action:"messy-mode",enabled:true});
@@ -84,7 +85,8 @@ test("offline messy accidents catch up once and current messy reminders are canc
   const events = () => f.doll.care.events(user => f.identities.gameIdentity(user),user => f.doll.player(user)).events;
   const first = events().filter(e => e.kind === "mess"); assert.equal(first.length,1);
   f.doll.tick(); assert.equal(events().filter(e => e.kind === "mess")[0].id,first[0].id);
-  f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"}); assert.equal(events().some(e => e.kind === "mess"),false);
+  assert.equal(f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"}).burned,"ribbon-bouquet");
+  assert.equal(events().some(e => e.kind === "mess"),false);
   f.now += 1000 * 12 * HOUR; d = f.doll.snapshot(f.user); assert.equal(d.player.care.mess,1000);
   assert.equal(d.player.care.leaking,true); assert.equal(f.doll.snapshot(f.user).player.care.mess,1000);
   assert.equal(events().filter(e => e.kind === "cleanup").length,1); assert.equal(events().some(e => e.kind === "mess"),false);
@@ -119,8 +121,11 @@ test("wettings persist across reads and restarts; full diapers are uncomfortable
   assert.equal(d.stance,"wide"); assert.equal(d.player.care.wetness,0); assert.equal(d.player.care.leaking,false);
   assert.equal(d.player.care.nextWettingAt,next); assert.equal(f.diapers.snapshot(f.user).owned[0].quantity,1);
   f.now = next; d = f.doll.snapshot(f.user); assert.equal(d.player.care.wetness,1);
-  d = f.doll.act(f.user,{action:"equip",slot:"diaper",design:"ribbon-bouquet"}); assert.equal(d.player.care.wetness,0);
-  assert.equal(f.coins,1000);
+  assert.throws(() => f.doll.act(f.user,{action:"equip",slot:"diaper",design:"ribbon-bouquet"}),/second copy/);
+  f.seed(f.diapers,"ribbon-bouquet");
+  d = f.doll.act(f.user,{action:"equip",slot:"diaper",design:"ribbon-bouquet"});
+  assert.equal(d.player.care.wetness,0); assert.equal(d.burned,"ribbon-bouquet");
+  assert.equal(f.diapers.snapshot(f.user).owned[0].quantity,1); assert.equal(f.coins,1000);
 });
 
 test("new reports alter future rhythm, stale reports cannot roll it back, and zero pauses wettings", t => {
@@ -185,3 +190,33 @@ test("LAN bridge endpoints keep the public browser origin, require bearer auth a
   assert.equal((await request("events/ack",{ids:["wrong"]})).status,400);
   assert.equal((await request("wallet")).status,404);
 });
+
+test("used diapers burn on a change while clean ones, the free starter and reserved copies are untouched", t => {
+  const f = fixture(t); f.doll.care.importAnalysis(report(f.now,0));
+  f.seed(f.diapers,"ribbon-bouquet"); f.seed(f.diapers,"ribbon-bouquet"); f.seed(f.diapers,"cupcake-pink");
+  const reserved = f.diapers.db.prepare("SELECT id FROM diaper_items WHERE design='ribbon-bouquet' ORDER BY created LIMIT 1").get().id;
+  f.diapers.db.prepare("UPDATE diaper_items SET lock_id='pending-sale' WHERE id=?").run(reserved);
+  let d = f.doll.act(f.user,{action:"change",design:"ribbon-bouquet"});
+  assert.equal(d.burned,null); assert.equal(f.diapers.snapshot(f.user).owned.find(row => row.design === "ribbon-bouquet").quantity,2);
+  const p = d.player; p.care.wetness = 1; f.doll.save(f.user,p);
+  d = f.doll.act(f.user,{action:"change",design:"cupcake-pink"});
+  assert.equal(d.burned,"ribbon-bouquet"); assert.equal(d.player.care.wetness,0); assert.equal(d.diaper.id,"cupcake-pink");
+  assert.ok(f.diapers.db.prepare("SELECT 1 FROM diaper_items WHERE id=?").get(reserved), "A copy reserved for sale must never burn.");
+  assert.equal(f.diapers.snapshot(f.user).owned.find(row => row.design === "ribbon-bouquet").quantity,1);
+  const clean = f.doll.act(f.user,{action:"change",design:"cupcake-pink"});
+  assert.equal(clean.burned,null); assert.equal(f.diapers.snapshot(f.user).owned.find(row => row.design === "cupcake-pink").quantity,1);
+});
+
+test("a soiled diaper burns when it is taken off, and the free starter supply never burns", t => {
+  const f = fixture(t); f.doll.care.importAnalysis(report(f.now,0)); f.seed(f.diapers,"cupcake-pink");
+  let d = f.doll.act(f.user,{action:"change",design:"cupcake-pink"});
+  const p = d.player; p.care.wetness = 1; f.doll.save(f.user,p);
+  d = f.doll.act(f.user,{action:"equip",slot:"diaper",design:null});
+  assert.equal(d.burned,"cupcake-pink"); assert.equal(d.diaper,null);
+  assert.deepEqual(f.diapers.snapshot(f.user).owned,[]);
+  d = f.doll.act(f.user,{action:"change",design:"cloud-tapes"});
+  assert.equal(d.burned,null); assert.equal(d.diaper.id,"cloud-tapes");
+  const starter = d.player; starter.care.wetness = 1; f.doll.save(f.user,starter);
+  d = f.doll.act(f.user,{action:"change",design:"cloud-tapes"});
+  assert.equal(d.burned,null); assert.equal(d.player.care.wetness,0); assert.equal(d.diaper.id,"cloud-tapes");
+}); // The unsellable starter supply stays free; only collected copies leave circulation.

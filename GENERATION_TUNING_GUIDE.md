@@ -1,5 +1,12 @@
 # MommyBot generation tuning
 
+## Admin controls
+
+The `/admin/` panel uses fixed interface text, not model generation. Per-server
+conversation and new swear-jar switches gate the existing handlers without
+changing their prompts or deployment endpoints. Starboard and reaction roles
+never call the AI. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md) for setup and permissions.
+
 ## Clothing rolls and care
 
 Expanded clothing rarity defaults are assigned by the importer; existing edited
@@ -176,6 +183,7 @@ it has no conversation history, identity or payment information. Only complete
 `accept` or `reject` labels are used, after removing closed thinking blocks.
 
 Direct phrases such as "sorry mommy Sakura" are matched locally first, including
+"sorry momma" and "sorry momma Sakura", with the same handling for
 bold formatting, capitalization and friendly punctuation. A match proceeds
 straight to positive chat generation without a router request. The classifier
 runs only for other possible cute apologies associated with a recent fine by

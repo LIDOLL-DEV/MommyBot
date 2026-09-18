@@ -1,5 +1,11 @@
 # Quest-making notes
 
+## Discord community features
+
+Starboard votes and reaction roles are server features, not quests or currency
+rewards. Do not count them as Littlepottchi care tasks or imply that starring a
+message earns coins. Configuration belongs in `/admin/`; see [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
+
 ## Littlepottchi
 
 Count complete design IDs, not individual A/B/C or back-section PNGs, for future
@@ -79,8 +85,10 @@ Toy sessions are optional adult-character care actions. Do not gate ordinary
 quests on gender or toy use. A finished session adds one care moment; starting,
 repeating activation, or stopping does not grant completion credit.
 
-Diaper removal preserves accident clocks. A cleanup task completes only after an
-owned baby wipe is consumed atomically; one wipe clears all current body accidents.
+Diaper removal preserves accident clocks and burns a soiled diaper just like a
+change does. Never write a quest that assumes a used collectible diaper survives a
+change, and never grant replacement copies for care alone. A cleanup task completes
+only after an owned baby wipe is consumed atomically; one wipe clears all current body accidents.
 Contained diaper accidents do not require this task. Never grant wipes from a
 purchase animation or count a pending supply payment as delivered inventory.
 

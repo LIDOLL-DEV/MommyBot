@@ -1,5 +1,16 @@
 # Testing MommyBot
 
+## Admin, starboard and reaction roles
+
+Run `node --test test/admin-community.test.js test/admin-web.test.js test/lidollid.test.js`.
+Real SQLite and local HTTP tests use synthetic Discord to cover live Administrator
+checks, unlink/logout, wallet-free SSO, CSRF/origin/body limits, role hierarchy and
+grant ownership, offline recovery, starboard thresholds, edits/deletion, privacy,
+failed sends, pagination and partial events. Run `npm test` before deployment.
+`scripts/check-admin-browser.mjs` exercises settings, reaction-role mapping,
+sign-out, CSP and mobile overflow with local Chrome/Puppeteer; screenshots go to
+`data/admin-review/`. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md) for setup and permissions.
+
 ## Littlepottchi and Clothes Emporium
 
 The expanded-catalog regressions cover 929 designs, all 12 wearable
@@ -202,6 +213,9 @@ Direct-match tests assert that all three advertised phrases, including bold
 formatting and case/spacing variations, make zero router requests and select
 positive chat generation. Quoted, negated and longer messages still require
 classification; merely containing a direct phrase does not bypass that check.
+Momma regressions cover the message gate, direct positive chat response without
+a router call, longer Momma apologies reaching classification, and rejection of
+quoted or negated wording.
 
 The AI tests verify apology/reminder prompts use the chat endpoint and model,
 including the required "act your age" phrase and fallback on unusable output.

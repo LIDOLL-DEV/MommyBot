@@ -16,7 +16,7 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now,
   const prune = () => db.prepare("DELETE FROM game_logins WHERE expires<=?").run(now());
   const page = (res, status, body) => { res.writeHead(status, { "Content-Type": "text/html; charset=utf-8" }); res.end(renderAuthPage(body, status)); };
   const route = async (req, res) => {
-    const url = new URL(req.url, config.origin), match = /^\/(diapers|clothes|littlepottchi|hangman|touhou|balldrop|gofish)\/login$/.exec(url.pathname);
+    const url = new URL(req.url, config.origin), match = /^\/(diapers|clothes|littlepottchi|hangman|touhou|balldrop|gofish|admin)\/login$/.exec(url.pathname);
     const isCallback = url.pathname === "/auth/callback" && (url.searchParams.get("state")?.startsWith("game.") ||
       (readCookie(req, loginCookie) && !readCookie(req, `${prefix}lidollbot_login`) && !url.searchParams.has("state")));
     if (!match && !isCallback) return false;
@@ -31,7 +31,9 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now,
         if (req.method === "GET") {
           const nonce = randomBytes(32).toString("base64url");
           res.setHeader("Set-Cookie", cookie(formCookie, nonce, 600)); res.setHeader("Referrer-Policy", "origin");
-          page(res, 200, `<h2>${escape(game.title)}</h2><p>Sign in with LiD0llID to play. No Discord account or server membership is needed. You will be asked to approve wallet access for game purchases and rewards.</p><form method="post" action="/${key}/login"><input type="hidden" name="csrf" value="${hash(`${key}:${nonce}`)}"><button type="submit">Sign in with LiD0llID</button></form><p>First visit? Register on the LiD0llID sign-in page. Your progress is saved to your account. Existing Discord-linked players keep their collections.</p>`); return true;
+          const description = key === "admin" ? "Sign in with your Discord-linked LiD0llID. Administrator permission is required in a server with MommyBot. No wallet access is requested." : "Sign in with LiD0llID to play. No Discord account or server membership is needed. You will be asked to approve wallet access for game purchases and rewards.";
+          const help = key === "admin" ? "First link this account using /lidollid login in Discord and confirm it there. Each server action rechecks your Administrator permission." : "First visit? Register on the LiD0llID sign-in page. Your progress is saved to your account. Existing Discord-linked players keep their collections.";
+          page(res, 200, `<h2>${escape(game.title)}</h2><p>${description}</p><form method="post" action="/${key}/login"><input type="hidden" name="csrf" value="${hash(`${key}:${nonce}`)}"><button type="submit">Sign in with LiD0llID</button></form><p>${help}</p>`); return true;
         }
         if (req.method !== "POST") { res.setHeader("Allow", "GET, POST"); page(res, 405, "<p>Use the sign-in button.</p>"); return true; }
         const nonce = readCookie(req, formCookie);
@@ -42,7 +44,7 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now,
         for await (const chunk of req) { size += chunk.length; if (size > 4096) { page(res, 413, "<p>Form is too large.</p>"); return true; } chunks.push(chunk); }
         const supplied = new URLSearchParams(Buffer.concat(chunks).toString("utf8")).get("csrf"), expected = hash(`${key}:${nonce}`);
         if (!/^[a-f0-9]{64}$/.test(supplied || "") || !timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) { page(res, 403, "<p>Reopen the game sign-in page and use its button.</p>"); return true; }
-        const login = await oidc.begin();
+        const login = await (game.oidc || oidc).begin();
         if (!login.values.state.startsWith("game.")) throw new Error("Invalid game login state namespace.");
         const browser = randomBytes(32).toString("base64url");
         db.transaction(() => {
@@ -60,10 +62,14 @@ export function createGameLogin(config, identities, oidc, games, now = Date.now,
         return row;
       })(); // Consume only the game flow's cookie-bound credentials, including failed callbacks.
       if (!attempt) { page(res, 400, '<p>This game sign-in expired or was already used. Open the game from Little Log again.</p>'); return true; }
-      const identity = await oidc.finish(url, attempt), game = games[attempt.game];
+      const game = games[attempt.game];
       if (!game) throw new Error("Game is unavailable.");
-      const account = identities.gameAccount(identity);
-      if (wallet) {
+      const identity = await (game.oidc || oidc).finish(url, attempt);
+      if (game.authorize && !await game.authorize(identity)) {
+        page(res, 403, '<p>Admin access requires a confirmed Discord link and Administrator permission in a server with MommyBot. Use /lidollid login and confirm it in Discord, then <a href="/admin/login">try signing in again</a>.</p>'); return true;
+      }
+      if (wallet && game.walletAccess !== false) {
+        const account = identities.gameAccount(identity);
         const proof = { discord_id: account.player_id, generation: attempt.state, issuer: identity.issuer, subject: identity.subject, expires: attempt.expires };
         const validate = () => {
           const current = identities.gameIdentity(account.player_id);

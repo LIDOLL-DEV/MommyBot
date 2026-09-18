@@ -46,6 +46,29 @@ test("direct cute apologies bypass the classifier even if it would reject them",
   assert.equal(calls, 0, "Exact phrases must never contact the classification endpoint");
 });
 
+test("momma apologies qualify directly and longer variations reach the classifier", async () => {
+  let calls = 0;
+  const fetcher = async (_url, options) => {
+    calls++;
+    const body = JSON.parse(options.body);
+    assert.match(body.messages[0].content, /"sorry momma" => accept/);
+    return response("accept");
+  };
+  for (const text of ["sorry momma", "**sorry momma**", "SORRY MOMMA!", "sorry momma Sakura", "I'm really sorry, Momma 💗"]) {
+    assert.equal(isSwearApologyCandidate(text), true, text);
+    assert.equal(exactSwearApology(text), true, text);
+    assert.equal(await classifySwearApology(text, { env: {}, fetcher }), true, text);
+    assert.equal(await classifySwearApology(text, { env: { SWEAR_JAR_AI_ENABLED: "false" }, fetcher }), true, text);
+  }
+  assert.equal(calls, 0);
+  assert.equal(await classifySwearApology("Please forgive me for swearing, Momma Sakura!", { env: {}, fetcher }), true);
+  assert.equal(calls, 1);
+  for (const text of ["not sorry momma", '"sorry momma"', "sorry momma, but whatever", "sorry mommasaurus"]) {
+    assert.equal(exactSwearApology(text), false, text);
+    assert.equal(await classifySwearApology(text, { env: {}, fetcher: async () => response("reject") }), false, text);
+  }
+});
+
 test("quoted, negated and longer messages containing an exact phrase still require classification", async () => {
   const seen = [];
   for (const text of ['"sorry mommy"', "not sorry mommy", "sorry mommy, but whatever", "sorry mommy, I'm late", "sorry mommy?", "Please forgive me, mommy Sakura"]) {

@@ -7,8 +7,14 @@ condition. `/pottchistats` (`!pottchistats`) posts public game stats. Both inclu
 the public Littlepottchi URL; neither exports accident schedules or login tickets.
 The PNG is an attachment rendered locally, not an unauthenticated API resource.
 It shares Diaper Atelier ownership and the existing LiD0llID account. Food, water,
-activities and dressing are free; baby wipes are purchased care supplies. Replacing a diaper, including
-the same design, supplies a fresh one; Cloud Tapes is also a free starter supply.
+activities and dressing are free; baby wipes are purchased care supplies. Replacing a
+wet or messy diaper **burns** the copy that was worn: the oldest available copy of that
+design is deleted from Atelier ownership, so a collected diaper can be used once.
+Changing, equipping another design or removing the diaper all burn it; a clean diaper is
+never burned. Changing into the same design therefore needs a second available copy, and
+the action result reports the burned design as `burned` (otherwise `null`). Copies
+reserved for a pending sale are never burned. The unsellable Cloud Tapes starter supply is
+free and survives every change.
 
 ## Simulation
 
@@ -221,7 +227,8 @@ The feed checks current need, opt-in and the original verified identity binding.
 Wet reminders coalesce within a diaper change; each leak or due-care episode is
 reported once. Old offline wettings do not produce a notification storm.
 Messy reminders also coalesce per diaper. Cleanup takes priority over a leak; a leak takes priority over mess, and
-mess takes priority over wetness. A fresh change invalidates all three old needs.
+mess takes priority over wetness. A fresh change invalidates all three old needs and burns
+the used diaper.
 
 The existing authenticated browser action endpoint `/littlepottchi/api/doll`
 accepts `{"action":"messy-mode","enabled":true}` (or false) with its usual

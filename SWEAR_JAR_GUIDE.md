@@ -49,6 +49,10 @@ member stays silent. Commands, bots, webhooks and DMs do not trigger reminders.
 A proper apology is still accepted after that reminder. A new swear starts its
 own apology context. Unlinked members can apologize too.
 
+**Sorry momma** and **sorry momma Sakura** also match directly, including bold
+formatting, capitalization and friendly punctuation. Longer apologies addressed
+to Momma reach the classifier, just like those addressed to Mommy.
+
 The classifier uses `ROUTER_LAMA_URL` and `ROUTER_MODEL` (falling back to
 `LLAMA_MODEL`), temperature zero, and the existing `SWEAR_JAR_AI_TIMEOUT_MS`.
 Only a possible cute apology that did not match directly and has a recent matching fine goes to the model;

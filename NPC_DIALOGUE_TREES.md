@@ -1,5 +1,13 @@
 # NPC dialogue notes
 
+## Admin and community copy
+
+The server admin panel has fixed labels and audit notices in `src/admin/`.
+Starboard quotes source messages with a jump link; it does not generate dialogue.
+Reaction roles are silent role changes, with admin-visible errors. Server admins
+can pause new conversation, swear-jar and welcome events, while saved payments
+and lotteries still recover. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
+
 ## Littlepottchi and Clothes Emporium
 
 Wardrobe copy should refer to complete garments and accessories across the expanded
@@ -31,6 +39,8 @@ penalties: apologizing does not refund coins. The classifier prompt lives in
 in `src/swearJar.js`. Accepted apologies cancel reminders still being generated.
 The three direct phrases bypass the classifier and select positive chat wording
 immediately; other candidate apologies still use the classifier.
+"Sorry momma" and "sorry momma Sakura" are also direct positive matches;
+longer Momma apologies use the same classifier rules as Mommy apologies.
 
 Sakura's router distinguishes an invitation to speak from a conversation
 between other members. Recent questions and their answers can continue without

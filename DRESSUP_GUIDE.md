@@ -45,8 +45,10 @@ session works across all three games, including sign-out and account revocation.
   lidollquest's silhouette algorithm; stockings and shoes follow the legs.
 - Feed, play, rest and fresh changes are free. Food and water have 30-second
   cooldowns; play and rest use activity timers. Fullness, energy, comfort and happiness decrease gradually offline,
-  stopping at zero. There is no death or loss of collectibles. Changes do not
-  consume owned diapers or create another copy.
+  stopping at zero. There is no death or loss of clothing collectibles. A change
+  never creates another copy, and burns the worn diaper when it is wet or messy:
+  that copy leaves the collection for good. Changing a clean diaper consumes
+  nothing, and the free Cloud Tapes starter never burns.
 
 The rear camera follows the equipped diaper: its first frame is clean and later
 frames appear only for messy accidents while messy mode is on. Missing print
@@ -175,4 +177,4 @@ two bulk units alongside wettings. Disabling pauses the timer; a fresh change
 clears both conditions. The UI labels this as game timing because the AI analysis
 currently contains no bowel-event counts. Messy reminders use the existing opt-in.
 
-Littlepottchi now has saved wettings, per-diaper bulk capacity, leaks, pantry food, hydration and timed care. Replacing a diaper clears wetness and selects its matching base; collectible designs are reusable. LITTLEPOTTCHI_API.md describes the latest-analysis community rhythm, default behavior and optional Little Log push bridge.
+Littlepottchi now has saved wettings, per-diaper bulk capacity, leaks, pantry food, hydration and timed care. Replacing a diaper clears wetness and selects its matching base; a used collectible diaper is burned during that change, so keeping a doll dry costs copies. LITTLEPOTTCHI_API.md describes the latest-analysis community rhythm, default behavior and optional Little Log push bridge.
