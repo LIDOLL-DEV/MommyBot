@@ -6,12 +6,11 @@ import path from "node:path";
 import { IdentityStore } from "../src/auth/store.js";
 import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS } from "../src/diaperCheck/store.js";
 import { createDiaperChecks, diaperCheckStatus } from "../src/diaperCheck/index.js";
+import { createCareSource } from "../src/diaperCheck/careSource.js";
 import { exactDiaperReply, classifyDiaperReply } from "../src/graph/diaperCheckReply.js";
 
 const START = Date.parse("2026-09-14T15:00:00Z"), HOUR = 3_600_000;
-const BRIDGE = { DIAPER_CHECKS_ENABLED: "true", LIDOLLID_ENABLED: "true",
-  LITTLEPOTTCHI_API_URL: "https://pets.example/littlepottchi/integration/v1/",
-  LITTLEPOTTCHI_BRIDGE_TOKEN: "t".repeat(40) };
+const BRIDGE = { DIAPER_CHECKS_ENABLED: "true", LIDOLLID_ENABLED: "true" };
 
 function fixture(t, env = {}) {
   const directory = mkdtempSync(path.join(tmpdir(), "mommybot-diaper-"));
@@ -28,15 +27,14 @@ function fixture(t, env = {}) {
   } } };
   f.client = { guilds: { cache: new Map([["guild", f.guild]]) },
     channels: { async fetch(id) { return id === "check-channel" ? f.channel : null; } } };
-  f.feed = { async accidents(after) {
+  f.care = { accidents() {
     if (f.feedError) throw f.feedError;
-    const events = f.events.filter(event => event.sequence > after).sort((a, b) => a.sequence - b.sequence);
-    return { events, nextAfter: events.at(-1)?.sequence ?? after, more: false };
-  } };
+    return f.events.slice();
+  } }; // Stand in for the live Littlepottchi care scan; the real one derives these from each saved player's care state.
   f.store = new DiaperCheckStore(path.join(directory, "checks.db"), { now: () => f.now, draw: max => f.drawValue ?? Math.floor(max / 2) });
   f.open = () => {
     f.bot = createDiaperChecks(f.client, f.identities, { ...BRIDGE, ...env }, {
-      store: f.store, events: f.feed, now: () => f.now, isSilent: () => f.silent,
+      store: f.store, care: f.care, now: () => f.now, isSilent: () => f.silent,
       settings: () => ({ diaperChecks: f.settings }),
       audit: (guild, actor, action, detail) => f.audits.push({ guild, actor, action, detail }),
       generateMessage: async kind => { f.kinds.push(kind); return f.generate ? f.generate(kind) : null; },
@@ -48,10 +46,9 @@ function fixture(t, env = {}) {
     f.identities.db.prepare("INSERT OR REPLACE INTO identity_links VALUES (?,?,?,?,?)").run(user, "issuer", `sub-${user}`, user, f.now);
     if (member) { f.members.set(user, bot); f.roles.set(user, roles); }
   };
-  f.accident = (user, { kind = "wet", sequence = f.events.length + 1 } = {}) => {
-    f.events.push({ id: `event-${String(sequence).padStart(4, "0")}-aaaa-bbbb-cccccccccccc`, sequence, kind,
-      created: f.now, expires: f.now + 24 * HOUR, issuer: "issuer", subject: `sub-${user}` });
-  };
+  f.accident = (user, { kind = "wet", episode = f.events.length + 1 } = {}) => {
+    f.events.push({ id: `${user}:${kind}:${episode}`, kind, discordId: user });
+  }; // One entry per care episode, exactly as the live scan keys them.
   f.message = (content, overrides = {}) => ({
     id: String(f.nextId++), guildId: "guild", channelId: "check-channel", createdTimestamp: f.now,
     author: { id: "alice", bot: false }, content,
@@ -171,7 +168,7 @@ test("checks stop entirely when the server has not enabled them or has chosen no
   await f.bot.tick();
   assert.equal(f.checks().length, 0); assert.equal(f.sent.length, 0);
   f.settings = { enabled: true, channel: "", role: "little-role" };
-  f.accident("alice", { sequence: 2 });
+  f.accident("alice", { episode: 2 });
   await f.bot.tick();
   assert.equal(f.checks().length, 0); assert.equal(f.sent.length, 0);
 });
@@ -200,7 +197,7 @@ test("an unanswered question expires after its window and stops blocking the nex
   await f.bot.tick();
   assert.equal(f.checks()[0].state, "expired");
   assert.equal(await f.bot.handleMessage(f.message("yes mommy")), false); // An expired question cannot be answered late.
-  f.accident("alice", { sequence: 2 });
+  f.accident("alice", { episode: 2 });
   await f.bot.tick();
   assert.equal(f.checks().length, 2); assert.equal(f.checks()[1].state, "open");
 });
@@ -227,7 +224,7 @@ test("a restart re-asks nothing and still delivers a saved answer", async t => {
   assert.equal(f.checks()[0].notified, 1);
 });
 
-test("an unreadable feed defers checks without losing the cursor or crashing maintenance", async t => {
+test("unreadable care state defers checks without crashing maintenance", async t => {
   const f = fixture(t); f.link("alice");
   f.feedError = new Error("feed offline");
   await f.bot.tick();
@@ -255,10 +252,23 @@ test("the random window is six to twelve hours and every check resets it", async
 test("status reports every configuration that silently prevents checks", () => {
   assert.match(diaperCheckStatus({}), /OFF: set DIAPER_CHECKS_ENABLED/);
   assert.match(diaperCheckStatus({ DIAPER_CHECKS_ENABLED: "true" }), /OFF: requires LIDOLLID_ENABLED/);
-  assert.match(diaperCheckStatus({ ...BRIDGE, LITTLEPOTTCHI_API_URL: "https://pets.example/wrong/" }), /MISCONFIGURED/);
-  assert.match(diaperCheckStatus({ ...BRIDGE, LITTLEPOTTCHI_BRIDGE_TOKEN: "short" }), /MISCONFIGURED/);
+  assert.match(diaperCheckStatus(BRIDGE, { identities: true, care: false }), /Littlepottchi is unavailable/);
   assert.match(diaperCheckStatus(BRIDGE), /^ON:/);
-  assert.doesNotMatch(diaperCheckStatus({ ...BRIDGE, LITTLEPOTTCHI_BRIDGE_TOKEN: "short" }), /short/);
+});
+
+test("checks need no Little Log bridge credential and never call out over HTTP", () => {
+  const source = createCareSource(null, {});
+  assert.equal(source, null); // Without Littlepottchi there is simply nothing to read.
+  const players = [{ user_id: "alice" }, { user_id: "web_guest" }, { user_id: "bob" }];
+  const state = { alice: { care: { wetness: 1, revision: 7 } }, web_guest: { care: { mess: 1, revision: 2 } },
+    bob: { care: { revision: 3 } } };
+  const doll = { db: { prepare: () => ({ all: () => players }) },
+    identity: user => user === "bob" ? null : { issuer: "issuer", subject: `sub-${user}` },
+    player: user => state[user] };
+  const identities = { find: (issuer, subject) => subject === "sub-alice" ? { discord_id: "alice" } : null };
+  const found = createCareSource(doll, identities).accidents();
+  assert.deepEqual(found, [{ id: "alice:wet:7", kind: "wet", discordId: "alice" }]);
+  // web_guest has no Discord link and bob has no verified identity or accident, so neither is asked.
 });
 
 test("saying you are not wearing a diaper is recognized directly, and outranks a yes or no in the same message", async () => {

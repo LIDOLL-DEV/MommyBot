@@ -3,7 +3,6 @@ import { generateDiaperCheckMessage } from "../graph/diaperCheckMessage.js";
 import { classifyDiaperReply } from "../graph/diaperCheckReply.js";
 import { currentPronouns } from "../bot/pronouns.js";
 import { DiaperCheckStore, silentHour, ANSWER_WINDOW_MS } from "./store.js";
-import { PetEventClient, petEventConfig, PetEventConfigurationError } from "../littlelog/petEvents.js";
 
 const ASK_REQUEST = "Please answer Mommy with **yes** or **no**.";
 const FALLBACKS = {
@@ -23,25 +22,21 @@ export function buildDiaperCheckCommand() {
       .addUserOption(o => o.setName("member").setDescription("Participating member to check").setRequired(true)));
 } // Discord hides the command from non-administrators, and the handler rechecks the live permission before acting.
 
-export function diaperCheckStatus(env = process.env, { identities = env.LIDOLLID_ENABLED === "true" } = {}) {
-  if (env.DIAPER_CHECKS_ENABLED !== "true") return "OFF: set DIAPER_CHECKS_ENABLED=true to read Littlepottchi accident events.";
-  if (!identities) return "OFF: requires LIDOLLID_ENABLED=true so accident records can be matched to Discord members.";
-  try { petEventConfig(env); }
-  catch (error) { return error instanceof PetEventConfigurationError ? `MISCONFIGURED: ${error.message}` : "MISCONFIGURED: check the Littlepottchi bridge settings."; }
-  return "ON: accident checks from the Littlepottchi event feed, random checks every 6-12 hours, quiet 22:00-06:00 server time; each server chooses its channel and role.";
-} // Explain every configuration that silently prevents checks, without printing records, tokens or member identities.
+export function diaperCheckStatus(env = process.env, { identities = env.LIDOLLID_ENABLED === "true", care = true } = {}) {
+  if (env.DIAPER_CHECKS_ENABLED !== "true") return "OFF: set DIAPER_CHECKS_ENABLED=true to run diaper checks.";
+  if (!identities) return "OFF: requires LIDOLLID_ENABLED=true so Littlepottchi care state can be matched to Discord members.";
+  if (!care) return "OFF: Littlepottchi is unavailable, so there is no care state to read.";
+  return "ON: accident checks from live Littlepottchi care state, random checks every 6-12 hours, quiet 22:00-06:00 server time; each server chooses its channel and role.";
+} // Explain every configuration that silently prevents checks, without printing records or member identities.
 
 export function createDiaperChecks(client, identities, env = process.env, {
   generateMessage = generateDiaperCheckMessage, classifyReply = classifyDiaperReply,
-  settings = () => null, audit = () => {}, store, events, now = Date.now, isSilent = time => silentHour(time),
+  settings = () => null, audit = () => {}, store, care = null, now = Date.now, isSilent = time => silentHour(time),
+  interval = 60_000,
 } = {}) {
-  let config = null;
-  try { config = petEventConfig(env); }
-  catch (error) { console.error(`[Diaper check] ${error instanceof PetEventConfigurationError ? error.message : "Invalid Littlepottchi bridge settings."}`); }
-  console.log(`[Diaper check] ${diaperCheckStatus(env, { identities: Boolean(identities) })}`);
-  if (!config || !identities) return null;
-  const journal = store ?? new DiaperCheckStore(config.filename, { now });
-  const feed = events ?? new PetEventClient(config);
+  console.log(`[Diaper check] ${diaperCheckStatus(env, { identities: Boolean(identities), care: Boolean(care) })}`);
+  if (env.DIAPER_CHECKS_ENABLED !== "true" || !identities || !care) return null;
+  const journal = store ?? new DiaperCheckStore(env.DIAPER_CHECKS_DB || "data/diaperchecks.db", { now });
   const active = new Set(), notices = new Set();
   let timer, ticking, stopped = false;
 
@@ -162,26 +157,17 @@ export function createDiaperChecks(client, identities, env = process.env, {
   } // An administrator may ask at any hour, including quiet hours, because the request is deliberate and immediate.
 
   async function poll() {
-    let after = journal.cursor();
-    for (let page = 0; page < 20 && !stopped; page++) {
-      const result = await feed.accidents(after, now());
-      for (const event of result.events) {
-        if (stopped) return;
-        if (journal.seen(event)) continue;
-        const link = identities.find?.(event.issuer, event.subject);
-        if (!link) continue; // An unlinked Little Log account has no Discord member to ask.
-        for (const guild of client.guilds.cache.keys()) {
-          const context = await eligible(guild, link.discord_id);
-          if (!context) continue;
-          journal.record({ guild, user: link.discord_id, channel: context.settings.channel,
-            kind: "evidence", event: event.id, eventKind: event.kind });
-        }
+    for (const accident of care.accidents()) {
+      if (stopped) return;
+      if (journal.seen({ id: accident.id, sequence: 0, kind: accident.kind })) continue;
+      for (const guild of client.guilds.cache.keys()) {
+        const context = await eligible(guild, accident.discordId);
+        if (!context) continue;
+        journal.record({ guild, user: accident.discordId, channel: context.settings.channel,
+          kind: "evidence", event: accident.id, eventKind: accident.kind });
       }
-      after = result.nextAfter;
-      journal.saveCursor(result.more ? after : 0); // Restart at zero once drained, as the feed's own consumers do.
-      if (!result.more) return;
     }
-  } // Read the feed without acknowledging it and journal each event once, so Little Log's push bridge keeps its own queue intact.
+  } // Each accident episode is journaled by its own key the first time it is seen, so a member is asked about it exactly once.
 
   async function randomChecks() {
     for (const guildId of client.guilds.cache.keys()) {
@@ -205,7 +191,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
   async function runTick() {
     journal.expire(now());
     try { await poll(); }
-    catch { console.error("[Diaper check] Could not read the Littlepottchi event feed; it will retry."); }
+    catch { console.error("[Diaper check] Could not read Littlepottchi care state; it will retry."); }
     if (stopped) return;
     if (!isSilent(now())) {
       try { await randomChecks(); }
@@ -243,7 +229,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
       try { await guild.commands.create(buildDiaperCheckCommand()); }
       catch { console.error(`[Diaper check] Could not register /diapercheck in guild ${guild.id}.`); }
     },
-    start() { if (!timer && !stopped) { timer = setInterval(() => void tick(), config.interval); timer.unref(); void tick(); } },
+    start() { if (!timer && !stopped) { timer = setInterval(() => void tick(), interval); timer.unref(); void tick(); } },
     async stop() { stopped = true; clearInterval(timer); await ticking; while (active.size) await new Promise(resolve => setTimeout(resolve, 25)); },
     close() { journal.close(); },
   }; // Start after Discord readiness and drain in-flight answers before closing the journal.

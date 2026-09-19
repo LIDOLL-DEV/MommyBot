@@ -11,6 +11,7 @@ import { initializeWallet } from "./wallet/index.js";
 import { createSwearJar } from "./swearJar.js";
 import { createDiaperChecks } from "./diaperCheck/index.js";
 import { createCharacterShowcase } from "./mmo/showcase.js";
+import { createCareSource } from "./diaperCheck/careSource.js";
 import { reportModelEndpoints } from "./graph/connection.js";
 import { readFileSync } from "node:fs";
 import { createMemberWelcome } from "./welcome.js";
@@ -52,9 +53,10 @@ async function main() {
     serverWords: guildId => community.swearWords(guildId),
   }); // Refuse to sell a break in a server that has already paused swear jar fines, and honor its own word list.
   const diaperChecks = createDiaperChecks(client, identity?.identities, process.env, {
+    care: createCareSource(identity?.doll, identity?.identities),
     settings: guildId => community.settings(guildId),
     audit: (guild, actor, action, detail) => community.store.audit(guild, actor, action, detail),
-  }); // Accident checks read Little Log through the existing bridge and record denials in the admin journal.
+  }); // Accident checks read Littlepottchi care state in process and record denials in the admin journal.
   const showcase = createCharacterShowcase(client, wallet, identity?.identities, process.env, {
     settings: guildId => community.settings(guildId),
   }); // Character sheets are read with the existing LiDollQuest companion credential and posted to each server's chosen channel.

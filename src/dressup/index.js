@@ -15,6 +15,6 @@ export function initializeDressup(config, diapers, sessions) {
   const doll = new LittlepottchiStore(clothes, diapers, catalog);
   const timer = setInterval(() => { try { doll.tick(); } catch { console.error("Littlepottchi care tick failed; saved timers will retry."); } }, 30000);
   timer.unref();
-  return { web: createDressupWeb(config, clothes, doll, sessions, catalog),
+  return { doll, web: createDressupWeb(config, clothes, doll, sessions, catalog),
     commands:createPetCommands(config, sessions.identities, doll), close: () => { clearInterval(timer); clothes.close(); } };
 } // Keep clothing payments in their own durable journal while sharing Atelier inventory and login.

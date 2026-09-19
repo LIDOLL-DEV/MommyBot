@@ -43,7 +43,7 @@ status, gateway ping and feature availability without exposing secrets or wallet
 
 Initially off. Choose a check channel that is **not** visible to `@everyone` and a
 participating role, then enable and save. Only members holding that role are ever
-asked. MommyBot reads Littlepottchi accident records and asks those members
+asked. MommyBot reads Littlepottchi care state and asks those members
 whether they need a change; denying a recorded accident is gently chastised and
 recorded in the journal below as `diaper-check.denied`. Members with no check in
 six to twelve hours get a random status request. Saying they are not wearing one

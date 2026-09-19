@@ -1,7 +1,6 @@
 # MommyBot's diaper checks
 
-MommyBot reads Little Log's Littlepottchi accident records for members who have
-opted in, asks them in Discord whether they need a change, and gently chastises
+MommyBot reads Littlepottchi's own accident state for members who have opted in, asks them in Discord whether they need a change, and gently chastises
 a member who denies an accident the records show. Members who have not been
 checked for six to twelve hours get a random status request instead.
 
@@ -22,19 +21,26 @@ sent. Leaving the server has the same effect.
 
 ## Accident checks
 
-MommyBot polls the Littlepottchi integration feed for `wet`, `mess` and `leak`
-events. Each event carries the verified LiD0llID issuer and subject, which is
-matched against confirmed Discord links. An unlinked Little Log account has no
-Discord member to ask and is skipped.
+MommyBot reads **Littlepottchi care state directly, in process**. Littlepottchi is
+MommyBot's own game, so there is no network call, no bridge URL and no credential
+involved: each pass scans saved players and derives a current accident from
+`care.leaking`, `care.mess` or `care.wetness`, in that order. Needing a wipe alone
+is cleanup, not a fresh accident.
 
-Each event is journaled by its own ID the first time it is read, so a member is
-asked about a given accident exactly once, even across restarts. A member has at
-most one open question at a time: a second accident while one is pending does not
-stack another prompt.
+Only players who have actually opened Littlepottchi are scanned, and only those
+whose verified LiD0llID identity matches a confirmed Discord link. A browser-only
+game account with no Discord link is skipped.
 
-MommyBot **reads this feed without acknowledging it**. Little Log's own push
-bridge keeps its full delivery queue, so running both is safe. MommyBot tracks its
-own cursor and its own seen-event journal instead.
+This is deliberately **not** the `/littlepottchi/integration/v1/events` feed that
+MommyBot serves to Little Log. That feed exists for Little Log's push bridge: it
+only contains events for players who enabled *Receive pet reminders through Little
+Log*, and reading it marks entries acknowledged. Diaper checks must not depend on
+that unrelated opt-in, and must not consume Little Log's delivery queue.
+
+Each accident episode is journaled by a `user:kind:revision` key the first time it
+is seen, so a member is asked about a given accident exactly once, even across
+restarts. A member has at most one open question at a time: a second accident
+while one is pending does not stack another prompt.
 
 ## Random checks
 
@@ -108,18 +114,16 @@ answer window. Answers and follow-ups are still processed during quiet hours.
 
 ## Configuration
 
-Diaper checks reuse the Littlepottchi bridge endpoint and credential that Little
-Log already issues. Restart MommyBot after changing settings.
+Diaper checks need no bridge URL or token. Restart MommyBot after changing settings.
 
 | Setting | Behavior |
 | --- | --- |
-| `DIAPER_CHECKS_ENABLED=true` | Required to read the feed at all. Also requires `LIDOLLID_ENABLED=true`. |
-| `LITTLEPOTTCHI_API_URL` | The integration API URL ending in `/littlepottchi/integration/v1/`. HTTPS, or HTTP only to loopback or a private IPv4 address. |
-| `LITTLEPOTTCHI_BRIDGE_TOKEN` | The 32-512 character bridge token. Used for bounded GETs only; it never follows a redirect. |
-| `DIAPER_CHECKS_POLL_MS` | Feed poll interval, 10,000-3,600,000 milliseconds. Defaults to 60,000. |
+| `DIAPER_CHECKS_ENABLED=true` | Required. Also requires `LIDOLLID_ENABLED=true`, so care state can be matched to Discord members, and Littlepottchi itself must be available. |
 | `DIAPER_CHECKS_DB` | Check journal location. Defaults to `data/diaperchecks.db`. |
 | `DIAPER_CHECKS_AI_ENABLED=false` | Use standard wording and treat every non-direct answer as unclear. AI wording is enabled by default. |
 | `DIAPER_CHECKS_AI_TIMEOUT_MS` | AI wait limit, 1,000-15,000 milliseconds. Defaults to 8,000. |
+
+Care state is scanned once a minute.
 
 Prose uses the existing `LLAMA_BASE_URL`, `LLAMA_MODEL` and MommyBot system
 prompt. Classification uses `ROUTER_LAMA_URL` and `ROUTER_MODEL` (falling back to
@@ -131,12 +135,12 @@ A misconfiguration message names only the offending field, never its value.
 
 ## Persistence and recovery
 
-The check journal at `data/diaperchecks.db` holds seen event IDs, open questions
+The check journal at `data/diaperchecks.db` holds seen episode keys, open questions
 and per-member scheduling. Questions are journaled before Discord is contacted, so
 a failed send is retried on the next pass rather than lost, and a delivered
 question is never asked twice. Answers are journaled before the follow-up is sent,
 so an outage during the reply retries the reply and not the question.
 
-Seen events are pruned after seven days, well past the feed's own 24-hour expiry.
+Seen episode keys are pruned after seven days, long after their care revision has moved on.
 Finished checks are pruned after thirty days; this is not intended as a permanent
 record of anyone's accidents.

@@ -17,6 +17,7 @@ export function initializeGacha(config, identities, wallet) {
   const atelierWeb = createGachaWeb(config, game, sessions);
   return {
     sessions,
+    doll: dressup.doll, // Diaper checks read the same live care state the pet bridge publishes, in process.
     web: async (request, response) => Boolean(await dressup.web(request, response) || await atelierWeb(request, response)),
     revoke: user => sessions.revoke(user),
     prune: () => sessions.prune(),
