@@ -94,9 +94,13 @@ export function createCommunityFeatures(client, store, { logger = console } = {}
     try { source = await textChannel(guild, channelId); message = await source.messages.fetch({ message: messageId, force: true }); }
     catch (error) { if (!missing(error)) throw error; if (saved) await removePost(saved); return; }
     const target = await textChannel(guild, settings.channel, [P.ViewChannel, P.SendMessages, P.EmbedLinks, P.ReadMessageHistory]);
-    if (message.author?.bot || !source.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel) || source.nsfw && !target.nsfw) {
+    const audience = settings.audience ? await guild.roles.fetch(settings.audience).catch(() => null) : null;
+    const widened = settings.audience
+      ? !audience || !source.permissionsFor(audience)?.has(P.ViewChannel) || target.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel)
+      : !source.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel);
+    if (message.author?.bot || widened || source.nsfw && !target.nsfw) {
       if (saved) await removePost(saved); return;
-    } // Public source channels only; never copy restricted or age-restricted content to a broader audience.
+    } // Recheck on every sync: a highlight is removed the moment its source narrows or its starboard widens beyond the audience.
     const reaction = message.reactions.cache.find(item => keyOf(item) === settings.emoji);
     const voters = [...(await reactionUsers(reaction)).values()].filter(user => !user.bot && user.id !== message.author.id);
     if (voters.length < settings.threshold) { if (saved) await removePost(saved); return; }
@@ -153,6 +157,15 @@ export function createCommunityFeatures(client, store, { logger = console } = {}
   return {
     store, handleReaction, handleMessageChange, syncBinding, syncStar, tick,
     enabled(guild, feature) { return store.settings(guild)[feature] !== false; },
+    swearJarIgnored(guild, channel) {
+      const list = store.settings(guild).swearJarIgnored;
+      return Array.isArray(list) && [channel?.id, channel?.parentId].some(id => id && list.includes(id));
+    }, // A thread inherits its parent channel's exemption; only text channels are offered, so a category parent never matches.
+    swearWords(guild) {
+      const words = store.settings(guild).swearWords;
+      return Array.isArray(words) && words.length ? words : null;
+    }, // An empty list falls back to the deployment's own words rather than silently disabling detection.
+    settings(guild) { return store.settings(guild); }, // Expose the whole saved block for features that read several fields at once.
     start() {
       if (timer || stopped) return;
       const safe = handler => (...args) => { void Promise.resolve().then(() => handler(...args)).catch(() => logger.error("[Community] Event processing failed; synchronization will retry.")); };

@@ -9,6 +9,8 @@ import { initializeTouhouTrader } from "./touhou/index.js";
 import { initializeIdentity } from "./auth/index.js";
 import { initializeWallet } from "./wallet/index.js";
 import { createSwearJar } from "./swearJar.js";
+import { createDiaperChecks } from "./diaperCheck/index.js";
+import { createCharacterShowcase } from "./mmo/showcase.js";
 import { reportModelEndpoints } from "./graph/connection.js";
 import { readFileSync } from "node:fs";
 import { createMemberWelcome } from "./welcome.js";
@@ -45,14 +47,27 @@ async function main() {
   const wallet = initializeWallet(); // Enable consent-based online stars and coins only when configured.
   const touhouTrader = initializeTouhouTrader(wallet); // Open trading separately from the conversation-memory database.
   const identity = await initializeIdentity(wallet, touhouTrader, client, community); // Load all pending game payments before exposing browser purchases and admin routes.
-  const swearJar = createSwearJar(client, wallet, identity?.identities);
+  const swearJar = createSwearJar(client, wallet, identity?.identities, process.env, {
+    serverEnabled: guildId => community.enabled(guildId, "swearJar"),
+    serverWords: guildId => community.swearWords(guildId),
+  }); // Refuse to sell a break in a server that has already paused swear jar fines, and honor its own word list.
+  const diaperChecks = createDiaperChecks(client, identity?.identities, process.env, {
+    settings: guildId => community.settings(guildId),
+    audit: (guild, actor, action, detail) => community.store.audit(guild, actor, action, detail),
+  }); // Accident checks read Little Log through the existing bridge and record denials in the admin journal.
+  const showcase = createCharacterShowcase(client, wallet, identity?.identities, process.env, {
+    settings: guildId => community.settings(guildId),
+  }); // Character sheets are read with the existing LiDollQuest companion credential and posted to each server's chosen channel.
   let stopGitHubWatcher = () => {};
 
   // Handle message events
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Bot messages must never spend currency or trigger another bot reply.
-    try { if (swearJar && (!message.guildId || community.enabled(message.guildId, "swearJar")) && await swearJar.handleMessage(message)) return; }
+    const jarWatches = () => !message.guildId || community.enabled(message.guildId, "swearJar") && !community.swearJarIgnored(message.guildId, message.channel);
+    try { if (swearJar && jarWatches() && await swearJar.handleMessage(message)) return; }
     catch { console.error("[Swear jar] Could not process a message; check storage availability."); }
+    try { if (diaperChecks && await diaperChecks.handleMessage(message)) return; }
+    catch { console.error("[Diaper check] Could not process a message; check storage availability."); }
     if (identity && await identity.handleMessage(message)) return; // Open the web game before the conversation channel gate or LLM routing.
     if (touhouTrader && await touhouTrader.handleMessage(message)) return; // Consume trader commands before calling the language model.
     if (message.guildId && !community.enabled(message.guildId, "chat")) return;
@@ -66,6 +81,9 @@ async function main() {
 
   client.on(Events.InteractionCreate, async (interaction) => {
     try {
+      if (diaperChecks && await diaperChecks.handleInteraction(interaction)) return;
+      if (showcase && await showcase.handleInteraction(interaction)) return;
+      if (swearJar && await swearJar.handleInteraction(interaction)) return;
       if (identity && await identity.handleInteraction(interaction)) return;
       if (touhouTrader) await touhouTrader.handleInteraction(interaction);
     } catch {
@@ -73,6 +91,9 @@ async function main() {
     } // Network or expired-interaction failures must not crash the bot or log private command input.
   }); // Route slash commands and menu buttons directly to the trader's authorization checks.
   client.on(Events.GuildCreate, async (guild) => {
+    await diaperChecks?.registerGuild(guild);
+    await showcase?.registerGuild(guild);
+    await swearJar?.registerGuild(guild);
     if (identity) await identity.registerGuild(guild);
     if (touhouTrader) await touhouTrader.registerGuild(guild);
   }); // Make the trader available when the bot joins another server.
@@ -85,7 +106,11 @@ async function main() {
     reports?.start(); // Poll completed nightly and explicitly shared reports independently of chat and wallet configuration.
     mmoOnline?.start();
     swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
+    diaperChecks?.start(); // Read accident events only once Discord can resolve members, channels and roles.
     void reportModelEndpoints().catch(() => console.error("[Brain] Startup probe could not finish; run scripts/check-runtime.mjs."));
+    if (diaperChecks) for (const guild of client.guilds.cache.values()) void diaperChecks.registerGuild(guild);
+    if (showcase) for (const guild of client.guilds.cache.values()) void showcase.registerGuild(guild);
+    if (swearJar) for (const guild of client.guilds.cache.values()) void swearJar.registerGuild(guild);
     if (identity) for (const guild of client.guilds.cache.values()) void identity.registerGuild(guild);
     if (touhouTrader) {
       for (const guild of client.guilds.cache.values()) void touhouTrader.registerGuild(guild);
@@ -105,7 +130,10 @@ async function main() {
     await mmoOnline?.stop();
     await welcome.stop(); // Stop new greetings and finish any Discord send before destroying the client.
     await swearJar?.stop(); // Stop scheduled draws and finish replies before closing identity or wallet storage.
+    await showcase?.stop(); // Finish any in-flight showcase post before Discord disconnects.
+    await diaperChecks?.stop(); // Finish any in-flight answer before the admin journal and check storage close.
     await identity?.close(); // Finish browser callbacks before closing account storage.
+    diaperChecks?.close(); // Close the check journal after its last answer and before the admin journal it audits into.
     await community.stop(); community.store.close(); // Drain reaction operations after admin HTTP writes, then close their journal.
     await client.destroy();
     await wallet?.close(); // Finish payment journaling before closing trader storage.

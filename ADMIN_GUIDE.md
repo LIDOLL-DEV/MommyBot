@@ -30,10 +30,36 @@ to avoid conflicting selections; reaction roles allow multiple choices.
 
 Choose a server and press **Save server settings** after making changes.
 Conversation replies, new swear-jar fines/apologies, and member welcomes can each
-be paused for this server. Global environment switches and `CHANNEL_ID` still
-apply. Saved payments, pending notices and weekly draws continue recovering;
+be paused for this server. **Channels the swear jar ignores** exempts individual
+channels instead of the whole server; threads follow their parent channel, and
+apologies and reminders are skipped there too. **Swear jar words** replaces the
+built-in word list for this server, one word or phrase per line; leave it empty
+to use the deployment's own list. Global environment switches and
+`CHANNEL_ID` still apply. Saved payments, pending notices and weekly draws continue recovering;
 account commands and games remain available. The dashboard shows connection
 status, gateway ping and feature availability without exposing secrets or wallets.
+
+## Diaper checks
+
+Initially off. Choose a check channel that is **not** visible to `@everyone` and a
+participating role, then enable and save. Only members holding that role are ever
+asked. MommyBot reads Littlepottchi accident records and asks those members
+whether they need a change; denying a recorded accident is gently chastised and
+recorded in the journal below as `diaper-check.denied`. Members with no check in
+six to twelve hours get a random status request. Saying they are not wearing one
+at all gets a gentle reminder to go and put one on. Nothing is asked between
+22:00 and 06:00 server time, except a check you start yourself with
+`/diapercheck ask member:@someone`, which is private, immediate and still
+respects the opt-in role. See [DIAPER_CHECKS_GUIDE.md](DIAPER_CHECKS_GUIDE.md).
+
+## Character showcase
+
+Initially off. Choose a channel where MommyBot can Send Messages, Embed Links and
+Attach Files, then enable and save. Members run `/lidollmmo` to post their
+LiDollQuest character there as three messages: paperdoll, stats and equipment.
+The command replies privately and always posts in this channel, wherever it was
+run. Members need a linked LiD0llID wallet, and each may post once a minute.
+See [MMO_ONLINE_GUIDE.md](MMO_ONLINE_GUIDE.md).
 
 ## Starboard
 
@@ -42,12 +68,19 @@ Initially off. Choose a highlight channel, public source channels, emoji
 normal reactions count; bots, self-stars and super reactions do not. Bot-authored
 messages are excluded. Custom emoji must belong to this server.
 
+If your channels are gated behind LiD0llID verification, choose that role as the
+**audience** instead of leaving the starboard open to everyone. Source channels
+must then be visible to the audience role rather than to `@everyone`, and the
+starboard channel must be hidden from `@everyone`, so a highlight never reaches
+more people than its source. Highlights are rechecked on every synchronization
+and withdrawn if the source narrows or the starboard widens.
+
 Each qualifying source gets one highlight with its text, author, count, jump
 link, and an eligible non-spoiler image attachment. Counts and edits update the
 post. Falling below the threshold, deleting the source, removing its source
 channel or disabling starboard removes the highlight during synchronization.
-Sources must be text/announcement channels visible to `@everyone`; threads and
-private sources are unsupported. Age-restricted sources require an age-restricted
+Sources must be text/announcement channels visible to the audience, which is
+`@everyone` unless a role is chosen; threads are unsupported. Age-restricted sources require an age-restricted
 destination. The highlight channel cannot also be a source.
 
 There is no channel-history scan: new reaction events and already tracked messages

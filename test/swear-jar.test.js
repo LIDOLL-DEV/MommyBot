@@ -45,6 +45,8 @@ function fixture(t, env = {}) {
     f.bot = createSwearJar(f.client, f.wallet, f.identities, env, {
       generateMessage: async (...args) => f.generate ? f.generate(...args) : null,
       classifyApology: async (...args) => f.classify ? f.classify(...args) : exactSwearApology(args[0]),
+      serverEnabled: guild => f.serverEnabled(guild),
+      serverWords: guild => f.serverWords(guild),
     }); // Keep payment and apology tests independent of live model servers.
   };
   f.channel = guild => ({ guildId: guild, isTextBased: () => true, async send(options) {
@@ -75,6 +77,19 @@ function fixture(t, env = {}) {
     author: { id: "alice", bot: false }, content,
     async reply(options) { if (f.failSend) throw new Error("Discord offline"); f.sent.push(options); }, ...overrides,
   });
+  f.serverEnabled = () => true;
+  f.serverWords = () => null;
+  f.optout = async (overrides = {}) => {
+    const seen = { content: null, ephemeral: false, deferred: false };
+    const interaction = { isChatInputCommand: () => true, commandName: "swearjar", id: String(f.nextMessage++),
+      guildId: "guild", user: { id: "alice" }, options: { getSubcommand: () => "optout" },
+      async deferReply(options) { seen.deferred = true; seen.ephemeral = Boolean(options?.flags); },
+      async reply(options) { seen.content = options.content; seen.ephemeral = Boolean(options.flags); },
+      async editReply(options) { seen.content = options.content; }, ...overrides };
+    assert.equal(await f.bot.handleInteraction(interaction), true);
+    return seen;
+  }; // Drive the real slash-command handler so ephemeral flags and wording stay covered.
+  f.breaks = () => f.wallet.db.prepare("SELECT * FROM swear_jar_optouts ORDER BY created,id").all();
   f.jobs = () => f.wallet.db.prepare("SELECT * FROM swear_jar_jobs ORDER BY created,id").all();
   f.prizes = () => f.jobs().filter(job => job.kind === "credit");
   f.restart = async () => { await f.bot.stop(); await f.wallet.close(); f.open(); };
@@ -630,4 +645,132 @@ test("sorry momma passes the message gate and selects positive chat without call
   assert.equal(f.sent.at(-1).content, "Momma accepts your sweet apology!");
   assert.deepEqual(kinds, ["apology"]); assert.equal(routerCalls, 0);
   assert.equal(f.calls.length, 1); assert.equal(f.balances.get("alice"), 9);
+});
+
+test("a paid break costs five coins, silences fines for three hours, then lets them resume", async t => {
+  const f = fixture(t); f.link("alice", { coins: 20 });
+  const seen = await f.optout();
+  assert.equal(seen.deferred, true); assert.equal(seen.ephemeral, true);
+  assert.match(seen.content, /5 LiDollcoins\*\* are paid/); assert.match(seen.content, /\*\*3h 0m\*\* more/);
+  assert.equal(f.balances.get("alice"), 15); assert.equal(f.breaks()[0].state, "done");
+  assert.equal(f.breaks()[0].expires, f.now + 3 * 3_600_000);
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), false); // The message is left to ordinary chat handling.
+  assert.equal(f.jobs().length, 0); assert.equal(f.sent.length, 0); assert.equal(f.balances.get("alice"), 15);
+  f.now += 3 * 3_600_000 - 1000;
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), false);
+  f.now += 2000; // The break has now expired.
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), true);
+  assert.equal(f.balances.get("alice"), 14); assert.match(f.sent.at(-1).content, /1 coin in the swear jar/);
+});
+
+test("a break covers only its own server and member, and survives a restart", async t => {
+  const f = fixture(t); f.link("alice", { coins: 20 }); f.link("bob", { coins: 20 });
+  await f.optout();
+  await f.restart();
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), false);
+  assert.equal(await f.bot.handleMessage(f.message("fuck", { guildId: "other", channelId: "other-channel" })), true);
+  assert.equal(await f.bot.handleMessage(f.message("fuck", { author: { id: "bob", bot: false } })), true);
+  assert.deepEqual(f.jobs().map(job => job.user_id).sort(), ["alice", "bob"]);
+  assert.equal(f.balances.get("alice"), 14); assert.equal(f.balances.get("bob"), 19);
+});
+
+test("buying a second break reports the time left instead of charging again", async t => {
+  const f = fixture(t); f.link("alice", { coins: 20 });
+  await f.optout();
+  f.now += 65 * 60_000;
+  const seen = await f.optout();
+  assert.match(seen.content, /already have a swear jar break/); assert.match(seen.content, /\*\*1h 55m\*\* more/);
+  assert.equal(f.balances.get("alice"), 15); assert.equal(f.breaks().length, 1);
+  assert.equal(f.calls.length, 1);
+});
+
+test("a refused break collects nothing, starts no break and can be bought again once funded", async t => {
+  const f = fixture(t); f.link("alice", { coins: 2 });
+  const seen = await f.optout();
+  assert.match(seen.content, /declined the swear jar break/);
+  assert.equal(f.balances.get("alice"), 2); assert.equal(f.breaks()[0].state, "failed");
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), true);
+  assert.equal(f.balances.get("alice"), 1);
+  f.balances.set("alice", 20);
+  assert.match((await f.optout()).content, /are paid/);
+  assert.equal(f.balances.get("alice"), 15); assert.equal(f.breaks().length, 2);
+});
+
+test("a lost break receipt is saved, blocks the jar only once paid, and recovers through the retry command", async t => {
+  const f = fixture(t); f.link("alice", { coins: 20 });
+  f.lose = "debit";
+  const seen = await f.optout();
+  assert.match(seen.content, /payment is saved/);
+  assert.equal(f.breaks()[0].state, "pending"); assert.equal(f.breaks()[0].expires, 0);
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), true); // An unconfirmed break never pauses fines.
+  assert.match(f.sent.at(-1).content, /pending/);
+  f.lose = null; f.now += 60_000;
+  const fine = await runWalletAction({ user: { id: "alice" } }, f.wallet, f.identities, "retry");
+  assert.match(fine.content, /put in the swear jar/); // An unpaid fine is always recovered before a break purchase.
+  const response = await runWalletAction({ user: { id: "alice" } }, f.wallet, f.identities, "retry");
+  assert.match(response.content, /are paid/); assert.match(response.content, /\*\*3h 0m\*\* more/);
+  assert.equal(f.breaks()[0].state, "done"); assert.equal(f.breaks()[0].expires, f.now + 3 * 3_600_000);
+  assert.equal(f.calls.filter(call => call.amount === 5).length, 2); assert.equal(f.balances.get("alice"), 14);
+});
+
+test("scheduled maintenance finishes a saved break without charging twice", async t => {
+  const f = fixture(t); f.link("alice", { coins: 20 });
+  f.lose = "debit"; await f.optout();
+  f.lose = null; f.now += 60_000;
+  await f.bot.tick();
+  assert.equal(f.breaks()[0].state, "done"); assert.equal(f.balances.get("alice"), 15);
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), false);
+});
+
+test("breaks are refused without a linked account, outside a server, and where the jar is already paused", async t => {
+  const f = fixture(t);
+  assert.match((await f.optout()).content, /lidollid login/);
+  assert.equal(f.breaks().length, 0); assert.equal(f.calls.length, 0);
+  f.link("alice", { coins: 20 });
+  const direct = await f.optout({ guildId: null });
+  assert.match(direct.content, /in the server where you would like it/);
+  assert.equal(direct.deferred, false); assert.equal(direct.ephemeral, true);
+  f.serverEnabled = () => false;
+  assert.match((await f.optout()).content, /not collecting swear jar fines/);
+  assert.equal(f.breaks().length, 0); assert.equal(f.balances.get("alice"), 20);
+});
+
+test("a globally paused swear jar sells no breaks and other slash commands are left alone", async t => {
+  const f = fixture(t, { SWEAR_JAR_ENABLED: "false" }); f.link("alice", { coins: 20 });
+  assert.match((await f.optout()).content, /not collecting swear jar fines/);
+  assert.equal(f.balances.get("alice"), 20);
+  assert.equal(await f.bot.handleInteraction({ isChatInputCommand: () => true, commandName: "lidollid", options: { getSubcommand: () => "login" } }), false);
+  assert.equal(await f.bot.handleInteraction({ isChatInputCommand: () => false }), false);
+});
+
+test("each server's own word list replaces the built-in one and is recompiled when it changes", async t => {
+  const f = fixture(t); f.link("alice", { coins: 20 });
+  f.words = { guild: ["heck", "darn"] };
+  f.serverWords = guild => f.words[guild] ?? null;
+  let channel = 0;
+  const fined = async content => { // A fresh channel each time keeps the 15-minute apology context from answering instead.
+    const before = f.jobs().length;
+    await f.bot.handleMessage(f.message(content, { channelId: `channel-${channel++}` }));
+    return f.jobs().length > before;
+  };
+  assert.equal(await fined("what the heck"), true);
+  assert.equal(await fined("fuck"), false); // A built-in word is not in this server's list.
+  assert.equal(await fined("Darn!"), true); // Case and punctuation still do not matter.
+  assert.equal(await fined("hecklers"), false); // Whole words only, as with the built-in list.
+  assert.equal(f.balances.get("alice"), 18);
+  f.words.guild = ["fuck"]; // An administrator saves a different list.
+  assert.equal(await fined("what the heck"), false);
+  assert.equal(await fined("fuck"), true);
+  f.words = { other: ["heck"] }; // Other servers keep their own list and this one falls back to the built-in words.
+  assert.equal(await fined("what the heck"), false);
+  assert.equal(await fined("shit"), true);
+  assert.equal(f.balances.get("alice"), 16);
+});
+
+test("an empty server word list falls back to the deployment words rather than disabling the jar", async t => {
+  const f = fixture(t, { SWEAR_JAR_WORDS: "heck" }); f.link("alice", { coins: 20 });
+  f.serverWords = () => [];
+  assert.equal(await f.bot.handleMessage(f.message("fuck")), false);
+  assert.equal(await f.bot.handleMessage(f.message("heck")), true);
+  assert.equal(f.balances.get("alice"), 19);
 });

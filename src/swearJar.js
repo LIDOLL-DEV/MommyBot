@@ -1,7 +1,14 @@
-import { swearJarPaymentText, swearJarBalanceText } from "./wallet/swearJar.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
+import { WalletError } from "./wallet/client.js";
+import { swearJarPaymentText, swearJarBalanceText, swearJarOptOutText, SWEAR_OPTOUT_COST } from "./wallet/swearJar.js";
 import { generateSwearJarMessage } from "./graph/swearJarMessage.js";
 import { classifySwearApology, isSwearApologyCandidate } from "./graph/swearJarApology.js";
 import { currentPronouns } from "./bot/pronouns.js";
+
+export function buildSwearJarCommand() {
+  return new SlashCommandBuilder().setName("swearjar").setDescription("Manage your swear jar")
+    .addSubcommand(c => c.setName("optout").setDescription(`Pay ${SWEAR_OPTOUT_COST} LiDollcoins to pause swear jar fines for three hours`));
+} // Register a dedicated command so the break never replaces another application's slash commands.
 
 export const DEFAULT_SWEAR_WORDS = [
   "fuck", "fucks", "fucked", "fucking", "fucker", "fuckers", "motherfucker", "motherfuckers", "motherfucking",
@@ -26,17 +33,28 @@ export function swearJarStatus(env = process.env, { wallet = env.LIDOLLCOIN_ENAB
   if (env.SWEAR_JAR_ENABLED === "false") return "PAUSED: SWEAR_JAR_ENABLED=false; saved payments and weekly lotteries still recover.";
   const words = env.SWEAR_JAR_WORDS === undefined ? DEFAULT_SWEAR_WORDS : env.SWEAR_JAR_WORDS.split(",");
   const count = words.filter(word => word.trim()).length;
-  return count ? `ON: 1 coin per matching server message; ${count} configured words; all server channels; lottery Monday 00:00 UTC.` :
+  return count ? `ON: 1 coin per matching server message; ${count} configured words and all server channels by default; each server may replace the words, exempt channels and sell 3-hour breaks in the admin panel; lottery Monday 00:00 UTC.` :
     "NO MATCHES: SWEAR_JAR_WORDS is empty. Remove that setting to use the built-in list.";
 } // Explain every configuration that can silently bypass swear detection without printing message content or account information.
 
 export function createSwearJar(client, wallet, identities, env = process.env, {
-  generateMessage = generateSwearJarMessage, classifyApology = classifySwearApology,
+  generateMessage = generateSwearJarMessage, classifyApology = classifySwearApology, serverEnabled = () => true,
+  serverWords = () => null,
 } = {}) {
   console.log(`[Swear jar] ${swearJarStatus(env, { wallet: Boolean(wallet), identities: Boolean(identities) })}`);
   if (!wallet || !identities) return null;
   const enabled = env.SWEAR_JAR_ENABLED !== "false";
   const matches = swearMatcher(env.SWEAR_JAR_WORDS === undefined ? DEFAULT_SWEAR_WORDS : env.SWEAR_JAR_WORDS.split(","));
+  const compiled = new Map();
+  function matcherFor(guildId) {
+    const words = serverWords(guildId);
+    if (!words?.length) return matches;
+    const key = words.join("\n"), cached = compiled.get(guildId);
+    if (cached?.key === key) return cached.test;
+    const test = swearMatcher(words);
+    compiled.set(guildId, { key, test });
+    return test;
+  } // Compile each server's list once and rebuild it only when an administrator saves different words.
   const jar = wallet.swearJar, notices = new Set(), active = new Set();
   let timer, ticking, stopped = false;
 
@@ -112,8 +130,9 @@ export function createSwearJar(client, wallet, identities, env = process.env, {
 
   async function handle(message) {
     if (stopped || !enabled || !message.guildId || message.author?.bot || message.webhookId) return false;
-    const swore = matches(message.content), candidate = isSwearApologyCandidate(message.content);
+    const swore = matcherFor(message.guildId)(message.content), candidate = isSwearApologyCandidate(message.content);
     if (!swore && (!message.content?.trim() || /^[!/]/.test(message.content.trim()))) return false;
+    if (jar.optedOut(message.guildId, message.author.id)) return false; // A paid break pauses fines, reminders and apology handling alike, and leaves the message to ordinary chat.
     const activity = Symbol(`message:${message.id}`);
     active.add(activity);
     let job;
@@ -154,6 +173,21 @@ export function createSwearJar(client, wallet, identities, env = process.env, {
     return true;
   } // Run before the conversation channel gate so every human server message follows the same swear jar rule.
 
+  async function optOut(interaction) {
+    const refusal = !interaction.guildId ? "Ask for your swear jar break in the server where you would like it, sweetheart." :
+      !enabled || !serverEnabled(interaction.guildId) ? "MommyBot is not collecting swear jar fines in this server right now, so there is nothing to buy a break from." : null;
+    if (refusal) { await interaction.reply({ content: refusal, flags: MessageFlags.Ephemeral }); return; }
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    let content;
+    try {
+      const { record, fresh } = await jar.optOut(interaction.guildId, interaction.user.id, identities.get(interaction.user.id));
+      content = fresh ? swearJarPaymentText(record, wallet.now()) : `You already have a swear jar break, sweetheart. ${swearJarOptOutText(record, wallet.now())}`;
+    } catch (error) {
+      content = error instanceof WalletError ? error.message : "The swear jar could not reach your wallet. Try again; any saved payment recovers with /lidollid wallet retry.";
+    }
+    await interaction.editReply({ content, allowedMentions: { parse: [] } });
+  } // Keep the purchase private and quote only stored payment facts, never a wallet balance or account detail.
+
   async function candidates(guild) {
     const eligible = [];
     for (const identity of identities.discordLinks()) {
@@ -172,6 +206,10 @@ export function createSwearJar(client, wallet, identities, env = process.env, {
       if (stopped) return;
       if (!active.has(job.id)) await jar.settle(job.id).catch(() => {});
     }
+    for (const record of jar.db.prepare("SELECT id FROM swear_jar_optouts WHERE state='pending' ORDER BY created,id").all()) {
+      if (stopped) return;
+      if (!active.has(record.id)) await jar.settleOptOut(record.id).catch(() => {});
+    } // Finish a break whose receipt was lost; its three hours begin only when that payment is confirmed.
     for (const guild of jar.db.prepare("SELECT * FROM swear_jar_guilds WHERE next_draw<=?").all(wallet.now())) {
       if (stopped) return;
       try {
@@ -205,6 +243,19 @@ export function createSwearJar(client, wallet, identities, env = process.env, {
 
   return {
     handleMessage: handle,
+    async handleInteraction(interaction) {
+      if (!interaction.isChatInputCommand?.() || interaction.commandName !== "swearjar" || interaction.options.getSubcommand() !== "optout") return false;
+      const activity = Symbol(`optout:${interaction.id}`);
+      active.add(activity);
+      try { await optOut(interaction); }
+      catch { console.error("[Swear jar] Could not answer a break purchase; any payment remains saved for /lidollid wallet retry."); }
+      finally { active.delete(activity); }
+      return true;
+    }, // Own only this command so other applications' slash commands keep reaching their own handlers.
+    async registerGuild(guild) {
+      try { await guild.commands.create(buildSwearJarCommand()); }
+      catch { console.error(`[Swear jar] Could not register /swearjar in guild ${guild.id}.`); }
+    },
     tick,
     start() { if (!timer && !stopped) { timer = setInterval(() => void tick(), 60_000); timer.unref(); void tick(); } },
     async stop() { stopped = true; clearInterval(timer); await ticking; while (active.size) await new Promise(resolve => setTimeout(resolve, 25)); },

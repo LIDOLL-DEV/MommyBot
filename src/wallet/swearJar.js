@@ -3,6 +3,8 @@ import { WalletError } from "./client.js";
 
 const DAY = 86_400_000;
 export const SWEAR_APOLOGY_WINDOW_MS = 15 * 60_000;
+export const SWEAR_OPTOUT_COST = 5;
+export const SWEAR_OPTOUT_MS = 3 * 3_600_000;
 export function nextSwearJarDraw(now) {
   const date = new Date(now);
   const midnight = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
@@ -30,7 +32,13 @@ export class SwearJar {
       created INTEGER NOT NULL, notified INTEGER NOT NULL DEFAULT 0);
       CREATE TABLE IF NOT EXISTS swear_jar_reminders (
       job_id TEXT PRIMARY KEY REFERENCES swear_jar_jobs(id), message_id TEXT NOT NULL UNIQUE,
-      notified INTEGER NOT NULL DEFAULT 0);`);
+      notified INTEGER NOT NULL DEFAULT 0);
+      CREATE TABLE IF NOT EXISTS swear_jar_optouts (
+      id TEXT PRIMARY KEY, guild_id TEXT NOT NULL, user_id TEXT NOT NULL, amount INTEGER NOT NULL,
+      issuer TEXT NOT NULL, subject TEXT NOT NULL, account_id TEXT NOT NULL, base_url TEXT NOT NULL, client_id TEXT NOT NULL,
+      state TEXT NOT NULL, attempted INTEGER NOT NULL DEFAULT 0, created INTEGER NOT NULL, expires INTEGER NOT NULL DEFAULT 0);
+      CREATE INDEX IF NOT EXISTS swear_jar_optout_active ON swear_jar_optouts(guild_id, user_id, state, expires);
+      CREATE INDEX IF NOT EXISTS swear_jar_optout_pending ON swear_jar_optouts(state, user_id);`);
     const previous = wallet.hasPending;
     wallet.hasPending = user => previous(user) || Boolean(this.pending(user));
   } // Load durable coin reservations before HTTP routes allow account changes or game purchases.
@@ -71,8 +79,75 @@ export class SwearJar {
       FROM swear_jar_jobs WHERE guild_id=?`).get(guild);
   } // Show confirmed coins available for the next draw separately from prizes already reserved for winners.
   pending(user) {
-    return this.db.prepare("SELECT * FROM swear_jar_jobs WHERE user_id=? AND state='pending' ORDER BY created,id LIMIT 1").get(user);
-  } // Any unresolved fine or prize protects its original account from unlinking.
+    return this.db.prepare("SELECT * FROM swear_jar_jobs WHERE user_id=? AND state='pending' ORDER BY created,id LIMIT 1").get(user) ?? this.pendingOptOut(user);
+  } // Any unresolved fine, prize or break purchase protects its original account from unlinking.
+
+  pendingOptOut(user) {
+    return this.db.prepare("SELECT *,'optout' AS kind FROM swear_jar_optouts WHERE user_id=? AND state='pending' ORDER BY created,id LIMIT 1").get(user);
+  } // Carry the same kind field as a fine so shared payment wording and the existing retry command need no special case.
+  optOutRecord(id) { return this.db.prepare("SELECT *,'optout' AS kind FROM swear_jar_optouts WHERE id=?").get(id); }
+  activeOptOut(guild, user) {
+    return this.db.prepare("SELECT *,'optout' AS kind FROM swear_jar_optouts WHERE guild_id=? AND user_id=? AND state='done' AND expires>? ORDER BY expires DESC LIMIT 1")
+      .get(guild, user, this.wallet.now());
+  }
+  optedOut(guild, user) { return Boolean(this.activeOptOut(guild, user)); } // Only a confirmed payment pauses fines; a pending or refused charge leaves the jar watching.
+
+  async optOut(guildId, userId, identity) {
+    if (!identity) throw new WalletError("not_linked", "Make a LiD0llID account if you don't have one, then use /lidollid login before buying a swear jar break.");
+    return this.wallet.exclusive(userId, async () => {
+      const active = this.activeOptOut(guildId, userId);
+      if (active) return { record: active, fresh: false };
+      const saved = this.pendingOptOut(userId);
+      if (saved) return { record: await this.settleOptOutLocked(saved.id), fresh: true };
+      if (this.wallet.hasPending(userId)) throw new WalletError("pending_purchase", "Finish your pending payment with /lidollid wallet retry before buying a swear jar break.");
+      const connection = this.wallet.requireConnection(userId), id = randomUUID();
+      this.db.prepare(`INSERT INTO swear_jar_optouts
+        (id,guild_id,user_id,amount,issuer,subject,account_id,base_url,client_id,state,created)
+        VALUES (?,?,?,?,?,?,?,?,?,'pending',?)`).run(id, guildId, userId, SWEAR_OPTOUT_COST, identity.issuer, identity.subject,
+        connection.account_id, this.wallet.client.config.baseUrl, this.wallet.client.config.clientId, this.wallet.now());
+      return { record: await this.settleOptOutLocked(id), fresh: true };
+    });
+  } // Charge one break at a time per member; an unfinished purchase is resumed instead of bought twice.
+
+  async settleOptOut(id) {
+    const saved = this.optOutRecord(id);
+    if (!saved) throw new WalletError("no_swear_jar_payment", "There is no saved swear jar break purchase.");
+    return this.wallet.exclusive(saved.user_id, () => this.settleOptOutLocked(id));
+  } // Take this member's wallet lock for scheduled recovery and the retry command, which hold no lock of their own.
+
+  async settleOptOutLocked(id) {
+    const record = this.optOutRecord(id);
+    if (record.state !== "pending") return record;
+    const identity = this.wallet.identityFor?.(record.user_id);
+    if (identity?.issuer !== record.issuer || identity?.subject !== record.subject) {
+      throw new WalletError("account_changed", "Reconnect your original LiD0llID account to finish this swear jar break purchase.");
+    }
+    this.wallet.assertServer(record);
+    const connection = this.wallet.requireConnection(record.user_id);
+    if (record.account_id !== connection.account_id) {
+      throw new WalletError("account_changed", "Reconnect your original wallet to finish this swear jar break purchase.");
+    }
+    const first = !record.attempted;
+    this.db.prepare("UPDATE swear_jar_optouts SET attempted=1 WHERE id=?").run(id);
+    try {
+      const receipt = await this.wallet.client.operation(connection.token, {
+        request_id: id, kind: "debit", asset: "coins", amount: record.amount,
+      });
+      if (receipt?.request_id !== id || receipt.kind !== "debit" || receipt.amount !== record.amount ||
+          receipt.currency !== "LiDollCoin" || (receipt.asset !== undefined && receipt.asset !== "coins") ||
+          !Number.isSafeInteger(receipt.balance) || receipt.balance < 0) {
+        throw new WalletError("invalid_receipt", "The swear jar break receipt could not be verified.");
+      }
+      this.db.prepare("UPDATE swear_jar_optouts SET state='done',expires=? WHERE id=?").run(this.wallet.now() + SWEAR_OPTOUT_MS, id);
+    } catch (error) {
+      if (first && error instanceof WalletError && [400, 403, 409].includes(error.status)) {
+        this.db.prepare("UPDATE swear_jar_optouts SET state='failed' WHERE id=?").run(id);
+        return this.optOutRecord(id);
+      } // A first definitive refusal collects nothing and starts no break; an uncertain charge keeps its request ID.
+      throw new WalletError("swear_jar_pending", "Your swear jar break payment is saved. Use /lidollid wallet retry; MommyBot also retries automatically. The three hours start once the payment is confirmed.");
+    }
+    return this.optOutRecord(id);
+  } // Start the three hours only from a verified receipt, so an uncertain charge never spends a break it did not pay for.
 
   record(message, identity) {
     const old = this.db.prepare("SELECT * FROM swear_jar_jobs WHERE message_id=?").get(message.id);
@@ -161,14 +236,21 @@ export class SwearJar {
   async retry(user) {
     const job = this.pending(user);
     if (!job) throw new WalletError("no_swear_jar_payment", "You have no pending swear jar payment.");
-    return this.settle(job.id);
-  } // Let members recover their own saved payment through the existing private wallet command.
+    return job.kind === "optout" ? this.settleOptOut(job.id) : this.settle(job.id);
+  } // Let members recover their own saved fine, prize or break purchase through the existing private wallet command.
 }
 
-export function swearJarPaymentText(job) {
+export function swearJarPaymentText(job, now = Date.now()) {
+  if (job.kind === "optout") return job.state === "done" ? `Your **${job.amount} LiDollcoins** are paid. ${swearJarOptOutText(job, now)}` :
+    "Your wallet declined the swear jar break. No coins were collected and no break started.";
   if (job.kind === "credit") return job.state === "done" ? `Your swear jar lottery prize of **${job.amount} LiDollcoins** has been gifted to your wallet!` : "Your swear jar lottery prize is saved until your wallet payment completes.";
   return job.state === "done" ? "Your **1 LiDollcoin** has been put in the swear jar." : "Your wallet declined the swear jar coin. No coin was collected; check your balance and wallet permissions.";
 } // Share accurate payment confirmations between Discord's private menus and slash commands.
+
+export function swearJarOptOutText(record, now = Date.now()) {
+  const minutes = Math.max(0, Math.ceil((record.expires - now) / 60_000));
+  return `MommyBot will let your language slide in this server for **${Math.floor(minutes / 60)}h ${minutes % 60}m** more. Be gentle anyway, sweetheart. 💗`;
+} // Report the remaining break from the stored expiry, never from a model-generated or caller-supplied duration.
 
 export function swearJarBalanceText(balance) {
   return `Swear jar balance: **${balance.available} LiDollcoins**` +

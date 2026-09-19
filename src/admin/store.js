@@ -21,6 +21,14 @@ export function emojiKey(value) {
   return text.replace(/\uFE0F/g, "");
 } // Match Unicode presentation variants and custom emojis by their stable Discord ID.
 
+export function swearWordList(value) {
+  const words = value ?? [];
+  if (!Array.isArray(words) || words.length > 200) throw new AdminError("Use at most two hundred swear jar words.");
+  const cleaned = words.map(word => String(word ?? "").normalize("NFKC").trim().toLowerCase()).filter(Boolean);
+  if (cleaned.some(word => word.length > 40 || /\p{C}/u.test(word))) throw new AdminError("Each swear jar word must be at most forty characters and contain no control characters.");
+  return [...new Set(cleaned)];
+} // Normalize and deduplicate exactly as the matcher does, so the saved list is what the jar really tests against.
+
 export class AdminStore {
   constructor(filename, now = Date.now) {
     this.db = new Database(filename); this.now = now;
@@ -40,7 +48,8 @@ export class AdminStore {
 
   settings(guild) {
     const saved = this.db.prepare("SELECT settings FROM admin_settings WHERE guild_id=?").get(guild);
-    return { chat: true, swearJar: true, welcomes: true, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3 }, ...JSON.parse(saved?.settings || "{}") };
+    return { chat: true, swearJar: true, swearJarIgnored: [], swearWords: [], welcomes: true,
+      diaperChecks: { enabled: false, channel: "", role: "" }, showcase: { enabled: false, channel: "" }, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3, audience: "" }, ...JSON.parse(saved?.settings || "{}") };
   }
   save(guild, settings, actor) {
     this.db.transaction(() => {

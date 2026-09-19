@@ -19,8 +19,9 @@ do not depend on the AI being online. Only the notification type goes to the AI;
 it receives no original message, conversation history, account IDs or balances.
 
 The rule covers new human messages in all server channels MommyBot can read,
-including messages outside `CHANNEL_ID`. Direct messages, bots and webhooks are
-ignored. Message edits and historical messages missed while the bot was offline
+including messages outside `CHANNEL_ID`, except channels an administrator has
+exempted in the admin panel under **Channels the swear jar ignores**; threads
+follow their parent channel. Direct messages, bots and webhooks are ignored. Message edits and historical messages missed while the bot was offline
 are not scanned. The jar reply consumes the message before ordinary AI chat.
 
 Unlinked users are told to create a LiD0llID account if needed and register it
@@ -71,6 +72,49 @@ variations. Ambiguous longer wording needs the classifier. This is a language
 classifier, so unfamiliar phrasing can be rejected; the displayed examples are
 the simplest retry. No new environment settings are required.
 
+## Per-server word lists
+
+Administrators can replace the word list for their own server under **Swear jar
+words** in the admin panel, one word or phrase per line, up to two hundred. Words
+are trimmed, lowercased and deduplicated when saved, matching how the jar tests
+them. Matching is unchanged otherwise: whole words only, so *class* and
+*Scunthorpe* are never charged, and case, accents and Unicode presentation
+differences are ignored. Phrases containing spaces are allowed.
+
+Leaving the box empty returns that server to the deployment list, which is
+`SWEAR_JAR_WORDS` if set and the built-in list otherwise. An empty server list
+never means "match nothing"; use the **New swear-jar fines** switch or the
+ignored-channel list to stop fines. Each server's list is compiled once and
+recompiled only when an administrator saves different words, and one server's
+list never affects another.
+
+## Buying a break
+
+`/swearjar optout` charges **5 LiDollcoins** and pauses swear jar fines for that
+member, in that server, for **three hours**. The reply is private. The member
+needs a LiD0llID account connected with `/lidollid login`; unlinked members are
+told how to connect and are never charged.
+
+During a break MommyBot collects no fines from that member and sends no
+reminders or apology acknowledgments to them; their messages go to ordinary chat
+instead. Everyone else in the server is unaffected, as is the same member in
+other servers. Fines already collected stay in the jar, and the break does not
+refund them.
+
+The three hours begin only when the wallet confirms the payment. A definitive
+refusal, including insufficient funds, collects nothing and starts no break. If
+a receipt is lost, the purchase is saved with its original request ID and no
+second charge: `/lidollid wallet retry` finishes it, MommyBot also retries every
+minute, and the clock starts from that confirmation. An unconfirmed purchase
+does not pause fines. Running `/swearjar optout` again during an active break
+reports the time remaining instead of charging a second time; a pending fine is
+always recovered before a new break can be bought.
+
+The 5 coins are spent from the member's wallet and are **not** added to the
+server's jar or weekly lottery pot, which are funded only by 1-coin fines.
+Administrators who pause the swear jar for the server, in the admin panel or
+through `SWEAR_JAR_ENABLED=false`, also stop breaks being sold there.
+
 ## Weekly lottery
 
 The week ends **Monday at 00:00 UTC**, checked once per minute after Discord is
@@ -110,7 +154,7 @@ An older deployed release may not include the feature at all. See
 | --- | --- |
 | `SWEAR_JAR_ENABLED=false` | Pause new fines; saved payments, notices and weekly distribution still recover. |
 | `SWEAR_JAR_CHANNEL_ID` | Optional lottery announcement channel. It must belong to the jar's server; otherwise the last channel with a swear jar message is used. Fines always reply in their original channel. |
-| `SWEAR_JAR_WORDS` | Optional comma-separated replacement list. An explicitly empty value matches nothing. Omit it for the built-in list. |
+| `SWEAR_JAR_WORDS` | Optional comma-separated replacement list, used as the deployment default. An explicitly empty value matches nothing. Omit it for the built-in list. A server's own list in the admin panel takes precedence. |
 | `SWEAR_JAR_AI_ENABLED=false` | Use standard wording instead of requesting AI prose; balances, fines and lotteries continue. AI wording is enabled by default. |
 | `SWEAR_JAR_AI_TIMEOUT_MS` | AI wait limit, 1,000–15,000 milliseconds. Defaults to 8,000 if missing or invalid. |
 

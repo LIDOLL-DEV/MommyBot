@@ -101,6 +101,11 @@
 - Each swear-jar notice includes an AI-written reminder or celebration and the
   current server jar balance. Reserved lottery prizes are shown separately.
   Standard wording and the balance still appear if the AI server is unavailable.
+- Need a breather? `/swearjar optout` costs **5 LiDollcoins** and pauses fines
+  for you, in that server, for **three hours**. The reply is private, the three
+  hours start once your wallet confirms the payment, and asking again during a
+  break just tells you the time left. Those 5 coins are spent, not added to the
+  jar, and they do not refund fines you already paid.
 - Every linked human member currently in the server enters its weekly swear jar
   lottery automatically. You do not need to swear or buy a ticket.
 - Look for the winner announcement after **Monday 00:00 UTC**. One winner receives

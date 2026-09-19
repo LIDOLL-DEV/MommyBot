@@ -47,6 +47,69 @@ mentionable, or give MommyBot Mention Everyone permission in #whos-online.
 If the role is missing, ambiguous or cannot be pinged, the bot logs the specific
 problem and retries; it does not silently send without the requested tag.
 
+## Character showcase (`/lidollmmo`)
+
+Members run **`/lidollmmo`** to post their LiDollQuest character into a channel
+the server has chosen. MommyBot posts three separate messages, in this order:
+
+1. **Paperdoll** - the character's appearance, with the game's rendered image
+   attached when the game server supplies one.
+2. **Stats** - level, class, online state, embarrassment and accident state.
+3. **Equipment** - all sixteen gear slots, empty ones included.
+
+The command's own reply is private; only the three character messages are public,
+so other people can see the character without the member's lookup being visible.
+`/lidollmmo character:<name or id>` picks a specific character; the reply lists a
+member's other characters. Each member may showcase once a minute.
+
+Members need a LiD0llID account connected with `/lidollid login`: MommyBot maps
+the Discord user to their wallet `account_id`, which is the key LiDollQuest owns
+characters by. Nothing is posted for an unlinked member.
+
+### Enable it
+
+On **LiDollQuest server**, no new setting is needed: the character endpoint
+reuses the existing `MOMMYBOT_ONLINE_TOKEN`. Deploy a build that includes
+`server/mommybot-profile.mjs`.
+
+On **MommyBot**, add:
+
+```
+LIDOLLMMO_CHARACTERS_ENABLED=true
+```
+
+The endpoint URL is derived from `LIDOLLMMO_ONLINE_URL` by replacing the trailing
+`/joins` with `/character`. Override it with `LIDOLLMMO_CHARACTER_URL` only if the
+two endpoints are served from different addresses.
+
+Then, in the admin panel, enable **Character showcase** and choose its channel.
+MommyBot needs Send Messages, Embed Links and Attach Files there.
+
+### What the endpoint exposes
+
+`GET /integrations/mommybot/character?account_id=...` returns the same public
+inspection sheet another player can already see in-world: name, level, class,
+appearance fields and equipped item names, plus that owner's character list and
+online state. It never returns the account ID, wallet grants, coins, inventory,
+cloud saves or care history, and every lookup is scoped to the requested owner,
+so no other account's character is reachable. Suspended accounts return 404.
+
+MommyBot validates and sanitizes every field before posting, stripping control
+and bidirectional-override characters so a character name cannot reorder or
+impersonate part of a Discord message.
+
+### The paperdoll image
+
+The endpoint may include a rendered `portrait_png`; MommyBot attaches it and
+otherwise posts the appearance fields with an `image unavailable` footer.
+
+**The game server does not render this image yet.** LiDollQuest server is
+headless: it holds no sprites, and `server/profile-items.json` maps item IDs to
+display names only. The item-to-sprite mapping and the paperdoll compositor live
+in the browser client, which is hosted separately. Until a server-side renderer
+exists, the paperdoll message shows appearance fields rather than a picture; no
+MommyBot change is needed once `portrait_png` starts arriving.
+
 ## Diagnose missing announcements
 
 The game server's `GET /health` is only a liveness check. A 200 response does

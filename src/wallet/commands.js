@@ -78,7 +78,7 @@ export async function runWalletAction(interaction, wallet, identities, action, o
         if (wallet.swearJar?.pending(user)) {
           const job = wallet.swearJar.pending(user);
           let content;
-          try { content = swearJarPaymentText(await wallet.swearJar.retry(user)); }
+          try { content = swearJarPaymentText(await wallet.swearJar.retry(user), wallet.now()); }
           catch (error) { if (!(error instanceof WalletError)) throw error; content = error.message; }
           response = { content: `${content}\n\n${swearJarBalanceText(wallet.swearJar.balance(job.guild_id))}` };
           break;

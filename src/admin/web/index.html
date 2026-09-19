@@ -9,13 +9,29 @@
     <section class="toolbar"><label>YOUR SERVER <select id="guild" aria-label="Server"></select></label><button id="refresh">Refresh</button><button id="sync">Sync reactions</button></section>
     <p id="connection" class="muted"></p>
     <form id="settings" class="grid">
-      <section class="card"><p class="eyebrow">SAKURA</p><h2>Server controls</h2><fieldset><label class="toggle"><input type="checkbox" id="chat"> Conversation replies</label><label class="toggle"><input type="checkbox" id="swearJar"> New swear-jar fines &amp; apologies</label><label class="toggle"><input type="checkbox" id="welcomes"> Member welcomes</label></fieldset><p class="muted">These switches apply only to this server. Saved payments and lottery draws keep running. Deployment settings still control feature availability.</p></section>
+      <section class="card"><p class="eyebrow">SAKURA</p><h2>Server controls</h2><fieldset><label class="toggle"><input type="checkbox" id="chat"> Conversation replies</label><label class="toggle"><input type="checkbox" id="swearJar"> New swear-jar fines &amp; apologies</label><label class="toggle"><input type="checkbox" id="welcomes"> Member welcomes</label>
+        <label>Channels the swear jar ignores<select id="swearJarIgnore" multiple size="4" aria-describedby="ignoreHelp"></select></label>
+        <p id="ignoreHelp" class="muted">Select channels where swearing is never fined. Hold Ctrl or Command for multiple selections on desktop. Threads follow their parent channel. Apologies and reminders are skipped there too; coins already collected elsewhere stay in the jar.</p>
+        <label>Swear jar words<textarea id="swearWords" rows="4" aria-describedby="wordHelp" placeholder="One word or phrase per line"></textarea></label>
+        <p id="wordHelp" class="muted">One word or phrase per line, up to two hundred. Whole words only, so <em>class</em> and <em>Scunthorpe</em> are never charged. Case and accents are ignored. Leave this empty to use the built-in list for this server.</p></fieldset><p class="muted">These switches apply only to this server. Saved payments and lottery draws keep running. Deployment settings still control feature availability.</p></section>
       <section class="card"><p class="eyebrow">FAVORITE MOMENTS</p><h2>Starboard <span aria-hidden="true">☆</span></h2><fieldset>
         <label class="toggle"><input type="checkbox" id="starEnabled"> Enable starboard</label>
         <label>Highlight channel<select id="starChannel"><option value="">Choose a channel</option></select></label>
         <div class="row"><label>Emoji<input id="starEmoji" value="⭐" maxlength="80" required></label><label>Stars needed<input id="threshold" type="number" min="1" max="100" value="3" required></label></div>
-        <label>Public source channels<select id="sources" multiple size="5" aria-describedby="sourceHelp"></select></label>
-        <p id="sourceHelp" class="muted">Select channels to highlight. Hold Ctrl or Command for multiple selections on desktop. Self-stars and bots don’t count. Highlights disappear below the threshold or when starboard is disabled. New reactions are tracked; older untracked messages aren’t scanned.</p>
+        <label>Audience<select id="starAudience"><option value="">Everyone (public channels)</option></select></label>
+        <label>Source channels<select id="sources" multiple size="5" aria-describedby="sourceHelp"></select></label>
+        <p id="sourceHelp" class="muted">Select channels to highlight; only channels the audience can see are listed. Choose a role as the audience when your channels are gated behind LiD0llID verification: the starboard must then be hidden from @everyone, so a highlight never reaches more people than its source. Hold Ctrl or Command for multiple selections on desktop. Self-stars and bots don’t count. Highlights disappear below the threshold or when starboard is disabled. New reactions are tracked; older untracked messages aren’t scanned.</p>
+      </fieldset></section>
+      <section class="card"><p class="eyebrow">GENTLE CARE</p><h2>Diaper checks</h2><fieldset>
+        <label class="toggle"><input type="checkbox" id="diaperEnabled"> Enable diaper checks</label>
+        <label>Check channel<select id="diaperChannel"><option value="">Choose a channel</option></select></label>
+        <label>Participating role<select id="diaperRole"><option value="">Choose a role</option></select></label>
+        <p class="muted">MommyBot reads Littlepottchi accident records for members of this role and asks them privately in this channel whether they need a change. Answering no to a recorded accident is gently chastised and noted in the journal below. Members with no check in six to twelve hours get a random status request. No questions are asked between 22:00 and 06:00 server time. The channel must not be visible to @everyone, and the role is the opt-in: remove it to stop being asked.</p>
+      </fieldset></section>
+      <section class="card"><p class="eyebrow">ADVENTURERS</p><h2>Character showcase</h2><fieldset>
+        <label class="toggle"><input type="checkbox" id="showcaseEnabled"> Enable /lidollmmo</label>
+        <label>Showcase channel<select id="showcaseChannel"><option value="">Choose a channel</option></select></label>
+        <p class="muted">Members run <strong>/lidollmmo</strong> to post their LiDollQuest character here as three messages: paperdoll, stats, and equipped gear. The command answers privately and always posts in this channel, wherever it was run. MommyBot needs Send Messages, Embed Links and Attach Files here. Members need a linked LiD0llID wallet, and each may post once a minute.</p>
       </fieldset></section>
       <div class="save"><button class="primary" type="submit">Save server settings</button></div>
     </form>

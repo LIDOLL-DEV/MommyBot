@@ -58,6 +58,24 @@ test("server settings validate channels, privacy, thresholds and fresh admin per
   await assert.rejects(f.service.act(f.session, input), /Administrator/);
 });
 
+test("ignored swear-jar channels are saved per server and exempt their threads without touching other channels", async t => {
+  const f = adminFixture(t);
+  const input = { action: "settings", guild: ids.guild, chat: true, swearJar: true, welcomes: true, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3 } };
+  assert.deepEqual(f.store.settings(ids.guild).swearJarIgnored, []);
+  assert.equal(f.community.swearJarIgnored(ids.guild, f.source), false);
+  await f.service.act(f.session, { ...input, swearJarIgnored: [ids.source, ids.source] });
+  assert.deepEqual(f.store.settings(ids.guild).swearJarIgnored, [ids.source]);
+  assert.equal(f.community.swearJarIgnored(ids.guild, f.source), true);
+  assert.equal(f.community.swearJarIgnored(ids.guild, { id: ids.message, parentId: ids.source }), true);
+  assert.equal(f.community.swearJarIgnored(ids.guild, f.board), false);
+  assert.equal(f.community.swearJarIgnored(ids.other, f.source), false);
+  assert.equal(f.community.enabled(ids.guild, "swearJar"), true);
+  await f.service.act(f.session, input); // A client that omits the list leaves the swear jar watching every channel.
+  assert.deepEqual(f.store.settings(ids.guild).swearJarIgnored, []);
+  await assert.rejects(f.service.act(f.session, { ...input, swearJarIgnored: ["general"] }), /valid Discord channel/);
+  await assert.rejects(f.service.act(f.session, { ...input, swearJarIgnored: Array(101).fill(ids.source) }), /one hundred ignored/);
+});
+
 test("reaction-role configuration rejects privileged, managed, duplicate and hierarchy-blocked roles", async t => {
   const f = adminFixture(t);
   const input = { action: "reaction-add", guild: ids.guild, channel: ids.source, message: ids.message, emoji: "⭐", role: ids.role };
@@ -202,4 +220,97 @@ test("reaction processing supports partial messages and stops without starting m
   assert.equal(client.options.intents.has(GatewayIntentBits.GuildMessageReactions), true);
   for (const partial of [Partials.Message, Partials.Reaction, Partials.User]) assert.ok(client.options.partials.includes(partial));
   await client.destroy();
+});
+
+test("a server's swear word list is normalized and deduplicated, and an empty list keeps the deployment words", async t => {
+  const f = adminFixture(t);
+  const input = { action: "settings", guild: ids.guild, chat: true, swearJar: true, welcomes: true, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3 } };
+  assert.deepEqual(f.store.settings(ids.guild).swearWords, []);
+  assert.equal(f.community.swearWords(ids.guild), null);
+  await f.service.act(f.session, { ...input, swearWords: ["  Heck ", "DARN", "darn", "heck", "", "  "] });
+  assert.deepEqual(f.store.settings(ids.guild).swearWords, ["heck", "darn"]);
+  assert.deepEqual(f.community.swearWords(ids.guild), ["heck", "darn"]);
+  assert.equal(f.community.swearWords(ids.other), null);
+  await f.service.act(f.session, { ...input, swearWords: [] }); // Clearing the list returns this server to the built-in words.
+  assert.equal(f.community.swearWords(ids.guild), null);
+  await f.service.act(f.session, input); // An older client that omits the field is treated the same way.
+  assert.equal(f.community.swearWords(ids.guild), null);
+  await assert.rejects(f.service.act(f.session, { ...input, swearWords: Array(201).fill("heck") }), /two hundred/);
+  await assert.rejects(f.service.act(f.session, { ...input, swearWords: ["x".repeat(41)] }), /forty characters/);
+  await assert.rejects(f.service.act(f.session, { ...input, swearWords: [`he${String.fromCharCode(0)}ck`] }), /control characters/);
+  await assert.rejects(f.service.act(f.session, { ...input, swearWords: "heck" }), /two hundred/);
+});
+
+test("diaper checks require a non-public channel and an opt-in role before they can be enabled", async t => {
+  const f = adminFixture(t);
+  const input = { action: "settings", guild: ids.guild, chat: true, swearJar: true, welcomes: true, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3 } };
+  assert.deepEqual(f.store.settings(ids.guild).diaperChecks, { enabled: false, channel: "", role: "" });
+  await f.service.act(f.session, input); // An older client that omits the block leaves checks off.
+  assert.equal(f.store.settings(ids.guild).diaperChecks.enabled, false);
+  const checks = { enabled: true, channel: ids.source, role: ids.role };
+  f.privateSource = true; // The check channel must not be readable by @everyone.
+  await f.service.act(f.session, { ...input, diaperChecks: checks });
+  assert.deepEqual(f.store.settings(ids.guild).diaperChecks, checks);
+  f.privateSource = false;
+  await assert.rejects(f.service.act(f.session, { ...input, diaperChecks: checks }), /not visible to @everyone/);
+  f.privateSource = true;
+  await assert.rejects(f.service.act(f.session, { ...input, diaperChecks: { ...checks, channel: "" } }), /Choose a channel/);
+  await assert.rejects(f.service.act(f.session, { ...input, diaperChecks: { ...checks, role: "" } }), /Choose the role/);
+  await assert.rejects(f.service.act(f.session, { ...input, diaperChecks: { ...checks, role: ids.other } }), /real role/);
+  await assert.rejects(f.service.act(f.session, { ...input, diaperChecks: { ...checks, channel: "general" } }), /valid Discord channel/);
+  await assert.rejects(f.service.act(f.session, { ...input, diaperChecks: { enabled: "yes" } }), /on or off for diaper checks/);
+  await f.service.act(f.session, { ...input, diaperChecks: { enabled: false, channel: "", role: "" } }); // Turning them off needs no channel.
+  assert.equal(f.store.settings(ids.guild).diaperChecks.enabled, false);
+});
+
+test("a starboard audience role replaces the @everyone requirement without ever widening who sees a highlight", async t => {
+  const f = adminFixture(t);
+  const board = { enabled: true, channel: ids.board, sources: [ids.source], emoji: "⭐", threshold: 1, audience: ids.role };
+  const input = { action: "settings", guild: ids.guild, chat: true, swearJar: true, welcomes: true, starboard: board };
+  f.privateChannels = [ids.source, ids.board]; // LiD0llID-gated channels: neither is visible to @everyone.
+  await assert.rejects(f.service.act(f.session, { ...input, starboard: { ...board, audience: "" } }), /visible to @everyone/);
+  await f.service.act(f.session, input); // The same channels are fine once the verified role is the audience.
+  assert.equal(f.store.settings(ids.guild).starboard.audience, ids.role);
+  f.privateChannels = [ids.source];
+  await assert.rejects(f.service.act(f.session, input), /must not be visible to @everyone/);
+  f.privateChannels = [ids.source, ids.board];
+  f.roleBlind = [`${ids.role}:${ids.board}`];
+  await assert.rejects(f.service.act(f.session, input), /starboard channel must be visible to the audience/);
+  f.roleBlind = [`${ids.role}:${ids.source}`];
+  await assert.rejects(f.service.act(f.session, input), /source channels must be visible to the audience/);
+  f.roleBlind = [];
+  await assert.rejects(f.service.act(f.session, { ...input, starboard: { ...board, audience: ids.guild } }), /real audience role/);
+  await assert.rejects(f.service.act(f.session, { ...input, starboard: { ...board, audience: "everyone" } }), /valid Discord channel/);
+});
+
+test("highlights in an audience starboard are published, and removed if the starboard later opens to @everyone", async t => {
+  const f = adminFixture(t);
+  f.privateChannels = [ids.source, ids.board];
+  f.store.save(ids.guild, { ...f.store.settings(ids.guild), starboard: { enabled: true, channel: ids.board, sources: [ids.source], emoji: "⭐", threshold: 1, audience: ids.role } }, ids.admin);
+  f.voters.set(ids.user, f.user.user);
+  await f.community.syncStar(ids.guild, ids.source, ids.message);
+  assert.equal(f.sent.length, 1);
+  assert.match(f.sent[0].content, /\*\*1\*\*/);
+  f.privateChannels = [ids.source]; // The starboard is opened to @everyone while the source stays gated.
+  await f.community.syncStar(ids.guild, ids.source, ids.message);
+  assert.equal(f.deleted.length, 1); // The highlight is withdrawn rather than left reaching a wider audience.
+  f.privateChannels = [ids.source, ids.board];
+  f.roleBlind = [`${ids.role}:${ids.source}`]; // The audience loses access to the source channel.
+  await f.community.syncStar(ids.guild, ids.source, ids.message);
+  assert.equal(f.sent.length, 1);
+});
+
+test("the character showcase needs a postable channel before it can be enabled", async t => {
+  const f = adminFixture(t);
+  const input = { action: "settings", guild: ids.guild, chat: true, swearJar: true, welcomes: true, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3 } };
+  assert.deepEqual(f.store.settings(ids.guild).showcase, { enabled: false, channel: "" });
+  await f.service.act(f.session, input); // An older client that omits the block leaves the showcase off.
+  assert.equal(f.store.settings(ids.guild).showcase.enabled, false);
+  await f.service.act(f.session, { ...input, showcase: { enabled: true, channel: ids.source } });
+  assert.deepEqual(f.store.settings(ids.guild).showcase, { enabled: true, channel: ids.source });
+  await assert.rejects(f.service.act(f.session, { ...input, showcase: { enabled: true, channel: "" } }), /Choose a channel for the LiDollQuest/);
+  await assert.rejects(f.service.act(f.session, { ...input, showcase: { enabled: true, channel: "lobby" } }), /valid Discord channel/);
+  await assert.rejects(f.service.act(f.session, { ...input, showcase: { enabled: "sure" } }), /on or off for the character showcase/);
+  await f.service.act(f.session, { ...input, showcase: { enabled: false, channel: "" } }); // Turning it off needs no channel.
+  assert.equal(f.store.settings(ids.guild).showcase.enabled, false);
 });

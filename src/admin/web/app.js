@@ -28,13 +28,26 @@ function addChoice() {
   remove.addEventListener("click", () => { row.remove(); if (!container.children.length) addChoice(); });
   emojiLabel.append(emoji); roleLabel.append(role); row.append(emojiLabel, roleLabel, remove); container.append(row);
 } // Each row is one independently selectable Discord emoji/role pair; names remain text-only.
+function renderSources(selected = [...$("sources").selectedOptions].map(option => option.value)) {
+  const audience = $("starAudience").value;
+  options("sources", state.channels.filter(channel => audience ? channel.viewers?.includes(audience) : channel.public));
+  for (const option of $("sources").options) option.selected = selected.includes(option.value);
+} // Offer only channels the chosen audience can actually see, so a saved source can never widen who reads it.
 function render() {
   const settings = state.settings;
   for (const key of ["chat", "swearJar", "welcomes"]) $(key).checked = settings[key];
+  $("swearWords").value = settings.swearWords.join("\n");
+  options("swearJarIgnore", state.channels);
+  for (const option of $("swearJarIgnore").options) option.selected = settings.swearJarIgnored.includes(option.value);
+  $("diaperEnabled").checked = settings.diaperChecks.enabled;
+  options("diaperChannel", state.channels, "Choose a channel"); $("diaperChannel").value = settings.diaperChecks.channel;
+  options("diaperRole", state.readableRoles ?? state.roles, "Choose a role"); $("diaperRole").value = settings.diaperChecks.role;
+  $("showcaseEnabled").checked = settings.showcase.enabled;
+  options("showcaseChannel", state.channels, "Choose a channel"); $("showcaseChannel").value = settings.showcase.channel;
   $("starEnabled").checked = settings.starboard.enabled;
   options("starChannel", state.channels, "Choose a channel"); $("starChannel").value = settings.starboard.channel;
-  options("sources", state.channels.filter(channel => channel.public));
-  for (const option of $("sources").options) option.selected = settings.starboard.sources.includes(option.value);
+  options("starAudience", state.readableRoles ?? [], "Everyone (public channels)"); $("starAudience").value = settings.starboard.audience ?? "";
+  renderSources(settings.starboard.sources);
   $("starEmoji").value = settings.starboard.emoji; $("threshold").value = settings.starboard.threshold;
   const previousChannel = $("roleChannel").value;
   options("roleChannel", state.channels);
@@ -81,7 +94,11 @@ async function run(work) {
 } // Prevent overlapping saves while retaining clear, accessible status messages.
 $("settings").addEventListener("submit", event => { event.preventDefault(); void run(() => action({ action: "settings",
   chat: $("chat").checked, swearJar: $("swearJar").checked, welcomes: $("welcomes").checked,
-  starboard: { enabled: $("starEnabled").checked, channel: $("starChannel").value, sources: [...$("sources").selectedOptions].map(option => option.value), emoji: $("starEmoji").value, threshold: Number($("threshold").value) },
+  swearJarIgnored: [...$("swearJarIgnore").selectedOptions].map(option => option.value),
+  swearWords: $("swearWords").value.split(/[\n,]/).map(word => word.trim()).filter(Boolean),
+  diaperChecks: { enabled: $("diaperEnabled").checked, channel: $("diaperChannel").value, role: $("diaperRole").value },
+  showcase: { enabled: $("showcaseEnabled").checked, channel: $("showcaseChannel").value },
+  starboard: { enabled: $("starEnabled").checked, channel: $("starChannel").value, audience: $("starAudience").value, sources: [...$("sources").selectedOptions].map(option => option.value), emoji: $("starEmoji").value, threshold: Number($("threshold").value) },
 })); });
 $("roleForm").addEventListener("submit", event => { event.preventDefault(); void run(async () => {
   let message = $("message").value.trim(), channel = $("roleChannel").value;
@@ -91,6 +108,7 @@ $("roleForm").addEventListener("submit", event => { event.preventDefault(); void
   await action({ action: "reaction-add", channel, message, choices });
   $("roleChoices").replaceChildren(); addChoice(); // Keep the message selected so admins can add more choices to it.
 }); });
+$("starAudience").addEventListener("change", () => renderSources());
 $("addChoice").addEventListener("click", () => { addChoice(); $("roleChoices").lastElementChild.querySelector("input").focus(); });
 $("guild").addEventListener("change", () => void run(loadGuild));
 $("refresh").addEventListener("click", () => void run(loadGuild));

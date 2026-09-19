@@ -34,7 +34,11 @@ export function adminFixture(t) {
     } },
   };
   const makeChannel = id => ({ id, guildId: ids.guild, name: id === ids.board ? "starboard" : "general", type: ChannelType.GuildText, nsfw: false,
-    permissionsFor: member => new PermissionsBitField(member === f.everyone && f.privateSource && id === ids.source ? [] : [P.ViewChannel, P.ReadMessageHistory, P.SendMessages, P.AddReactions, P.EmbedLinks]),
+    permissionsFor: member => new PermissionsBitField(
+      (member === f.everyone && (f.privateSource && id === ids.source || f.privateChannels?.includes(id))) ||
+      (member !== f.everyone && f.roleBlind?.includes(`${member?.id}:${id}`))
+        ? [] : [P.ViewChannel, P.ReadMessageHistory, P.SendMessages, P.AddReactions, P.EmbedLinks, P.AttachFiles]),
+    // f.privateChannels hides a channel from @everyone; f.roleBlind hides one from a specific role.
     messages: {
       async fetch(input) { if (f.messageMissing) throw Object.assign(new Error("Missing"), { code: 10008 }); return f.message; },
       async edit(id, payload) { if (!f.posts.has(id)) throw Object.assign(new Error("Missing"), { code: 10008 }); f.edited.push(payload); f.posts.set(id, payload); },

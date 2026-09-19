@@ -1,5 +1,5 @@
 import { PermissionFlagsBits as P, ChannelType } from "discord.js";
-import { AdminError, discordId } from "./store.js";
+import { AdminError, discordId, swearWordList } from "./store.js";
 import { selfServiceRole, textChannel } from "./access.js";
 import { guildEmojiResolver } from "./emojis.js";
 
@@ -9,11 +9,15 @@ export function createAdminService(client, store, access, community, env = proce
       if (!guildId) return { guilds: await access.list(session), username: session.username, csrf: session.csrf };
       const { guild, member } = await access.require(session, guildId);
       const [channels, roles, bot] = await Promise.all([guild.channels.fetch(), guild.roles.fetch(), guild.members.fetchMe()]);
+      const audiences = [...roles.values()].filter(role => role.id !== guild.id);
       return {
         guild: { id: guild.id, name: guild.name }, settings: store.settings(guild.id), bindings: store.bindings(guild.id), audit: store.history(guild.id),
         channels: [...channels.values()].filter(channel => channel && [ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(channel.type) && channel.permissionsFor(bot)?.has([P.ViewChannel, P.ReadMessageHistory]))
-          .map(channel => ({ id: channel.id, name: channel.name, public: Boolean(channel.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel)), nsfw: Boolean(channel.nsfw) })),
+          .map(channel => ({ id: channel.id, name: channel.name, public: Boolean(channel.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel)), nsfw: Boolean(channel.nsfw),
+            viewers: audiences.filter(role => channel.permissionsFor(role)?.has(P.ViewChannel)).map(role => role.id) })),
         roles: [...roles.values()].filter(role => selfServiceRole(role, guild, bot, member)).map(role => ({ id: role.id, name: role.name })),
+        readableRoles: audiences.map(role => ({ id: role.id, name: role.name })),
+        // Membership and channel visibility are only read for diaper checks and the starboard audience, so any role may be named there.
         status: { connected: client.isReady(), ping: Math.max(0, Math.round(client.ws.ping)),
           swearJarAvailable: env.LIDOLLID_ENABLED === "true" && env.LIDOLLCOIN_ENABLED === "true" && env.SWEAR_JAR_ENABLED !== "false",
           welcomesAvailable: env.WELCOME_ENABLED !== "false", chatChannel: env.CHANNEL_ID || "All channels" },
@@ -27,19 +31,51 @@ export function createAdminService(client, store, access, community, env = proce
         if ([input.chat, input.swearJar, input.welcomes].some(value => typeof value !== "boolean")) throw new AdminError("Choose on or off for each bot control.");
         const board = input.starboard;
         if (!board || typeof board.enabled !== "boolean" || !Number.isInteger(board.threshold) || board.threshold < 1 || board.threshold > 100 || !Array.isArray(board.sources) || board.sources.length > 50) throw new AdminError("Choose a star threshold from one to one hundred and at most fifty source channels.");
-        const normalized = { enabled: board.enabled, channel: board.channel || "", threshold: board.threshold, emoji: await resolveEmoji(board.emoji), sources: [...new Set(board.sources.map(discordId))] };
+        const ignored = input.swearJarIgnored ?? []; // Older clients that never send the list keep the swear jar watching every channel.
+        if (!Array.isArray(ignored) || ignored.length > 100) throw new AdminError("Choose at most one hundred ignored swear-jar channels.");
+        const swearJarIgnored = [...new Set(ignored.map(discordId))];
+        const swearWords = swearWordList(input.swearWords); // An omitted or empty list keeps the deployment's own word list.
+        const checks = input.diaperChecks ?? { enabled: false, channel: "", role: "" }; // Older clients that never send the block leave diaper checks off.
+        if (!checks || typeof checks !== "object" || Array.isArray(checks) || typeof checks.enabled !== "boolean") throw new AdminError("Choose on or off for diaper checks.");
+        const diaperChecks = { enabled: checks.enabled, channel: checks.channel ? discordId(checks.channel) : "", role: checks.role ? discordId(checks.role) : "" };
+        if (diaperChecks.enabled) {
+          if (!diaperChecks.channel) throw new AdminError("Choose a channel for diaper checks.");
+          const target = await textChannel(guild, diaperChecks.channel, [P.ViewChannel, P.ReadMessageHistory, P.SendMessages]);
+          if (target.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel)) throw new AdminError("Choose a diaper check channel that is not visible to @everyone; these questions are personal.");
+          if (!diaperChecks.role) throw new AdminError("Choose the role whose members take part in diaper checks.");
+          const role = await guild.roles.fetch(diaperChecks.role);
+          if (!role || role.id === guild.id) throw new AdminError("Choose a real role for diaper checks.");
+        } // Require an explicit opt-in role and a non-public channel before MommyBot asks anyone about accidents.
+        const show = input.showcase ?? { enabled: false, channel: "" }; // Older clients that never send the block leave the showcase off.
+        if (!show || typeof show !== "object" || Array.isArray(show) || typeof show.enabled !== "boolean") throw new AdminError("Choose on or off for the character showcase.");
+        const showcase = { enabled: show.enabled, channel: show.channel ? discordId(show.channel) : "" };
+        if (showcase.enabled) {
+          if (!showcase.channel) throw new AdminError("Choose a channel for the LiDollQuest character showcase.");
+          await textChannel(guild, showcase.channel, [P.ViewChannel, P.SendMessages, P.EmbedLinks, P.AttachFiles]);
+        } // Character sheets carry an image, so the showcase channel needs Embed Links and Attach Files.
+        const normalized = { enabled: board.enabled, channel: board.channel || "", threshold: board.threshold, emoji: await resolveEmoji(board.emoji),
+          audience: board.audience ? discordId(board.audience) : "", sources: [...new Set(board.sources.map(discordId))] };
         if (normalized.enabled || normalized.channel) {
           const target = await textChannel(guild, normalized.channel, [P.ViewChannel, P.ReadMessageHistory, P.SendMessages, P.EmbedLinks]);
-          if (normalized.enabled && !normalized.sources.length) throw new AdminError("Choose at least one public source channel.");
+          if (normalized.enabled && !normalized.sources.length) throw new AdminError("Choose at least one source channel the audience can see.");
+          let audience = null;
+          if (normalized.audience) {
+            audience = await guild.roles.fetch(normalized.audience);
+            if (!audience || audience.id === guild.id) throw new AdminError("Choose a real audience role for the starboard, or leave it open to @everyone.");
+            if (target.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel)) throw new AdminError("A role-restricted starboard must not be visible to @everyone, or its highlights would reach a wider audience than their source.");
+            if (!target.permissionsFor(audience)?.has(P.ViewChannel)) throw new AdminError("The starboard channel must be visible to the audience role.");
+          } // A narrower audience is always safe; the starboard may never be seen by more people than a source channel.
           for (const id of normalized.sources) {
             const source = await textChannel(guild, id);
             if (id === target.id) throw new AdminError("The starboard cannot also be a source channel.");
-            if (!source.permissionsFor(guild.roles.everyone)?.has(P.ViewChannel)) throw new AdminError("Starboard source channels must be visible to @everyone.");
+            if (!source.permissionsFor(audience ?? guild.roles.everyone)?.has(P.ViewChannel)) {
+              throw new AdminError(audience ? "Starboard source channels must be visible to the audience role." : "Starboard source channels must be visible to @everyone.");
+            }
             if (source.nsfw && !target.nsfw) throw new AdminError("Age-restricted source channels need an age-restricted starboard.");
           }
         }
         const { actor } = await access.require(session, guild.id);
-        store.save(guild.id, { chat: input.chat, swearJar: input.swearJar, welcomes: input.welcomes, starboard: normalized }, actor);
+        store.save(guild.id, { chat: input.chat, swearJar: input.swearJar, swearJarIgnored, swearWords, welcomes: input.welcomes, diaperChecks, showcase, starboard: normalized }, actor);
         return { ok: true, message: "Settings saved. Existing highlights refresh during synchronization; new reactions use these settings now." };
       }
       if (input.action === "reaction-add") {
