@@ -121,6 +121,29 @@ in the browser client, which is hosted separately. Until a server-side renderer
 exists, the paperdoll message shows appearance fields rather than a picture; no
 MommyBot change is needed once `portrait_png` starts arriving.
 
+## Joins versus returns
+
+MommyBot tells a real arrival apart from someone coming back to the keyboard.
+
+A **join** is announced as *just joined*, in pink, and pings the `lidollmmo` role.
+It means the game saw a genuine arrival: the player had explicitly left the world,
+had never entered before, or signed in again and was issued a new grant.
+
+A **return** is announced as *back at the keyboard*, in muted violet, and **never
+pings the role**. It means the same signed-in session came back after its
+heartbeats lapsed: a slept tab, a closed laptop lid, a dropped connection. Nothing
+was left and nobody signed in again.
+
+The game decides this at the moment of entry, where it can still see whether a
+presence row survived and which grant owns it. Leaving deletes that row and a
+fresh sign-in issues a new grant, so either reads as a join; the same grant
+returning to a row it never removed reads as a return.
+
+Heartbeats and movement never announce anything by themselves, and a gap under two
+minutes is still treated as one continuous session, so brief reconnects stay quiet.
+A game server too old to report arrival kinds has every arrival announced as a
+join, exactly as before.
+
 ## Diagnose missing announcements
 
 The game server's `GET /health` is only a liveness check. A 200 response does

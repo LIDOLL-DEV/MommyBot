@@ -20,10 +20,16 @@ export function onlineConfig(env = process.env) {
 export function joinMessage(stream, event, roleId) {
   const name = escapeMarkdown(event.name.replace(/[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g, " ").slice(0, 80));
   const marker = createHash("sha256").update(`${stream}:${event.id}`).digest("hex");
-  return { content: roleId ? `<@&${roleId}>` : undefined, embeds: [{ color: 0xd58cdb, title: "Someone’s here! 🌸", description: `**${name}** just joined **LiDollMMO**. Come say hello!\n\n[Play LiDollMMO](https://lidoll.dev/)`,
-    footer: { text: `LiDollMMO join · ${marker}` } }],
-    allowedMentions: { parse: [], users: [], roles: roleId ? [roleId] : [] }, nonce: marker.slice(0, 24), enforceNonce: true };
-} // Only the explicitly resolved lidollmmo role may ping; character names cannot mention other users or roles.
+  const returning = event.kind === "return";
+  const ping = returning ? null : roleId; // Coming back from away is worth noting, never worth pinging the whole role for.
+  return { content: ping ? `<@&${ping}>` : undefined, embeds: [{ color: returning ? 0xb9a3da : 0xd58cdb,
+    title: returning ? "Back again! 🌙" : "Someone’s here! 🌸",
+    description: returning
+      ? `**${name}** is back at the keyboard in **LiDollMMO**.\n\n[Play LiDollMMO](https://lidoll.dev/)`
+      : `**${name}** just joined **LiDollMMO**. Come say hello!\n\n[Play LiDollMMO](https://lidoll.dev/)`,
+    footer: { text: `LiDollMMO ${returning ? "return" : "join"} · ${marker}` } }],
+    allowedMentions: { parse: [], users: [], roles: ping ? [ping] : [] }, nonce: marker.slice(0, 24), enforceNonce: true };
+} // Only the explicitly resolved lidollmmo role may ping, and only for a real arrival; character names cannot mention anyone.
 
 export function createOnlinePublisher(client, { env = process.env, config, fetcher = fetch, now = Date.now, logger = console } = {}) {
   try { if (config === undefined) config = onlineConfig(env); }

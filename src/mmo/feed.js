@@ -31,6 +31,8 @@ export async function onlinePage(config, after, fetcher = fetch) {
   let previous = after;
   for (const event of result.events) {
     if (!Number.isSafeInteger(event.id) || event.id <= previous || event.id > result.latest_cursor || typeof event.name !== "string" || !event.name.trim() || event.name.length > 80 || !Number.isSafeInteger(event.joined_at) || event.joined_at < 0 || ![0, 1].includes(event.online)) throw invalid();
+    if (event.kind === undefined) event.kind = "join"; // A game server without arrival kinds announces everything as a join, exactly as before.
+    if (!["join", "return"].includes(event.kind)) throw invalid();
     previous = event.id;
   }
   if (result.events.length && result.next_cursor !== previous || result.has_more && !result.events.length) throw invalid();

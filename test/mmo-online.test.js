@@ -110,3 +110,47 @@ test("only the destination server's unique mentionable lidollmmo role can be pin
   await f.publisher.poll(); assert.equal(f.sent.length, 1);
   assert.deepEqual(f.sent[0].allowedMentions.roles, [f.role.id]);
 });
+
+test("a return from away is announced differently from a join and never pings the role", async t => {
+  const f = fixture(t);
+  await f.publisher.poll(); // The first pass only establishes the future-only baseline.
+  f.add({ kind: "return" });
+  await f.publisher.poll();
+  assert.equal(f.sent.length, 1);
+  assert.equal(f.sent[0].content, undefined); // Coming back from away is worth noting, not worth a role ping.
+  assert.deepEqual(f.sent[0].allowedMentions, { parse: [], users: [], roles: [] });
+  assert.match(f.sent[0].embeds[0].title, /Back again/);
+  assert.match(f.sent[0].embeds[0].description, /is back at the keyboard/);
+  assert.match(f.sent[0].embeds[0].footer.text, /LiDollMMO return/);
+  f.add({ kind: "join" });
+  await f.publisher.poll();
+  assert.equal(f.sent.length, 2);
+  assert.equal(f.sent[1].content, `<@&${f.role.id}>`);
+  assert.match(f.sent[1].embeds[0].description, /just joined/);
+  assert.match(f.sent[1].embeds[0].footer.text, /LiDollMMO join/);
+  assert.notEqual(f.sent[0].nonce, f.sent[1].nonce);
+});
+
+test("an older game server without arrival kinds still announces joins, and a bad kind is rejected", async t => {
+  const f = fixture(t);
+  await f.publisher.poll();
+  f.add(); // No kind field at all.
+  await f.publisher.poll();
+  assert.equal(f.sent.length, 1);
+  assert.match(f.sent[0].embeds[0].description, /just joined/);
+  assert.equal(f.sent[0].content, `<@&${f.role.id}>`);
+  f.add({ kind: "afk" });
+  await f.publisher.poll();
+  assert.equal(f.sent.length, 1); // An unrecognized kind is a feed error, never a guess.
+  assert.ok(f.logs.some(line => /feed_invalid_data/.test(line)));
+});
+
+test("joinMessage keeps both wordings free of injected mentions", () => {
+  const stream = "00000000-0000-4000-8000-000000000000";
+  for (const kind of ["join", "return"]) {
+    const payload = joinMessage(stream, { id: 1, name: "@everyone <@123>", kind }, "999");
+    assert.deepEqual(payload.allowedMentions.parse, []); // Neither wording can resolve an injected mention.
+    assert.deepEqual(payload.allowedMentions.users, []);
+    assert.deepEqual(payload.allowedMentions.roles, kind === "return" ? [] : ["999"]);
+  }
+});
