@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { IdentityStore } from "../src/auth/store.js";
-import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS } from "../src/diaperCheck/store.js";
+import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS, FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS, RANDOM_GAP_MS } from "../src/diaperCheck/store.js";
 import { createDiaperChecks, diaperCheckStatus } from "../src/diaperCheck/index.js";
 import { createCareSource } from "../src/diaperCheck/careSource.js";
 import { exactDiaperReply, classifyDiaperReply } from "../src/graph/diaperCheckReply.js";
@@ -14,7 +14,7 @@ const BRIDGE = { DIAPER_CHECKS_ENABLED: "true", LIDOLLID_ENABLED: "true" };
 
 function fixture(t, env = {}) {
   const directory = mkdtempSync(path.join(tmpdir(), "mommybot-diaper-"));
-  const f = { now: START, sent: [], replies: [], audits: [], kinds: [], events: [], members: new Map(), roles: new Map(), silent: false, nextId: 500 };
+  const f = { now: START, sent: [], replies: [], audits: [], kinds: [], events: [], members: new Map(), roles: new Map(), prompts: [], silent: false, nextId: 500 };
   f.identities = new IdentityStore(path.join(directory, "identity.db"), () => f.now);
   f.settings = { enabled: true, channel: "check-channel", role: "little-role" };
   f.channel = { id: "check-channel", guildId: "guild", isTextBased: () => true,
@@ -38,6 +38,7 @@ function fixture(t, env = {}) {
       settings: () => ({ diaperChecks: f.settings }),
       audit: (guild, actor, action, detail) => f.audits.push({ guild, actor, action, detail }),
       generateMessage: async kind => { f.kinds.push(kind); return f.generate ? f.generate(kind) : null; },
+      generateReply: async (text, options) => { f.prompts.push({ text, answer: options?.answer }); return f.reply ?? null; },
       classifyReply: async (...args) => f.classify ? f.classify(...args) : exactDiaperReply(args[0]) ?? "unclear",
     });
   };
@@ -343,4 +344,100 @@ test("the admin check refuses non-administrators, unconfigured servers, opted-ou
   assert.match((await f.command()).content, /already has a diaper check waiting/);
   assert.equal(f.sent.length, 1);
   assert.equal(await f.bot.handleInteraction({ isChatInputCommand: () => true, commandName: "lidollid", options: { getSubcommand: () => "ask" } }), false);
+});
+
+test("Sakura keeps talking after a check closes, which the chat channel gate would otherwise silence", async t => {
+  const f = fixture(t); f.link("alice");
+  f.accident("alice");
+  await f.bot.tick();
+  assert.equal(await f.bot.handleMessage(f.message("no mommy")), true);
+  assert.equal(f.replies.length, 1);
+  f.now += 5 * 60_000;
+  f.reply = "Good girl for changing yourself, sweetheart!";
+  assert.equal(await f.bot.handleMessage(f.message("i changed 5 minutes ago")), true);
+  assert.equal(f.replies.length, 2);
+  assert.equal(f.replies[1].content, "Good girl for changing yourself, sweetheart!");
+  assert.deepEqual(f.prompts[0], { text: "i changed 5 minutes ago", answer: "no" }); // The reply sees their message and the answer it follows.
+  f.reply = null;
+  assert.equal(await f.bot.handleMessage(f.message("thanks mommy")), true);
+  assert.match(f.replies[2].content, /keeping Mommy in the loop/); // A missing AI server still gets an answer.
+});
+
+test("a correction during the follow-up window gets the matching reply, not a generic one", async t => {
+  const f = fixture(t); f.link("alice");
+  f.accident("alice");
+  await f.bot.tick();
+  await f.bot.handleMessage(f.message("no mommy"));
+  assert.deepEqual(f.kinds, ["ask", "denied"]);
+  assert.equal(await f.bot.handleMessage(f.message("yes")), true); // A decided answer, not free-form chat.
+  assert.deepEqual(f.kinds, ["ask", "denied", "confirmed"]);
+  assert.equal(await f.bot.handleMessage(f.message("im not wearing a diaper")), true);
+  assert.deepEqual(f.kinds, ["ask", "denied", "confirmed", "undiapered"]);
+  assert.equal(f.prompts.length, 0); // Decided answers never go to the free-form reply.
+});
+
+test("the follow-up conversation is bounded by a window, a reply cap and the member's own channel", async t => {
+  const f = fixture(t); f.link("alice");
+  f.accident("alice");
+  await f.bot.tick();
+  await f.bot.handleMessage(f.message("no mommy"));
+  for (let turn = 0; turn < MAX_FOLLOWUPS; turn++) {
+    assert.equal(await f.bot.handleMessage(f.message(`chatting ${turn}`)), true, `turn ${turn}`);
+  }
+  assert.equal(await f.bot.handleMessage(f.message("still chatting")), false); // The cap hands the channel back to ordinary handling.
+  assert.equal(f.store.db.prepare("SELECT followups FROM diaper_checks").get().followups, MAX_FOLLOWUPS);
+  const g = fixture(t); g.link("alice");
+  g.accident("alice");
+  await g.bot.tick();
+  await g.bot.handleMessage(g.message("no mommy"));
+  g.now += FOLLOWUP_WINDOW_MS + 1000;
+  assert.equal(await g.bot.handleMessage(g.message("still there mommy?")), false); // The window closes on its own.
+  g.now -= FOLLOWUP_WINDOW_MS;
+  assert.equal(await g.bot.handleMessage(g.message("over here", { channelId: "elsewhere" })), false);
+  assert.equal(await g.bot.handleMessage(g.message("hi", { author: { id: "bob", bot: false } })), false);
+});
+
+test("only one member is asked at a time per server; the rest wait their turn", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob"); f.link("cara");
+  f.accident("alice"); f.accident("bob"); f.accident("cara");
+  await f.bot.tick();
+  assert.equal(f.sent.length, 1); // Three accidents, one question.
+  assert.equal(f.checks().length, 1);
+  await f.bot.tick();
+  assert.equal(f.sent.length, 1); // Repeated passes do not stack more while one is open.
+  const asked = f.checks()[0].user_id;
+  assert.equal(await f.bot.handleMessage(f.message("no mommy", { author: { id: asked, bot: false } })), true);
+  await f.bot.tick();
+  assert.equal(f.sent.length, 2); // The next accident is asked only once the first closes.
+  assert.equal(new Set(f.checks().map(check => check.user_id)).size, 2); // A different member's turn, not a repeat.
+  await f.bot.tick();
+  assert.equal(f.sent.length, 2);
+});
+
+test("a deferred accident is not marked seen, so it is still asked about later", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob");
+  f.accident("alice"); f.accident("bob");
+  await f.bot.tick();
+  assert.equal(f.store.db.prepare("SELECT COUNT(*) AS n FROM diaper_events").get().n, 1); // Only the asked one is journaled.
+  const asked = f.checks()[0].user_id;
+  await f.bot.handleMessage(f.message("no", { author: { id: asked, bot: false } }));
+  await f.bot.tick();
+  assert.equal(f.store.db.prepare("SELECT COUNT(*) AS n FROM diaper_events").get().n, 2);
+  assert.deepEqual(f.checks().map(check => check.user_id).sort(), ["alice", "bob"]);
+});
+
+test("random checks leave a calm gap after the previous check in that server", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob");
+  f.store.db.prepare("INSERT INTO diaper_schedule VALUES ('guild','alice',?)").run(START - 1);
+  f.store.db.prepare("INSERT INTO diaper_schedule VALUES ('guild','bob',?)").run(START - 1);
+  await f.bot.tick();
+  assert.equal(f.sent.length, 1);
+  const asked = f.checks()[0].user_id;
+  await f.bot.handleMessage(f.message("no", { author: { id: asked, bot: false } }));
+  f.now += 60_000;
+  await f.bot.tick();
+  assert.equal(f.sent.length, 1); // Answered, but still inside the calm gap.
+  f.now += RANDOM_GAP_MS;
+  await f.bot.tick();
+  assert.equal(f.sent.length, 2);
 });

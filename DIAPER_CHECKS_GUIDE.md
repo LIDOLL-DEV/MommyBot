@@ -45,12 +45,24 @@ while one is pending does not stack another prompt.
 ## Random checks
 
 If a participating member has gone a full random window of **six to twelve hours**
-without any check, they become due. MommyBot picks one due member at random per
-server per pass, rather than always asking whoever has waited longest, and asks
-them for a status update. Every check of either kind redraws that member's window.
+without any check, they become due. MommyBot picks one due member at random,
+rather than always asking whoever has waited longest, and asks them for a status
+update. Every check of any kind redraws that member's window.
 
 A newly eligible member waits a full window before their first check, so enabling
 the feature does not immediately ping everyone.
+
+## One at a time
+
+A server only ever has **one open question**. While a member has been asked and
+has not answered, no other member is asked, whether by accident, at random or on
+demand. A deferred accident is not marked as seen, so it is still asked about once
+the channel is free rather than being lost.
+
+Random checks additionally leave a **30-minute gap** after the previous check in
+that server, so answering quickly does not immediately summon the next person.
+Accident checks are not gapped, only serialized: a real accident is asked about as
+soon as the previous question closes.
 
 ## Answers
 
@@ -87,6 +99,27 @@ administrators only.
 An **unreachable classifier never returns "no"**, so an AI outage can never cause
 someone to be accused of fibbing. Unanswered questions expire after an hour, are
 not chastised for silence, and stop blocking the next check.
+
+## Continuing the conversation
+
+A closed check does not end the exchange. For **15 minutes** afterwards, up to
+**four** more messages from that member in the check channel get a reply, so
+saying *"I changed five minutes ago"* after answering is acknowledged instead of
+ignored.
+
+This matters because the check channel is normally outside `CHANNEL_ID`, so
+ordinary conversation replies never reach it: without this, Sakura would simply
+go silent the moment a check closed.
+
+If the follow-up is itself a decided answer, it gets the matching reply rather
+than small talk: **yes** is praised as a correction, and **not wearing one** gets
+the protection reminder. Anything else gets a warm free-form reply.
+
+That free-form reply is the one place a member's own words reach the chat model,
+bounded to that single message and the previous answer, exactly as the classifier
+already is. No records, history, counts or identities are sent. With the AI
+unavailable, a fixed acknowledgement is used. Past the window or the reply cap,
+the channel goes back to ordinary handling.
 
 ## Asking on demand
 

@@ -5,6 +5,9 @@ export const HOUR = 3_600_000;
 export const CHECK_MIN_MS = 6 * HOUR;
 export const CHECK_MAX_MS = 12 * HOUR;
 export const ANSWER_WINDOW_MS = 60 * 60_000;
+export const FOLLOWUP_WINDOW_MS = 15 * 60_000;
+export const MAX_FOLLOWUPS = 4;
+export const RANDOM_GAP_MS = 30 * 60_000;
 export const SILENT_START_HOUR = 22;
 export const SILENT_END_HOUR = 6;
 
@@ -30,6 +33,9 @@ export class DiaperCheckStore {
       CREATE INDEX IF NOT EXISTS diaper_checks_work ON diaper_checks(state,asked,notified);
       CREATE TABLE IF NOT EXISTS diaper_schedule (
       guild_id TEXT NOT NULL, user_id TEXT NOT NULL, next_check INTEGER NOT NULL, PRIMARY KEY(guild_id,user_id));`);
+    const columns = new Set(this.db.prepare("PRAGMA table_info(diaper_checks)").all().map(column => column.name));
+    if (!columns.has("followups")) this.db.exec("ALTER TABLE diaper_checks ADD COLUMN followups INTEGER NOT NULL DEFAULT 0");
+    // Existing journals gain conversation counters without losing any saved question or answer.
   } // Keep seen events, open questions and per-member scheduling durable so a restart never re-asks or double-asks.
 
   interval() { return CHECK_MIN_MS + this.draw(CHECK_MAX_MS - CHECK_MIN_MS + 1); } // A uniform 6-12 hour gap, redrawn after every check.
@@ -40,9 +46,10 @@ export class DiaperCheckStore {
     this.db.prepare("INSERT INTO diaper_cursor VALUES (1,?) ON CONFLICT(id) DO UPDATE SET position=excluded.position").run(position);
   } // Remember where the read-only feed pass stopped; this is never an acknowledgement to Little Log.
 
-  seen(event) {
+  seenAlready(id) { return Boolean(this.db.prepare("SELECT 1 FROM diaper_events WHERE id=?").get(id)); }
+  markSeen(event) {
     return this.db.prepare("INSERT OR IGNORE INTO diaper_events VALUES (?,?,?,?)")
-      .run(event.id, event.sequence, event.kind, this.now()).changes === 0;
+      .run(event.id, event.sequence ?? 0, event.kind, this.now()).changes === 0;
   } // Journal each event ID the first time it is read, so an unacknowledged feed never asks about the same accident twice.
 
   prune() {
@@ -53,6 +60,19 @@ export class DiaperCheckStore {
   open(guild, user) {
     return this.db.prepare("SELECT * FROM diaper_checks WHERE guild_id=? AND user_id=? AND state='open' ORDER BY created DESC LIMIT 1").get(guild, user);
   }
+  openInGuild(guild) {
+    return this.db.prepare("SELECT * FROM diaper_checks WHERE guild_id=? AND state='open' ORDER BY created LIMIT 1").get(guild);
+  } // One question at a time per server, so several accidents or overdue members never fill the channel at once.
+  lastStarted(guild) {
+    return this.db.prepare("SELECT MAX(created) AS created FROM diaper_checks WHERE guild_id=?").get(guild)?.created ?? 0;
+  }
+  recentAnswered(guild, user, channel, now = this.now()) {
+    return this.db.prepare(`SELECT * FROM diaper_checks WHERE guild_id=? AND user_id=? AND channel_id=? AND state='answered'
+      AND notified=1 AND answered>? AND followups<? ORDER BY answered DESC LIMIT 1`)
+      .get(guild, user, channel, now - FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS);
+  } // Keep talking for a short while after a check closes, with a hard reply cap so the channel cannot become an endless chat.
+  bumpFollowup(id) { this.db.prepare("UPDATE diaper_checks SET followups=followups+1 WHERE id=?").run(id); }
+
   openAnywhere(user) {
     return this.db.prepare("SELECT * FROM diaper_checks WHERE user_id=? AND state='open' ORDER BY created DESC LIMIT 1").get(user);
   } // A member is only ever asked one question at a time, so a second accident cannot stack another prompt.

@@ -1,8 +1,8 @@
 import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import { generateDiaperCheckMessage } from "../graph/diaperCheckMessage.js";
+import { generateDiaperCheckMessage, generateDiaperCheckReply } from "../graph/diaperCheckMessage.js";
 import { classifyDiaperReply } from "../graph/diaperCheckReply.js";
 import { currentPronouns } from "../bot/pronouns.js";
-import { DiaperCheckStore, silentHour, ANSWER_WINDOW_MS } from "./store.js";
+import { DiaperCheckStore, silentHour, ANSWER_WINDOW_MS, RANDOM_GAP_MS } from "./store.js";
 
 const ASK_REQUEST = "Please answer Mommy with **yes** or **no**.";
 const FALLBACKS = {
@@ -13,6 +13,7 @@ const FALLBACKS = {
   undiapered: "Sweetheart, you are not wearing your protection, and that simply will not do. Please go and put a fresh one on for Mommy right now, then tell Mommy you are all set.",
   status: "Thank you for checking in with Mommy, sweetheart. Tell Mommy the moment you need a change. 💗",
   unclear: "Mommy could not quite tell, sweetheart.",
+  followup: "Mommy hears you, sweetheart. Thank you for keeping Mommy in the loop. 💗",
 }; // Every notice has a fixed, factual wording so a missing AI server never blocks or garbles a check.
 
 export function buildDiaperCheckCommand() {
@@ -30,7 +31,7 @@ export function diaperCheckStatus(env = process.env, { identities = env.LIDOLLID
 } // Explain every configuration that silently prevents checks, without printing records or member identities.
 
 export function createDiaperChecks(client, identities, env = process.env, {
-  generateMessage = generateDiaperCheckMessage, classifyReply = classifyDiaperReply,
+  generateMessage = generateDiaperCheckMessage, generateReply = generateDiaperCheckReply, classifyReply = classifyDiaperReply,
   settings = () => null, audit = () => {}, store, care = null, now = Date.now, isSilent = time => silentHour(time),
   interval = 60_000,
 } = {}) {
@@ -99,11 +100,35 @@ export function createDiaperChecks(client, identities, env = process.env, {
     if (await send(check, outcome(check))) journal.markNotified(check.id);
   }
 
+  async function followUp(message) {
+    const recent = journal.recentAnswered(message.guildId, message.author.id, message.channelId, now());
+    if (!recent) return false;
+    const activity = Symbol(`diaper-followup:${message.id}`);
+    active.add(activity);
+    try {
+      const context = await eligible(message.guildId, message.author.id).catch(() => null);
+      if (!context) return false;
+      journal.bumpFollowup(recent.id); // Count the exchange before replying, so a failed send cannot be retried into a loop.
+      const answer = await classifyReply(message.content, { env });
+      if (answer === "yes" || answer === "undiapered") {
+        await send(recent, answer === "yes" ? "confirmed" : "undiapered", { reply: message });
+        return true;
+      } // A member who corrects themselves afterwards gets the matching reply, not a generic one.
+      const pronouns = await currentPronouns(context.guild, message.author.id, context.member);
+      const prose = await generateReply(message.content, { answer: recent.answer, env, pronouns }).catch(() => null);
+      await message.reply({ content: prose || FALLBACKS.followup, allowedMentions: { parse: [], users: [], repliedUser: true } });
+      return true;
+    } catch {
+      console.error(`[Diaper check] Could not continue a conversation in guild ${message.guildId}.`);
+      return true; // The member was answered or will be next time; never fall through to unrelated handling mid-exchange.
+    } finally { active.delete(activity); }
+  } // Keep talking briefly after a check closes: the check channel is usually outside CHANNEL_ID, so ordinary chat would never reply there.
+
   async function handleMessage(message) {
     if (stopped || !message.guildId || message.author?.bot || message.webhookId) return false;
     if (!message.content?.trim()) return false;
     const check = journal.open(message.guildId, message.author.id);
-    if (!check || !check.asked || check.channel_id !== message.channelId) return false;
+    if (!check || !check.asked || check.channel_id !== message.channelId) return followUp(message);
     if (now() - check.created > ANSWER_WINDOW_MS) return false; // A stale question is closed by maintenance, not answered here.
     const activity = Symbol(`diaper:${message.id}`);
     active.add(activity);
@@ -159,13 +184,16 @@ export function createDiaperChecks(client, identities, env = process.env, {
   async function poll() {
     for (const accident of care.accidents()) {
       if (stopped) return;
-      if (journal.seen({ id: accident.id, sequence: 0, kind: accident.kind })) continue;
+      if (journal.seenAlready(accident.id)) continue;
+      let deferred = false;
       for (const guild of client.guilds.cache.keys()) {
         const context = await eligible(guild, accident.discordId);
         if (!context) continue;
+        if (journal.openInGuild(guild)) { deferred = true; continue; } // Wait for the open question to be answered rather than stacking another.
         journal.record({ guild, user: accident.discordId, channel: context.settings.channel,
           kind: "evidence", event: accident.id, eventKind: accident.kind });
       }
+      if (!deferred) journal.markSeen(accident); // A deferred accident stays unseen so the next pass can still ask about it.
     }
   } // Each accident episode is journaled by its own key the first time it is seen, so a member is asked about it exactly once.
 
@@ -174,6 +202,8 @@ export function createDiaperChecks(client, identities, env = process.env, {
       if (stopped) return;
       const saved = guildSettings(guildId);
       if (!saved?.role) continue; // Random checks need a role to choose from.
+      if (journal.openInGuild(guildId)) continue; // Never ask a second member while a question is still waiting.
+      if (now() - journal.lastStarted(guildId) < RANDOM_GAP_MS) continue; // Leave a calm gap between checks in the same server.
       const linked = identities.discordLinks().map(link => link.discord_id);
       const overdue = journal.due(guildId, linked);
       while (overdue.length) {
