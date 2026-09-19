@@ -20,6 +20,10 @@ export function pronounInstruction(pronouns = "they/them") {
   return "This member uses they/them pronouns. Use gender-neutral endearments such as sweetheart or darling; do not call this member a girl, boy, woman or man, or use she/her or he/him.";
 } // Only fixed application text reaches the model; role names and arbitrary Discord profile text are not instructions.
 
+export function goodTerm(pronouns = "they/them") {
+  return pronouns === "she/her" ? "good girl" : pronouns === "he/him" ? "good boy" : "good little one";
+} // Praise uses the same three designated roles as every other address; an absent or conflicting role stays neutral.
+
 export function mismatchedAddress(text, pronouns = "they/them") {
   const masculine = /\b(?:boys?|men|man|guys?|dudes?|sons?|sir|mister|mr|gentlem[ae]n|lads?|bros?|brothers?|prince|king|male|he|him|his|himself)\b/i;
   const feminine = /\b(?:girls?|women|woman|lad(?:y|ies)|daughter|sister|princess|queen|female|she|her|hers|herself)\b/i;

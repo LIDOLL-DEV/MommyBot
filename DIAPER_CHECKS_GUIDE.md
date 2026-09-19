@@ -23,24 +23,41 @@ sent. Leaving the server has the same effect.
 
 MommyBot reads **Littlepottchi care state directly, in process**. Littlepottchi is
 MommyBot's own game, so there is no network call, no bridge URL and no credential
-involved: each pass scans saved players and derives a current accident from
-`care.leaking`, `care.mess` or `care.wetness`, in that order. Needing a wipe alone
-is cleanup, not a fresh accident.
+involved: each pass reads every saved player's current diaper revision and derives
+an accident from `care.leaking`, `care.mess` or `care.wetness`, in that order.
 
 Only players who have actually opened Littlepottchi are scanned, and only those
 whose verified LiD0llID identity matches a confirmed Discord link. A browser-only
 game account with no Discord link is skipped.
 
+**Using a diaper never tags the member who used it.** It only records that they
+are due to be asked. MommyBot then picks one member who has used their diaper
+**within the last four hours** and asks them, so a check never arrives the instant
+someone has an accident. After four hours an unattended accident stops counting.
+
 This is deliberately **not** the `/littlepottchi/integration/v1/events` feed that
 MommyBot serves to Little Log. That feed exists for Little Log's push bridge: it
 only contains events for players who enabled *Receive pet reminders through Little
-Log*, and reading it marks entries acknowledged. Diaper checks must not depend on
-that unrelated opt-in, and must not consume Little Log's delivery queue.
+Log*, and reading it marks entries acknowledged.
 
-Each accident episode is journaled by a `user:kind:revision` key the first time it
-is seen, so a member is asked about a given accident exactly once, even across
-restarts. A member has at most one open question at a time: a second accident
-while one is pending does not stack another prompt.
+Each accident is keyed by the member and the moment it was first seen, so the same
+accident is never asked about twice, even after a question expires unanswered.
+
+## Fresh diapers
+
+When a member's diaper revision changes after a soiled one, they have put on a
+fresh diaper. MommyBot praises them in the check channel, using the wording their
+pronoun role calls for: **good girl** for she/her, **good boy** for he/him, and
+**good little one** otherwise, exactly as every other address in the bot works.
+
+Praise is a moment rather than a question. It never occupies the one open check
+slot, is never queued for later, and is given once per change. A change during
+quiet hours is simply not announced rather than announced hours late.
+
+**A change within fifteen minutes of the accident settles it.** That member is no
+longer asked about the accident at all: the fresh diaper has already answered the
+question, so they get praise instead of a check. A change that comes later still
+earns praise, but the check is still asked.
 
 ## Random checks
 
@@ -52,17 +69,21 @@ update. Every check of any kind redraws that member's window.
 A newly eligible member waits a full window before their first check, so enabling
 the feature does not immediately ping everyone.
 
-## One at a time
+## One at a time, and everyone in turn
 
 A server only ever has **one open question**. While a member has been asked and
 has not answered, no other member is asked, whether by accident, at random or on
-demand. A deferred accident is not marked as seen, so it is still asked about once
-the channel is free rather than being lost.
-
-Random checks additionally leave a **30-minute gap** after the previous check in
+demand. Checks additionally leave a **30-minute gap** after the previous one in
 that server, so answering quickly does not immediately summon the next person.
-Accident checks are not gapped, only serialized: a real accident is asked about as
-soon as the previous question closes.
+
+Who gets asked is a **rotation, not a raffle**. MommyBot logs every member it has
+called, and always draws from those called fewest times, at random among ties. So
+everyone eligible is asked once before anyone is asked a second time. The call log
+is durable, so a restart does not reset the rotation.
+
+Members who have used their diaper in the last four hours are always preferred
+over a routine status check; the rotation applies within whichever group is being
+drawn from.
 
 ## Answers
 

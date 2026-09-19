@@ -1,6 +1,6 @@
 import { buildSystemPrompt } from "./prompt.js";
 import { modelEndpoint, modelFailure } from "./connection.js";
-import { pronounInstruction, mismatchedAddress } from "../bot/pronouns.js";
+import { pronounInstruction, mismatchedAddress, goodTerm } from "../bot/pronouns.js";
 
 const MESSAGE_PROMPTS = {
   ask: "Ask this little one, kindly and directly, whether they have had an accident and need a change. Invite a simple yes or no answer. Do not state that you already know, and do not accuse them of anything.",
@@ -8,6 +8,7 @@ const MESSAGE_PROMPTS = {
   confirmed: "This little one has just honestly admitted they had an accident. Warmly praise that honesty in Sakura's Mommy voice, reassure them that accidents are perfectly okay, and gently suggest getting changed. Do not scold this little one.",
   denied: 'This little one said they have NOT had an accident, but Mommy\'s records show they have. Gently chastise them for fibbing to Mommy in Sakura\'s playful voice. Include the exact phrase "fibbing to Mommy". Be affectionate and disappointed, never cruel, insulting or humiliating. Ask them to be honest next time and to get changed. Do not invent details, times or counts.',
   undiapered: 'This little one says they are not wearing a diaper at all right now. Gently chastise them for going without in Sakura\'s playful Mommy voice, and ask them to go and put a fresh one on for Mommy. Include the exact phrase "not wearing your protection". Be affectionate and firm, never cruel, humiliating or explicit. Do not invent details, times or counts, and do not discuss accidents they have not mentioned.',
+  changed: "This little one has just put on a fresh diaper all by themselves. Praise them warmly and proudly for taking such good care of themselves. Use the exact praise phrase the instruction above gives you. Do not ask them anything, do not mention accidents, records, times or counts, and do not start a diaper check.",
   status: "This little one has answered their diaper status check and says they are still clean and dry. Thank them warmly for checking in with Mommy and encourage them to keep telling Mommy when they need a change.",
   unclear: "This little one answered a diaper check, but Mommy could not tell whether the answer was yes or no. Sweetly ask them to answer again with a plain yes or no. Do not guess at their answer and do not scold them.",
 }; // Choose wording from the saved check outcome, without sending any record, message text or account detail to the chat model.
@@ -24,7 +25,7 @@ export async function generateDiaperCheckMessage(kind, { env = process.env, fetc
         chat_template_kwargs: { enable_thinking: false },
         messages: [
           { role: "system", content: `${buildSystemPrompt(env)}\nYou are writing a short MommyBot diaper-check notification. Write one or two warm, caring sentences in your established voice. Be gentle and affectionate, never humiliating, clinical or explicit. Output only the message, without reasoning, quotes, headings or code fences. The application appends the exact answer instructions and any mention. Do not include numbers, times, counts, records, commands, links, mentions or account details. Do not claim to quote a record. Do not use swear words.` },
-          { role: "user", content: `${pronounInstruction(pronouns)}\n${MESSAGE_PROMPTS[kind] ?? MESSAGE_PROMPTS.ask} /no_think` },
+          { role: "user", content: `${pronounInstruction(pronouns)}${kind === "changed" ? `\nCall this member "${goodTerm(pronouns)}" exactly, and use no other gendered praise.` : ""}\n${MESSAGE_PROMPTS[kind] ?? MESSAGE_PROMPTS.ask} /no_think` },
         ],
       }),
     });
@@ -36,6 +37,7 @@ export async function generateDiaperCheckMessage(kind, { env = process.env, fetc
     if (!text || text.length > 500 || /<\/?think\b|```|@|https?:|\d|\/lidollid/i.test(text)) throw new Error("Unusable message text");
     if (kind === "denied" && !/\bfibbing to mommy\b/i.test(text)) throw new Error("Missing honesty reminder"); // Preserve the requested correction even if the model omits it.
     if (kind === "undiapered" && !/\bnot wearing your protection\b/i.test(text)) throw new Error("Missing protection reminder");
+    if (kind === "changed" && !new RegExp(`\\b${goodTerm(pronouns)}\\b`, "i").test(text)) throw new Error("Missing praise phrase"); // That exact praise is the whole point of this notice.
     if (mismatchedAddress(text, pronouns)) {
       throw new Error("Incorrect member address");
     } // Reject address that conflicts with this recipient's role; the factual fallback is gender-neutral.

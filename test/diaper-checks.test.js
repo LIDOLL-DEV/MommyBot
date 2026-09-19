@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { IdentityStore } from "../src/auth/store.js";
-import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS, FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS, RANDOM_GAP_MS } from "../src/diaperCheck/store.js";
+import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS, FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS, RANDOM_GAP_MS, ACCIDENT_WINDOW_MS, CHANGE_SUPERSEDES_MS } from "../src/diaperCheck/store.js";
 import { createDiaperChecks, diaperCheckStatus } from "../src/diaperCheck/index.js";
 import { createCareSource } from "../src/diaperCheck/careSource.js";
 import { exactDiaperReply, classifyDiaperReply } from "../src/graph/diaperCheckReply.js";
@@ -14,7 +14,7 @@ const BRIDGE = { DIAPER_CHECKS_ENABLED: "true", LIDOLLID_ENABLED: "true" };
 
 function fixture(t, env = {}) {
   const directory = mkdtempSync(path.join(tmpdir(), "mommybot-diaper-"));
-  const f = { now: START, sent: [], replies: [], audits: [], kinds: [], events: [], members: new Map(), roles: new Map(), prompts: [], silent: false, nextId: 500 };
+  const f = { now: START, sent: [], replies: [], audits: [], kinds: [], events: [], members: new Map(), roles: new Map(), prompts: [], states: new Map(), silent: false, nextId: 500 };
   f.identities = new IdentityStore(path.join(directory, "identity.db"), () => f.now);
   f.settings = { enabled: true, channel: "check-channel", role: "little-role" };
   f.channel = { id: "check-channel", guildId: "guild", isTextBased: () => true,
@@ -23,14 +23,15 @@ function fixture(t, env = {}) {
     assert.equal(force, true);
     if (f.membershipError) throw f.membershipError;
     if (!f.members.has(user)) throw Object.assign(new Error("Unknown member"), { code: 10007 });
-    return { id: user, user: { id: user, bot: f.members.get(user) }, roles: { cache: new Map((f.roles.get(user) ?? []).map(role => [role, role])) } };
+    return { id: user, user: { id: user, bot: f.members.get(user) }, roles: { cache: new Map((f.roles.get(user) ?? []).map(role => [role, { id: role, name: role }])) } };
+    // Values carry a name so pronoun roles resolve exactly as they do on a real member.
   } } };
   f.client = { guilds: { cache: new Map([["guild", f.guild]]) },
     channels: { async fetch(id) { return id === "check-channel" ? f.channel : null; } } };
-  f.care = { accidents() {
+  f.care = { observe() {
     if (f.feedError) throw f.feedError;
-    return f.events.slice();
-  } }; // Stand in for the live Littlepottchi care scan; the real one derives these from each saved player's care state.
+    return [...f.states.values()];
+  } }; // Stand in for the live Littlepottchi scan, which reports each linked player's diaper revision and accident state.
   f.store = new DiaperCheckStore(path.join(directory, "checks.db"), { now: () => f.now, draw: max => f.drawValue ?? Math.floor(max / 2) });
   f.open = () => {
     f.bot = createDiaperChecks(f.client, f.identities, { ...BRIDGE, ...env }, {
@@ -47,9 +48,9 @@ function fixture(t, env = {}) {
     f.identities.db.prepare("INSERT OR REPLACE INTO identity_links VALUES (?,?,?,?,?)").run(user, "issuer", `sub-${user}`, user, f.now);
     if (member) { f.members.set(user, bot); f.roles.set(user, roles); }
   };
-  f.accident = (user, { kind = "wet", episode = f.events.length + 1 } = {}) => {
-    f.events.push({ id: `${user}:${kind}:${episode}`, kind, discordId: user });
-  }; // One entry per care episode, exactly as the live scan keys them.
+  f.accident = (user, { kind = "wet", revision = "r1" } = {}) => f.states.set(user, { discordId: user, revision, kind });
+  f.changed = (user, { revision = "r2" } = {}) => f.states.set(user, { discordId: user, revision, kind: null });
+  // A fresh revision with no accident is exactly what putting on a clean diaper looks like to the scan.
   f.message = (content, overrides = {}) => ({
     id: String(f.nextId++), guildId: "guild", channelId: "check-channel", createdTimestamp: f.now,
     author: { id: "alice", bot: false }, content,
@@ -146,10 +147,10 @@ test("no questions are posted during silent hours, and saved ones are asked once
   f.accident("alice");
   await f.bot.tick();
   assert.equal(f.sent.length, 0);
-  assert.equal(f.checks().length, 1); assert.equal(f.checks()[0].asked, 0); // The question is saved, not lost.
+  assert.equal(f.checks().length, 0); // Nobody is chosen during quiet hours at all.
   f.silent = false;
   await f.bot.tick();
-  assert.equal(f.sent.length, 1); assert.equal(f.checks()[0].asked, 1);
+  assert.equal(f.sent.length, 1); assert.equal(f.checks()[0].asked, 1); // The accident is still waiting to be asked about.
 });
 
 test("only role members in the server are asked, and losing the role stops further checks", async t => {
@@ -198,9 +199,12 @@ test("an unanswered question expires after its window and stops blocking the nex
   await f.bot.tick();
   assert.equal(f.checks()[0].state, "expired");
   assert.equal(await f.bot.handleMessage(f.message("yes mommy")), false); // An expired question cannot be answered late.
-  f.accident("alice", { episode: 2 });
   await f.bot.tick();
-  assert.equal(f.checks().length, 2); assert.equal(f.checks()[1].state, "open");
+  assert.equal(f.checks().length, 1); // The same accident is never asked about twice.
+  f.accident("alice", { revision: "r5" }); // A genuinely new accident, though.
+  await f.bot.tick();
+  assert.equal(f.checks().length, 2);
+  assert.equal(f.checks().filter(check => check.state === "open").length, 1);
 });
 
 test("messages outside the check channel, from other members and from bots are left alone", async t => {
@@ -258,18 +262,16 @@ test("status reports every configuration that silently prevents checks", () => {
 });
 
 test("checks need no Little Log bridge credential and never call out over HTTP", () => {
-  const source = createCareSource(null, {});
-  assert.equal(source, null); // Without Littlepottchi there is simply nothing to read.
+  assert.equal(createCareSource(null, {}), null); // Without Littlepottchi there is simply nothing to read.
   const players = [{ user_id: "alice" }, { user_id: "web_guest" }, { user_id: "bob" }];
-  const state = { alice: { care: { wetness: 1, revision: 7 } }, web_guest: { care: { mess: 1, revision: 2 } },
-    bob: { care: { revision: 3 } } };
+  const state = { alice: { care: { wetness: 1, revision: "r1" } }, web_guest: { care: { mess: 1, revision: "r9" } },
+    bob: { care: { revision: "r3" } } };
   const doll = { db: { prepare: () => ({ all: () => players }) },
     identity: user => user === "bob" ? null : { issuer: "issuer", subject: `sub-${user}` },
     player: user => state[user] };
   const identities = { find: (issuer, subject) => subject === "sub-alice" ? { discord_id: "alice" } : null };
-  const found = createCareSource(doll, identities).accidents();
-  assert.deepEqual(found, [{ id: "alice:wet:7", kind: "wet", discordId: "alice" }]);
-  // web_guest has no Discord link and bob has no verified identity or accident, so neither is asked.
+  assert.deepEqual(createCareSource(doll, identities).observe(), [{ discordId: "alice", revision: "r1", kind: "wet" }]);
+  // web_guest has no Discord link and bob has no verified identity, so neither is reported at all.
 });
 
 test("saying you are not wearing a diaper is recognized directly, and outranks a yes or no in the same message", async () => {
@@ -408,22 +410,44 @@ test("only one member is asked at a time per server; the rest wait their turn", 
   const asked = f.checks()[0].user_id;
   assert.equal(await f.bot.handleMessage(f.message("no mommy", { author: { id: asked, bot: false } })), true);
   await f.bot.tick();
-  assert.equal(f.sent.length, 2); // The next accident is asked only once the first closes.
+  assert.equal(f.sent.length, 1); // Answered, but the calm gap still applies.
+  f.now += RANDOM_GAP_MS;
+  await f.bot.tick();
+  assert.equal(f.sent.length, 2); // The next member is asked only once the first closes and the gap passes.
   assert.equal(new Set(f.checks().map(check => check.user_id)).size, 2); // A different member's turn, not a repeat.
   await f.bot.tick();
   assert.equal(f.sent.length, 2);
 });
 
-test("a deferred accident is not marked seen, so it is still asked about later", async t => {
-  const f = fixture(t); f.link("alice"); f.link("bob");
-  f.accident("alice"); f.accident("bob");
+test("the call log rotates through everyone before anyone repeats", () => {
+  const store = new DiaperCheckStore(":memory:", { now: () => START, draw: max => 0 });
+  const users = ["alice", "bob", "cara"], picked = [];
+  for (let turn = 0; turn < 6; turn++) {
+    const pick = store.nextInCycle("guild", users, START);
+    picked.push(pick); store.markCalled("guild", pick, START);
+  }
+  assert.deepEqual([...picked.slice(0, 3)].sort(), users); // A full rotation before anyone comes round again.
+  assert.deepEqual([...picked.slice(3)].sort(), users);
+  assert.deepEqual(store.db.prepare("SELECT user_id,cycle FROM diaper_roster ORDER BY user_id").all(),
+    users.map(user => ({ user_id: user, cycle: 2 })));
+  store.close();
+});
+
+test("three members with accidents are asked one each, never the same member twice", async t => {
+  const f = fixture(t);
+  for (const user of ["alice", "bob", "cara"]) { f.link(user); f.accident(user); }
+  const asked = [];
+  for (let round = 0; round < 3; round++) {
+    await f.bot.tick();
+    const open = f.checks().find(check => check.state === "open");
+    assert.ok(open, `round ${round} asked nobody`);
+    asked.push(open.user_id);
+    await f.bot.handleMessage(f.message("no", { author: { id: open.user_id, bot: false } }));
+    f.now += RANDOM_GAP_MS;
+  }
+  assert.deepEqual([...asked].sort(), ["alice", "bob", "cara"]);
   await f.bot.tick();
-  assert.equal(f.store.db.prepare("SELECT COUNT(*) AS n FROM diaper_events").get().n, 1); // Only the asked one is journaled.
-  const asked = f.checks()[0].user_id;
-  await f.bot.handleMessage(f.message("no", { author: { id: asked, bot: false } }));
-  await f.bot.tick();
-  assert.equal(f.store.db.prepare("SELECT COUNT(*) AS n FROM diaper_events").get().n, 2);
-  assert.deepEqual(f.checks().map(check => check.user_id).sort(), ["alice", "bob"]);
+  assert.equal(f.checks().length, 3); // Those accidents are all settled; nobody is asked about them again.
 });
 
 test("random checks leave a calm gap after the previous check in that server", async t => {
@@ -440,4 +464,61 @@ test("random checks leave a calm gap after the previous check in that server", a
   f.now += RANDOM_GAP_MS;
   await f.bot.tick();
   assert.equal(f.sent.length, 2);
+});
+
+test("a fresh diaper is praised with the member's own gendered wording", async t => {
+  const f = fixture(t);
+  f.link("alice", { roles: ["little-role", "she/her"] });
+  f.link("bob", { roles: ["little-role", "he/him"] });
+  f.link("cara", { roles: ["little-role"] });
+  for (const user of ["alice", "bob", "cara"]) f.accident(user);
+  await f.bot.tick();
+  f.sent.length = 0; f.kinds.length = 0;
+  f.now += CHANGE_SUPERSEDES_MS + 60_000; // Long enough that the change no longer settles a pending check.
+  for (const user of ["alice", "bob", "cara"]) f.changed(user);
+  await f.bot.tick();
+  const praise = f.sent.filter(message => /proud of you/.test(message.content));
+  assert.equal(praise.length, 3);
+  assert.match(praise.find(message => message.content.includes("<@alice>")).content, /good girl/);
+  assert.match(praise.find(message => message.content.includes("<@bob>")).content, /good boy/);
+  assert.match(praise.find(message => message.content.includes("<@cara>")).content, /good little one/);
+  assert.ok(f.kinds.every(kind => kind === "changed"));
+  await f.bot.tick();
+  assert.equal(f.sent.filter(message => /proud of you/.test(message.content)).length, 3); // Praised once per change.
+});
+
+test("a change within fifteen minutes settles the accident instead of a check", async t => {
+  const f = fixture(t); f.link("alice");
+  f.accident("alice");
+  f.store.observe({ discordId: "alice", revision: "r1", kind: "wet" }, f.now); // Seen before any check could be chosen.
+  f.now += 5 * 60_000;
+  f.changed("alice");
+  await f.bot.tick();
+  assert.match(f.sent[0].content, /good little one/);
+  assert.equal(f.checks().length, 0); // No question: the change already answered it.
+  f.now += RANDOM_GAP_MS;
+  await f.bot.tick();
+  assert.equal(f.checks().length, 0);
+});
+
+test("a change long after the accident still leaves the check to be asked", async t => {
+  const f = fixture(t); f.link("alice");
+  f.store.observe({ discordId: "alice", revision: "r1", kind: "wet" }, f.now);
+  f.now += CHANGE_SUPERSEDES_MS + 60_000;
+  f.changed("alice");
+  await f.bot.tick();
+  assert.equal(f.checks().length, 1); // Still asked, because the change came too late to settle it.
+  assert.equal(f.checks()[0].kind, "evidence");
+});
+
+test("using a diaper never tags its own member, and an accident outside the window stops counting", async t => {
+  const f = fixture(t); f.link("alice");
+  f.silent = true;
+  f.accident("alice");
+  await f.bot.tick();
+  assert.equal(f.sent.length, 0); assert.equal(f.checks().length, 0); // Quiet hours, and no automatic tag either way.
+  f.now += ACCIDENT_WINDOW_MS + 60_000;
+  f.silent = false;
+  await f.bot.tick();
+  assert.equal(f.checks().length, 0); // Four hours later that accident no longer earns a check.
 });

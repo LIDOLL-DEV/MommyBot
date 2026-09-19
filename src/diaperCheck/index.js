@@ -1,7 +1,7 @@
 import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { generateDiaperCheckMessage, generateDiaperCheckReply } from "../graph/diaperCheckMessage.js";
 import { classifyDiaperReply } from "../graph/diaperCheckReply.js";
-import { currentPronouns } from "../bot/pronouns.js";
+import { currentPronouns, goodTerm } from "../bot/pronouns.js";
 import { DiaperCheckStore, silentHour, ANSWER_WINDOW_MS, RANDOM_GAP_MS } from "./store.js";
 
 const ASK_REQUEST = "Please answer Mommy with **yes** or **no**.";
@@ -14,6 +14,7 @@ const FALLBACKS = {
   status: "Thank you for checking in with Mommy, sweetheart. Tell Mommy the moment you need a change. 💗",
   unclear: "Mommy could not quite tell, sweetheart.",
   followup: "Mommy hears you, sweetheart. Thank you for keeping Mommy in the loop. 💗",
+  changed: "", // Filled in per member, because the praise itself depends on their pronoun role.
 }; // Every notice has a fixed, factual wording so a missing AI server never blocks or garbles a check.
 
 export function buildDiaperCheckCommand() {
@@ -92,6 +93,20 @@ export function createDiaperChecks(client, identities, env = process.env, {
       journal.db.prepare("UPDATE diaper_checks SET state='expired',notified=1 WHERE id=? AND asked=0").run(check.id);
     } // A question that could not be delivered within its own answer window is abandoned rather than asked far too late.
   }
+
+  async function praiseChange(guildId, userId) {
+    const context = await eligible(guildId, userId).catch(() => null);
+    if (!context) return;
+    if (!journal.praise(userId, now())) return; // One compliment per change.
+    try {
+      const pronouns = await currentPronouns(context.guild, userId, context.member);
+      const prose = await generateMessage("changed", { env, pronouns }).catch(() => null);
+      const intro = prose || `What a ${goodTerm(pronouns)} you are, putting on a fresh diaper all by yourself. Mommy is very proud of you. 💗`;
+      const channel = await client.channels.fetch(context.settings.channel);
+      if (!channel?.isTextBased() || channel.guildId !== guildId) throw new Error("Diaper check channel unavailable");
+      await channel.send({ content: `${intro}\n\n<@${userId}>`, allowedMentions: { parse: [], users: [userId] } });
+    } catch { console.error(`[Diaper check] Could not praise a change in guild ${guildId}; it is not retried.`); }
+  } // Praise is a moment, not a question: it is never queued for later and never occupies the one open check slot.
 
   const outcome = check => check.answer === "undiapered" ? "undiapered" : check.answer === "yes" ? "confirmed" : check.event_id ? "denied" : "status";
   // Only a denial contradicted by a saved accident event is treated as a fib; a random check has nothing to contradict.
@@ -182,41 +197,44 @@ export function createDiaperChecks(client, identities, env = process.env, {
   } // An administrator may ask at any hour, including quiet hours, because the request is deliberate and immediate.
 
   async function poll() {
-    for (const accident of care.accidents()) {
+    for (const state of care.observe()) {
       if (stopped) return;
-      if (journal.seenAlready(accident.id)) continue;
-      let deferred = false;
-      for (const guild of client.guilds.cache.keys()) {
-        const context = await eligible(guild, accident.discordId);
-        if (!context) continue;
-        if (journal.openInGuild(guild)) { deferred = true; continue; } // Wait for the open question to be answered rather than stacking another.
-        journal.record({ guild, user: accident.discordId, channel: context.settings.channel,
-          kind: "evidence", event: accident.id, eventKind: accident.kind });
-      }
-      if (!deferred) journal.markSeen(accident); // A deferred accident stays unseen so the next pass can still ask about it.
+      const result = journal.observe(state, now());
+      if (!result?.change) continue;
+      if (result.supersedes) journal.clearAccident(state.discordId); // A change within fifteen minutes settles the accident instead of a check.
+      if (isSilent(now())) continue; // Praise is time-sensitive, so a quiet-hours change is simply not announced.
+      for (const guild of client.guilds.cache.keys()) await praiseChange(guild, state.discordId);
     }
-  } // Each accident episode is journaled by its own key the first time it is seen, so a member is asked about it exactly once.
+  } // Using a diaper never tags its own member; it only records that they are due to be asked at some point.
 
-  async function randomChecks() {
+  async function chooseCheck() {
     for (const guildId of client.guilds.cache.keys()) {
       if (stopped) return;
       const saved = guildSettings(guildId);
-      if (!saved?.role) continue; // Random checks need a role to choose from.
+      if (!saved?.role) continue; // Checks need a role to choose from.
       if (journal.openInGuild(guildId)) continue; // Never ask a second member while a question is still waiting.
       if (now() - journal.lastStarted(guildId) < RANDOM_GAP_MS) continue; // Leave a calm gap between checks in the same server.
       const linked = identities.discordLinks().map(link => link.discord_id);
-      const overdue = journal.due(guildId, linked);
-      while (overdue.length) {
+      const soiled = journal.soiled(linked, now()).filter(row => !journal.openAnywhere(row.user_id));
+      const overdue = journal.due(guildId, linked).filter(user => !journal.openAnywhere(user))
+        .map(user => ({ user_id: user, kind: null, accident_at: null }));
+      let remaining = soiled.length ? soiled : overdue;
+      // Someone who has actually used their diaper is always asked before a routine status check.
+      while (remaining.length) {
         if (stopped) return;
-        const pick = overdue.splice(journal.draw(overdue.length), 1)[0];
-        if (journal.openAnywhere(pick)) continue;
+        const pick = journal.nextInCycle(guildId, remaining.map(row => row.user_id), now());
+        const row = remaining.find(entry => entry.user_id === pick);
+        remaining = remaining.filter(entry => entry.user_id !== pick);
         const context = await eligible(guildId, pick).catch(() => null);
-        if (!context) { journal.reschedule(guildId, pick); continue; } // A departed or opted-out member simply waits another window.
-        journal.record({ guild: guildId, user: pick, channel: saved.channel, kind: "random" });
-        break; // One random check per server per pass keeps the channel calm.
+        if (!context) { journal.reschedule(guildId, pick); continue; } // A departed or opted-out member simply waits.
+        journal.markCalled(guildId, pick, now());
+        journal.record({ guild: guildId, user: pick, channel: saved.channel,
+          kind: row.accident_at ? "evidence" : "random",
+          event: row.accident_at ? `${pick}:${row.accident_at}` : null, eventKind: row.kind });
+        break; // One question per server per pass.
       }
     }
-  } // Choose uniformly among overdue role members rather than always asking the longest-waiting one.
+  } // Rotate through everyone before repeating, and always prefer a member who has actually used their diaper recently.
 
   async function runTick() {
     journal.expire(now());
@@ -224,8 +242,8 @@ export function createDiaperChecks(client, identities, env = process.env, {
     catch { console.error("[Diaper check] Could not read Littlepottchi care state; it will retry."); }
     if (stopped) return;
     if (!isSilent(now())) {
-      try { await randomChecks(); }
-      catch { console.error("[Diaper check] Could not schedule a random check; it will retry."); }
+      try { await chooseCheck(); }
+      catch { console.error("[Diaper check] Could not schedule a check; it will retry."); }
       for (const check of journal.unsent()) {
         if (stopped) return;
         await ask(check);
