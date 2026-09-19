@@ -62,6 +62,17 @@ so other people can see the character without the member's lookup being visible.
 `/lidollmmo character:<name or id>` picks a specific character; the reply lists a
 member's other characters. Each member may showcase once a minute.
 
+Character IDs are tried directly. Names are resolved from the linked account's
+returned character list (up to 25 entries), preferring an exact match and then a
+unique case-insensitive match. Duplicate names require an ID; private showcase
+replies include IDs alongside the available characters.
+
+If a character is unavailable, run `/lidollmmo` without a selection and check
+that the game uses the same LiD0llID as `/lidollid login`. An unavailable character
+does not necessarily mean you need to create another: account access can also
+prevent lookup. A generic HTTP 404 instead reports an endpoint problem; check
+`LIDOLLMMO_CHARACTER_URL` and deploy the game server's character route.
+
 Members need a LiD0llID account connected with `/lidollid login`: MommyBot maps
 the Discord user to their wallet `account_id`, which is the key LiDollQuest owns
 characters by. Nothing is posted for an unlinked member.

@@ -4,6 +4,11 @@ LiDollMMO arrival copy lives in `src/mmo/online.js`: "[Character] just joined
 LiDollMMO. Come say hello!" It is fixed Discord announcement copy, not NPC dialogue.
 Each notice also links **Play LiDollMMO** to `https://lidoll.dev/`.
 
+Character showcase errors are fixed private Discord replies in
+`src/mmo/character.js`. They guide players toward the same linked account or
+administrators toward endpoint repair, without declaring that an existing
+character must be recreated. No NPC dialogue branch is involved.
+
 ## Member address
 
 Sakura uses a member's current pronoun role: She/Her, He/Him or It's Complicated

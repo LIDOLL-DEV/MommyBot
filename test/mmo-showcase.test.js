@@ -115,7 +115,11 @@ test("the showcase is refused without a configured channel, a link or a wallet",
 test("game server and network failures produce a private, credential-free explanation", async t => {
   const f = fixture(t);
   f.status = 404;
-  assert.match((await f.run()).content, /No LiDollQuest character was found/);
+  assert.match((await f.run()).content, /character endpoint could not be found/);
+  f.body = { error: "character_unavailable" };
+  assert.match((await f.run()).content, /same LiD0llID/);
+  f.character = "missing";
+  assert.match((await f.run()).content, /same LiD0llID/); // A missing account cannot be repaired by selecting another character.
   f.status = 401;
   assert.match((await f.run()).content, /MOMMYBOT_ONLINE_TOKEN/);
   f.status = 503;
@@ -124,6 +128,56 @@ test("game server and network failures produce a private, credential-free explan
   assert.match((await f.run()).content, /could not be reached/);
   assert.equal(f.sent.length, 0);
   assert.doesNotMatch(JSON.stringify(f.logs), new RegExp(TOKEN));
+});
+
+test("character names resolve through the owner's list and IDs still work directly", async () => {
+  const requests = [];
+  const fetcher = async url => {
+    requests.push(new URL(url));
+    const id = url.searchParams.get("character_id");
+    const found = !id || id === "char-2";
+    const body = found ? sheet(id ? { character_id: id, name: "Second" } : {}) : { error: "character_unavailable" };
+    return { ok: found, status: found ? 200 : 404,
+      body: (async function* () { yield Buffer.from(JSON.stringify(body)); })() };
+  }; // Model the real server contract: selections are IDs, while the default sheet carries the owner's names.
+  const config = characterConfig(ENV);
+  assert.equal((await fetchCharacter(config, "account-1", { characterId: "second", fetcher })).id, "char-2");
+  assert.deepEqual(requests.map(url => url.searchParams.get("character_id")), ["second", null, "char-2"]);
+  assert.ok(requests.every(url => url.searchParams.get("account_id") === "account-1"));
+  requests.length = 0;
+  assert.equal((await fetchCharacter(config, "account-1", { characterId: "char-2", fetcher })).id, "char-2");
+  assert.equal(requests.length, 1);
+  await assert.rejects(fetchCharacter(config, "account-1", { characterId: "missing", fetcher }),
+    error => error.code === "character_missing" && /without a character selection/.test(error.message));
+});
+
+test("duplicate character names require an ID instead of silently picking a character", async () => {
+  const fetcher = async url => {
+    const selected = url.searchParams.has("character_id");
+    const body = selected ? { error: "character_unavailable" } : sheet({ characters: [
+      { id: "char-1", name: "Twin" }, { id: "char-2", name: "Twin" } ] });
+    return { ok: !selected, status: selected ? 404 : 200,
+      body: (async function* () { yield Buffer.from(JSON.stringify(body)); })() };
+  };
+  await assert.rejects(fetchCharacter(characterConfig(ENV), "account-1", { characterId: "Twin", fetcher }),
+    error => error.code === "character_ambiguous");
+});
+
+test("unknown 404 bodies stay private and do not trigger character-name retries", async () => {
+  for (const body of ["<html>private proxy error</html>", JSON.stringify({ error: "not_found", secret: TOKEN }),
+    "x".repeat(4097), "null"]) {
+    let calls = 0;
+    const fetcher = async () => {
+      calls++;
+      return { ok: false, status: 404, body: (async function* () { yield Buffer.from(body); })() };
+    };
+    await assert.rejects(fetchCharacter(characterConfig(ENV), "account-1", { characterId: "Friend", fetcher }), error => {
+      assert.equal(error.code, "character_endpoint_missing");
+      assert.doesNotMatch(error.message, /private proxy|Create one|x{43}/);
+      return true;
+    });
+    assert.equal(calls, 1);
+  }
 });
 
 test("a member may showcase once a minute, and a failed attempt does not spend the cooldown", async t => {

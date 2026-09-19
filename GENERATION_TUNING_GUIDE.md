@@ -3,6 +3,10 @@
 LiDollMMO online notices use fixed, gender-neutral wording and escaped character
 names. They do not call the model or include game activity beyond joining.
 
+`/lidollmmo` lookup failures also use fixed text. Distinguish unavailable
+characters from missing endpoints; do not generate claims that a player has
+never created a character from an HTTP status alone.
+
 ## Role-based pronouns
 
 The shared system prompt overrides legacy all-feminine persona instructions.

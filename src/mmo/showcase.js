@@ -99,7 +99,8 @@ export function createCharacterShowcase(client, wallet, identities, env = proces
         await channel.send(payload);
       } // Three separate messages, in the order asked for, so each can be reacted to and linked on its own.
       const others = character.characters.filter(entry => entry.id !== character.id);
-      await interaction.editReply({ content: `**${label(character.name)}** is on show in <#${channelId}>.${others.length ? `\n\nOther characters: ${others.map(entry => `\`${label(entry.name)}\``).join(", ")}. Use \`/lidollmmo character:<name or id>\` to show one of those instead.` : ""}`,
+      const choices = others.map(entry => `\`${label(entry.name)}\` (ID: \`${entry.id}\`)`).join(", ");
+      await interaction.editReply({ content: `**${label(character.name)}** is on show in <#${channelId}>.\nCharacter ID: \`${character.id}\`.${others.length ? `\n\nOther characters: ${choices.slice(0, 1500)}${choices.length > 1500 ? "…" : ""}. Use \`/lidollmmo character:<name or id>\` to show one of those instead.` : ""}`,
         allowedMentions: { parse: [] } });
     } catch (error) {
       cooldowns.delete(interaction.user.id);

@@ -1,5 +1,9 @@
 # Quest-making notes
 
+The `/lidollmmo` showcase reads existing characters and grants no quest progress.
+A failed lookup is not proof that a character or its quest progress is absent;
+check the linked account and server endpoint before asking players to start over.
+
 ## Discord community features
 
 Starboard votes and reaction roles are server features, not quests or currency

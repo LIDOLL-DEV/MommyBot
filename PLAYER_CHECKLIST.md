@@ -2,6 +2,12 @@
 
 ## Friends online
 
+- Use `/lidollmmo` to show your character in the configured showcase channel.
+  Select another with `character:<name or id>`; duplicate names need an ID from
+  the private reply. If lookup fails, retry without a selection and make sure
+  the game uses the same LiD0llID as `/lidollid login`. Endpoint errors need an
+  administrator's help, not a new character.
+
 - Signed-in LiDollMMO characters entering the shared world appear in #whos-online
   after the integration is enabled. Announcements use character names and ping
   the **lidollmmo** role. Brief reconnects do not post again.

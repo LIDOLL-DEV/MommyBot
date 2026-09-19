@@ -2,6 +2,11 @@
 
 ## LiDollMMO arrivals
 
+Character showcase lookups live in `src/mmo/character.js`. The game accepts
+character IDs; resolve names only through the linked owner's returned list.
+Only a 404 with `error: character_unavailable` establishes a lookup failure.
+Keep generic/proxy 404s distinct and never expose raw error bodies.
+
 `src/mmo/online.js` consumes LiDollQuest server's protected join feed. Keep the
 dedicated credential server-side, cursor/attempt journal durable, and Discord
 mentions restricted to the destination server's resolved lidollmmo role. The game records authenticated presence inside its command

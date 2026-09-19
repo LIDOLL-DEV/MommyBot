@@ -1,5 +1,13 @@
 # Testing MommyBot
 
+## LiDollMMO character showcase
+
+Run `node --test test/mmo-showcase.test.js` for direct ID lookup, owner-scoped
+name resolution, duplicate names, unavailable accounts/selections, and generic
+or malformed 404 responses. Fixtures verify private replies, bounded error
+bodies, credential-free errors and no public posts on failures. No live Discord
+messages or real account lookups are performed.
+
 ## LiDollMMO arrivals
 
 `test/mmo-online.test.js` covers opt-in/LAN configuration, future-only startup,
