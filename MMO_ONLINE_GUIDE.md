@@ -109,6 +109,39 @@ MommyBot validates and sanitizes every field before posting, stripping control
 and bidirectional-override characters so a character name cannot reorder or
 impersonate part of a Discord message.
 
+### When it says it cannot find your character
+
+Run the diagnostic as the bot account, with the member's Discord user ID:
+
+```
+sudo -u mommybot node /opt/mommybot/current/scripts/check-mmo-character.mjs <discord-user-id> /etc/mommybot/mommybot.env
+```
+
+It is read-only, sends no Discord messages, and prints a masked account ID rather
+than the real one or the bridge token. Each stage says what to fix:
+
+- **wallet link** - that member has never run `/lidollid login`, so MommyBot has
+  no account to ask about.
+- **wallet origin** - their wallet was connected against a different tracker than
+  `LIDOLLCOIN_API_URL` names now. A different tracker issues a different
+  `account_id`, so the game will not recognize it. They must run `/lidollid login`
+  again.
+- **character** - the game server has no character owned by that `account_id`.
+  This is the usual cause. Compare the masked ID against `quest_characters.owner`
+  on the game server: almost always the character was created under a different
+  LiD0llID than the one linked to Discord. Signing into the game with the linked
+  account and creating or selecting a character fixes it.
+- **game server** returning 404 without the expected body - the deployed
+  LiDollQuest predates `/integrations/mommybot/character`. Deploy the update.
+- **endpoint path** - `LIDOLLMMO_ONLINE_URL` does not end in `/joins`, so the
+  character URL could not be derived from it. Set `LIDOLLMMO_CHARACTER_URL`
+  explicitly.
+
+MommyBot identifies a player only by the `account_id` on their connected wallet,
+which is the same field LiDollQuest stores as `quest_characters.owner`. It never
+matches on Discord name, character name or LiD0llID username, so the two accounts
+must genuinely be the same one.
+
 ### The paperdoll image
 
 The endpoint may include a rendered `portrait_png`; MommyBot attaches it and
