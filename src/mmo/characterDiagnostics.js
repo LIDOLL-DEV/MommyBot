@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import { existsSync } from "node:fs";
 import { characterConfig } from "./character.js";
 import { OnlineError } from "./feed.js";
+import { WalletClient, WalletError, walletConfig } from "../wallet/client.js";
 
 const mask = value => {
   const text = String(value ?? "");
@@ -13,11 +14,11 @@ function walletAccount(discordId, filename = "data/wallet.db") {
   if (!existsSync(filename)) throw new OnlineError("wallet_db_missing", `No wallet database at ${filename}. Run this as the bot account from the release directory.`);
   const db = new Database(filename, { readonly: true });
   try {
-    const row = db.prepare("SELECT account_id,base_url,client_id,expires FROM online_wallets WHERE discord_id=?").get(String(discordId));
+    const row = db.prepare("SELECT account_id,base_url,client_id,expires,token FROM online_wallets WHERE discord_id=?").get(String(discordId));
     if (!row) throw new OnlineError("not_connected", "That Discord user has no connected wallet. They need /lidollid login before /lidollmmo can identify them.");
     return row;
   } finally { db.close(); }
-} // Read only the linkage /lidollmmo itself uses, from a read-only handle, and never the stored bearer token.
+} // Read only the linkage /lidollmmo itself uses, from a read-only handle, use the stored bearer only for the configured tracker lookup, never in diagnostic output.
 
 export async function inspectCharacter(env = process.env, discordId, { fetcher = fetch, filename } = {}) {
   const result = { ok: false, checks: [] };
@@ -39,13 +40,26 @@ export async function inspectCharacter(env = process.env, discordId, { fetcher =
   let account;
   try { account = walletAccount(discordId, filename ?? env.LIDOLLCOIN_DB ?? "data/wallet.db"); }
   catch (error) { add("wallet link", false, error.message); return result; }
-  add("wallet link", true, `MommyBot will ask LiDollQuest for account_id ${mask(account.account_id)}. It must match quest_characters.owner on the game server.`);
+  add("wallet link", true, `Bot wallet account: ${mask(account.account_id)}. This app-specific ID must be translated before asking LiDollQuest.`);
   if (account.base_url !== env.LIDOLLCOIN_API_URL && env.LIDOLLCOIN_API_URL) {
     add("wallet origin", false, `That connection was made against ${account.base_url}, but LIDOLLCOIN_API_URL is now ${env.LIDOLLCOIN_API_URL}. A wallet reconnected against a different tracker yields a different account_id. Have them run /lidollid login again.`);
   } else add("wallet origin", true, `Connection made against ${account.base_url}.`);
 
+  let gameAccount;
+  try {
+    const wallet = walletConfig({ ...env, LIDOLLCOIN_ENABLED: "true" });
+    if (wallet.baseUrl !== account.base_url || wallet.clientId !== account.client_id) throw new WalletError("configuration_changed", "The saved wallet belongs to different API settings. Restore them or reconnect before checking a character.");
+    if (account.expires <= Date.now()) throw new WalletError("invalid_token", "The saved wallet has expired. Run /lidollid login again.");
+    const linked = await new WalletClient(wallet, fetcher).questAccount(account.token);
+    if (linked.walletAccountId !== account.account_id) throw new WalletError("account_changed", "The tracker wallet does not match the saved connection. Reconnect before checking a character.");
+    gameAccount = linked.accountId;
+    add("game account link", true, `Game account: ${mask(gameAccount)}. Compare this game ID with quest_characters.owner; the bot wallet ID is intentionally different.`);
+  } catch (error) {
+    add("game account link", false, error instanceof WalletError ? error.message : "Invalid wallet configuration. Check LIDOLLCOIN_API_URL and LIDOLLCOIN_CLIENT_ID.");
+    return result;
+  } // No character request is made unless the tracker verifies the same linked wallet.
   const url = new URL(config.url);
-  url.searchParams.set("account_id", account.account_id);
+  url.searchParams.set("account_id", gameAccount);
   let response;
   try {
     response = await fetcher(url, { headers: { Authorization: `Bearer ${config.token}`, Accept: "application/json" },
@@ -57,7 +71,7 @@ export async function inspectCharacter(env = process.env, discordId, { fetcher =
   let body = null;
   try { body = JSON.parse(await response.text()); } catch { /* A proxy error page is not JSON; the status still classifies it. */ }
   if (response.status === 404 && body?.error === "character_unavailable") {
-    add("character", false, `The game server has no character owned by account_id ${mask(account.account_id)}, or that account is suspended. This is the usual cause: the LiD0llID used for /lidollid login is not the one the character was made under. Compare this masked ID against quest_characters.owner on the game server.`);
+    add("character", false, `The game server has no character owned by the translated game account_id ${mask(gameAccount)}, or that account is suspended. Check the character, game-server database and suspension status; this result alone does not prove the member linked the wrong account.`);
     return result;
   }
   if (response.status === 404) {

@@ -1,4 +1,5 @@
 import { AttachmentBuilder, escapeMarkdown, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { WalletError } from "../wallet/client.js";
 import { OnlineError, onlineFailure } from "./feed.js";
 import { characterConfig, fetchCharacter, GEAR_SLOTS } from "./character.js";
 
@@ -90,7 +91,8 @@ export function createCharacterShowcase(client, wallet, identities, env = proces
       if (!identities.get(interaction.user.id)) throw new OnlineError("not_linked", "Make a LiD0llID account if you don't have one, then use /lidollid login before showing your character.");
       const connection = wallet.connection(interaction.user.id);
       if (!connection?.account_id) throw new OnlineError("not_connected", "Connect your wallet with /lidollid login so MommyBot knows which LiDollQuest account is yours.");
-      const character = await fetchCharacter(config, connection.account_id,
+      const gameAccount = await wallet.questAccount(interaction.user.id); // Pairwise wallet IDs differ between lidollbot and lidollquest.
+      const character = await fetchCharacter(config, gameAccount,
         { characterId: interaction.options.getString("character") ?? "", fetcher });
       const channel = await client.channels.fetch(channelId);
       if (!channel?.isTextBased?.() || channel.guildId !== interaction.guildId) throw new OnlineError("discord_channel_invalid", "The showcase channel is unavailable. Ask an administrator to choose one MommyBot can post in.");
@@ -104,8 +106,8 @@ export function createCharacterShowcase(client, wallet, identities, env = proces
         allowedMentions: { parse: [] } });
     } catch (error) {
       cooldowns.delete(interaction.user.id);
-      if (!(error instanceof OnlineError)) logger.error(`[LiDollMMO] ${onlineFailure(error, "showcase")}`);
-      await interaction.editReply({ content: error instanceof OnlineError ? error.message : "MommyBot could not show your character just now. Try again shortly.",
+      if (!(error instanceof OnlineError) && !(error instanceof WalletError)) logger.error(`[LiDollMMO] ${onlineFailure(error, "showcase")}`);
+      await interaction.editReply({ content: error instanceof OnlineError || error instanceof WalletError ? error.message : "MommyBot could not show your character just now. Try again shortly.",
         allowedMentions: { parse: [] } }).catch(() => {});
     }
   } // Answer privately either way; only the character sheet itself is ever posted publicly.

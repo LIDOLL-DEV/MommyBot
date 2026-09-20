@@ -73,11 +73,23 @@ does not necessarily mean you need to create another: account access can also
 prevent lookup. A generic HTTP 404 instead reports an endpoint problem; check
 `LIDOLLMMO_CHARACTER_URL` and deploy the game server's character route.
 
-Members need a LiD0llID account connected with `/lidollid login`: MommyBot maps
-the Discord user to their wallet `account_id`, which is the key LiDollQuest owns
-characters by. Nothing is posted for an unlinked member.
+Members need a LiD0llID account connected with `/lidollid login`. Wallet IDs are
+app-specific: the tracker hashes `client_id + ":" + owner`. The same person has
+different IDs for `lidollbot` and `lidollquest`. MommyBot calls the authenticated
+tracker `quest-account?client_id=lidollbot` endpoint with that member's existing
+wallet grant, verifies the returned bot ID, and uses the translated game ID for
+the character lookup. Nothing is posted for an unlinked member or failed lookup.
+The saved bot wallet ID remains unchanged for payments.
 
 ### Enable it
+
+Deploy **Little Log first**, with the `quest-account` wallet API endpoint, then
+**MommyBot** with the updated showcase and diagnostic. No character backfill,
+wallet-ID rewrite, player relinking or GameMaker rebuild is needed. Existing
+valid grants continue to work; expired grants still need normal renewal. Keep
+both `lidollbot` and `lidollquest` registered in the tracker's `LIDOLLCOIN_APPS`.
+An old tracker produces a specific update-required message, never a fallback
+query using the bot's incompatible ID.
 
 On **LiDollQuest server**, no new setting is needed: the character endpoint
 reuses the existing `MOMMYBOT_ONLINE_TOKEN`. Deploy a build that includes
@@ -126,33 +138,36 @@ than the real one or the bridge token. Each stage says what to fix:
   `LIDOLLCOIN_API_URL` names now. A different tracker issues a different
   `account_id`, so the game will not recognize it. They must run `/lidollid login`
   again.
-- **character** - the game server has no character owned by that `account_id`.
-  This is the usual cause. Compare the masked ID against `quest_characters.owner`
-  on the game server: almost always the character was created under a different
-  LiD0llID than the one linked to Discord. Signing into the game with the linked
-  account and creating or selecting a character fixes it.
+- **game account link** - the tracker must support `quest-account` and accept
+  the member's wallet grant. Deploy the tracker update for an endpoint 404;
+  renew an expired/revoked grant. Configuration mismatches stop before any
+  stored token is sent to a different tracker.
+- **character** - the game server has no available character under the translated
+  game ID, or the account is suspended. Compare the masked **Game account**
+  with `quest_characters.owner`, and check the active database and suspension
+  status. This result alone does not establish that the wrong account was linked.
 - **game server** returning 404 without the expected body - the deployed
   LiDollQuest predates `/integrations/mommybot/character`. Deploy the update.
 - **endpoint path** - `LIDOLLMMO_ONLINE_URL` does not end in `/joins`, so the
   character URL could not be derived from it. Set `LIDOLLMMO_CHARACTER_URL`
   explicitly.
 
-MommyBot identifies a player only by the `account_id` on their connected wallet,
-which is the same field LiDollQuest stores as `quest_characters.owner`. It never
-matches on Discord name, character name or LiD0llID username, so the two accounts
-must genuinely be the same one.
+The diagnostic prints both masked IDs. **Bot wallet account** and **Game account**
+are expected to differ. Compare only the game ID with masked game-server owners;
+a masked value is not a usable input to an exact-ID lookup. MommyBot never joins
+accounts using Discord names, character names or LiD0llID usernames. The diagnostic
+reads the saved bearer grant only to contact its configured tracker, prints no
+credentials, and sends no Discord messages.
 
 ### The paperdoll image
 
 The endpoint may include a rendered `portrait_png`; MommyBot attaches it and
 otherwise posts the appearance fields with an `image unavailable` footer.
 
-**The game server does not render this image yet.** LiDollQuest server is
-headless: it holds no sprites, and `server/profile-items.json` maps item IDs to
-display names only. The item-to-sprite mapping and the paperdoll compositor live
-in the browser client, which is hosted separately. Until a server-side renderer
-exists, the paperdoll message shows appearance fields rather than a picture; no
-MommyBot change is needed once `portrait_png` starts arriving.
+Current LiDollQuest servers render the paperdoll using `server/paperdoll.mjs`
+and exported `server/paperdoll-assets/`. Include those assets when deploying the
+game server. A missing image does not prevent the text showcase; a deployment
+without those assets returns the appearance fields with no portrait.
 
 ## Joins versus returns
 

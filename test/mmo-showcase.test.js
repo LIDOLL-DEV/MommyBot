@@ -1,3 +1,4 @@
+import {WalletError} from "../src/wallet/client.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readCharacter, fetchCharacter, characterConfig, GEAR_SLOTS } from "../src/mmo/character.js";
@@ -19,7 +20,7 @@ function fixture(t, { body = sheet(), status = 200 } = {}) {
   f.client = { channels: { async fetch(id) { return id === "showcase" ? f.channel : null; } },
     guilds: { cache: new Map([["guild", { id: "guild" }]]) } };
   f.identities = { get: id => f.linked === false ? null : { discord_id: id, issuer: "issuer", subject: "sub" } };
-  f.wallet = { connection: () => f.connected === false ? null : { account_id: "account-1" } };
+  f.wallet = { connection: () => f.connected === false ? null : { account_id: "bot-account" }, questAccount: async () => { if(f.linkError)throw f.linkError;return "game-account"; } };
   f.fetcher = async url => {
     f.requests.push(String(url));
     if (f.networkError) throw new Error("offline");
@@ -94,7 +95,8 @@ test("the showcase posts three messages in the configured channel and answers pr
   assert.deepEqual(f.sent[1].allowedMentions, { parse: [], users: ["alice"] });
   assert.match(seen.content, /<#showcase>/);
   assert.match(seen.content, /Other characters: `Second`/);
-  assert.match(f.requests[0], /account_id=account-1/);
+  assert.match(f.requests[0], /account_id=game-account/);
+  assert.ok(f.requests.every(url=>!url.includes("bot-account")), "The app-specific bot ID never reaches the game lookup.");
 });
 
 test("the showcase is refused without a configured channel, a link or a wallet", async t => {
@@ -215,4 +217,11 @@ test("an oversized character response is refused instead of buffered", async () 
     for (let page = 0; page < 20; page++) yield Buffer.alloc(1_000_000);
   })() });
   await assert.rejects(fetchCharacter({ url: "http://host/character", token: TOKEN }, "account-1", { fetcher }), /larger than expected/);
+});
+
+
+test("showcase reports a missing tracker bridge without posting or falling back to the bot ID",async t=>{
+ const f=fixture(t);f.linkError=new WalletError("quest_bridge_unavailable","Deploy the updated tracker first.",404);
+ const result=await f.run();assert.match(result.content,/updated tracker/);
+ assert.deepEqual(f.requests,[]);assert.deepEqual(f.sent,[]);
 });

@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { inspectCharacter } from "../src/mmo/characterDiagnostics.js";
 
-const TOKEN = "x".repeat(43), ACCOUNT = "a".repeat(64), DISCORD = "123456789012345678";
+const TOKEN = "x".repeat(43), ACCOUNT = "a".repeat(64), GAME_ACCOUNT = "b".repeat(64), DISCORD = "123456789012345678";
 const ENV = { LIDOLLMMO_CHARACTERS_ENABLED: "true", LIDOLLMMO_ONLINE_URL: "http://10.1.1.23:4191/integrations/mommybot/joins",
   MOMMYBOT_ONLINE_TOKEN: TOKEN, LIDOLLCOIN_API_URL: "https://tracker.example/v1/" };
 
@@ -22,28 +22,30 @@ function walletDb(t, { account = ACCOUNT, base = "https://tracker.example/v1/" }
   return filename;
 }
 
-const reply = (status, body) => async () => ({ status, ok: status >= 200 && status < 300, async text() { return JSON.stringify(body); } });
+const gameLink = () => new Response(JSON.stringify({ account_id: GAME_ACCOUNT, wallet_account_id: ACCOUNT, client_id: "lidollquest" }), { status: 200 });
+const reply = (status, body) => async url => url.pathname.endsWith("/quest-account") ? gameLink() : new Response(JSON.stringify(body), { status });
 const find = (result, name) => result.checks.find(check => check.name === name);
 
 test("a healthy setup reports every stage as passing", async t => {
   const filename = walletDb(t);
   let asked;
   const result = await inspectCharacter(ENV, DISCORD, { filename, fetcher: async url => {
+    if(url.pathname.endsWith("/quest-account"))return gameLink();
     asked = new URL(url);
     return { status: 200, ok: true, async text() { return JSON.stringify({ name: "Friend", characters: [{ id: "c1", name: "Friend" }] }); } };
   } });
   assert.equal(result.ok, true);
   assert.equal(asked.pathname, "/integrations/mommybot/character");
-  assert.equal(asked.searchParams.get("account_id"), ACCOUNT);
+  assert.equal(asked.searchParams.get("account_id"), GAME_ACCOUNT);
   assert.match(find(result, "game server").detail, /Friend/);
 });
 
-test("the usual cause is named plainly: no character owned by that account", async t => {
+test("a missing character is reported after resolving the game account", async t => {
   const filename = walletDb(t);
   const result = await inspectCharacter(ENV, DISCORD, { filename, fetcher: reply(404, { error: "character_unavailable" }) });
   assert.equal(result.ok, false);
-  assert.match(find(result, "character").detail, /no character owned by account_id/);
-  assert.match(find(result, "character").detail, /not the one the character was made under/);
+  assert.match(find(result, "character").detail, /no character owned by the translated game account_id/);
+  assert.doesNotMatch(find(result, "character").detail, /usual cause|not the one the character was made under/);
 });
 
 test("a game server without the endpoint is distinguished from a missing character", async t => {
@@ -58,7 +60,7 @@ test("credential, disabled-sharing and unreachable game servers each get their o
   assert.match(find(await inspectCharacter(ENV, DISCORD, { filename, fetcher: reply(401, {}) }), "game server").detail, /same MOMMYBOT_ONLINE_TOKEN/);
   assert.match(find(await inspectCharacter(ENV, DISCORD, { filename, fetcher: reply(503, {}) }), "game server").detail, /disabled on the game server/);
   assert.match(find(await inspectCharacter(ENV, DISCORD, { filename, fetcher: reply(500, {}) }), "game server").detail, /HTTP 500/);
-  const offline = await inspectCharacter(ENV, DISCORD, { filename, fetcher: async () => { throw new Error("no route"); } });
+  const offline = await inspectCharacter(ENV, DISCORD, { filename, fetcher: async url => { if(url.pathname.endsWith("/quest-account"))return gameLink();throw new Error("no route"); } });
   assert.match(find(offline, "game server").detail, /Could not reach the game server/);
 });
 
@@ -87,5 +89,27 @@ test("the report never contains the bridge token or a whole account id", async t
   const text = JSON.stringify(result);
   assert.doesNotMatch(text, new RegExp(TOKEN));
   assert.doesNotMatch(text, new RegExp(ACCOUNT));
+  assert.doesNotMatch(text, new RegExp(GAME_ACCOUNT));
+  assert.doesNotMatch(text, /secret-token/);
   assert.match(text, /aaaaaa…aaaa \(64 chars\)/); // Enough to compare against the game server by eye.
+});
+
+
+test("an older tracker stops at account translation and never queries the game with a bot ID",async t=>{
+ const filename=walletDb(t),calls=[];
+ const result=await inspectCharacter(ENV,DISCORD,{filename,fetcher:async(url,options)=>{
+  calls.push(url.pathname);assert.equal(options.headers.Authorization,"Bearer secret-token");
+  return new Response(JSON.stringify({error:"not_found"}),{status:404});
+ }});
+ assert.equal(result.ok,false);assert.match(find(result,"game account link").detail,/deploy the updated tracker/);
+ assert.deepEqual(calls,["/v1/quest-account"]);
+});
+
+test("diagnostic rejects a tracker link for another wallet before contacting the game",async t=>{
+ const filename=walletDb(t),calls=[];
+ const result=await inspectCharacter(ENV,DISCORD,{filename,fetcher:async url=>{
+  calls.push(url.pathname);return new Response(JSON.stringify({account_id:GAME_ACCOUNT,wallet_account_id:"c".repeat(64),client_id:"lidollquest"}));
+ }});
+ assert.equal(result.ok,false);assert.match(find(result,"game account link").detail,/does not match the saved connection/);
+ assert.deepEqual(calls,["/v1/quest-account"]);
 });

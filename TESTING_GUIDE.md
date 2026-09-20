@@ -1,5 +1,7 @@
 # Testing MommyBot
 
+Character link regression: `node --test test/quest-account-link.test.js test/mmo-showcase.test.js test/mmo-character-diagnostics.test.js test/online-wallet.test.js`. Tests cover differing app IDs, unchanged payment IDs, translation failures, account switching, masked diagnostics and zero public messages on errors. The sibling game checkout adds `node --test test/mommybot-tracker.test.mjs` for the real tracker/game/bot flow with synthetic accounts and fake Discord delivery.
+
 ## LiDollMMO character showcase
 
 Run `node --test test/mmo-showcase.test.js` for direct ID lookup, owner-scoped

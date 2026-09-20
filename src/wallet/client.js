@@ -117,6 +117,18 @@ export class WalletClient {
     if(!/^[\w-]{20,100}$/.test(data.access_token||'')||data.token_type!=='Bearer'||!Number.isInteger(data.expires_in)||data.expires_in<1||data.expires_in>2592000||!['wallet:read','wallet:write','stars:read','stars:write','diamonds:read','diamonds:write'].every(s=>String(data.scope).split(' ').includes(s))||typeof data.identity?.issuer!=='string'||typeof data.identity?.subject!=='string')throw new WalletError('invalid_response','The login did not grant account and wallet access. Start /lidollid login again.');
     return data;
   }
+  async questAccount(token) {
+    let data;
+    try { data = await this.request("quest-account", { token }); }
+    catch (error) {
+      if (error.status === 404) throw new WalletError("quest_bridge_unavailable", "Little Log needs the character-link update. Ask Doll to deploy the updated tracker before trying /lidollmmo again.", 404);
+      throw error;
+    }
+    if (data.client_id !== "lidollquest" || !/^[a-f0-9]{64}$/.test(data.account_id ?? "") || !/^[a-f0-9]{64}$/.test(data.wallet_account_id ?? "")) {
+      throw new WalletError("invalid_response", "The tracker returned an invalid game-account link. Ask Doll to check its deployment.");
+    }
+    return { accountId: data.account_id, walletAccountId: data.wallet_account_id };
+  } // Ask the tracker for this grant's game identity; the bot wallet ID remains unchanged for payments.
   async balance(token) {
     const data = await this.request("wallet", { token });
     if (!/^[\w-]{1,128}$/.test(data.account_id || "") || ![data.balance, data.stars].every(n => Number.isSafeInteger(n) && n >= 0 && n <= 2147483647) || data.stars_enabled !== true) {

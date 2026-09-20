@@ -53,6 +53,15 @@ export class WalletService {
     if(this.identityFor&&binding){const identity=this.identityFor(userId);if(!identity||identity.issuer!==binding.issuer||identity.subject!==binding.subject)throw new WalletError('not_linked','Finish /lidollid login before using this wallet.');}
     return connection;
   }
+  async questAccount(userId) {
+    const connection = this.requireConnection(userId);
+    const linked = await this.client.questAccount(connection.token);
+    const current = this.requireConnection(userId);
+    if (linked.walletAccountId !== connection.account_id || current.account_id !== connection.account_id || current.token !== connection.token) {
+      throw new WalletError("account_changed", "The wallet account changed while linking your game character. Try /lidollmmo again.");
+    }
+    return linked.accountId;
+  } // Resolve existing characters without rewriting payment IDs; reject disconnects or account switches during the lookup.
   async balance(userId) {
     return this.exclusive(userId, () => this.readBalance(userId));
   } // Keep interactive balance checks serialized with account changes and payments.

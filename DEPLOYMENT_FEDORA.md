@@ -1,5 +1,7 @@
 # Fedora deployment and updates
 
+For the LiDollMMO character-link fix, deploy Little Log with `GET quest-account?client_id=lidollbot` first, then update MommyBot and restart it. Keep the existing game character endpoint and shared MOMMYBOT_ONLINE_TOKEN. Existing valid wallet grants and game characters need no migration or relinking. Run `scripts/check-mmo-character.mjs` afterward; compare its masked Game account with game-server owners, not its Bot wallet account.
+
 Prism Drop adds `/balldrop/` to the bot's existing HTTP listener. Include that
 path in your reverse proxy if routes are individually allowlisted. It uses the
 existing SSO/wallet setup; `BALLDROP_ENABLED=false` pauses new bets while keeping

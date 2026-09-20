@@ -1,5 +1,7 @@
 # Contributing to MommyBot
 
+Character account matching: call `WalletService.questAccount()` before fetching a showcase. The tracker translates the authenticated lidollbot grant to its existing lidollquest owner; keep online_wallets.account_id and every payment binding unchanged. Fail closed on a missing bridge, mismatched wallet, expired grant or account switch. See MMO_ONLINE_GUIDE.md for rollout.
+
 ## LiDollMMO arrivals
 
 Character showcase lookups live in `src/mmo/character.js`. The game accepts
