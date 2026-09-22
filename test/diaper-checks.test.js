@@ -6,7 +6,6 @@ import path from "node:path";
 import { IdentityStore } from "../src/auth/store.js";
 import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS, FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS, RANDOM_GAP_MS, ACCIDENT_WINDOW_MS, CHANGE_SUPERSEDES_MS } from "../src/diaperCheck/store.js";
 import { createDiaperChecks, diaperCheckStatus } from "../src/diaperCheck/index.js";
-import { createCareSource } from "../src/diaperCheck/careSource.js";
 import { exactDiaperReply, classifyDiaperReply } from "../src/graph/diaperCheckReply.js";
 
 const START = Date.parse("2026-09-14T15:00:00Z"), HOUR = 3_600_000;
@@ -260,19 +259,6 @@ test("status reports every configuration that silently prevents checks", () => {
   assert.match(diaperCheckStatus({ DIAPER_CHECKS_ENABLED: "true" }), /OFF: requires LIDOLLID_ENABLED/);
   assert.match(diaperCheckStatus(BRIDGE, { identities: true, care: false }), /^ON: random and administrator checks.*Littlepottchi is unavailable/);
   assert.match(diaperCheckStatus(BRIDGE), /^ON:/);
-});
-
-test("checks need no Little Log bridge credential and never call out over HTTP", () => {
-  assert.equal(createCareSource(null, {}), null); // Without Littlepottchi there is simply nothing to read.
-  const players = [{ user_id: "alice" }, { user_id: "web_guest" }, { user_id: "bob" }];
-  const state = { alice: { care: { wetness: 1, revision: "r1" } }, web_guest: { care: { mess: 1, revision: "r9" } },
-    bob: { care: { revision: "r3" } } };
-  const doll = { db: { prepare: () => ({ all: () => players }) },
-    identity: user => user === "bob" ? null : { issuer: "issuer", subject: `sub-${user}` },
-    player: user => state[user] };
-  const identities = { find: (issuer, subject) => subject === "sub-alice" ? { discord_id: "alice" } : null };
-  assert.deepEqual(createCareSource(doll, identities).observe(), [{ discordId: "alice", revision: "r1", kind: "wet" }]);
-  // web_guest has no Discord link and bob has no verified identity, so neither is reported at all.
 });
 
 test("saying you are not wearing a diaper is recognized directly, and outranks a yes or no in the same message", async () => {

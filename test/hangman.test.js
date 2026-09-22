@@ -9,7 +9,6 @@ import { WORDS, hangmanConfig } from "../src/hangman/words.js";
 import { WalletService } from "../src/wallet/service.js";
 import { WalletError } from "../src/wallet/client.js";
 import { GameSessions } from "../src/games/sessions.js";
-import { GachaSessions } from "../src/gacha/sessions.js";
 import { IdentityStore } from "../src/auth/store.js";
 import { createHangmanWeb } from "../src/hangman/web.js";
 import { createHangmanCommands } from "../src/hangman/index.js";
@@ -152,7 +151,8 @@ test("browser handoff, masked state, CSRF, namespace isolation and logout use th
   const f = fixture(t), identities = new IdentityStore(":memory:"); t.after(() => identities.close());
   identities.db.prepare("INSERT INTO identity_links VALUES (?,?,?,?,?)").run("alice", "issuer", "alice", "alice<script>", Date.now());
   const sessions = new GameSessions(f.game.db, identities, { prefix: "hangman", command: "/hangman", ErrorClass: HangmanError });
-  const atelier = new GachaSessions(f.game.db, identities), atelierToken = atelier.open(atelier.begin("alice"));
+  const atelier = new GameSessions(f.game.db, identities, { prefix: "diaper", command: "/diapers", ErrorClass: HangmanError });
+  const atelierToken = atelier.open(atelier.begin("alice")); // Another game's namespace, to prove one game's token cannot open another's.
   const config = { origin: "http://127.0.0.1", issuer: "https://auth.example" };
   const server = createAuthServer(config, identities, {}, f.wallet, createHangmanWeb(config, f.game, sessions));
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve)); config.origin = `http://127.0.0.1:${server.address().port}`;

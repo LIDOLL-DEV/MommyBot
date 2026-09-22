@@ -29,8 +29,6 @@ export function createAdminService(client, store, access, community, env = proce
       const resolveEmoji = guildEmojiResolver(guild);
       if (input.action === "settings") {
         if ([input.chat, input.swearJar, input.welcomes].some(value => typeof value !== "boolean")) throw new AdminError("Choose on or off for each bot control.");
-        if (input.littlepottchi !== undefined && typeof input.littlepottchi !== "boolean") throw new AdminError("Choose on or off for Littlepottchi.");
-        const littlepottchi = input.littlepottchi ?? store.settings(guild.id).littlepottchi; // Older clients that never send it keep the saved choice.
         const board = input.starboard;
         if (!board || typeof board.enabled !== "boolean" || !Number.isInteger(board.threshold) || board.threshold < 1 || board.threshold > 100 || !Array.isArray(board.sources) || board.sources.length > 50) throw new AdminError("Choose a star threshold from one to one hundred and at most fifty source channels.");
         const ignored = input.swearJarIgnored ?? []; // Older clients that never send the list keep the swear jar watching every channel.
@@ -77,7 +75,7 @@ export function createAdminService(client, store, access, community, env = proce
           }
         }
         const { actor } = await access.require(session, guild.id);
-        store.save(guild.id, { chat: input.chat, swearJar: input.swearJar, swearJarIgnored, swearWords, welcomes: input.welcomes, littlepottchi, diaperChecks, showcase, starboard: normalized }, actor);
+        store.save(guild.id, { chat: input.chat, swearJar: input.swearJar, swearJarIgnored, swearWords, welcomes: input.welcomes, diaperChecks, showcase, starboard: normalized }, actor);
         return { ok: true, message: "Settings saved. Existing highlights refresh during synchronization; new reactions use these settings now." };
       }
       if (input.action === "reaction-add") {

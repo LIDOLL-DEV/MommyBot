@@ -146,8 +146,6 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   return {
     handleInteraction: createIdentityHandler(store, config, wallet, gacha, trader, hangman, touhouWeb, balldrop, gofish),
     identities: store, // Share verified Discord links with the swear jar's server-membership checks.
-    doll: gacha?.doll, // Diaper checks read Littlepottchi care state directly rather than through the Little Log bridge.
-    pottchiClock: gacha?.pottchiClock,
     handleMessage: async message => Boolean(await gacha?.handleMessage(message) || await hangman?.handleMessage(message) || await balldrop?.handleMessage(message) || await gofish?.handleMessage(message)),
     closeGames: () => { gacha?.close(); hangman?.close(); balldrop?.close(); gofish?.close(); }, // Game journals remain open until wallet actions drain at shutdown.
     async registerGuild(guild) {

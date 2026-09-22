@@ -48,7 +48,7 @@ export class AdminStore {
 
   settings(guild) {
     const saved = this.db.prepare("SELECT settings FROM admin_settings WHERE guild_id=?").get(guild);
-    return { chat: true, swearJar: true, swearJarIgnored: [], swearWords: [], welcomes: true, littlepottchi: true,
+    return { chat: true, swearJar: true, swearJarIgnored: [], swearWords: [], welcomes: true,
       diaperChecks: { enabled: false, channel: "", role: "" }, showcase: { enabled: false, channel: "" }, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3, audience: "" }, ...JSON.parse(saved?.settings || "{}") };
   }
   save(guild, settings, actor) {

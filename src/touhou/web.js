@@ -16,7 +16,7 @@ export function initializeTouhouWeb(config, identities, trader, client) {
 export function createTouhouWeb(config, game, sessions) {
   const secure = config.origin.startsWith("https:"), name = `${secure ? "__Host-" : ""}touhou_session`;
   const assets = new Map(["app.js", "style.css", "index.html"].map(file => [`/touhou/${file}`, { type: file.endsWith(".js") ? "text/javascript" : file.endsWith(".css") ? "text/css" : "text/html", body: readFileSync(new URL(`./web/${file}`, import.meta.url)) }]));
-  assets.set("/touhou/atelier.css", { type: "text/css", body: readFileSync(new URL("../gacha/web/style.css", import.meta.url)) });
+  assets.set("/touhou/atelier.css", { type: "text/css", body: readFileSync(new URL("../bot/atelier.css", import.meta.url)) });
   for (const item of game.store.catalog) assets.set(`/touhou/art/${encodeURIComponent(item.filename)}`, {
     type: `image/${{ ".jpg": "jpeg", ".jpeg": "jpeg", ".png": "png", ".gif": "gif", ".webp": "webp" }[path.extname(item.filename).toLowerCase()]}`,
     body: readFileSync(path.join(game.imageDirectory, item.filename)),

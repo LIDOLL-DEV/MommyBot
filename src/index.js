@@ -11,7 +11,6 @@ import { initializeWallet } from "./wallet/index.js";
 import { createSwearJar } from "./swearJar.js";
 import { createDiaperChecks } from "./diaperCheck/index.js";
 import { createCharacterShowcase } from "./mmo/showcase.js";
-import { createCareSource } from "./diaperCheck/careSource.js";
 import { retireCommands } from "./retiredCommands.js";
 import { reportModelEndpoints } from "./graph/connection.js";
 import { readFileSync } from "node:fs";
@@ -54,8 +53,6 @@ async function main() {
     serverWords: guildId => community.swearWords(guildId),
   }); // Refuse to sell a break in a server that has already paused swear jar fines, and honor its own word list.
   const diaperChecks = createDiaperChecks(client, identity?.identities, process.env, {
-    care: createCareSource(identity?.doll, identity?.identities),
-    petsEnabled: () => false, // Littlepottchi was removed with the TQ/DQ artwork, so there are no doll-driven checks or praise.
     settings: guildId => community.settings(guildId),
     audit: (guild, actor, action, detail) => community.store.audit(guild, actor, action, detail),
   }); // Accident checks read Littlepottchi care state in process and record denials in the admin journal.

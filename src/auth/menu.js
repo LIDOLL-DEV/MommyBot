@@ -4,7 +4,6 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlag
 import { canAward } from "../permissions.js";
 import { WalletError } from "../wallet/client.js";
 import { TraderError } from "../touhou/store.js";
-import { GachaError } from "../gacha/store.js";
 import { HangmanError } from "../hangman/store.js";
 import { BallDropError } from "../balldrop/rules.js";
 
@@ -131,7 +130,7 @@ export class IdentityMenus {
       s.expires = this.now() + IDLE_MS;
       await interaction.editReply(this.render(s, interaction));
     } catch (error) {
-      const content = error instanceof MenuError || error instanceof WalletError || error instanceof TraderError || error instanceof GachaError || error instanceof HangmanError || error instanceof BallDropError ? error.message :
+      const content = error instanceof MenuError || error instanceof WalletError || error instanceof TraderError || error instanceof HangmanError || error instanceof BallDropError ? error.message :
         "The menu could not finish. Use Retry payment for an uncertain payment, or reopen /menu.";
       if (locked && interaction.deferred) {
         s.banner = content;

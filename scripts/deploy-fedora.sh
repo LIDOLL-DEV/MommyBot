@@ -124,7 +124,7 @@ trap 'exit 143' TERM
 
 install -d -o mommybot -g mommybot -m 0755 "$release"
 # Copy only application inputs, so local credentials, databases and node_modules stay out.
-tar -C "$source_dir" -cf - package.json package-lock.json src assets python integrations MMO_ONLINE_GUIDE.md ADMIN_GUIDE.md LITTLEPOTTCHI_API.md CONTRIBUTOR_GUIDE.md GENERATION_TUNING_GUIDE.md QUEST_MAKING_GUIDE.md NPC_DIALOGUE_TREES.md PLAYER_CHECKLIST.md TESTING_GUIDE.md scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs scripts/check-mmo-online.mjs scripts/check-router.mjs scripts/check-github.mjs scripts/fixtures | tar -C "$release" -xf -
+tar -C "$source_dir" -cf - package.json package-lock.json src assets python MMO_ONLINE_GUIDE.md ADMIN_GUIDE.md CONTRIBUTOR_GUIDE.md GENERATION_TUNING_GUIDE.md QUEST_MAKING_GUIDE.md NPC_DIALOGUE_TREES.md PLAYER_CHECKLIST.md DIAPER_CHECKS_GUIDE.md TESTING_GUIDE.md scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs scripts/check-mmo-online.mjs scripts/check-mmo-character.mjs scripts/check-router.mjs scripts/check-github.mjs scripts/fixtures | tar -C "$release" -xf -
 revision=$(git -c safe.directory="$source_dir" -C "$source_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)
 modified=$(git -c safe.directory="$source_dir" -C "$source_dir" status --porcelain 2>/dev/null || true)
 node --input-type=module - "$release/release.json" "$revision" "$stamp" "$modified" <<'NODE'

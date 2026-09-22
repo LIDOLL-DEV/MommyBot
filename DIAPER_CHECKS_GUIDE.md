@@ -1,8 +1,8 @@
 # MommyBot's diaper checks
 
-MommyBot reads Littlepottchi's own accident state for members who have opted in, asks them in Discord whether they need a change, and gently chastises
-a member who denies an accident the records show. Members who have not been
-checked for six to twelve hours get a random status request instead.
+MommyBot asks opted-in members in Discord whether they need a change. Members who
+have not been checked for six to twelve hours get a status request, and an
+administrator can ask anyone at any time.
 
 Every question is one mention plus a short AI-written line. MommyBot appends the
 exact answer instructions. No record, count, time or message text is ever sent to
@@ -19,45 +19,16 @@ holding it are ever asked, for accident checks and random checks alike. Removing
 the role stops checks immediately, including for a question already waiting to be
 sent. Leaving the server has the same effect.
 
-## Accident checks
+## Accident checks are retired
 
-MommyBot reads **Littlepottchi care state directly, in process**. Littlepottchi is
-MommyBot's own game, so there is no network call, no bridge URL and no credential
-involved: each pass reads every saved player's current diaper revision and derives
-an accident from `care.leaking`, `care.mess` or `care.wetness`, in that order.
+MommyBot used to read Littlepottchi care state to ask about a specific accident,
+and to praise a fresh diaper. Littlepottchi was built on the TQ/DQ artwork that
+has since been removed, so neither runs any more. Random and administrator checks
+never read the doll and are unaffected.
 
-Only players who have actually opened Littlepottchi are scanned, and only those
-whose verified LiD0llID identity matches a confirmed Discord link. A browser-only
-game account with no Discord link is skipped.
-
-**Using a diaper never tags the member who used it.** It only records that they
-are due to be asked. MommyBot then picks one member who has used their diaper
-**within the last four hours** and asks them, so a check never arrives the instant
-someone has an accident. After four hours an unattended accident stops counting.
-
-This is deliberately **not** the `/littlepottchi/integration/v1/events` feed that
-MommyBot serves to Little Log. That feed exists for Little Log's push bridge: it
-only contains events for players who enabled *Receive pet reminders through Little
-Log*, and reading it marks entries acknowledged.
-
-Each accident is keyed by the member and the moment it was first seen, so the same
-accident is never asked about twice, even after a question expires unanswered.
-
-## Fresh diapers
-
-When a member's diaper revision changes after a soiled one, they have put on a
-fresh diaper. MommyBot praises them in the check channel, using the wording their
-pronoun role calls for: **good girl** for she/her, **good boy** for he/him, and
-**good little one** otherwise, exactly as every other address in the bot works.
-
-Praise is a moment rather than a question. It never occupies the one open check
-slot, is never queued for later, and is given once per change. A change during
-quiet hours is simply not announced rather than announced hours late.
-
-**A change within fifteen minutes of the accident settles it.** That member is no
-longer asked about the accident at all: the fresh diaper has already answered the
-question, so they get praise instead of a check. A change that comes later still
-earns praise, but the check is still asked.
+A member can still answer **yes**, and is still thanked for it; there is simply no
+longer a record to contradict a **no**, so nothing is treated as fibbing and
+nothing is written to the admin journal.
 
 ## Random checks
 
@@ -96,8 +67,7 @@ no, undiapered or unclear.
 | Answer | Result |
 | --- | --- |
 | Yes | Warm praise for the honesty and a nudge to get changed. |
-| No, after a recorded accident | A gentle **fibbing to Mommy** notice, and a `diaper-check.denied` entry in that server's admin journal. |
-| No, on a random or admin check | Simply thanked; those checks have no record to contradict. |
+| No | Simply thanked; without Littlepottchi there is no record to contradict it. |
 | Not wearing one | A gentle **not wearing your protection** notice asking them to go and put a fresh one on. |
 | Unclear | One request for a plain yes or no. Further unclear messages go to ordinary conversation. |
 
@@ -172,7 +142,7 @@ Diaper checks need no bridge URL or token. Restart MommyBot after changing setti
 
 | Setting | Behavior |
 | --- | --- |
-| `DIAPER_CHECKS_ENABLED=true` | Required. Also requires `LIDOLLID_ENABLED=true`, so care state can be matched to Discord members, and Littlepottchi itself must be available. |
+| `DIAPER_CHECKS_ENABLED=true` | Required. Also requires `LIDOLLID_ENABLED=true`, so checks can be matched to Discord members. |
 | `DIAPER_CHECKS_DB` | Check journal location. Defaults to `data/diaperchecks.db`. |
 | `DIAPER_CHECKS_AI_ENABLED=false` | Use standard wording and treat every non-direct answer as unclear. AI wording is enabled by default. |
 | `DIAPER_CHECKS_AI_TIMEOUT_MS` | AI wait limit, 1,000-15,000 milliseconds. Defaults to 8,000. |
