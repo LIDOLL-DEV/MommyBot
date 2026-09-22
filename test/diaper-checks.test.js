@@ -258,7 +258,7 @@ test("the random window is six to twelve hours and every check resets it", async
 test("status reports every configuration that silently prevents checks", () => {
   assert.match(diaperCheckStatus({}), /OFF: set DIAPER_CHECKS_ENABLED/);
   assert.match(diaperCheckStatus({ DIAPER_CHECKS_ENABLED: "true" }), /OFF: requires LIDOLLID_ENABLED/);
-  assert.match(diaperCheckStatus(BRIDGE, { identities: true, care: false }), /Littlepottchi is unavailable/);
+  assert.match(diaperCheckStatus(BRIDGE, { identities: true, care: false }), /^ON: random and administrator checks.*Littlepottchi is unavailable/);
   assert.match(diaperCheckStatus(BRIDGE), /^ON:/);
 });
 
@@ -539,4 +539,24 @@ test("where Littlepottchi is off, doll accidents and changes are ignored but rou
   await f.bot.tick();
   assert.equal(f.checks().length, 1);
   assert.equal(f.checks()[0].kind, "random"); // Status checks never used the doll, so they are unaffected.
+});
+
+
+test("without Littlepottchi, random and administrator checks still run and nothing reads a doll", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob");
+  const bot = createDiaperChecks(f.client, f.identities, BRIDGE, {
+    store: f.store, care: null, now: () => f.now, isSilent: () => false, settings: () => ({ diaperChecks: f.settings }),
+    generateMessage: async kind => { f.kinds.push(kind); return null; }, generateReply: async () => null,
+    classifyReply: async text => exactDiaperReply(text) ?? "unclear" });
+  t.after(() => bot.stop());
+  assert.ok(bot, "the feature starts without a care source");
+  f.store.db.prepare("INSERT INTO diaper_schedule VALUES ('guild','alice',?)").run(f.now - 1);
+  await bot.tick();
+  assert.equal(f.checks().length, 1); assert.equal(f.checks()[0].kind, "random");
+  const seen = {};
+  await bot.handleInteraction({ isChatInputCommand: () => true, commandName: "diapercheck", id: "x", guildId: "guild",
+    user: { id: "admin" }, memberPermissions: { has: () => true },
+    options: { getSubcommand: () => "ask", getUser: () => ({ id: "bob" }) },
+    async reply(o) { seen.content = o.content; }, async deferReply() {}, async editReply(o) { seen.content = o.content; } });
+  assert.match(seen.content, /already has a diaper check waiting|Asked <@bob>/); // The admin command is reachable again.
 });

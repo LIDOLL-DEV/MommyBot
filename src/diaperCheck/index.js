@@ -27,7 +27,7 @@ export function buildDiaperCheckCommand() {
 export function diaperCheckStatus(env = process.env, { identities = env.LIDOLLID_ENABLED === "true", care = true } = {}) {
   if (env.DIAPER_CHECKS_ENABLED !== "true") return "OFF: set DIAPER_CHECKS_ENABLED=true to run diaper checks.";
   if (!identities) return "OFF: requires LIDOLLID_ENABLED=true so Littlepottchi care state can be matched to Discord members.";
-  if (!care) return "OFF: Littlepottchi is unavailable, so there is no care state to read.";
+  if (!care) return "ON: random and administrator checks every 6-12 hours, quiet 22:00-06:00 server time. Accident checks and change praise are off because Littlepottchi is unavailable.";
   return "ON: accident checks from live Littlepottchi care state, random checks every 6-12 hours, quiet 22:00-06:00 server time; each server chooses its channel and role.";
 } // Explain every configuration that silently prevents checks, without printing records or member identities.
 
@@ -37,7 +37,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
   interval = 60_000, petsEnabled = () => true,
 } = {}) {
   console.log(`[Diaper check] ${diaperCheckStatus(env, { identities: Boolean(identities), care: Boolean(care) })}`);
-  if (env.DIAPER_CHECKS_ENABLED !== "true" || !identities || !care) return null;
+  if (env.DIAPER_CHECKS_ENABLED !== "true" || !identities) return null; // Random and administrator checks never needed the doll.
   const journal = store ?? new DiaperCheckStore(env.DIAPER_CHECKS_DB || "data/diaperchecks.db", { now });
   const active = new Set(), notices = new Set();
   let timer, ticking, stopped = false;
@@ -197,6 +197,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
   } // An administrator may ask at any hour, including quiet hours, because the request is deliberate and immediate.
 
   async function poll() {
+    if (!care) return; // Without Littlepottchi there are no accidents or changes to read.
     for (const state of care.observe()) {
       if (stopped) return;
       const result = journal.observe(state, now());
