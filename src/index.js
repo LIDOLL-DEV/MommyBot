@@ -12,6 +12,7 @@ import { createSwearJar } from "./swearJar.js";
 import { createDiaperChecks } from "./diaperCheck/index.js";
 import { createCharacterShowcase } from "./mmo/showcase.js";
 import { createCareSource } from "./diaperCheck/careSource.js";
+import { createPottchiControl } from "./dressup/serverToggle.js";
 import { reportModelEndpoints } from "./graph/connection.js";
 import { readFileSync } from "node:fs";
 import { createMemberWelcome } from "./welcome.js";
@@ -52,8 +53,17 @@ async function main() {
     serverEnabled: guildId => community.enabled(guildId, "swearJar"),
     serverWords: guildId => community.swearWords(guildId),
   }); // Refuse to sell a break in a server that has already paused swear jar fines, and honor its own word list.
+  const pottchi = createPottchiControl(client, {
+    clock: identity?.pottchiClock ?? null,
+    settings: guildId => community.settings(guildId),
+    setEnabled: (guildId, enabled, actor) => {
+      community.store.save(guildId, { ...community.settings(guildId), littlepottchi: enabled }, actor);
+      community.store.audit(guildId, actor, enabled ? "littlepottchi.enabled" : "littlepottchi.disabled", enabled ? "Littlepottchi turned on for this server." : "Littlepottchi turned off for this server.");
+    },
+  }); // One switch per server; doll clocks freeze only once every server has Littlepottchi off.
   const diaperChecks = createDiaperChecks(client, identity?.identities, process.env, {
     care: createCareSource(identity?.doll, identity?.identities),
+    petsEnabled: guildId => pottchi.enabledIn(guildId), // A server that has Littlepottchi off gets no doll-driven checks or praise.
     settings: guildId => community.settings(guildId),
     audit: (guild, actor, action, detail) => community.store.audit(guild, actor, action, detail),
   }); // Accident checks read Littlepottchi care state in process and record denials in the admin journal.
@@ -68,6 +78,7 @@ async function main() {
     const jarWatches = () => !message.guildId || community.enabled(message.guildId, "swearJar") && !community.swearJarIgnored(message.guildId, message.channel);
     try { if (swearJar && jarWatches() && await swearJar.handleMessage(message)) return; }
     catch { console.error("[Swear jar] Could not process a message; check storage availability."); }
+    if (await pottchi.handleMessage(message)) return; // Refuse !doll and !pottchistats where Littlepottchi is off, before the pet handlers see them.
     try { if (diaperChecks && await diaperChecks.handleMessage(message)) return; }
     catch { console.error("[Diaper check] Could not process a message; check storage availability."); }
     if (identity && await identity.handleMessage(message)) return; // Open the web game before the conversation channel gate or LLM routing.
@@ -83,6 +94,7 @@ async function main() {
 
   client.on(Events.InteractionCreate, async (interaction) => {
     try {
+      if (await pottchi.handleInteraction(interaction)) return; // /pottchiadmin, and the pet commands where Littlepottchi is off.
       if (diaperChecks && await diaperChecks.handleInteraction(interaction)) return;
       if (showcase && await showcase.handleInteraction(interaction)) return;
       if (swearJar && await swearJar.handleInteraction(interaction)) return;
@@ -93,6 +105,8 @@ async function main() {
     } // Network or expired-interaction failures must not crash the bot or log private command input.
   }); // Route slash commands and menu buttons directly to the trader's authorization checks.
   client.on(Events.GuildCreate, async (guild) => {
+    await pottchi.registerGuild(guild);
+    pottchi.sync(); // Joining a server with Littlepottchi on resumes paused dolls straight away.
     await diaperChecks?.registerGuild(guild);
     await showcase?.registerGuild(guild);
     await swearJar?.registerGuild(guild);
@@ -108,8 +122,10 @@ async function main() {
     reports?.start(); // Poll completed nightly and explicitly shared reports independently of chat and wallet configuration.
     mmoOnline?.start();
     swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
+    pottchi.start(); // Settle the pause state once Discord knows which servers the bot is in.
     diaperChecks?.start(); // Read accident events only once Discord can resolve members, channels and roles.
     void reportModelEndpoints().catch(() => console.error("[Brain] Startup probe could not finish; run scripts/check-runtime.mjs."));
+    for (const guild of client.guilds.cache.values()) void pottchi.registerGuild(guild);
     if (diaperChecks) for (const guild of client.guilds.cache.values()) void diaperChecks.registerGuild(guild);
     if (showcase) for (const guild of client.guilds.cache.values()) void showcase.registerGuild(guild);
     if (swearJar) for (const guild of client.guilds.cache.values()) void swearJar.registerGuild(guild);
@@ -132,6 +148,7 @@ async function main() {
     await mmoOnline?.stop();
     await welcome.stop(); // Stop new greetings and finish any Discord send before destroying the client.
     await swearJar?.stop(); // Stop scheduled draws and finish replies before closing identity or wallet storage.
+    pottchi.stop();
     await showcase?.stop(); // Finish any in-flight showcase post before Discord disconnects.
     await diaperChecks?.stop(); // Finish any in-flight answer before the admin journal and check storage close.
     await identity?.close(); // Finish browser callbacks before closing account storage.

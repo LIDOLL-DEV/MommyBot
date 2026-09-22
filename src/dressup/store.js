@@ -69,7 +69,7 @@ export class LittlepottchiStore {
 
   snapshot(user) {
     const player = this.player(user), resolved = this.resolve(user, player);
-    return { player, ...resolved, fitProfiles: fittingProfiles(resolved, this.catalog), bodyLayers: anatomyLayers(this.catalog, player, resolved.diaper, resolved.outfit, resolved.top), now: this.now(), careRules, messyRules, excitementRules, buttcam: selectButtcam(this.catalog, player, resolved.diaper),
+    return { player, ...resolved, fitProfiles: fittingProfiles(resolved, this.catalog), bodyLayers: anatomyLayers(this.catalog, player, resolved.diaper, resolved.outfit, resolved.top), now: this.now(), paused: Boolean(this.clock?.frozen), careRules, messyRules, excitementRules, buttcam: selectButtcam(this.catalog, player, resolved.diaper),
       starterTop: this.starterTop, supplies: this.clothes.supplySnapshot(user), usedBulk: diaperCondition(player.care, resolved.diaper).usedBulk,
       overflow: diaperCondition(player.care, resolved.diaper), overflowRules, rhythm: this.care.profile(),
       ownedClothes: this.clothes.snapshot(user).owned, ownedDiapers: this.diapers.snapshot(user).owned };

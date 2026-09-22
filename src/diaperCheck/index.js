@@ -34,7 +34,7 @@ export function diaperCheckStatus(env = process.env, { identities = env.LIDOLLID
 export function createDiaperChecks(client, identities, env = process.env, {
   generateMessage = generateDiaperCheckMessage, generateReply = generateDiaperCheckReply, classifyReply = classifyDiaperReply,
   settings = () => null, audit = () => {}, store, care = null, now = Date.now, isSilent = time => silentHour(time),
-  interval = 60_000,
+  interval = 60_000, petsEnabled = () => true,
 } = {}) {
   console.log(`[Diaper check] ${diaperCheckStatus(env, { identities: Boolean(identities), care: Boolean(care) })}`);
   if (env.DIAPER_CHECKS_ENABLED !== "true" || !identities || !care) return null;
@@ -203,7 +203,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
       if (!result?.change) continue;
       if (result.supersedes) journal.clearAccident(state.discordId); // A change within fifteen minutes settles the accident instead of a check.
       if (isSilent(now())) continue; // Praise is time-sensitive, so a quiet-hours change is simply not announced.
-      for (const guild of client.guilds.cache.keys()) await praiseChange(guild, state.discordId);
+      for (const guild of client.guilds.cache.keys()) if (petsEnabled(guild)) await praiseChange(guild, state.discordId);
     }
   } // Using a diaper never tags its own member; it only records that they are due to be asked at some point.
 
@@ -215,7 +215,8 @@ export function createDiaperChecks(client, identities, env = process.env, {
       if (journal.openInGuild(guildId)) continue; // Never ask a second member while a question is still waiting.
       if (now() - journal.lastStarted(guildId) < RANDOM_GAP_MS) continue; // Leave a calm gap between checks in the same server.
       const linked = identities.discordLinks().map(link => link.discord_id);
-      const soiled = journal.soiled(linked, now()).filter(row => !journal.openAnywhere(row.user_id));
+      const soiled = petsEnabled(guildId) ? journal.soiled(linked, now()).filter(row => !journal.openAnywhere(row.user_id)) : [];
+      // With Littlepottchi off here, doll accidents never pick anyone; routine status checks carry on without the doll.
       const overdue = journal.due(guildId, linked).filter(user => !journal.openAnywhere(user))
         .map(user => ({ user_id: user, kind: null, accident_at: null }));
       let remaining = soiled.length ? soiled : overdue;

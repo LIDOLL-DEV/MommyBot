@@ -35,7 +35,7 @@ function renderSources(selected = [...$("sources").selectedOptions].map(option =
 } // Offer only channels the chosen audience can actually see, so a saved source can never widen who reads it.
 function render() {
   const settings = state.settings;
-  for (const key of ["chat", "swearJar", "welcomes"]) $(key).checked = settings[key];
+  for (const key of ["chat", "swearJar", "welcomes", "littlepottchi"]) $(key).checked = settings[key];
   $("swearWords").value = settings.swearWords.join("\n");
   options("swearJarIgnore", state.channels);
   for (const option of $("swearJarIgnore").options) option.selected = settings.swearJarIgnored.includes(option.value);
@@ -93,7 +93,7 @@ async function run(work) {
   finally { document.querySelectorAll("button,fieldset,#guild").forEach(node => { node.disabled = false; }); }
 } // Prevent overlapping saves while retaining clear, accessible status messages.
 $("settings").addEventListener("submit", event => { event.preventDefault(); void run(() => action({ action: "settings",
-  chat: $("chat").checked, swearJar: $("swearJar").checked, welcomes: $("welcomes").checked,
+  chat: $("chat").checked, swearJar: $("swearJar").checked, welcomes: $("welcomes").checked, littlepottchi: $("littlepottchi").checked,
   swearJarIgnored: [...$("swearJarIgnore").selectedOptions].map(option => option.value),
   swearWords: $("swearWords").value.split(/[\n,]/).map(word => word.trim()).filter(Boolean),
   diaperChecks: { enabled: $("diaperEnabled").checked, channel: $("diaperChannel").value, role: $("diaperRole").value },

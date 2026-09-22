@@ -24,6 +24,7 @@ async function api(path, input) {
 async function refresh() {
   state = await api("/clothes/api/state");
   $("signin").hidden = true; $("game").hidden = false; $("logout").hidden = false;
+  if (state.doll?.paused) notice("Littlepottchi is paused right now. Your doll is resting safely and no time is passing for it; care resumes exactly where it left off."); // Explain the frozen timers before anyone reads them as broken.
   $("balance").textContent = state.coins === null ? "Wallet offline" : `${state.coins.toLocaleString()} coins`;
   $("pending").hidden = !state.shop.pending && !sessionStorage.getItem(requestKey());
   $("roll").textContent = `Roll for ${state.shop.rollPrice} coins`;
@@ -301,7 +302,7 @@ $("appearance").addEventListener("submit", event => { event.preventDefault(); ru
 }); });
 for (const id of ["close-reveal", "prize-done"]) $(id).addEventListener("click", () => $("reveal").close());
 let polling = false;
-setInterval(() => { if (state) { state.doll.now += 1000; updateButtons(); renderTimers(); } }, 1000);
+setInterval(() => { if (state && !state.doll.paused) { state.doll.now += 1000; updateButtons(); renderTimers(); } }, 1000); // A paused doll's timers must not appear to run down.
 setInterval(async () => {
   if (!state || busy || polling || document.hidden) return;
   polling = true; const generation = petGeneration;

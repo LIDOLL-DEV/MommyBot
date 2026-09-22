@@ -28,6 +28,7 @@ function fixture(t, env = {}) {
   } } };
   f.client = { guilds: { cache: new Map([["guild", f.guild]]) },
     channels: { async fetch(id) { return id === "check-channel" ? f.channel : null; } } };
+  f.pets = () => true;
   f.care = { observe() {
     if (f.feedError) throw f.feedError;
     return [...f.states.values()];
@@ -35,7 +36,7 @@ function fixture(t, env = {}) {
   f.store = new DiaperCheckStore(path.join(directory, "checks.db"), { now: () => f.now, draw: max => f.drawValue ?? Math.floor(max / 2) });
   f.open = () => {
     f.bot = createDiaperChecks(f.client, f.identities, { ...BRIDGE, ...env }, {
-      store: f.store, care: f.care, now: () => f.now, isSilent: () => f.silent,
+      store: f.store, care: f.care, now: () => f.now, isSilent: () => f.silent, petsEnabled: guild => f.pets(guild),
       settings: () => ({ diaperChecks: f.settings }),
       audit: (guild, actor, action, detail) => f.audits.push({ guild, actor, action, detail }),
       generateMessage: async kind => { f.kinds.push(kind); return f.generate ? f.generate(kind) : null; },
@@ -521,4 +522,21 @@ test("using a diaper never tags its own member, and an accident outside the wind
   f.silent = false;
   await f.bot.tick();
   assert.equal(f.checks().length, 0); // Four hours later that accident no longer earns a check.
+});
+
+test("where Littlepottchi is off, doll accidents and changes are ignored but routine checks carry on", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob");
+  f.pets = () => false;
+  f.accident("alice");
+  await f.bot.tick();
+  assert.equal(f.checks().length, 0); // A doll accident never picks anyone in this server.
+  f.now += CHANGE_SUPERSEDES_MS + 60_000;
+  f.changed("alice");
+  await f.bot.tick();
+  assert.equal(f.sent.length, 0); // Nor does a fresh doll diaper earn praise here.
+  f.store.db.prepare("INSERT INTO diaper_schedule VALUES ('guild','bob',?) ON CONFLICT(guild_id,user_id) DO UPDATE SET next_check=excluded.next_check").run(f.now - 1);
+  f.now += RANDOM_GAP_MS;
+  await f.bot.tick();
+  assert.equal(f.checks().length, 1);
+  assert.equal(f.checks()[0].kind, "random"); // Status checks never used the doll, so they are unaffected.
 });

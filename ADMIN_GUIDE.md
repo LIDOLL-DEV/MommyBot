@@ -39,6 +39,30 @@ to use the deployment's own list. Global environment switches and
 account commands and games remain available. The dashboard shows connection
 status, gateway ping and feature availability without exposing secrets or wallets.
 
+## Littlepottchi
+
+On by default. Turn it off for this server with **`/pottchiadmin disable`**, or
+the **Littlepottchi** switch in Server controls; **`/pottchiadmin enable`** turns
+it back on and **`/pottchiadmin status`** shows the current state. The command is
+hidden from non-administrators and rechecks the caller's live Administrator
+permission. Each change is recorded in the journal below.
+
+While it is off here, `/littlepottchi`, `/doll`, `/pottchistats` and the `!doll`
+and `!pottchistats` aliases are refused privately in this server, and diaper
+checks here stop using doll accidents and changes. Routine diaper status checks
+carry on, because they never used the doll.
+
+**Doll clocks freeze once Littlepottchi is off in every server this bot is in.**
+Dolls belong to players, not servers, and are also playable on the web, so one
+server switching off cannot stop another community's dolls. In a single-server
+deployment that means switching it off here pauses every doll immediately.
+
+A paused doll does not wet, get hungry, finish activities or run down any timer,
+and the web page explains the pause and refuses care actions. When it resumes,
+every doll carries on exactly where it stopped: nobody comes back to a doll that
+kept wetting for the whole time the game was off. Clothing purchases stay open,
+since they do not touch the doll.
+
 ## Diaper checks
 
 Initially off. Choose a check channel that is **not** visible to `@everyone` and a

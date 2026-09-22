@@ -17,8 +17,10 @@ export function createPetIntegration(doll, { token = process.env.LITTLEPOTTCHI_B
       if (req.method === "GET" && path === "events") {
         const after = Number(url.searchParams.get("after") || 0), limit = Number(url.searchParams.get("limit") || 50);
         if (!Number.isSafeInteger(after) || after < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new GachaError("Invalid reminder page.");
-        doll.tick();
-        send(200, doll.care.events(user => doll.identity?.(user), user => doll.player(user), after, limit)); return true;
+        if (!doll.clock?.frozen) doll.tick();
+        const page = doll.care.events(user => doll.identity?.(user), user => doll.player(user), after, limit);
+        const offset = doll.clock?.offset() ?? 0; // Little Log compares expiry with its own wall clock, so convert out of game time here.
+        send(200, { ...page, events: page.events.map(event => ({ ...event, created: event.created + offset, expires: event.expires + offset })) }); return true;
       }
       if (req.method === "POST" && ["analysis", "events/ack"].includes(path)) {
         if (req.headers["content-type"]?.split(";")[0] !== "application/json") throw new GachaError("Use a JSON request.");

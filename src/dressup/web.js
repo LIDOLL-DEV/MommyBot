@@ -67,7 +67,10 @@ export function createDressupWeb(config, clothes, doll, sessions, catalog) {
           const result = input.action === "retry" ? await clothes.retry(session.user_id) : await clothes.act(session.user_id, input.action, input.design, input.request, input.amount);
           send(res, 200, result); return true;
         }
-        if (path === "api/doll") { send(res, 200, doll.act(session.user_id, input)); return true; }
+        if (path === "api/doll") {
+          if (doll.clock?.frozen) throw new GachaError("Littlepottchi is paused right now. Your doll is resting safely and nothing has changed; check back once it is running again.");
+          send(res, 200, doll.act(session.user_id, input)); return true;
+        } // A frozen doll cannot be cared for, dressed or changed; clothing purchases stay open because they do not touch the doll.
         if (path === "api/logout") { sessions.revoke(session.user_id); send(res, 200, { ok: true }); return true; }
       }
       send(res, 404, { error: "Page not found." });
