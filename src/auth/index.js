@@ -7,7 +7,6 @@ import { createOidc } from "./oidc.js";
 import { createAuthServer } from "./server.js";
 import { handleWalletInteraction, runWalletAction } from "../wallet/commands.js";
 import { awardLinkedRole } from "./linkedRole.js";
-import { initializeGacha } from "../gacha/index.js";
 import { IdentityMenus } from "./menu.js";
 import { initializeHangman } from "../hangman/index.js";
 import { initializeBallDrop } from "../balldrop/index.js";
@@ -125,7 +124,7 @@ export async function initializeIdentity(wallet = null, trader = null, client = 
   if(wallet&&wallet.client.config.clientId!==config.clientId)throw new Error("Combined login requires matching LiD0llID and wallet client IDs.");
   const store = new IdentityStore(fileURLToPath(new URL("../../data/lidollid.db", import.meta.url)));
   if(wallet)wallet.identityFor=id=>store.gameIdentity(id);
-  const gacha = initializeGacha(config, store, wallet);
+  const gacha = null; // Diaper Atelier, Clothes Emporium and Littlepottchi were built on TQ/DQ artwork, which was purged; every gacha use below is null-safe.
   const hangman = initializeHangman(config, store, wallet);
   const balldrop = initializeBallDrop(config, store, wallet); // Register pending bet guards before opening the shared listener.
   const gofish = initializeGoFish(config, store, wallet); // Register pending book rewards before opening the shared listener.

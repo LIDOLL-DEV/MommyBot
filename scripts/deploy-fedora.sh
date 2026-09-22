@@ -124,7 +124,7 @@ trap 'exit 143' TERM
 
 install -d -o mommybot -g mommybot -m 0755 "$release"
 # Copy only application inputs, so local credentials, databases and node_modules stay out.
-tar -C "$source_dir" -cf - package.json package-lock.json src assets diaper-gacha python integrations MMO_ONLINE_GUIDE.md ADMIN_GUIDE.md LITTLEPOTTCHI_API.md DRESSUP_GUIDE.md CONTRIBUTOR_GUIDE.md GENERATION_TUNING_GUIDE.md QUEST_MAKING_GUIDE.md NPC_DIALOGUE_TREES.md PLAYER_CHECKLIST.md TESTING_GUIDE.md scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs scripts/check-mmo-online.mjs scripts/check-router.mjs scripts/check-doll-render.mjs scripts/check-github.mjs scripts/fixtures | tar -C "$release" -xf -
+tar -C "$source_dir" -cf - package.json package-lock.json src assets python integrations MMO_ONLINE_GUIDE.md ADMIN_GUIDE.md LITTLEPOTTCHI_API.md CONTRIBUTOR_GUIDE.md GENERATION_TUNING_GUIDE.md QUEST_MAKING_GUIDE.md NPC_DIALOGUE_TREES.md PLAYER_CHECKLIST.md TESTING_GUIDE.md scripts/check-lidollid.mjs scripts/check-wallet.mjs scripts/check-runtime.mjs scripts/check-reports.mjs scripts/check-mmo-online.mjs scripts/check-router.mjs scripts/check-github.mjs scripts/fixtures | tar -C "$release" -xf -
 revision=$(git -c safe.directory="$source_dir" -C "$source_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)
 modified=$(git -c safe.directory="$source_dir" -C "$source_dir" status --porcelain 2>/dev/null || true)
 node --input-type=module - "$release/release.json" "$revision" "$stamp" "$modified" <<'NODE'
@@ -139,7 +139,6 @@ fi
 chown -R mommybot:mommybot "$release"
 cd -- "$release"
 runuser -u mommybot -- env HOME="$state" npm ci --omit=dev --no-audit --no-fund
-runuser -u mommybot -- env HOME="$state" node scripts/check-doll-render.mjs "$config"
 if [[ -d test ]]; then
     runuser -u mommybot -- env HOME="$state" node --test
 fi
@@ -155,17 +154,10 @@ import fs from 'node:fs';
 import dotenv from 'dotenv';
 import { authConfig } from './src/auth/config.js';
 import { walletConfig } from './src/wallet/client.js';
-import { gachaConfig, loadDiaperCatalog } from './src/gacha/catalog.js';
-import { loadDressupCatalog } from './src/dressup/catalog.js';
 import { hangmanConfig } from './src/hangman/words.js';
 const settings = dotenv.parse(fs.readFileSync(process.argv[2])); // Read configuration without executing it.
 authConfig({ ...settings, NODE_ENV: 'production' }); // Reject invalid SSO settings before stopping the active release.
-gachaConfig(settings);
-hangmanConfig(settings);
-loadDiaperCatalog(); // Check every collectible asset before swapping releases.
-loadDressupCatalog(); // Validate complete garments and both doll stances before swapping releases.
-const clothingPrice = Number(settings.CLOTHES_GACHA_ROLL_PRICE || 3);
-if (!Number.isSafeInteger(clothingPrice) || clothingPrice < 3 || clothingPrice > 10000) throw new Error('Invalid CLOTHES_GACHA_ROLL_PRICE.');
+hangmanConfig(settings); // Diaper Atelier, Clothes Emporium and Littlepottchi (TQ/DQ artwork) were removed, so there are no catalogs to validate.
 if (walletConfig({ ...settings, NODE_ENV: 'production' }) && settings.LIDOLLID_ENABLED !== 'true') {
     throw new Error('Online wallets require LIDOLLID_ENABLED=true for their Discord commands.');
 }
