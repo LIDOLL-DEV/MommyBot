@@ -7,6 +7,7 @@ import { IdentityStore } from "../src/auth/store.js";
 import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS, FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS } from "../src/diaperCheck/store.js";
 import { createDiaperChecks, diaperCheckStatus } from "../src/diaperCheck/index.js";
 import { exactDiaperReply, classifyDiaperReply } from "../src/graph/diaperCheckReply.js";
+import { generateDiaperCheckMessage } from "../src/graph/diaperCheckMessage.js";
 
 const START = Date.parse("2026-09-14T15:00:00Z"), HOUR = 3_600_000;
 const BRIDGE = { DIAPER_CHECKS_ENABLED: "true", LIDOLLID_ENABLED: "true" };
@@ -75,22 +76,25 @@ test("silent hours cover 22:00 to 06:00 server time inclusive of the boundaries"
   for (const hour of [6, 7, 12, 21]) assert.equal(at(hour), false, `hour ${hour}`);
 });
 
-test("plain answers to 'is your diaper dry?' are recognized without a model request", async () => {
-  for (const text of ["yes", "Yes mommy", "yeah", "yep", "mhm", "YES, MOMMY SAKURA!", "dry", "still dry!", "im clean"]) assert.equal(exactDiaperReply(text), "dry", text);
-  for (const text of ["no", "nope", "Nah", "no mommy", "No, Momma.", "wet", "im wet", "messy"]) assert.equal(exactDiaperReply(text), "wet", text);
-  for (const text of ["maybe", "why", "yes i had lunch", "", "she said yes"]) assert.equal(exactDiaperReply(text), null, text);
+test("plain dry and wet answers are recognized without a model request, and a bare yes or no decides neither", async () => {
+  for (const text of ["dry", "Dry mommy", "still dry!", "im clean", "I'm nice and dry", "DRY, MOMMY SAKURA!"]) assert.equal(exactDiaperReply(text), "dry", text);
+  for (const text of ["wet", "im wet", "Messy.", "a little wet mommy", "i'm soggy"]) assert.equal(exactDiaperReply(text), "wet", text);
+  for (const text of ["yes", "Yes mommy", "yep", "mhm", "no", "nope", "No, Momma."]) assert.equal(exactDiaperReply(text), "unclear", text);
+  for (const text of ["maybe", "why", "dry i had lunch", "", "she said dry"]) assert.equal(exactDiaperReply(text), null, text);
   let calls = 0;
-  const fetcher = async () => { calls++; return { ok: true, json: async () => ({ choices: [{ message: { content: "unclear" } }] }) }; };
-  assert.equal(await classifyDiaperReply("yes mommy", { fetcher }), "dry");
+  const fetcher = async () => { calls++; return { ok: true, json: async () => ({ choices: [{ message: { content: "dry" } }] }) }; };
+  assert.equal(await classifyDiaperReply("dry mommy", { fetcher }), "dry");
+  assert.equal(await classifyDiaperReply("yes mommy", { fetcher }), "unclear"); // Never sent to the router to guess at.
   assert.equal(calls, 0);
-  assert.equal(await classifyDiaperReply("i suppose so, kind of", { fetcher }), "unclear");
+  const unsure = async () => { calls++; return { ok: true, json: async () => ({ choices: [{ message: { content: "unclear" } }] }) }; };
+  assert.equal(await classifyDiaperReply("i suppose so, kind of", { fetcher: unsure }), "unclear");
   assert.equal(calls, 1);
 });
 
 test("an unreachable classifier asks again rather than guessing", async () => {
   const fetcher = async () => { throw new Error("offline"); };
   assert.equal(await classifyDiaperReply("i am perfectly fine thank you", { fetcher }), "unclear");
-  assert.equal(await classifyDiaperReply("no", { fetcher }), "wet"); // A direct answer still stands on its own.
+  assert.equal(await classifyDiaperReply("wet", { fetcher }), "wet"); // A direct answer still stands on its own.
   const legacy = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: "yes" } }] }) });
   assert.equal(await classifyDiaperReply("i suppose so", { fetcher: legacy }), "unclear"); // Old labels are no longer valid decisions.
 });
@@ -100,24 +104,42 @@ test("a due server asks one verified role member whether their diaper is dry, an
   f.due();
   await f.bot.tick();
   assert.equal(f.sent.length, 1);
-  assert.match(f.sent[0].content, /Is your diaper still dry\?/);
-  assert.match(f.sent[0].content, /\*\*yes\*\* or \*\*no\*\*/);
+  assert.match(f.sent[0].content, /Are you \*\*dry\*\* or \*\*wet\*\*\?/);
   assert.deepEqual(f.sent[0].allowedMentions, { parse: [], users: ["alice"], repliedUser: true });
   assert.deepEqual(f.kinds, ["ask"]);
   assert.equal(f.checks()[0].state, "open"); assert.equal(f.checks()[0].asked, 1); assert.equal(f.checks()[0].kind, "random");
   await f.bot.tick(); // A second pass must not ask again.
   assert.equal(f.sent.length, 1); assert.equal(f.checks().length, 1);
-  assert.equal(await f.bot.handleMessage(f.message("yes mommy")), true);
+  assert.equal(await f.bot.handleMessage(f.message("dry mommy")), true);
   assert.deepEqual(f.kinds, ["ask", "dry"]);
   assert.match(f.replies[0].content, /checking in/i);
   assert.equal(f.checks()[0].state, "answered"); assert.equal(f.checks()[0].answer, "dry"); assert.equal(f.checks()[0].notified, 1);
+});
+
+test("a bare yes or no is asked again as dry or wet, never guessed", async t => {
+  const f = fixture(t); f.link("alice");
+  f.due();
+  await f.bot.tick();
+  assert.equal(await f.bot.handleMessage(f.message("yes mommy")), true);
+  assert.deepEqual(f.kinds, ["ask", "unclear"]);
+  assert.match(f.replies[0].content, /\*\*dry\*\* or \*\*wet\*\*/);
+  assert.equal(f.checks()[0].state, "open");
+  assert.equal(await f.bot.handleMessage(f.message("wet")), true);
+  assert.deepEqual(f.kinds, ["ask", "unclear", "wet"]);
+  assert.equal(f.checks()[0].answer, "wet");
+});
+
+test("an AI lead-in that asks its own question is replaced by the standard wording", async () => {
+  const reply = content => async () => ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) });
+  assert.equal(await generateDiaperCheckMessage("ask", { env: { LLAMA_BASE_URL: "http://models.example/v1" }, fetcher: reply("Do you need a change, sweetheart?") }), null);
+  assert.equal(await generateDiaperCheckMessage("ask", { env: { LLAMA_BASE_URL: "http://models.example/v1" }, fetcher: reply("Mommy is checking on you, sweetheart.") }), "Mommy is checking on you, sweetheart.");
 });
 
 test("a wet answer is trusted and met with reassurance, never an accusation", async t => {
   const f = fixture(t); f.link("alice");
   f.due();
   await f.bot.tick();
-  assert.equal(await f.bot.handleMessage(f.message("no mommy")), true);
+  assert.equal(await f.bot.handleMessage(f.message("wet mommy")), true);
   assert.deepEqual(f.kinds, ["ask", "wet"]);
   assert.match(f.replies[0].content, /perfectly okay/i);
   assert.doesNotMatch(f.replies[0].content, /fib|records/i);
@@ -206,17 +228,17 @@ test("an unanswered question expires after its window and cannot be answered lat
   f.now += ANSWER_WINDOW_MS + 1000;
   await f.bot.tick();
   assert.equal(f.checks()[0].state, "expired");
-  assert.equal(await f.bot.handleMessage(f.message("yes mommy")), false);
+  assert.equal(await f.bot.handleMessage(f.message("dry mommy")), false);
 });
 
 test("messages outside the check channel, from other members and from bots are left alone", async t => {
   const f = fixture(t); f.link("alice");
   f.due();
   await f.bot.tick();
-  assert.equal(await f.bot.handleMessage(f.message("yes", { channelId: "somewhere-else" })), false);
-  assert.equal(await f.bot.handleMessage(f.message("yes", { author: { id: "bob", bot: false } })), false);
-  assert.equal(await f.bot.handleMessage(f.message("yes", { author: { id: "alice", bot: true } })), false);
-  assert.equal(await f.bot.handleMessage(f.message("yes", { guildId: null })), false);
+  assert.equal(await f.bot.handleMessage(f.message("dry", { channelId: "somewhere-else" })), false);
+  assert.equal(await f.bot.handleMessage(f.message("dry", { author: { id: "bob", bot: false } })), false);
+  assert.equal(await f.bot.handleMessage(f.message("dry", { author: { id: "alice", bot: true } })), false);
+  assert.equal(await f.bot.handleMessage(f.message("dry", { guildId: null })), false);
   assert.equal(f.replies.length, 0); assert.equal(f.checks()[0].state, "open");
 });
 
@@ -227,7 +249,7 @@ test("a restart re-asks nothing and still delivers a saved answer", async t => {
   await f.restart();
   await f.bot.tick();
   assert.equal(f.sent.length, 1);
-  assert.equal(await f.bot.handleMessage(f.message("yes")), true);
+  assert.equal(await f.bot.handleMessage(f.message("dry")), true);
   assert.equal(f.checks()[0].notified, 1);
 });
 
@@ -286,7 +308,7 @@ test("an administrator can start a check immediately, even during quiet hours", 
   assert.equal(f.checks()[0].kind, "manual");
   const next = f.store.db.prepare("SELECT next_check FROM diaper_guild_schedule WHERE guild_id='guild'").get().next_check;
   assert.ok(next >= START + CHECK_MIN_MS, "the manual check pushes the server's random window out");
-  assert.equal(await f.bot.handleMessage(f.message("no")), true);
+  assert.equal(await f.bot.handleMessage(f.message("wet")), true);
   assert.deepEqual(f.kinds, ["ask", "wet"]);
 });
 
@@ -312,7 +334,7 @@ test("Sakura keeps talking after a check closes, which the chat channel gate wou
   const f = fixture(t); f.link("alice");
   f.due();
   await f.bot.tick();
-  assert.equal(await f.bot.handleMessage(f.message("yes mommy")), true);
+  assert.equal(await f.bot.handleMessage(f.message("dry mommy")), true);
   assert.equal(f.replies.length, 1);
   f.now += 5 * 60_000;
   f.reply = "Good girl for telling Mommy, sweetheart!";
@@ -329,7 +351,7 @@ test("a changed answer during the follow-up window gets the matching reply, not 
   const f = fixture(t); f.link("alice");
   f.due();
   await f.bot.tick();
-  await f.bot.handleMessage(f.message("yes mommy"));
+  await f.bot.handleMessage(f.message("dry mommy"));
   assert.deepEqual(f.kinds, ["ask", "dry"]);
   assert.equal(await f.bot.handleMessage(f.message("im wet")), true);
   assert.equal(await f.bot.handleMessage(f.message("im not wearing a diaper")), true);
@@ -341,7 +363,7 @@ test("the follow-up conversation is bounded by a window, a reply cap and the mem
   const f = fixture(t); f.link("alice");
   f.due();
   await f.bot.tick();
-  await f.bot.handleMessage(f.message("yes mommy"));
+  await f.bot.handleMessage(f.message("dry mommy"));
   for (let turn = 0; turn < MAX_FOLLOWUPS; turn++) {
     assert.equal(await f.bot.handleMessage(f.message(`chatting ${turn}`)), true, `turn ${turn}`);
   }
@@ -350,7 +372,7 @@ test("the follow-up conversation is bounded by a window, a reply cap and the mem
   const g = fixture(t); g.link("alice");
   g.due();
   await g.bot.tick();
-  await g.bot.handleMessage(g.message("yes mommy"));
+  await g.bot.handleMessage(g.message("dry mommy"));
   g.now += FOLLOWUP_WINDOW_MS + 1000;
   assert.equal(await g.bot.handleMessage(g.message("still there mommy?")), false); // The window closes on its own.
   g.now -= FOLLOWUP_WINDOW_MS;
@@ -382,7 +404,7 @@ test("one member per window: three members are each asked once across three wind
     assert.equal(f.checks().filter(check => check.state === "open").length, 1, `round ${round}`);
     const open = f.checks().find(check => check.state === "open");
     asked.push(open.user_id);
-    await f.bot.handleMessage(f.message("yes", { author: { id: open.user_id, bot: false } }));
+    await f.bot.handleMessage(f.message("dry", { author: { id: open.user_id, bot: false } }));
     await f.bot.tick();
     assert.equal(f.checks().length, round + 1); // Answered, but the next window has not opened yet.
   }

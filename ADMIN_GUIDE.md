@@ -44,7 +44,7 @@ status, gateway ping and feature availability without exposing secrets or wallet
 Initially off. Choose a check channel that is **not** visible to `@everyone` and a
 participating role, then enable and save. Only LiDollID-verified members holding
 that role are ever asked. Every two to four hours MommyBot tags one of them, in
-turn, to ask whether their diaper is still dry, and believes whatever they answer.
+turn, to ask whether they are dry or wet, and believes whatever they answer.
 Saying they are not wearing one at all gets a gentle reminder to go and put one
 on. Nothing is asked between
 22:00 and 06:00 server time, except a check you start yourself with

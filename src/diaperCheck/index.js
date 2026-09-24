@@ -4,9 +4,10 @@ import { classifyDiaperReply } from "../graph/diaperCheckReply.js";
 import { currentPronouns } from "../bot/pronouns.js";
 import { DiaperCheckStore, silentHour, ANSWER_WINDOW_MS } from "./store.js";
 
-const ASK_REQUEST = "Is your diaper still dry? Please answer Mommy with **yes** or **no**.";
+const ASK_REQUEST = "Are you **dry** or **wet**? Tell Mommy **dry** or **wet**.";
+// Name both states so no answer depends on how a question was phrased; a bare yes or no is asked again.
 const FALLBACKS = {
-  ask: "Diaper check, sweetheart! Mommy would like a little status update.",
+  ask: "Diaper check time, sweetheart! Mommy would like a little status update.",
   wet: "Thank you for telling Mommy, sweetheart. Accidents are perfectly okay. Let's get you into a fresh, dry diaper. 💗",
   dry: "Thank you for checking in with Mommy, sweetheart. Tell Mommy the moment you need a change. 💗",
   undiapered: "Sweetheart, you are not wearing your protection, and that simply will not do. Please go and put a fresh one on for Mommy right now, then tell Mommy you are all set.",

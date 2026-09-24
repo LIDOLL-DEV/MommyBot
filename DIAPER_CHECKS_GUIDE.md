@@ -1,6 +1,6 @@
 # MommyBot's diaper checks
 
-MommyBot asks opted-in members in Discord whether their diaper is still dry.
+MommyBot asks opted-in members in Discord whether they are dry or wet.
 Every two to four hours each server tags one LiDollID-verified member of its
 participating role, and an administrator can ask anyone at any time. MommyBot
 believes whatever the member answers: nothing is checked against any record.
@@ -25,7 +25,10 @@ sent. Leaving the server has the same effect.
 
 Each server has its own window of **two to four hours**, drawn at random and
 redrawn after every check of any kind. When it passes, MommyBot tags **one**
-member and asks *"Is your diaper still dry?"*. A newly enabled server waits a
+member and asks *"Are you **dry** or **wet**?"*. The AI writes only a friendly
+lead-in; it is told not to ask anything itself, and a lead-in containing a
+question mark is replaced with standard wording, so the only question is always
+the fixed one. A newly enabled server waits a
 full window before its first check, so enabling the feature does not immediately
 ping anyone.
 
@@ -46,11 +49,12 @@ is durable, so a restart does not reset the rotation.
 
 ## Answers
 
-MommyBot reads the member's next message in the check channel. The question is
-*"is your diaper still dry?"*, so **yes**, **yeah**, **yep**, **mhm**, **dry** and
-**I'm clean** mean dry, while **no**, **nope**, **nah**, **wet** and **messy** mean
-wet. These are recognized directly, with or without addressing Mommy, as are the
-"not wearing one" wordings below. Other wording goes to the router classifier,
+MommyBot reads the member's next message in the check channel. **dry**,
+**still dry**, **I'm clean** and **nice and dry** mean dry, while **wet**,
+**messy**, **soggy** and **a little wet** mean wet. These are recognized
+directly, with or without addressing Mommy, as are the "not wearing one" wordings
+below. A bare **yes** or **no** says neither, so it is treated as unclear and
+asked again rather than guessed. Other wording goes to the router classifier,
 which answers dry, wet, undiapered or unclear.
 
 | Answer | Result |
@@ -58,7 +62,7 @@ which answers dry, wet, undiapered or unclear.
 | Dry | Warmly thanked for checking in. |
 | Wet | Believed, reassured that accidents are perfectly okay, and gently encouraged to get changed. |
 | Not wearing one | A gentle **not wearing your protection** notice asking them to go and put a fresh one on. |
-| Unclear | One request for a plain yes or no. Further unclear messages go to ordinary conversation. |
+| Unclear | One request to answer dry or wet. Further unclear messages go to ordinary conversation. |
 
 **Not wearing one** covers the natural variations directly, without a model
 request: *I'm not wearing a diaper*, *no diaper right now*, *not wearing one*,
@@ -66,7 +70,7 @@ request: *I'm not wearing a diaper*, *no diaper right now*, *not wearing one*,
 *I took it off*, and being in ordinary or big-kid underwear. Other phrasings go
 to the classifier, which has this as a fourth label.
 
-It outranks yes and no in the same message, so *"yes but I'm not wearing a
+It outranks dry and wet in the same message, so *"dry but I'm not wearing a
 diaper"* gets the protection reminder. Wearing one is never misread as the
 opposite, so *"I'm diapered"* and *"no one is home"* are unaffected.
 

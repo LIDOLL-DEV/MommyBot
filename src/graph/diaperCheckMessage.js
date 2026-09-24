@@ -3,11 +3,11 @@ import { modelEndpoint, modelFailure } from "./connection.js";
 import { pronounInstruction, mismatchedAddress } from "../bot/pronouns.js";
 
 const MESSAGE_PROMPTS = {
-  ask: "It is time for a diaper check. Ask this little one sweetly whether their diaper is still dry, and invite a simple yes or no answer. Do not suggest you already know anything about their current state, and do not accuse them of anything.",
+  ask: "It is time for a diaper check. Write a sweet lead-in telling this little one that Mommy is checking on them. Do NOT ask any question and do not use a question mark: the application appends the exact question. Do not guess, hope or suggest whether they are dry or wet, and do not accuse them of anything.",
   wet: "This little one has just told Mommy their diaper is wet or messy. Believe them completely. Thank them warmly for telling Mommy, reassure them that accidents are perfectly okay, and gently encourage them to get changed into a fresh diaper. Do not scold, doubt or question them.",
   dry: "This little one has just told Mommy their diaper is still clean and dry. Believe them completely. Praise them warmly for checking in with Mommy and encourage them to tell Mommy whenever they need a change. Do not doubt or question them.",
   undiapered: 'This little one says they are not wearing a diaper at all right now. Gently chastise them for going without in Sakura\'s playful Mommy voice, and ask them to go and put a fresh one on for Mommy. Include the exact phrase "not wearing your protection". Be affectionate and firm, never cruel, humiliating or explicit. Do not invent details, times or counts, and do not discuss accidents they have not mentioned.',
-  unclear: "This little one answered a diaper check, but Mommy could not tell whether their diaper is dry or not. Sweetly ask them to answer again with a plain yes or no. Do not guess at their answer and do not scold them.",
+  unclear: "This little one answered a diaper check, but Mommy could not tell whether their diaper is dry or wet. Sweetly tell them Mommy needs a clearer answer. Do NOT ask any question and do not use a question mark: the application appends the exact question. Do not guess at their answer and do not scold them.",
 }; // Choose wording from the member's own answer, without sending any record, message text or account detail to the chat model.
 
 export async function generateDiaperCheckMessage(kind, { env = process.env, fetcher = fetch, pronouns = "they/them" } = {}) {
@@ -32,6 +32,7 @@ export async function generateDiaperCheckMessage(kind, { env = process.env, fetc
     if (typeof raw !== "string") throw new Error("No message text");
     const text = raw.replace(/<think\b[^>]*>[\s\S]*?<\/think>/gi, "").trim().replace(/^(["'])|(["'])$/g, "").trim();
     if (!text || text.length > 500 || /<\/?think\b|```|@|https?:|\d|\/lidollid/i.test(text)) throw new Error("Unusable message text");
+    if ((kind === "ask" || kind === "unclear") && /\?/.test(text)) throw new Error("Lead-in asked its own question"); // Only the fixed dry-or-wet question may be asked.
     if (kind === "undiapered" && !/\bnot wearing your protection\b/i.test(text)) throw new Error("Missing protection reminder");
     if (mismatchedAddress(text, pronouns)) {
       throw new Error("Incorrect member address");
