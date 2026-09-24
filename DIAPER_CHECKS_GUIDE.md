@@ -1,8 +1,9 @@
 # MommyBot's diaper checks
 
-MommyBot asks opted-in members in Discord whether they need a change. Members who
-have not been checked for six to twelve hours get a status request, and an
-administrator can ask anyone at any time.
+MommyBot asks opted-in members in Discord whether their diaper is still dry.
+Every two to four hours each server tags one LiDollID-verified member of its
+participating role, and an administrator can ask anyone at any time. MommyBot
+believes whatever the member answers: nothing is checked against any record.
 
 Every question is one mention plus a short AI-written line. MommyBot appends the
 exact answer instructions. No record, count, time or message text is ever sent to
@@ -15,59 +16,47 @@ panel and chooses both a **check channel** and a **participating role**.
 
 The channel must **not** be visible to `@everyone`; the panel refuses a public
 one, because these questions are personal. The role is the opt-in: only members
-holding it are ever asked, for accident checks and random checks alike. Removing
+holding it who have also linked a verified account with `/lidollid login` are
+ever asked. Removing
 the role stops checks immediately, including for a question already waiting to be
 sent. Leaving the server has the same effect.
 
-## Accident checks are retired
-
-MommyBot used to read Littlepottchi care state to ask about a specific accident,
-and to praise a fresh diaper. Littlepottchi was built on the TQ/DQ artwork that
-has since been removed, so neither runs any more. Random and administrator checks
-never read the doll and are unaffected.
-
-A member can still answer **yes**, and is still thanked for it; there is simply no
-longer a record to contradict a **no**, so nothing is treated as fibbing and
-nothing is written to the admin journal.
-
 ## Random checks
 
-If a participating member has gone a full random window of **six to twelve hours**
-without any check, they become due. MommyBot picks one due member at random,
-rather than always asking whoever has waited longest, and asks them for a status
-update. Every check of any kind redraws that member's window.
+Each server has its own window of **two to four hours**, drawn at random and
+redrawn after every check of any kind. When it passes, MommyBot tags **one**
+member and asks *"Is your diaper still dry?"*. A newly enabled server waits a
+full window before its first check, so enabling the feature does not immediately
+ping anyone.
 
-A newly eligible member waits a full window before their first check, so enabling
-the feature does not immediately ping everyone.
+The candidates are every LiDollID-verified account whose Discord member is in
+this server and holds the participating role. If nobody qualifies, the server
+simply waits another window.
 
 ## One at a time, and everyone in turn
 
 A server only ever has **one open question**. While a member has been asked and
-has not answered, no other member is asked, whether by accident, at random or on
-demand. Checks additionally leave a **30-minute gap** after the previous one in
-that server, so answering quickly does not immediately summon the next person.
+has not answered, no other member is asked, whether at random or on demand. A
+member is never asked in two servers at once either.
 
 Who gets asked is a **rotation, not a raffle**. MommyBot logs every member it has
 called, and always draws from those called fewest times, at random among ties. So
 everyone eligible is asked once before anyone is asked a second time. The call log
 is durable, so a restart does not reset the rotation.
 
-Members who have used their diaper in the last four hours are always preferred
-over a routine status check; the rotation applies within whichever group is being
-drawn from.
-
 ## Answers
 
-MommyBot reads the member's next message in the check channel. **yes**, **yeah**,
-**yep**, **mhm**, **no**, **nope** and **nah**, with or without addressing Mommy,
-are recognized directly without a model request, as are the "not wearing one"
-wordings below. Other wording goes to the router classifier, which answers yes,
-no, undiapered or unclear.
+MommyBot reads the member's next message in the check channel. The question is
+*"is your diaper still dry?"*, so **yes**, **yeah**, **yep**, **mhm**, **dry** and
+**I'm clean** mean dry, while **no**, **nope**, **nah**, **wet** and **messy** mean
+wet. These are recognized directly, with or without addressing Mommy, as are the
+"not wearing one" wordings below. Other wording goes to the router classifier,
+which answers dry, wet, undiapered or unclear.
 
 | Answer | Result |
 | --- | --- |
-| Yes | Warm praise for the honesty and a nudge to get changed. |
-| No | Simply thanked; without Littlepottchi there is no record to contradict it. |
+| Dry | Warmly thanked for checking in. |
+| Wet | Believed, reassured that accidents are perfectly okay, and gently encouraged to get changed. |
 | Not wearing one | A gentle **not wearing your protection** notice asking them to go and put a fresh one on. |
 | Unclear | One request for a plain yes or no. Further unclear messages go to ordinary conversation. |
 
@@ -78,17 +67,12 @@ request: *I'm not wearing a diaper*, *no diaper right now*, *not wearing one*,
 to the classifier, which has this as a fourth label.
 
 It outranks yes and no in the same message, so *"yes but I'm not wearing a
-diaper"* gets the protection reminder rather than the accident reply. Going
-without is not treated as lying: it is never recorded in the admin journal and
-never produces a fibbing notice. Wearing one is never misread as the opposite,
-so *"I'm diapered"* and *"no one is home"* are unaffected.
+diaper"* gets the protection reminder. Wearing one is never misread as the
+opposite, so *"I'm diapered"* and *"no one is home"* are unaffected.
 
-A denial costs no coins and is never announced beyond the reply itself. The
-journal entry records the member's Discord ID and the event kind for server
-administrators only.
-
-An **unreachable classifier never returns "no"**, so an AI outage can never cause
-someone to be accused of fibbing. Unanswered questions expire after an hour, are
+Mommy trusts every answer. Nothing is recorded in the admin journal, nothing
+costs coins, and nobody is ever told they are fibbing. An unreachable classifier
+asks again rather than guessing. Unanswered questions expire after an hour, are
 not chastised for silence, and stop blocking the next check.
 
 ## Continuing the conversation
@@ -103,8 +87,8 @@ ordinary conversation replies never reach it: without this, Sakura would simply
 go silent the moment a check closed.
 
 If the follow-up is itself a decided answer, it gets the matching reply rather
-than small talk: **yes** is praised as a correction, and **not wearing one** gets
-the protection reminder. Anything else gets a warm free-form reply.
+than small talk: switching from dry to wet (or back) gets the matching reply, and
+**not wearing one** gets the protection reminder. Anything else gets a warm free-form reply.
 
 That free-form reply is the one place a member's own words reach the chat model,
 bounded to that single message and the previous answer, exactly as the classifier
@@ -119,14 +103,13 @@ An administrator can start a check at any time with
 non-administrators, and MommyBot rechecks the caller's live Administrator
 permission before acting, so a stale permission cache cannot authorize it.
 
-The reply is private. The check is posted in the server's check channel as a
-status request, exactly like a random check: there is no accident record behind
-it, so answering no is simply thanked rather than treated as a fib. It resets
-that member's six to twelve hour window.
+The reply is private. The check is posted in the server's check channel exactly
+like a random check, and pushes that server's next random check two to four
+hours out.
 
 Because an administrator asking is deliberate and immediate, this is the one
-check that **ignores silent hours**. It still respects the opt-in role: a member
-without it, or who has left, is refused with a note rather than asked. A member
+check that **ignores silent hours**. It still respects the opt-in role and LiDollID
+verification: a member without them, or who has left, is refused with a note rather than asked. A member
 who already has a question waiting is not asked twice.
 
 ## Silent hours
@@ -142,29 +125,28 @@ Diaper checks need no bridge URL or token. Restart MommyBot after changing setti
 
 | Setting | Behavior |
 | --- | --- |
-| `DIAPER_CHECKS_ENABLED=true` | Required. Also requires `LIDOLLID_ENABLED=true`, so checks can be matched to Discord members. |
+| `DIAPER_CHECKS_ENABLED=true` | Required. Also requires `LIDOLLID_ENABLED=true`, since only LiDollID-verified members are asked. |
 | `DIAPER_CHECKS_DB` | Check journal location. Defaults to `data/diaperchecks.db`. |
 | `DIAPER_CHECKS_AI_ENABLED=false` | Use standard wording and treat every non-direct answer as unclear. AI wording is enabled by default. |
 | `DIAPER_CHECKS_AI_TIMEOUT_MS` | AI wait limit, 1,000-15,000 milliseconds. Defaults to 8,000. |
 
-Care state is scanned once a minute.
+MommyBot looks for a due server once a minute.
 
 Prose uses the existing `LLAMA_BASE_URL`, `LLAMA_MODEL` and MommyBot system
 prompt. Classification uses `ROUTER_LAMA_URL` and `ROUTER_MODEL` (falling back to
 `LLAMA_MODEL`) at temperature zero, exactly as the swear jar does. The classifier
 receives the member's single message alone, with no history, records or identity.
 
-Startup prints `[Diaper check] ON`, `OFF` or `MISCONFIGURED` with the reason.
-A misconfiguration message names only the offending field, never its value.
+Startup prints `[Diaper check] ON` or `OFF` with the reason.
 
 ## Persistence and recovery
 
-The check journal at `data/diaperchecks.db` holds seen episode keys, open questions
-and per-member scheduling. Questions are journaled before Discord is contacted, so
+The check journal at `data/diaperchecks.db` holds open questions, the rotation's
+call log and each server's next check time. Questions are journaled before Discord is contacted, so
 a failed send is retried on the next pass rather than lost, and a delivered
 question is never asked twice. Answers are journaled before the follow-up is sent,
 so an outage during the reply retries the reply and not the question.
 
-Seen episode keys are pruned after seven days, long after their care revision has moved on.
+Tables left over from the retired Littlepottchi accident checks are dropped on startup.
 Finished checks are pruned after thirty days; this is not intended as a permanent
 record of anyone's accidents.

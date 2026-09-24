@@ -54,8 +54,7 @@ async function main() {
   }); // Refuse to sell a break in a server that has already paused swear jar fines, and honor its own word list.
   const diaperChecks = createDiaperChecks(client, identity?.identities, process.env, {
     settings: guildId => community.settings(guildId),
-    audit: (guild, actor, action, detail) => community.store.audit(guild, actor, action, detail),
-  }); // Accident checks read Littlepottchi care state in process and record denials in the admin journal.
+  }); // Each server asks one LiDollID-verified member of its chosen role every two to four hours.
   const showcase = createCharacterShowcase(client, wallet, identity?.identities, process.env, {
     settings: guildId => community.settings(guildId),
   }); // Character sheets are read with the existing LiDollQuest companion credential and posted to each server's chosen channel.
@@ -108,7 +107,7 @@ async function main() {
     reports?.start(); // Poll completed nightly and explicitly shared reports independently of chat and wallet configuration.
     mmoOnline?.start();
     swearJar?.start(); // Recover saved payments and check weekly draws once Discord can resolve members and channels.
-    diaperChecks?.start(); // Read accident events only once Discord can resolve members, channels and roles.
+    diaperChecks?.start(); // Choose members only once Discord can resolve members, channels and roles.
     void reportModelEndpoints().catch(() => console.error("[Brain] Startup probe could not finish; run scripts/check-runtime.mjs."));
     for (const guild of client.guilds.cache.values()) void retireCommands(guild); // /diaper, /clothes, /littlepottchi, /doll, /pottchistats, /pottchiadmin
     if (diaperChecks) for (const guild of client.guilds.cache.values()) void diaperChecks.registerGuild(guild);

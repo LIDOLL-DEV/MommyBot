@@ -42,11 +42,11 @@ status, gateway ping and feature availability without exposing secrets or wallet
 ## Diaper checks
 
 Initially off. Choose a check channel that is **not** visible to `@everyone` and a
-participating role, then enable and save. Only members holding that role are ever
-asked. Members with no check in six to twelve hours get a random status request, and
-saying they are not wearing one at all gets a gentle reminder to go and put one
-on. Accident-backed checks and fresh-diaper praise needed Littlepottchi, which
-has been removed, so they no longer run. Nothing is asked between
+participating role, then enable and save. Only LiDollID-verified members holding
+that role are ever asked. Every two to four hours MommyBot tags one of them, in
+turn, to ask whether their diaper is still dry, and believes whatever they answer.
+Saying they are not wearing one at all gets a gentle reminder to go and put one
+on. Nothing is asked between
 22:00 and 06:00 server time, except a check you start yourself with
 `/diapercheck ask member:@someone`, which is private, immediate and still
 respects the opt-in role. See [DIAPER_CHECKS_GUIDE.md](DIAPER_CHECKS_GUIDE.md).
