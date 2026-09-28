@@ -2,7 +2,7 @@ import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.
 import { generateDiaperCheckMessage, generateDiaperCheckReply } from "../graph/diaperCheckMessage.js";
 import { classifyDiaperReply } from "../graph/diaperCheckReply.js";
 import { currentPronouns } from "../bot/pronouns.js";
-import { DiaperCheckStore, silentHour, ANSWER_WINDOW_MS } from "./store.js";
+import { DiaperCheckStore, silentHour, DELIVERY_WINDOW_MS } from "./store.js";
 
 const ASK_REQUEST = "Are you **dry** or **wet**? Tell Mommy **dry** or **wet**.";
 // Name both states so no answer depends on how a question was phrased; a bare yes or no is asked again.
@@ -68,7 +68,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
       const prose = await generateMessage(kind, { env, pronouns }).catch(() => null);
       const intro = prose || FALLBACKS[kind];
       const asking = kind === "ask" || kind === "unclear";
-      const content = `${intro}\n\n<@${check.user_id}>${asking ? `, ${ASK_REQUEST}` : ""}`;
+      const content = `<@${check.user_id}> ${intro}${asking ? `\n\n${ASK_REQUEST}` : ""}`;
       const options = { content, allowedMentions: { parse: [], users: [check.user_id], repliedUser: true } };
       if (reply) { await reply.reply(options); return true; }
       const channel = await client.channels.fetch(check.channel_id);
@@ -84,9 +84,9 @@ export function createDiaperChecks(client, identities, env = process.env, {
 
   async function ask(check) {
     if (await send(check, "ask")) return;
-    if (journal.get(check.id)?.asked === 0 && now() - check.created > ANSWER_WINDOW_MS) {
+    if (journal.get(check.id)?.asked === 0 && now() - check.created > DELIVERY_WINDOW_MS) {
       journal.db.prepare("UPDATE diaper_checks SET state='expired',notified=1 WHERE id=? AND asked=0").run(check.id);
-    } // A question that could not be delivered within its own answer window is abandoned rather than asked far too late.
+    } // A question that could not be delivered within an hour is abandoned rather than asked far too late.
   }
 
   const LEGACY = { yes: "wet", no: "dry" }; // Answers saved before the question became "is your diaper dry?".
@@ -98,14 +98,13 @@ export function createDiaperChecks(client, identities, env = process.env, {
   }
 
   async function followUp(message) {
-    const recent = journal.recentAnswered(message.guildId, message.author.id, message.channelId, now());
+    const recent = journal.latestAnswered(message.guildId, message.author.id, message.channelId);
     if (!recent) return false;
     const activity = Symbol(`diaper-followup:${message.id}`);
     active.add(activity);
     try {
       const context = await eligible(message.guildId, message.author.id).catch(() => null);
       if (!context) return false;
-      journal.bumpFollowup(recent.id); // Count the exchange before replying, so a failed send cannot be retried into a loop.
       const answer = await classifyReply(message.content, { env });
       if (answer !== "unclear" && answer !== outcome(recent)) {
         await send(recent, answer, { reply: message });
@@ -119,14 +118,13 @@ export function createDiaperChecks(client, identities, env = process.env, {
       console.error(`[Diaper check] Could not continue a conversation in guild ${message.guildId}.`);
       return true; // The member was answered or will be next time; never fall through to unrelated handling mid-exchange.
     } finally { active.delete(activity); }
-  } // Keep talking briefly after a check closes: the check channel is usually outside CHANNEL_ID, so ordinary chat would never reply there.
+  } // Keep talking until the next check: the check channel is usually outside CHANNEL_ID, so ordinary chat would never reply there.
 
   async function handleMessage(message) {
     if (stopped || !message.guildId || message.author?.bot || message.webhookId) return false;
-    if (!message.content?.trim()) return false;
+    if (!message.content?.trim() || !guildSettings(message.guildId)) return false;
     const check = journal.open(message.guildId, message.author.id);
     if (!check || !check.asked || check.channel_id !== message.channelId) return followUp(message);
-    if (now() - check.created > ANSWER_WINDOW_MS) return false; // A stale question is closed by maintenance, not answered here.
     const activity = Symbol(`diaper:${message.id}`);
     active.add(activity);
     try {
@@ -179,9 +177,9 @@ export function createDiaperChecks(client, identities, env = process.env, {
       if (stopped) return;
       const saved = guildSettings(guildId);
       if (!saved?.role) continue; // Checks need a role to choose from.
-      if (journal.openInGuild(guildId)) continue; // Never ask a second member while a question is still waiting.
+      if (journal.unsentInGuild(guildId)) continue; // Never ask a second member while a question is still being delivered.
       if (!journal.due(guildId, now())) continue; // One check per server every two to four hours.
-      let remaining = identities.discordLinks().map(link => link.discord_id).filter(user => !journal.openAnywhere(user));
+      let remaining = identities.discordLinks().map(link => link.discord_id).filter(user => !journal.openElsewhere(user, guildId));
       let asked = false;
       while (remaining.length) {
         if (stopped) return;
@@ -199,7 +197,6 @@ export function createDiaperChecks(client, identities, env = process.env, {
   } // Rotate through every LiDollID-verified role member before anyone is asked twice.
 
   async function runTick() {
-    journal.expire(now());
     if (!isSilent(now())) {
       try { await chooseCheck(); }
       catch { console.error("[Diaper check] Could not schedule a check; it will retry."); }

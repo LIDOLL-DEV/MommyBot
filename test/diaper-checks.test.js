@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { IdentityStore } from "../src/auth/store.js";
-import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, ANSWER_WINDOW_MS, FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS } from "../src/diaperCheck/store.js";
+import { DiaperCheckStore, silentHour, CHECK_MIN_MS, CHECK_MAX_MS, DELIVERY_WINDOW_MS } from "../src/diaperCheck/store.js";
 import { createDiaperChecks, diaperCheckStatus } from "../src/diaperCheck/index.js";
 import { exactDiaperReply, classifyDiaperReply } from "../src/graph/diaperCheckReply.js";
 import { generateDiaperCheckMessage } from "../src/graph/diaperCheckMessage.js";
@@ -104,6 +104,7 @@ test("a due server asks one verified role member whether their diaper is dry, an
   f.due();
   await f.bot.tick();
   assert.equal(f.sent.length, 1);
+  assert.ok(f.sent[0].content.startsWith("<@alice> "), "the mention leads the message");
   assert.match(f.sent[0].content, /Are you \*\*dry\*\* or \*\*wet\*\*\?/);
   assert.deepEqual(f.sent[0].allowedMentions, { parse: [], users: ["alice"], repliedUser: true });
   assert.deepEqual(f.kinds, ["ask"]);
@@ -218,17 +219,44 @@ test("a failed send is retried on the next pass without asking twice or losing t
   assert.equal(f.sent.length, 1);
 });
 
-test("an unanswered question expires after its window and cannot be answered late", async t => {
-  const f = fixture(t); f.link("alice");
+test("an unanswered question stays answerable until the server's next check replaces it", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob");
+  f.drawValue = 0; // Alice is asked first.
   f.due();
   await f.bot.tick();
+  assert.equal(f.checks()[0].user_id, "alice");
   assert.equal(await f.bot.handleMessage(f.message("what a nice day")), true); // One clarification is offered.
   assert.deepEqual(f.kinds, ["ask", "unclear"]);
   assert.equal(await f.bot.handleMessage(f.message("still a nice day")), false); // Then ordinary conversation resumes.
-  f.now += ANSWER_WINDOW_MS + 1000;
+  f.now += 90 * 60_000; // Past the old one-hour limit, before the next window opens.
   await f.bot.tick();
-  assert.equal(f.checks()[0].state, "expired");
+  assert.equal(f.checks()[0].state, "open"); // No timer closes it.
+  assert.equal(f.checks().length, 1); // And its window has not opened yet.
+  f.due();
+  await f.bot.tick();
+  assert.equal(f.checks().length, 2);
+  assert.equal(f.checks()[0].state, "expired"); assert.equal(f.checks()[1].user_id, "bob");
   assert.equal(await f.bot.handleMessage(f.message("dry mommy")), false);
+});
+
+test("an unanswered question is still answered well past an hour", async t => {
+  const f = fixture(t); f.link("alice");
+  f.due();
+  await f.bot.tick();
+  f.now += 90 * 60_000; // Past the old one-hour limit, before the next window opens.
+  await f.bot.tick();
+  assert.equal(await f.bot.handleMessage(f.message("dry mommy")), true);
+  assert.equal(f.checks()[0].state, "answered"); assert.deepEqual(f.kinds, ["ask", "dry"]);
+});
+
+test("a question that cannot be delivered within an hour is abandoned", async t => {
+  const f = fixture(t); f.link("alice");
+  f.due();
+  f.failSend = true;
+  await f.bot.tick();
+  f.now += DELIVERY_WINDOW_MS + 1000;
+  await f.bot.tick();
+  assert.equal(f.checks()[0].state, "expired"); assert.equal(f.sent.length, 0);
 });
 
 test("messages outside the check channel, from other members and from bots are left alone", async t => {
@@ -359,25 +387,24 @@ test("a changed answer during the follow-up window gets the matching reply, not 
   assert.equal(f.prompts.length, 0); // Decided answers never go to the free-form reply.
 });
 
-test("the follow-up conversation is bounded by a window, a reply cap and the member's own channel", async t => {
-  const f = fixture(t); f.link("alice");
+test("the follow-up conversation lasts until the server's next check, in the member's own channel", async t => {
+  const f = fixture(t); f.link("alice"); f.link("bob");
+  f.drawValue = 0; // Alice is asked first.
   f.due();
   await f.bot.tick();
   await f.bot.handleMessage(f.message("dry mommy"));
-  for (let turn = 0; turn < MAX_FOLLOWUPS; turn++) {
+  for (let turn = 0; turn < 10; turn++) {
+    f.now += 20 * 60_000;
     assert.equal(await f.bot.handleMessage(f.message(`chatting ${turn}`)), true, `turn ${turn}`);
-  }
-  assert.equal(await f.bot.handleMessage(f.message("still chatting")), false); // The cap hands the channel back to ordinary handling.
-  assert.equal(f.store.db.prepare("SELECT followups FROM diaper_checks").get().followups, MAX_FOLLOWUPS);
-  const g = fixture(t); g.link("alice");
-  g.due();
-  await g.bot.tick();
-  await g.bot.handleMessage(g.message("dry mommy"));
-  g.now += FOLLOWUP_WINDOW_MS + 1000;
-  assert.equal(await g.bot.handleMessage(g.message("still there mommy?")), false); // The window closes on its own.
-  g.now -= FOLLOWUP_WINDOW_MS;
-  assert.equal(await g.bot.handleMessage(g.message("over here", { channelId: "elsewhere" })), false);
-  assert.equal(await g.bot.handleMessage(g.message("hi", { author: { id: "bob", bot: false } })), false);
+  } // No reply cap and no fifteen-minute cut-off.
+  assert.equal(await f.bot.handleMessage(f.message("over here", { channelId: "elsewhere" })), false);
+  assert.equal(await f.bot.handleMessage(f.message("hi", { author: { id: "bob", bot: false } })), false);
+  f.due();
+  await f.bot.tick();
+  assert.equal(f.checks()[1].user_id, "bob");
+  assert.equal(await f.bot.handleMessage(f.message("still there mommy?")), false); // Bob's check ends Alice's conversation.
+  f.settings = { enabled: false, channel: "check-channel", role: "little-role" };
+  assert.equal(await f.bot.handleMessage(f.message("dry", { author: { id: "bob", bot: false } })), false); // Disabled servers are left alone.
 });
 
 test("the call log rotates through everyone before anyone repeats", () => {

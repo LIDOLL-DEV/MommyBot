@@ -5,8 +5,8 @@ Every two to four hours each server tags one LiDollID-verified member of its
 participating role, and an administrator can ask anyone at any time. MommyBot
 believes whatever the member answers: nothing is checked against any record.
 
-Every question is one mention plus a short AI-written line. MommyBot appends the
-exact answer instructions. No record, count, time or message text is ever sent to
+Every question opens with one mention, followed by a short AI-written line.
+MommyBot appends the exact answer instructions. No record, count, time or message text is ever sent to
 the AI, and nothing about a member's records is ever quoted in the channel.
 
 ## Opting in
@@ -76,15 +76,16 @@ opposite, so *"I'm diapered"* and *"no one is home"* are unaffected.
 
 Mommy trusts every answer. Nothing is recorded in the admin journal, nothing
 costs coins, and nobody is ever told they are fibbing. An unreachable classifier
-asks again rather than guessing. Unanswered questions expire after an hour, are
-not chastised for silence, and stop blocking the next check.
+asks again rather than guessing. An unanswered question stays answerable until
+the server's next check replaces it; it is then closed quietly, never chastised
+for silence.
 
 ## Continuing the conversation
 
-A closed check does not end the exchange. For **15 minutes** afterwards, up to
-**four** more messages from that member in the check channel get a reply, so
-saying *"I changed five minutes ago"* after answering is acknowledged instead of
-ignored.
+A closed check does not end the exchange. Every later message from that member
+in the check channel gets a reply **until the server's next check**, whoever it
+asks, so saying *"I changed five minutes ago"* after answering is acknowledged
+instead of ignored. There is no time limit or reply cap before then.
 
 This matters because the check channel is normally outside `CHANNEL_ID`, so
 ordinary conversation replies never reach it: without this, Sakura would simply
@@ -97,8 +98,8 @@ than small talk: switching from dry to wet (or back) gets the matching reply, an
 That free-form reply is the one place a member's own words reach the chat model,
 bounded to that single message and the previous answer, exactly as the classifier
 already is. No records, history, counts or identities are sent. With the AI
-unavailable, a fixed acknowledgement is used. Past the window or the reply cap,
-the channel goes back to ordinary handling.
+unavailable, a fixed acknowledgement is used. Once the next check is posted, or
+if the server turns checks off, the channel goes back to ordinary handling.
 
 ## Asking on demand
 
@@ -120,8 +121,7 @@ who already has a question waiting is not asked twice.
 
 No new question is posted between **22:00 and 06:00** in the bot host's own time
 zone. A question that becomes due during quiet hours is saved and asked once quiet
-time ends; it is abandoned if it could not be delivered within its own one-hour
-answer window. Answers and follow-ups are still processed during quiet hours.
+time ends; it is abandoned if it could not be delivered within an hour. Answers and follow-ups are still processed during quiet hours.
 
 ## Configuration
 

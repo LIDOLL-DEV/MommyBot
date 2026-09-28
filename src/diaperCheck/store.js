@@ -4,9 +4,7 @@ import { randomInt, randomUUID } from "node:crypto";
 export const HOUR = 3_600_000;
 export const CHECK_MIN_MS = 2 * HOUR;
 export const CHECK_MAX_MS = 4 * HOUR;
-export const ANSWER_WINDOW_MS = 60 * 60_000;
-export const FOLLOWUP_WINDOW_MS = 15 * 60_000;
-export const MAX_FOLLOWUPS = 4;
+export const DELIVERY_WINDOW_MS = 60 * 60_000;
 export const SILENT_START_HOUR = 22;
 export const SILENT_END_HOUR = 6;
 
@@ -34,9 +32,6 @@ export class DiaperCheckStore {
       DROP TABLE IF EXISTS diaper_events; DROP TABLE IF EXISTS diaper_cursor;
       DROP TABLE IF EXISTS diaper_care; DROP TABLE IF EXISTS diaper_schedule;`);
     // The retired Littlepottchi care copies and per-member windows are removed; checks no longer rest on any record.
-    const columns = new Set(this.db.prepare("PRAGMA table_info(diaper_checks)").all().map(column => column.name));
-    if (!columns.has("followups")) this.db.exec("ALTER TABLE diaper_checks ADD COLUMN followups INTEGER NOT NULL DEFAULT 0");
-    // Existing journals gain conversation counters without losing any saved question or answer.
   } // Keep open questions, the rotation and each server's next check durable so a restart never re-asks or double-asks.
 
   interval() { return CHECK_MIN_MS + this.draw(CHECK_MAX_MS - CHECK_MIN_MS + 1); } // A uniform 2-4 hour gap, redrawn after every check.
@@ -64,23 +59,26 @@ export class DiaperCheckStore {
   open(guild, user) {
     return this.db.prepare("SELECT * FROM diaper_checks WHERE guild_id=? AND user_id=? AND state='open' ORDER BY created DESC LIMIT 1").get(guild, user);
   }
-  openInGuild(guild) {
-    return this.db.prepare("SELECT * FROM diaper_checks WHERE guild_id=? AND state='open' ORDER BY created LIMIT 1").get(guild);
-  } // One question at a time per server, so the channel is never filled with several at once.
-  recentAnswered(guild, user, channel, now = this.now()) {
-    return this.db.prepare(`SELECT * FROM diaper_checks WHERE guild_id=? AND user_id=? AND channel_id=? AND state='answered'
-      AND notified=1 AND answered>? AND followups<? ORDER BY answered DESC LIMIT 1`)
-      .get(guild, user, channel, now - FOLLOWUP_WINDOW_MS, MAX_FOLLOWUPS);
-  } // Keep talking for a short while after a check closes, with a hard reply cap so the channel cannot become an endless chat.
-  bumpFollowup(id) { this.db.prepare("UPDATE diaper_checks SET followups=followups+1 WHERE id=?").run(id); }
+  unsentInGuild(guild) {
+    return this.db.prepare("SELECT * FROM diaper_checks WHERE guild_id=? AND state='open' AND asked=0 ORDER BY created LIMIT 1").get(guild);
+  } // A question still waiting to be delivered holds back the next one, so the channel is never filled with several at once.
+  latestAnswered(guild, user, channel) {
+    const latest = this.db.prepare("SELECT * FROM diaper_checks WHERE guild_id=? ORDER BY created DESC, rowid DESC LIMIT 1").get(guild);
+    return latest?.user_id === user && latest.channel_id === channel && latest.state === "answered" && latest.notified ? latest : null;
+  } // The conversation after a check lasts until the server's next check, whoever that next check asks.
 
   openAnywhere(user) {
     return this.db.prepare("SELECT * FROM diaper_checks WHERE user_id=? AND state='open' ORDER BY created DESC LIMIT 1").get(user);
   } // A member is only ever asked one question at a time, even across servers.
+  openElsewhere(user, guild) {
+    return this.db.prepare("SELECT * FROM diaper_checks WHERE user_id=? AND guild_id!=? AND state='open' LIMIT 1").get(user, guild);
+  } // A question in this server is replaced by the next check here; one in another server still makes the member wait.
 
   record({ guild, user, channel, kind }) {
     const id = randomUUID(), created = this.now();
     const saved = this.db.transaction(() => {
+      this.db.prepare("UPDATE diaper_checks SET state='expired',notified=1 WHERE guild_id=? AND state='open' AND asked=1").run(guild);
+      // The next check in a server closes any question still waiting there, without chastising the silence.
       if (this.open(guild, user)) return null; // One open question per member.
       this.db.prepare(`INSERT INTO diaper_checks (id,guild_id,user_id,channel_id,kind,state,created)
         VALUES (?,?,?,?,?,'open',?)`).run(id, guild, user, channel, kind, created);
@@ -102,11 +100,6 @@ export class DiaperCheckStore {
   markClarified(id) {
     return this.db.prepare("UPDATE diaper_checks SET clarified=1 WHERE id=? AND clarified=0").run(id).changes === 1;
   } // Ask for a plain yes or no exactly once; further unclear chatter belongs to ordinary conversation.
-
-  expire(now = this.now()) {
-    return this.db.prepare("UPDATE diaper_checks SET state='expired',notified=1 WHERE state='open' AND asked=1 AND created<?")
-      .run(now - ANSWER_WINDOW_MS).changes;
-  } // An unanswered question stops blocking future checks after an hour, and is never chastised for silence.
 
   unsent() { return this.db.prepare("SELECT * FROM diaper_checks WHERE state='open' AND asked=0 ORDER BY created,id").all(); }
   unfinished() { return this.db.prepare("SELECT * FROM diaper_checks WHERE state='answered' AND notified=0 ORDER BY created,id").all(); }
