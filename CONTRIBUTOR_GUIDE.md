@@ -102,7 +102,11 @@ Keep routing policy in `src/graph/router.js` and bounded Discord context in
 serializes each member's checkpoint updates and sends only an assistant message
 from an explicit respond route. Never use cleaned user text or a previous
 assistant message as evidence that the current turn should be sent.
-Classifier failures stay silent; direct addresses bypass classification. See
+Classifier failures stay silent; direct addresses bypass classification. DMs
+need `Partials.Channel` to be emitted at all, pass `src/bot/dmGate.js` instead of
+the server chat switch and `CHANNEL_ID`, always count as direct, reply without a
+ping and checkpoint to `dm:<userId>` so private talk never reaches a server
+thread. See
 [GENERATION_TUNING_GUIDE.md](GENERATION_TUNING_GUIDE.md) for prompts and diagnostics.
 
 The application is an ES-module Node.js Discord bot. Runtime code lives under

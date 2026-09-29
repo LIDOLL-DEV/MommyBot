@@ -14,7 +14,7 @@ export function createClient(env = process.env) {
       GatewayIntentBits.DirectMessages,
       GatewayIntentBits.DirectMessageTyping,
     ],
-    partials: [Partials.Message, Partials.Reaction, Partials.User], // Receive reaction events for older messages after a restart.
+    partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.User], // Channel: DMs arrive on uncached channels and are otherwise never emitted. The rest: reaction events for older messages after a restart.
   });
 
   return client;

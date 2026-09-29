@@ -3,6 +3,7 @@ import process from "process";
 import { Events } from "discord.js"; // Use the library's current event names instead of deprecated aliases.
 import { createClient } from "./bot/client.js";
 import { handleMessage } from "./bot/handlers/message.js";
+import { createDmGate } from "./bot/dmGate.js";
 import { initCheckpointer } from "./db/checkpointer.js";
 import { startGitHubActivityWatcher } from "./github/activityWatcher.js";
 import { initializeTouhouTrader } from "./touhou/index.js";
@@ -34,6 +35,7 @@ async function main() {
   } catch { console.log("[Release] Checkout or older deployment without release metadata."); } // Identify stale releases directly in the same startup log as feature readiness.
   console.log("🌸 Sakura is waking up...");
   console.log(`🔒 Channel gate set to: ${CHANNEL_ID || "unlocked (all channels)"}`);
+  console.log(`💌 DM chat: ${process.env.DM_CHAT_ENABLED === "false" ? "off" : "on for members of chat-enabled servers"}`);
 
   // Initialize the SQLite memory database
   await initCheckpointer();
@@ -58,6 +60,7 @@ async function main() {
   const showcase = createCharacterShowcase(client, wallet, identity?.identities, process.env, {
     settings: guildId => community.settings(guildId),
   }); // Character sheets are read with the existing LiDollQuest companion credential and posted to each server's chosen channel.
+  const allowDirectMessage = createDmGate({ client, chatEnabled: guildId => community.enabled(guildId, "chat") });
   let stopGitHubWatcher = () => {};
 
   // Handle message events
@@ -71,8 +74,9 @@ async function main() {
     if (identity && await identity.handleMessage(message)) return; // Open the web game before the conversation channel gate or LLM routing.
     if (touhouTrader && await touhouTrader.handleMessage(message)) return; // Consume trader commands before calling the language model.
     if (message.guildId && !community.enabled(message.guildId, "chat")) return;
-    // Gate to specific channel if configured
-    if (CHANNEL_ID && message.channel.id !== CHANNEL_ID) {
+    if (!message.guildId && !await allowDirectMessage(message).catch(() => false)) return; // DMs: on/off switch plus membership in a chat-enabled server.
+    // Gate server chat to a specific channel if configured; DMs are never in it.
+    if (message.guildId && CHANNEL_ID && message.channel.id !== CHANNEL_ID) {
       console.log(`🔇 Ignoring message in channel ${message.channel.id} (gate: ${CHANNEL_ID})`);
       return;
     }

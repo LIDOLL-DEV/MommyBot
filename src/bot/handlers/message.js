@@ -15,8 +15,8 @@ export function createMessageHandler({ getGraph, contextReader = conversationCon
       const graph = await getGraph();
       const pronouns = message.guildId ? await currentPronouns(message.guild, message.author.id, message.member) : "they/them";
       const result = await graph.invoke({ messages: [new HumanMessage(message.content)], force_respond: direct, routing_context: routing, member_pronouns: pronouns }, {
-        configurable: { thread_id: message.author.id },
-      }); // Keep durable per-member memory, but supply fresh channel context for every routing decision.
+        configurable: { thread_id: message.guildId ? message.author.id : `dm:${message.author.id}` },
+      }); // Keep durable per-member memory, but supply fresh channel context for every routing decision. DMs keep their own thread so private talk never surfaces in a server.
       const finalMessage = result.messages?.at(-1);
       if (result.next !== "sakura_llm" || !(finalMessage instanceof AIMessage)) return false;
       const content = typeof finalMessage.content === "string" ? finalMessage.content : "";
@@ -26,7 +26,7 @@ export function createMessageHandler({ getGraph, contextReader = conversationCon
         .replace(/\u3010(?:think|thinking)\u3011[\s\S]*?\u3010\/(?:think|thinking)\u3011/gi, "").trim();
       if (!cleaned || cleaned === message.content.trim()) return false;
       sendAttempted = true;
-      await message.channel.send(`${message.author} ${cleaned}`);
+      await message.channel.send(message.guildId ? `${message.author} ${cleaned}` : cleaned); // A DM already has one reader; no ping.
       return true;
     } catch (error) {
       logger.error("[Chat] Conversation turn failed:", error.message);

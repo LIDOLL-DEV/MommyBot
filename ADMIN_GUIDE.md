@@ -39,6 +39,11 @@ to use the deployment's own list. Global environment switches and
 account commands and games remain available. The dashboard shows connection
 status, gateway ping and feature availability without exposing secrets or wallets.
 
+Sakura also chats in DMs with anyone who is a member of at least one server where
+conversation replies are on; pausing replies here removes this server from that
+check. `CHANNEL_ID` never applies to DMs. Set `DM_CHAT_ENABLED=false` to turn DM
+chat off everywhere. Declined members get one short notice a day.
+
 ## Diaper checks
 
 Initially off. Choose a check channel that is **not** visible to `@everyone` and a
