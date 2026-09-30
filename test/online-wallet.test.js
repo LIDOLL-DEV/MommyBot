@@ -227,6 +227,18 @@ test("consent polling backs off, persists the one-time grant and blocks cross-ac
   assert.equal(f.wallet.connection("alice"), undefined);
 });
 
+test("disconnect forgets a grant pinned to old API settings without sending its token anywhere", async t => {
+  const f = setup(t); await f.connect();
+  f.client.config.baseUrl = "http://10.1.1.23:4173/tracker/api/lidollcoin/v1/"; // Simulate the operator switching LIDOLLCOIN_API_URL after alice connected.
+  await assert.rejects(f.wallet.balance("alice"), /different API settings/); // Normal wallet use is still refused for the stale grant.
+  const callsBefore = f.api.calls.length;
+  await f.wallet.disconnect("alice"); // The escape hatch must not be locked by the same pin.
+  assert.equal(f.api.calls.length, callsBefore); // No revoke went out: the stale token never reaches the new service.
+  assert.equal(f.wallet.connection("alice"), undefined); // The row is gone, so a fresh connect can proceed.
+  await f.connect(); // Reconnecting under the new settings works again.
+  assert.equal(f.wallet.connection("alice").base_url, f.client.config.baseUrl); // The new grant is pinned to the new settings.
+});
+
 test("credentials stay pinned to their API and concurrent purchases cannot spend twice", async t => {
   const f = setup(t); await f.connect();
   const original = f.client.config.baseUrl;

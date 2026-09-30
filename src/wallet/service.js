@@ -39,9 +39,12 @@ export class WalletService {
     try { return await action(); } finally { for (const user of users) this.locks.delete(user); }
   } // Serialize connection changes and purchases for each authenticated Discord user before awaiting network I/O.
   connection(userId) { return this.db.prepare("SELECT * FROM online_wallets WHERE discord_id = ?").get(userId); }
+  sameServer(record) {
+    return record.base_url === this.client.config.baseUrl && record.client_id === this.client.config.clientId;
+  } // True when a saved grant was approved against the API URL and client ID the bot is running with now.
   assertServer(record) {
-    if (record.base_url !== this.client.config.baseUrl || record.client_id !== this.client.config.clientId) {
-      throw new WalletError("configuration_changed", "This wallet connection belongs to different API settings. Restore the original settings before reconnecting.");
+    if (!this.sameServer(record)) {
+      throw new WalletError("configuration_changed", "This wallet connection belongs to different API settings. Use /lidollid wallet disconnect, then connect again.");
     }
   } // A configuration change must not send a stored bearer token to a different service.
   requireConnection(userId) {
@@ -174,7 +177,7 @@ export class WalletService {
       const connection = this.connection(userId);
       const combined=this.db.prepare('SELECT * FROM combined_wallets WHERE discord_id=?').get(userId);
       for (const record of [combined?.candidate ? {...combined,token:combined.candidate} : null, attempt?.candidate ? { ...attempt, token: attempt.candidate } : null, connection].filter(Boolean)) {
-        this.assertServer(record);
+        if (!this.sameServer(record)) continue; // A grant pinned to other API settings is only forgotten locally; its token is never sent to the current service.
         try { await this.client.revoke(record.token); } catch (error) { if (error.code !== "invalid_token") throw error; }
       }
       this.db.transaction(() => {

@@ -277,6 +277,24 @@ returns that browser URL. Keep the bot's existing LiD0llID issuer and callback
 settings. Run the wallet checker after deployment. `invalid_client` still means
 the separate wallet app must be added to `LIDOLLCOIN_APPS` and the tracker restarted.
 
+### Changing the API URL or client ID
+
+Each saved wallet connection is pinned to the `LIDOLLCOIN_API_URL` and
+`LIDOLLCOIN_CLIENT_ID` it was approved under. Even a switch between the public
+`https://lidoll.dev/...` URL and the LAN `http://10.1.1.23:4173/...` URL counts
+as a change. After a switch, existing players see "This wallet connection belongs
+to different API settings". Pick one fix:
+
+- Put the old values back in `/etc/mommybot/mommybot.env` and restart. Nothing
+  else changes.
+- Keep the new values and have each affected player run
+  `/lidollid wallet disconnect`, then connect again (or sign in with LiD0llID
+  again). Disconnect forgets the old grant locally and never sends its token to the
+  new URL. The old grant is not revoked and stays valid until it expires.
+
+Before switching, settle pending payments with `/lidollid wallet retry`. Disconnect
+refuses while a payment is pending, and a retry can't run across a settings change.
+
 ## Interrupted purchases
 
 Use `/lidollid wallet retry` after a timeout, bot restart or pending-payment
