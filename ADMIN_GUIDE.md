@@ -44,6 +44,15 @@ conversation replies are on; pausing replies here removes this server from that
 check. `CHANNEL_ID` never applies to DMs. Set `DM_CHAT_ENABLED=false` to turn DM
 chat off everywhere. Declined members get one short notice a day.
 
+Sakura never posts in vent channels: any channel whose name has the word
+**vent** or **venting** (such as `vent`, `vent-chat` or `💭・venting`), threads
+inside one, and channels in a category named that way. She sends no messages,
+replies, reactions, threads or typing there, even if an admin setting points a
+feature at that channel, and she ignores messages posted there (no fines, check
+answers or chat memory). A slash command used there gets a private "not here"
+note that only the member who ran it can see. Names like `events` or `adventure`
+are not affected.
+
 ## Diaper checks
 
 Initially off. Choose a check channel that is **not** visible to `@everyone` and a

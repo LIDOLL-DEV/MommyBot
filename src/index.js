@@ -1,6 +1,6 @@
 import "dotenv/config";
 import process from "process";
-import { Events } from "discord.js"; // Use the library's current event names instead of deprecated aliases.
+import { Events, MessageFlags } from "discord.js"; // Use the library's current event names instead of deprecated aliases.
 import { createClient } from "./bot/client.js";
 import { handleMessage } from "./bot/handlers/message.js";
 import { createDmGate } from "./bot/dmGate.js";
@@ -19,6 +19,7 @@ import { createMemberWelcome } from "./welcome.js";
 import { createReportPublisher } from "./reports/publisher.js";
 import { initializeCommunity } from "./admin/index.js";
 import { createOnlinePublisher } from "./mmo/online.js";
+import { isVentChannel } from "./bot/ventGuard.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -66,6 +67,7 @@ async function main() {
   // Handle message events
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Bot messages must never spend currency or trigger another bot reply.
+    if (isVentChannel(message.channel)) return; // Vent channels are left alone: no fines, check answers, chat memory or replies.
     const jarWatches = () => !message.guildId || community.enabled(message.guildId, "swearJar") && !community.swearJarIgnored(message.guildId, message.channel);
     try { if (swearJar && jarWatches() && await swearJar.handleMessage(message)) return; }
     catch { console.error("[Swear jar] Could not process a message; check storage availability."); }
@@ -85,6 +87,10 @@ async function main() {
 
   client.on(Events.InteractionCreate, async (interaction) => {
     try {
+      if (isVentChannel(interaction.channel)) {
+        if (interaction.isRepliable()) await interaction.reply({ content: "I stay quiet in vent channels, sweetie. Try that command somewhere else. 🌸", flags: MessageFlags.Ephemeral });
+        return;
+      } // Only the member who ran the command sees this; nothing is posted to the channel.
       if (diaperChecks && await diaperChecks.handleInteraction(interaction)) return;
       if (showcase && await showcase.handleInteraction(interaction)) return;
       if (swearJar && await swearJar.handleInteraction(interaction)) return;

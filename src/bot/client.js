@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits, Partials } from "discord.js";
+import { guardVentChannels } from "./ventGuard.js";
 
 /**
  * Initialize the Discord Client
@@ -17,5 +18,5 @@ export function createClient(env = process.env) {
     partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.User], // Channel: DMs arrive on uncached channels and are otherwise never emitted. The rest: reaction events for older messages after a restart.
   });
 
-  return client;
+  return guardVentChannels(client); // Every send path goes through client.rest, so vent channels are closed here once.
 }
