@@ -6,6 +6,7 @@ import { IdentityStore } from "./store.js";
 import { createOidc } from "./oidc.js";
 import { createAuthServer } from "./server.js";
 import { handleWalletInteraction, runWalletAction } from "../wallet/commands.js";
+import { MAX_DIAMONDS } from "../wallet/client.js";
 import { awardLinkedRole } from "./linkedRole.js";
 import { IdentityMenus } from "./menu.js";
 import { initializeHangman } from "../hangman/index.js";
@@ -33,7 +34,7 @@ export function buildIdentityCommand() {
         .addUserOption(o => o.setName("user").setDescription("Recipient with a connected wallet").setRequired(true))
         .addStringOption(o => o.setName("currency").setDescription("Currency to give").setRequired(true)
           .addChoices({ name: "LiDollcoins", value: "coins" }, { name: "Stars", value: "stars" }, { name: "Diamonds", value: "diamonds" }))
-        .addIntegerOption(o => o.setName("amount").setDescription("Amount to give").setMinValue(1).setMaxValue(1_000_000).setRequired(true)))
+        .addIntegerOption(o => o.setName("amount").setDescription("Amount to give (coins/stars up to 1,000,000; diamonds unlimited)").setMinValue(1).setMaxValue(MAX_DIAMONDS).setRequired(true)))
       .addSubcommand(c => c.setName("gift-retry").setDescription("(Admin) Finish a recipient's pending gift without paying twice")
         .addUserOption(o => o.setName("user").setDescription("Recipient of a pending gift in this server").setRequired(true)))
       .addSubcommand(c => c.setName("disconnect").setDescription("Revoke your Little Log wallet connection")));

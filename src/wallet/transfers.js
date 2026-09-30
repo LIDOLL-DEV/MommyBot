@@ -1,19 +1,25 @@
 import { randomUUID } from "node:crypto";
-import { WalletError } from "./client.js";
+import { WalletError, amountRange, maxAmount } from "./client.js";
 
 const active = "('debit','credit','refund')";
+const schema = table => `CREATE TABLE ${table} (
+      id TEXT PRIMARY KEY, interaction_id TEXT NOT NULL UNIQUE, guild_id TEXT NOT NULL,
+      sender_id TEXT NOT NULL, recipient_id TEXT NOT NULL, asset TEXT NOT NULL CHECK(asset IN ('coins','diamonds')),
+      amount INTEGER NOT NULL CHECK(amount BETWEEN 1 AND 2147483647),
+      sender_account TEXT NOT NULL, recipient_account TEXT NOT NULL,
+      base_url TEXT NOT NULL, client_id TEXT NOT NULL, created INTEGER NOT NULL,
+      state TEXT NOT NULL DEFAULT 'debit', debit_attempted INTEGER NOT NULL DEFAULT 0,
+      credit_attempted INTEGER NOT NULL DEFAULT 0)`;
 
 export class WalletTransfers {
   constructor(wallet) {
     this.wallet = wallet; this.db = wallet.db;
-    this.db.exec(`CREATE TABLE IF NOT EXISTS wallet_transfers (
-      id TEXT PRIMARY KEY, interaction_id TEXT NOT NULL UNIQUE, guild_id TEXT NOT NULL,
-      sender_id TEXT NOT NULL, recipient_id TEXT NOT NULL, asset TEXT NOT NULL CHECK(asset IN ('coins','diamonds')),
-      amount INTEGER NOT NULL CHECK(amount BETWEEN 1 AND 1000000),
-      sender_account TEXT NOT NULL, recipient_account TEXT NOT NULL,
-      base_url TEXT NOT NULL, client_id TEXT NOT NULL, created INTEGER NOT NULL,
-      state TEXT NOT NULL DEFAULT 'debit', debit_attempted INTEGER NOT NULL DEFAULT 0,
-      credit_attempted INTEGER NOT NULL DEFAULT 0);`);
+    const existing = this.db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='wallet_transfers'").get()?.sql;
+    if (!existing) this.db.exec(schema("wallet_transfers"));
+    else if (existing.includes("BETWEEN 1 AND 1000000)")) this.db.transaction(() => this.db.exec(`${schema("wallet_transfers_next")};
+      INSERT INTO wallet_transfers_next SELECT id,interaction_id,guild_id,sender_id,recipient_id,asset,amount,sender_account,recipient_account,
+        base_url,client_id,created,state,debit_attempted,credit_attempted FROM wallet_transfers;
+      DROP TABLE wallet_transfers; ALTER TABLE wallet_transfers_next RENAME TO wallet_transfers;`)).immediate(); // Rebuild older tables whose CHECK capped diamond transfers at 1,000,000.
     const previous = wallet.hasPending;
     wallet.hasPending = user => previous(user) || Boolean(this.pending(user));
   } // Restore both participants' durable reservations before exposing any game or account actions.
@@ -24,8 +30,8 @@ export class WalletTransfers {
 
   async send(guild, sender, recipient, asset, amount, interactionId) {
     if (!guild || !sender || !recipient || sender === recipient || !["coins", "diamonds"].includes(asset) ||
-        !Number.isSafeInteger(amount) || amount < 1 || amount > 1_000_000 || !/^[0-9]{1,32}$/.test(interactionId ?? "")) {
-      throw new WalletError("invalid_transfer", "Choose another player and 1–1,000,000 coins or diamonds in a server. Stars cannot be sent.");
+        !Number.isSafeInteger(amount) || amount < 1 || amount > maxAmount(asset) || !/^[0-9]{1,32}$/.test(interactionId ?? "")) {
+      throw new WalletError("invalid_transfer", `Choose another player and send ${amountRange("coins")} coins or any number of diamonds in a server. Stars cannot be sent.`);
     }
     return this.wallet.exclusiveMany([sender, recipient], async () => {
       let job = this.db.prepare("SELECT * FROM wallet_transfers WHERE interaction_id=?").get(interactionId);

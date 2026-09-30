@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlags,
   ModalBuilder, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from "discord.js";
 import { canAward } from "../permissions.js";
-import { WalletError } from "../wallet/client.js";
+import { WalletError, amountRange, maxAmount } from "../wallet/client.js";
 import { TraderError } from "../touhou/store.js";
 import { HangmanError } from "../hangman/store.js";
 import { BallDropError } from "../balldrop/rules.js";
@@ -51,7 +51,7 @@ export class IdentityMenus {
       components = [row(new UserSelectMenuBuilder().setCustomId(this.id(s, "recipient"))
         .setPlaceholder("Choose a recipient").setMinValues(1).setMaxValues(1)), home()];
     } else if (s.screen === "amount") {
-      description += `**${s.intent === "transfer" ? "Send" : "Gift"} ${s.asset === "diamonds" ? "diamonds" : s.asset === "stars" ? "stars" : "LiDollcoins"} to <@${s.recipient.id}>**\nEnter a whole-number amount from 1 to 1,000,000. You will review the amount before sending it.`;
+      description += `**${s.intent === "transfer" ? "Send" : "Gift"} ${s.asset === "diamonds" ? "diamonds" : s.asset === "stars" ? "stars" : "LiDollcoins"} to <@${s.recipient.id}>**\nEnter a whole-number amount from ${amountRange(s.asset)}. You will review the amount before sending it.`;
       components = [row(this.button(s, "amount", "Enter amount", ButtonStyle.Primary)), home()];
     } else if (s.screen === "review") {
       const transfer = s.intent === "transfer";
@@ -111,8 +111,8 @@ export class IdentityMenus {
         if (!interaction.isButton?.() || (action === "code" ? s.screen !== "home" : s.screen !== "amount")) throw new MenuError("Use the current menu before opening this form.");
         const code = action === "code";
         const field = new TextInputBuilder().setCustomId(code ? "code" : "amount")
-          .setLabel(code ? "Your browser sign-in confirmation code" : "Amount (1–1,000,000)")
-          .setStyle(TextInputStyle.Short).setRequired(true).setMinLength(code ? 32 : 1).setMaxLength(code ? 32 : 7);
+          .setLabel(code ? "Your browser sign-in confirmation code" : `Amount (${amountRange(s.asset).replace(" to ", "–")})`)
+          .setStyle(TextInputStyle.Short).setRequired(true).setMinLength(code ? 32 : 1).setMaxLength(code ? 32 : String(maxAmount(s.asset)).length);
         s.modal = `${action}-submit`;
         await interaction.showModal(new ModalBuilder().setCustomId(this.id(s, s.modal))
           .setTitle(code ? "Confirm your LiD0llID" : "Enter gift amount").addComponents(row(field)));
@@ -191,7 +191,7 @@ export class IdentityMenus {
     } else if (action === "amount-submit") {
       if (s.screen !== "amount" || !["gift", "transfer"].includes(s.intent)) throw new MenuError("Choose a recipient first.");
       const text = interaction.fields.getTextInputValue("amount").trim();
-      if (!/^[0-9]{1,7}$/.test(text) || Number(text) < 1 || Number(text) > 1_000_000) throw new MenuError("Enter a whole-number amount from 1 to 1,000,000.");
+      if (!/^[0-9]{1,10}$/.test(text) || Number(text) < 1 || Number(text) > maxAmount(s.asset)) throw new MenuError(`Enter a whole-number amount from ${amountRange(s.asset)}.`);
       s.amount = Number(text); s.screen = "review";
     } else if (action === "send-transfer") {
       if (s.screen !== "review" || s.intent !== "transfer" || !["coins", "diamonds"].includes(s.asset)) throw new MenuError("Review your coin or diamond transfer first.");

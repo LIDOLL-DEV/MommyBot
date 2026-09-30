@@ -53,7 +53,7 @@ test("gift command registers both currencies, bounds and an administrator retry"
   const gift = group.options.find(option => option.name === "gift");
   assert.deepEqual(gift.options.find(option => option.name === "currency").choices.map(choice => choice.value), ["coins", "stars", "diamonds"]);
   const amount = gift.options.find(option => option.name === "amount");
-  assert.equal(amount.min_value, 1); assert.equal(amount.max_value, 1_000_000);
+  assert.equal(amount.min_value, 1); assert.equal(amount.max_value, 2_147_483_647);
   assert.ok(group.options.some(option => option.name === "gift-retry"));
 });
 

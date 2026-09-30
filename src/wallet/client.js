@@ -5,6 +5,10 @@ export class WalletError extends Error {
   constructor(code, message, status = 0) { super(message); this.code = code; this.status = status; }
 } // Carry safe, locally authored errors instead of exposing provider responses or bearer credentials.
 
+export const MAX_DIAMONDS = 2_147_483_647;
+export const maxAmount = asset => asset === "diamonds" ? MAX_DIAMONDS : 1_000_000; // Diamonds may move in any amount the wallet can hold; coins and stars keep their per-payment cap.
+export const amountRange = asset => `1 to ${maxAmount(asset).toLocaleString("en-US")}`;
+
 const transportCodes = new Set(["ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "EHOSTUNREACH", "ENETUNREACH",
   "EACCES", "EPERM", "EADDRNOTAVAIL", "EPROTO", "ERR_SSL_WRONG_VERSION_NUMBER", "UND_ERR_SOCKET", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "ERR_TLS_CERT_ALTNAME_INVALID", "CERT_HAS_EXPIRED",
   "DEPTH_ZERO_SELF_SIGNED_CERT", "SELF_SIGNED_CERT_IN_CHAIN", "UNABLE_TO_VERIFY_LEAF_SIGNATURE", "UNABLE_TO_GET_ISSUER_CERT_LOCALLY"]);

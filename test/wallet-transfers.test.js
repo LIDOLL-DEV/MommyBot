@@ -3,6 +3,7 @@ import test from "node:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import Database from "better-sqlite3";
 import { WalletService } from "../src/wallet/service.js";
 import { WalletError } from "../src/wallet/client.js";
 import { runWalletAction } from "../src/wallet/commands.js";
@@ -53,7 +54,7 @@ test("players transfer their own coins and diamonds exactly once without changin
 
 test("invalid amounts, stars, self transfers, missing grants, same wallets and diamond scope cannot debit", async t => {
   const f = fixture(t);
-  for (const [recipient, asset, amount] of [["bob", "stars", 1], ["alice", "coins", 1], ["bob", "coins", 0], ["bob", "coins", -1], ["bob", "coins", 1.5], ["bob", "coins", 1000001]]) {
+  for (const [recipient, asset, amount] of [["bob", "stars", 1], ["alice", "coins", 1], ["bob", "coins", 0], ["bob", "coins", -1], ["bob", "coins", 1.5], ["bob", "coins", 1000001], ["bob", "diamonds", 2147483648]]) {
     await assert.rejects(f.wallet.transfers.send("guild", "alice", recipient, asset, amount, "100"), /Stars cannot be sent/);
   }
   f.api.diamondsEnabled = false; await assert.rejects(f.send("diamonds"), /approve diamond access/);
@@ -64,6 +65,36 @@ test("invalid amounts, stars, self transfers, missing grants, same wallets and d
   await assert.rejects(f.send(), /Connect your/);
   assert.equal(f.api.calls.length, 0);
   assert.equal(f.wallet.db.prepare("SELECT COUNT(*) n FROM wallet_transfers").get().n, 0);
+});
+
+test("diamonds transfer in any amount the wallet can hold while coins keep their cap", async t => {
+  const f = fixture(t);
+  f.api.balances.alice.diamonds = 2_147_483_647; f.api.balances.alice.coins = 5_000_000;
+  const job = await f.wallet.transfers.send("guild", "alice", "bob", "diamonds", 2_000_000, "100");
+  assert.equal(job.state, "done");
+  assert.equal(f.api.balances.alice.diamonds, 2_145_483_647); assert.equal(f.api.balances.bob.diamonds, 2_000_002);
+  await assert.rejects(f.wallet.transfers.send("guild", "alice", "bob", "coins", 2_000_000, "101"), /1 to 1,000,000 coins/);
+});
+
+test("older transfer tables are rebuilt without the 1,000,000 cap and keep their rows", async t => {
+  const dir = mkdtempSync(join(tmpdir(), "mommybot-transfers-")), filename = join(dir, "wallet.db");
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const legacy = new Database(filename);
+  legacy.exec(`CREATE TABLE wallet_transfers (
+    id TEXT PRIMARY KEY, interaction_id TEXT NOT NULL UNIQUE, guild_id TEXT NOT NULL,
+    sender_id TEXT NOT NULL, recipient_id TEXT NOT NULL, asset TEXT NOT NULL CHECK(asset IN ('coins','diamonds')),
+    amount INTEGER NOT NULL CHECK(amount BETWEEN 1 AND 1000000),
+    sender_account TEXT NOT NULL, recipient_account TEXT NOT NULL,
+    base_url TEXT NOT NULL, client_id TEXT NOT NULL, created INTEGER NOT NULL,
+    state TEXT NOT NULL DEFAULT 'debit', debit_attempted INTEGER NOT NULL DEFAULT 0,
+    credit_attempted INTEGER NOT NULL DEFAULT 0);
+    INSERT INTO wallet_transfers VALUES ('old','9','guild','alice','bob','coins',5,'alice','bob','https://wallet.example/','bot',1,'done',1,1);`);
+  legacy.close();
+  const wallet = new WalletService(filename, { config: { baseUrl: "https://wallet.example/", clientId: "bot" } });
+  try {
+    assert.deepEqual(wallet.db.prepare("SELECT id,amount,state FROM wallet_transfers").all(), [{ id: "old", amount: 5, state: "done" }]);
+    wallet.db.prepare("INSERT INTO wallet_transfers(id,interaction_id,guild_id,sender_id,recipient_id,asset,amount,sender_account,recipient_account,base_url,client_id,created,state) VALUES ('big','10','guild','alice','bob','diamonds',2147483647,'alice','bob','x','bot',2,'done')").run();
+  } finally { await wallet.close(); }
 });
 
 test("lost debit or credit responses survive restart and either participant recovers without duplication", async t => {

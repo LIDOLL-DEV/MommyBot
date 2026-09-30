@@ -25,7 +25,8 @@ with `/lidollid wallet retry`. No star balance is spent by this game.
 ### Send currency to another player
 
 In a server, open `/menu` and choose **Send coins** or **Send diamonds**. Select
-the recipient, enter a whole-number amount from 1 to 1,000,000, review the
+the recipient, enter a whole-number amount (1 to 1,000,000 coins, or any number
+of diamonds up to the wallet maximum of 2,147,483,647), review the
 recipient and amount, then press **Confirm & send**. **Cancel** leaves both
 balances alone. These transfers deduct from the sender's own online balance;
 ordinary players do not need administrator permissions. Stars cannot be sent.
@@ -92,7 +93,8 @@ Only members with **Manage Server** (including Administrator) or the role in
 online Little Log wallet; they do not debit the administrator or change a local
 game balance. The administrator does not need a connected wallet. The recipient
 must finish `/lidollid login` and connect their wallet first. Amounts must be
-whole numbers from 1 to 1,000,000; bot recipients are rejected. Command replies
+whole numbers from 1 to 1,000,000 for coins and stars, or any number of diamonds
+up to 2,147,483,647; bot recipients are rejected. Command replies
 are private and do not show the recipient's total balance or send them a DM.
 Recipients can check `/lidollid wallet balance` to see the result.
 
