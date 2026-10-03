@@ -573,3 +573,15 @@ Wallet mint/refund calls must go through WalletClient so server proofs bind the 
 ## Standalone Piko sprite pack
 
 The standalone Piko sprite pack is built by `python/build_piko_clothing.py` from the user-supplied 128x128 sheets. Run it with `--source PATH --output PATH`; each garment retains sixteen 32x32 frames. The output contains its own manifest, preview, and contributor notes. This does not import clothing into the MommyBot catalog. `python/game_editor_gui.py` includes a Piko preview button and accepts `--sprite-pack PATH`.
+
+Piko clothing now exports white grayscale for engine RGB tinting. Each of the ten unique designs uses its base item ID and filename; color-suffixed duplicate files have been removed. Tune `GRAYSCALE` in the builder and verify R=G=B plus unchanged alpha masks. The generated preview and manifest reflect this tinting workflow.
+
+
+## Piko hairstyle expansion
+
+Build eight grayscale hairstyles with `python/build_piko_hairstyles.py --source PATH --clothing PATH --output PATH`. It exports base-item filenames, a manifest, and an offline preview. The existing editor `--sprite-pack PATH` launcher also opens hairstyle packs.
+
+
+## Piko outfit expansion
+
+Use `python/build_piko_outfits.py` to build eight additional complete outfit layers. Pass `--source`, `--clothing`, `--hair`, and `--output`. The pack bundles its clothing-builder dependency and uses one base filename per outfit. The editor's existing `--sprite-pack PATH` launcher works with its preview.

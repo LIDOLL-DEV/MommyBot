@@ -275,4 +275,18 @@ Diaper bulk is a separate integer capacity (1�100 wettings) in assets/dressup/
 
 ## Standalone Piko sprite pack
 
-Piko overlays use deterministic pixel editing in `python/build_piko_clothing.py`. Tune `PALETTES`, `DESIGNS`, and per-pose masks there; regenerate into a fresh output folder. Keep binary alpha and original frame offsets. These assets do not change runtime generation, fit rules, or clothing pools.
+Piko overlays use deterministic pixel editing in `python/build_piko_clothing.py`. Tune `GRAYSCALE`, `DESIGNS`, and per-pose masks there; regenerate into a fresh output folder. Keep binary alpha and original frame offsets. These assets do not change runtime generation, fit rules, or clothing pools.
+
+Piko clothing now exports white grayscale for engine RGB tinting. Each of the ten unique designs uses its base item ID and filename; color-suffixed duplicate files have been removed. Tune `GRAYSCALE` in the builder and verify R=G=B plus unchanged alpha masks. The generated preview and manifest reflect this tinting workflow.
+
+
+## Piko hairstyle expansion
+
+Piko hair uses neutral 135/187/236/255 shading and binary alpha. Edit `silhouette()` for shapes and `shade()` for strands. `hair_frame()` preserves the one-pixel gait bob; the right profile mirrors around x=15. Longer tips have one-pixel sway. No color aliases are generated.
+
+
+## Piko outfit expansion
+
+The three short outfits derive hem position from each frame of the supplied diaper overlay. The builder requires at least 35% of its opaque pixels to remain visible in all sixteen poses. Keep the diaper separate; grayscale clothing receives engine RGB tint. Tune garment geometry in `short_dress()` and `outfit_frame()`.
+
+The sailor dress uses `sailor_skirt()` to retain the authored moving skirt silhouette. Hem trim follows each column's lower edge; do not replace it with fixed-row bands or a shape that follows foot width.

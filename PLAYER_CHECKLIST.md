@@ -111,3 +111,17 @@ See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for the word list and full rules,
 ## Standalone Piko sprite pack
 
 For the standalone Piko art pack, open its `preview.html`, try all ten outfit presets, and inspect four directions on both supplied bodies. This preview is independent of saved games and does not equip or unlock items.
+
+Piko clothing now exports white grayscale for engine RGB tinting. Each of the ten unique designs uses its base item ID and filename; color-suffixed duplicate files have been removed. Tune `GRAYSCALE` in the builder and verify R=G=B plus unchanged alpha masks. The generated preview and manifest reflect this tinting workflow.
+
+
+## Piko hairstyle expansion
+
+Open the hairstyle pack preview and inspect all eight styles in four directions on both body options. Check face visibility, shoulder overlaps, and head accessories in the game.
+
+
+## Piko outfit expansion
+
+Review the eight outfit presets on both body options and all four directions. Toggle the diaper layer to inspect short hem coverage, and check the kimono sleeves and lower hems during walking.
+
+For the revised sailor dress, inspect the rounded hem across all four walking frames and directions. The outfit pack includes `sailor_walk_comparison.gif` showing the previous and revised fit on both body options.

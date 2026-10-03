@@ -702,4 +702,18 @@ Run `node --test test/reward-authority.test.js test/online-wallet.test.js test/d
 
 ## Standalone Piko sprite pack
 
-The Piko builder validates twenty 128x128 RGBA sheets, sixteen nonempty frames each, binary alpha, and frame boundaries. Its `validation.json` records all 320 bounds. Review hand occlusion, hems, and footwear in the generated preview, compare original SHA-256 hashes, and verify final origin/layer settings in GameMaker. The modding editor can launch this preview with `--sprite-pack PATH` without loading its normal catalog.
+The Piko builder validates ten unique 128x128 RGBA sheets, sixteen nonempty frames each, binary alpha, and frame boundaries. Its `validation.json` records all 160 bounds. Review hand occlusion, hems, and footwear in the generated preview, compare original SHA-256 hashes, and verify final origin/layer settings in GameMaker. The modding editor can launch this preview with `--sprite-pack PATH` without loading its normal catalog.
+
+Piko clothing now exports white grayscale for engine RGB tinting. Each of the ten unique designs uses its base item ID and filename; color-suffixed duplicate files have been removed. Tune `GRAYSCALE` in the builder and verify R=G=B plus unchanged alpha masks. The generated preview and manifest reflect this tinting workflow.
+
+
+## Piko hairstyle expansion
+
+The Piko hair builder validates eight unique 128x128 RGBA sheets, 128 nonempty frames, grayscale shades, binary alpha, head registration, and eye clearance on both source bodies. Review walking tip motion in the GIF/browser preview; verify GameMaker layer order and shared sprite origins separately.
+
+
+## Piko outfit expansion
+
+The outfit builder checks eight distinct grayscale sheets and 128 nonempty frames. It records sixteen diaper-visibility measurements for each of the three short dresses, each requiring at least 35% of source diaper pixels visible. Verify alpha, source hashes, preview loading, and final GameMaker origin/layer integration.
+
+The sailor-dress refinement was checked against the source skirt alpha mask below row 23 in all sixteen frames. Its bodice above row 20 and the seven other outfit sheets remain pixel-identical. Retain these boundaries when making future hem-only adjustments.

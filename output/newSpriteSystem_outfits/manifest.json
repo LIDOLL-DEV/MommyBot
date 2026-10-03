@@ -1,0 +1,128 @@
+{
+  "sheet_size": [
+    128,
+    128
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "rows": [
+    "front",
+    "left",
+    "right",
+    "back"
+  ],
+  "columns": 4,
+  "color_mode": "white_grayscale",
+  "layer_order": [
+    "body",
+    "diaper",
+    "outfit",
+    "shoes",
+    "hair"
+  ],
+  "source_sha256": {
+    "Booty_Shorts.png": "b7e9d11880a2ecae429ada2d8f702b3f1c582f28f21b0fc70d9b8b01f024a494",
+    "Daisy_Hair.png": "7f0d1dcaa07c21f5afd4e2db5466bebab36a9c9020a5437096715d6f41a38ddf",
+    "Diaper.png": "e9b5b0871f373b43d3fec866a2fad01bf4c225f1ee6a95e86cf15f16b0243578",
+    "Diaper1.png": "e9b5b0871f373b43d3fec866a2fad01bf4c225f1ee6a95e86cf15f16b0243578",
+    "Piko_Dress_Walk_4-dir_V1.png": "227801aabe5066d9dd830b4a0ead23d571c65237e3bb5f9b97378f9b4135176d",
+    "Piko_Hair_Walk_4-dir_V1.png": "7a3f9879665bc543c3cb260a5341dedb5a532ac25b26b60580fe2e7d39ab314e",
+    "Piko_Man_Walk_4-dir_V1.png": "aa703bd77b5822a0c64e8b1696a73f5febbc74929ae173a2059242807a12c6e6",
+    "Piko_Socks_Walk_4-dir_V1.png": "7a1dadb6fac55dd79812f44b730f1619c7cb81ccdcd67f2411c28862475a6551",
+    "Piko_Woman_Walk_4-dir_V2.png": "9ed6930d4230003e7faaf1fc62acad4c40691f4710bc51f375f18648b9984240",
+    "Shoes.png": "21640db0c72c0ad84202fb88b8ee9bb95ea20b01066f83960f4875f16d2f2f82",
+    "Tee.png": "86a864ea689593fe7340fd07e99794f9c1710b469bf3cb433ddef60799ae88ac"
+  },
+  "items": [
+    {
+      "id": "Short_Smock_Dress",
+      "name": "Short Smock Dress",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": true,
+      "file": "sheets/Short_Smock_Dress.png"
+    },
+    {
+      "id": "Short_Sundress",
+      "name": "Short Sundress",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": true,
+      "file": "sheets/Short_Sundress.png"
+    },
+    {
+      "id": "Short_Pinafore",
+      "name": "Short Pinafore",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": true,
+      "file": "sheets/Short_Pinafore.png"
+    },
+    {
+      "id": "Kimono",
+      "name": "Kimono",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": false,
+      "file": "sheets/Kimono.png"
+    },
+    {
+      "id": "Raincoat",
+      "name": "Raincoat",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": false,
+      "file": "sheets/Raincoat.png"
+    },
+    {
+      "id": "Dungarees",
+      "name": "Dungarees",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": false,
+      "file": "sheets/Dungarees.png"
+    },
+    {
+      "id": "Wrap_Dress",
+      "name": "Wrap Dress",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": false,
+      "file": "sheets/Wrap_Dress.png"
+    },
+    {
+      "id": "Sailor_Dress",
+      "name": "Sailor Dress",
+      "slot": "outfit",
+      "replaces_slots": [
+        "top",
+        "bottom"
+      ],
+      "short_hem": false,
+      "file": "sheets/Sailor_Dress.png"
+    }
+  ]
+}

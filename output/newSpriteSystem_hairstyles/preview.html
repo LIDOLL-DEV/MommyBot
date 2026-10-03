@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Piko hairstyles</title>
+<style>body{font:16px system-ui;background:#202a37;color:#eee;max-width:1040px;margin:32px auto;padding:16px}main{display:flex;gap:32px;flex-wrap:wrap}aside{width:290px}label{display:block;margin:16px 0 6px}select,button,input{font:inherit;padding:8px;width:100%;box-sizing:border-box}canvas{image-rendering:pixelated;border:1px solid #667888}p{color:#c3cfdb}button{margin-top:20px}</style>
+<h1>Piko hairstyles</h1><p>Eight unique white/grayscale overlays. 128×128 sheets; sixteen 32×32 frames. Colors come from your engine.</p>
+<main><aside><label for="hair">Hairstyle</label><select id="hair"></select>
+<label for="body">Body</label><select id="body"><option value="Woman">Woman V2</option><option value="Man">Man V1</option></select>
+<label for="direction">Direction</label><select id="direction"><option>Front</option><option>Left</option><option>Right</option><option>Back</option></select>
+<label for="speed">Frames per second</label><input id="speed" type="range" min="1" max="12" value="6"><button id="pause">Pause animation</button><p id="status">Loading…</p></aside>
+<section><canvas id="walk" width="384" height="384"></canvas><p>Walking preview at 12× zoom.</p><canvas id="sheet" width="512" height="512"></canvas><p>All sixteen poses at 4× zoom.</p></section></main><script>
+const pack = {"sheet_size": [128, 128], "frame_size": [32, 32], "rows": ["front", "left", "right", "back"], "columns": 4, "color_mode": "white_grayscale", "grayscale_values": [135, 187, 236, 255], "layer_order": ["body", "clothing", "hair"], "origin_note": "Use the same frame origin as the body; no trimming.", "source_sha256": {"Piko_Woman_Walk_4-dir_V2.png": "9ed6930d4230003e7faaf1fc62acad4c40691f4710bc51f375f18648b9984240", "Piko_Man_Walk_4-dir_V1.png": "aa703bd77b5822a0c64e8b1696a73f5febbc74929ae173a2059242807a12c6e6"}, "items": [{"id": "Pixie_Cut", "name": "Pixie Cut", "slot": "hair", "file": "sheets/Pixie_Cut.png", "engine_tintable": true}, {"id": "Blunt_Bob", "name": "Blunt Bob", "slot": "hair", "file": "sheets/Blunt_Bob.png", "engine_tintable": true}, {"id": "Shoulder_Length", "name": "Shoulder Length", "slot": "hair", "file": "sheets/Shoulder_Length.png", "engine_tintable": true}, {"id": "High_Ponytail", "name": "High Ponytail", "slot": "hair", "file": "sheets/High_Ponytail.png", "engine_tintable": true}, {"id": "Twin_Tails", "name": "Twin Tails", "slot": "hair", "file": "sheets/Twin_Tails.png", "engine_tintable": true}, {"id": "Side_Braid", "name": "Side Braid", "slot": "hair", "file": "sheets/Side_Braid.png", "engine_tintable": true}, {"id": "Double_Buns", "name": "Double Buns", "slot": "hair", "file": "sheets/Double_Buns.png", "engine_tintable": true}, {"id": "Spiky_Crop", "name": "Spiky Crop", "slot": "hair", "file": "sheets/Spiky_Crop.png", "engine_tintable": true}]};
+const $=id=>document.getElementById(id), images=new Map();
+for(const item of pack.items) $('hair').add(new Option(item.name,item.id));
+let paused=false,frame=0,last=0;
+$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'Resume animation':'Pause animation';};
+const sources=[...pack.items.map(item=>[item.id,item.file]),['Woman','reference/Woman.png'],['Man','reference/Man.png'],['Outfit','reference/Outfit.png']];
+Promise.all(sources.map(([id,path])=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{images.set(id,img);resolve();};img.onerror=()=>reject(new Error(path));img.src=path;})))
+.then(()=>{$('status').textContent='Loaded. Hair follows the original head positions.';requestAnimationFrame(draw);})
+.catch(error=>{$('status').textContent='Unable to load '+error.message+'. Keep the complete pack together.';});
+function background(ctx,size,cell){ // Show transparency behind the composed character.
+ for(let y=0;y<size;y+=cell)for(let x=0;x<size;x+=cell){ctx.fillStyle=((x+y)/cell)%2?'#394755':'#303d4a';ctx.fillRect(x,y,cell,cell);}
+}
+function draw(now){ // Render every layer from the same direction and animation frame.
+ if(!paused&&now-last>=1000/Number($('speed').value)){frame=(frame+1)%4;last=now;}
+ const walk=$('walk').getContext('2d'),sheet=$('sheet').getContext('2d');walk.imageSmoothingEnabled=false;sheet.imageSmoothingEnabled=false;
+ background(walk,384,24);background(sheet,512,16);
+ for(const id of [$('body').value,'Outfit',$('hair').value]){walk.drawImage(images.get(id),frame*32,$('direction').selectedIndex*32,32,32,0,0,384,384);sheet.drawImage(images.get(id),0,0,512,512);}
+ sheet.strokeStyle='#617386';for(let i=0;i<=4;i++){sheet.beginPath();sheet.moveTo(i*128,0);sheet.lineTo(i*128,512);sheet.moveTo(0,i*128);sheet.lineTo(512,i*128);sheet.stroke();}
+ requestAnimationFrame(draw);
+}
+</script></html>

@@ -21,24 +21,7 @@ def rgba(color):
     return tuple(bytes.fromhex(color.lstrip("#"))) + (255,)  # Decode an opaque palette swatch.
 
 
-PALETTES = {
-    "sage": ["293e39", "527967", "80aa87", "bfd1a1", "f0dfb2"],
-    "plum": ["392f49", "695477", "9e7da5", "d1b1c8", "f2dbad"],
-    "rose": ["583940", "9c606d", "d38d96", "f0bdba", "f8e8ce"],
-    "navy": ["242e48", "405478", "647e9e", "9cb5c5", "f3dfb1"],
-    "indigo": ["26314c", "3c527b", "5a7fa3", "92afc6", "dab778"],
-    "black": ["242632", "414552", "666b79", "9499a3", "d7cbb1"],
-    "sand": ["554737", "907a56", "bca477", "e0cba1", "e9dfc8"],
-    "olive": ["373d2d", "667048", "939a65", "bfbe8c", "ead8a6"],
-    "coral": ["653f48", "ac6170", "e58c87", "f5bcb0", "fff0cf"],
-    "lavender": ["463952", "7e6798", "ae91c0", "d9bedf", "fae9bb"],
-    "teal": ["263f4b", "3e7580", "65a3a4", "a5cebf", "f4dfb6"],
-    "burgundy": ["482f43", "793e59", "b0657b", "dba0a3", "f2d7ae"],
-    "brown": ["392b2b", "674737", "936b49", "c29665", "e4c596"],
-    "red": ["4d2d3b", "8c4053", "be6672", "e99c99", "f0d8af"],
-    "cream": ["77747a", "bab5ac", "e6e1d0", "fff5df", "647e9e"],
-}
-PALETTES = {name: [rgba(c) for c in colors] for name, colors in PALETTES.items()}
+GRAYSCALE = [rgba(c) for c in ["878787", "bbbbbb", "ececec", "ffffff", "ffffff"]]  # One neutral palette for engine tinting.
 
 
 def tile(sheet, row, col):
@@ -87,7 +70,7 @@ def top(src, row, col, palette, style):
         for y in range(14 + bob, 21 + bob):
             for x in range(SIZE):
                 if result.getpixel((x, y)) == palette[2] and (y - bob) % 3 == 0:
-                    result.putpixel((x, y), PALETTES["cream"][2])
+                    result.putpixel((x, y), palette[3])  # Keep white stripes visible against the light-gray fabric after engine tinting.
     elif style == "Hoodie":
         if row == 0:
             for x in (14, 16):
@@ -179,7 +162,7 @@ def dress_or_skirt(src, row, col, palette, style):
     dress = tile(src["Piko_Dress_Walk_4-dir_V1.png"], row, col)
     result = Image.new("RGBA", (SIZE, SIZE))
     if style == "Pinafore":
-        result = recolor(tile(src["Tee.png"], row, col), PALETTES["cream"])
+        result = recolor(tile(src["Tee.png"], row, col), GRAYSCALE)
     for y in range(11, 20 + bob):
         for x in range(SIZE):
             p = dress.getpixel((x, y))
@@ -235,16 +218,16 @@ def footwear(src, row, col, palette, style):
 
 
 DESIGNS = [
-    ("Hoodie", "top", ["sage", "plum"], top),
-    ("Cardigan", "top", ["rose", "navy"], top),
-    ("Striped_Tee", "top", ["navy", "rose"], top),
-    ("Jeans", "bottom", ["indigo", "black"], trousers),
-    ("Chinos", "bottom", ["sand", "olive"], trousers),
-    ("Pleated_Skirt", "bottom", ["navy", "plum"], dress_or_skirt),
-    ("Sundress", "dress", ["coral", "lavender"], dress_or_skirt),
-    ("Pinafore", "dress", ["teal", "burgundy"], dress_or_skirt),
-    ("Boots", "shoes", ["brown", "black"], footwear),
-    ("Mary_Janes", "shoes", ["black", "red"], footwear),
+    ("Hoodie", "top", top),
+    ("Cardigan", "top", top),
+    ("Striped_Tee", "top", top),
+    ("Jeans", "bottom", trousers),
+    ("Chinos", "bottom", trousers),
+    ("Pleated_Skirt", "bottom", dress_or_skirt),
+    ("Sundress", "dress", dress_or_skirt),
+    ("Pinafore", "dress", dress_or_skirt),
+    ("Boots", "shoes", footwear),
+    ("Mary_Janes", "shoes", footwear),
 ]
 
 
@@ -252,32 +235,33 @@ def outfit(src, sheets, names, body="Piko_Woman_Walk_4-dir_V2.png"):
     result = src[body].copy()
     for name in names:
         result.alpha_composite(sheets[name])
-    result.alpha_composite(recolor(src["Piko_Hair_Walk_4-dir_V1.png"], PALETTES["brown"]))
+    result.alpha_composite(recolor(src["Piko_Hair_Walk_4-dir_V1.png"], GRAYSCALE))
     return result  # Compose an outfit using the same common origin as the game.
 
 
 def previews(src, sheets, output):
     looks = [
-        ("Sage hoodie / indigo jeans", ["Jeans_Indigo", "Hoodie_Sage", "Boots_Brown"]),
-        ("Plum hoodie / black jeans", ["Jeans_Black", "Hoodie_Plum", "Boots_Black"]),
-        ("Rose cardigan / navy pleats", ["Pleated_Skirt_Navy", "Cardigan_Rose", "Mary_Janes_Black"]),
-        ("Navy cardigan / plum pleats", ["Pleated_Skirt_Plum", "Cardigan_Navy", "Mary_Janes_Red"]),
-        ("Navy stripes / sand chinos", ["Chinos_Sand", "Striped_Tee_Navy", "Boots_Brown"]),
-        ("Rose stripes / olive chinos", ["Chinos_Olive", "Striped_Tee_Rose", "Boots_Black"]),
-        ("Coral sundress", ["Sundress_Coral", "Mary_Janes_Red"]),
-        ("Lavender sundress", ["Sundress_Lavender", "Mary_Janes_Black"]),
-        ("Teal pinafore", ["Pinafore_Teal", "Boots_Brown"]),
-        ("Burgundy pinafore", ["Pinafore_Burgundy", "Boots_Black"]),
-    ]
+        ("Hoodie with jeans", ["Jeans", "Hoodie", "Boots"]),
+        ("Hoodie with chinos", ["Chinos", "Hoodie", "Mary_Janes"]),
+        ("Cardigan with skirt", ["Pleated_Skirt", "Cardigan", "Mary_Janes"]),
+        ("Cardigan with jeans", ["Jeans", "Cardigan", "Boots"]),
+        ("Striped tee with chinos", ["Chinos", "Striped_Tee", "Mary_Janes"]),
+        ("Striped tee with skirt", ["Pleated_Skirt", "Striped_Tee", "Boots"]),
+        ("Sundress with Mary Janes", ["Sundress", "Mary_Janes"]),
+        ("Sundress with boots", ["Sundress", "Boots"]),
+        ("Pinafore with boots", ["Pinafore", "Boots"]),
+        ("Pinafore with Mary Janes", ["Pinafore", "Mary_Janes"]),
+    ]  # Show ten distinct outfit combinations using the ten unique base items.
     font = ImageFont.truetype("C:/Windows/Fonts/segoeui.ttf", 16)
     frames = []
     for frame in range(4):
         canvas = Image.new("RGB", (1280, 868), "#202a37")
         draw = ImageDraw.Draw(canvas)
-        draw.text((24, 12), "PIKO WARDROBE | 20 overlays | front / left / right / back", font=font, fill="#f4dfb6")
+        draw.text((24, 12), "PIKO WARDROBE | white grayscale overlays | front / left / right / back", font=font, fill="#ffffff")
         for index, (label, names) in enumerate(looks):
             x, y = index % 2 * 640, index // 2 * 162 + 52
             draw.rounded_rectangle((x + 8, y, x + 632, y + 154), radius=10, fill="#2e3a48")
+            label = " / ".join(name.replace("_", " ") for name in names)
             draw.text((x + 20, y + 8), label, font=font, fill="white")
             composed = outfit(src, sheets, names)
             for row in range(4):
@@ -286,7 +270,8 @@ def previews(src, sheets, output):
         frames.append(canvas)
     frames[0].save(output / "wardrobe_preview.png")
     frames[0].save(output / "wardrobe_walk.gif", save_all=True, append_images=frames[1:], duration=180, loop=0)
-    return looks  # Provide a static contact sheet and synchronized walk animation.
+    return [(f"Outfit {index + 1}: " + " / ".join(name.replace("_", " ") for name in names), names)
+            for index, (_, names) in enumerate(looks)]  # Label presets by garment instead of their retired baked-in colors.
 
 
 def write_viewer(output, manifest, looks):
@@ -298,7 +283,7 @@ body{background:#202a37;color:#eee;font:16px system-ui;max-width:1060px;margin:3
 main{display:flex;gap:28px;flex-wrap:wrap} aside{width:310px}label{display:block;margin:14px 0 5px}
 select,button,input{font:inherit;padding:7px;width:100%;box-sizing:border-box}button{margin-top:16px;cursor:pointer}
 canvas{image-rendering:pixelated;border:1px solid #617386}p{line-height:1.5;color:#bfcdd9}h1{font-size:26px}
-</style><h1>Piko wardrobe preview</h1><p>20 transparent clothing overlays. Every sheet uses the original 128×128 canvas and sixteen 32×32 frames.</p>
+</style><h1>Piko wardrobe preview</h1><p>10 unique white grayscale clothing overlays for engine tinting. Every sheet uses the original 128×128 canvas and sixteen 32×32 frames.</p>
 <main><aside><label for="look">Outfit</label><select id="look"></select>
 <label for="body">Body</label><select id="body"><option value="Piko_Woman_Walk_4-dir_V2.png">Woman V2</option><option value="Piko_Man_Walk_4-dir_V1.png">Man V1</option></select>
 <label for="direction">Direction</label><select id="direction"><option>Front</option><option>Left</option><option>Right</option><option>Back</option></select>
@@ -360,23 +345,24 @@ def write_docs(output):
     docs = {
         "README.md": """# Piko clothing expansion
 
-Twenty transparent PNG overlays: ten styles, two palettes each. Open
+Ten unique white grayscale PNG overlays, named by base item. The engine
+applies color; duplicate color variants have been removed. Open
 `preview.html` to mix garments and inspect four-direction walking on either
 supplied body. `wardrobe_preview.png` is the contact sheet; `wardrobe_walk.gif`
 is the animated version. No server or internet connection is needed.
 
-| Style | Colors | Slot |
+| Item | Filename | Slot |
 | --- | --- | --- |
-| Hoodie | Sage, Plum | top |
-| Cardigan | Rose, Navy | top |
-| Striped Tee | Navy, Rose | top |
-| Jeans | Indigo, Black | bottom |
-| Chinos | Sand, Olive | bottom |
-| Pleated Skirt | Navy, Plum | bottom |
-| Sundress | Coral, Lavender | dress |
-| Pinafore | Teal, Burgundy | dress |
-| Boots | Brown, Black | shoes |
-| Mary Janes | Black, Red | shoes |
+| Hoodie | Hoodie.png | top |
+| Cardigan | Cardigan.png | top |
+| Striped Tee | Striped_Tee.png | top |
+| Jeans | Jeans.png | bottom |
+| Chinos | Chinos.png | bottom |
+| Pleated Skirt | Pleated_Skirt.png | bottom |
+| Sundress | Sundress.png | dress |
+| Pinafore | Pinafore.png | dress |
+| Boots | Boots.png | shoes |
+| Mary Janes | Mary_Janes.png | shoes |
 
 ## Import and layering
 
@@ -391,6 +377,9 @@ origin, not metadata recovered from a GameMaker project.
 Draw body, bottom, top, footwear, then hair. A dress replaces both top and
 bottom; pinafores include their undershirt. Select one item per slot.
 Use nearest-neighbor rendering and disable texture interpolation.
+All clothing RGB channels are equal: outline 135, shadow 187, fabric 236,
+highlight/accent 255. Apply the engine tint by multiplying RGB; retain alpha.
+The original body reference copies retain their skin colors for fit review.
 The preview copies in `reference/` are supporting assets from the supplied
 pack, with recolored hair; they are not additional clothing options.
 
@@ -417,8 +406,8 @@ NPC_DIALOGUE_TREES.md, PLAYER_CHECKLIST.md, and TESTING_GUIDE.md for handoff not
 """,
         "CONTRIBUTOR_GUIDE.md": """# Contributing clothing
 
-Edit `python/build_piko_clothing.py`. `DESIGNS` defines styles, palettes, and
-slots; `PALETTES` defines outline, shadow, fabric, highlight, and accent.
+Edit `python/build_piko_clothing.py`. `DESIGNS` defines styles, base item IDs, and
+slots; `GRAYSCALE` defines outline, shadow, fabric, highlight, and accent.
 Keep 32x32 frame origins and original gait positions. Draw on transparent
 layers and use only alpha 0/255. Never crop frames to garment bounds.
 Add new stable IDs rather than changing IDs already referenced by game data.
@@ -428,11 +417,13 @@ The workspace modding editor also offers a Piko sprite-pack preview launcher.
         "GENERATION_TUNING_GUIDE.md": """# Clothing generation tuning
 
 Generation is deterministic pixel editing, with no image model or API.
+All garments use GRAYSCALE (135, 187, 236, 255); the engine supplies color.
+Each design exports one base-item filename; no color variants are generated.
 Tops reuse tee shading; longer sleeves follow the body's arm pixels.
 Trousers use explicit hip spans to keep hands visible and follow leg pixels.
 Skirts and dresses reuse animated hem registration and remove the large bow.
 Boot shafts follow the socks; shoe buckles are one pixel per connected foot.
-Tune poses in the relevant function before adjusting palette shades.
+Tune poses in the relevant function before adjusting neutral shading values.
 The manifest records source SHA-256 hashes. Preview timing defaults to about
 six frames per second; animation timing remains a game integration choice.
 """,
@@ -462,14 +453,14 @@ The preview does not equip items in a saved game.
 """,
         "TESTING_GUIDE.md": """# Validating this sprite pack
 
-The generator checks all twenty sheets for 128x128 dimensions, binary alpha,
+The generator checks all ten sheets for 128x128 dimensions, binary alpha,
 sixteen nonempty frames, and unexpected top/side frame-edge pixels.
-`validation.json` records all 320 frame bounds. Contact sheets and the
+`validation.json` records all 160 frame bounds. Contact sheets and the
 animated preview are for visual checks; automated dimensions do not prove
 that every combination will fit a modified body.
 
 Before handoff, compare source hashes against `manifest.json`, confirm all
-twenty generated files are distinct, and inspect walking hands, hips, hems,
+opaque pixels have R=G=B and all ten files have distinct pixels, and inspect walking hands, hips, hems,
 and ankles on both supplied bodies. Open `preview.html` locally and confirm
 its loaded status, controls, and pixel-sharp rendering. In-game import,
 texture settings, and origin alignment require a final GameMaker check.
@@ -498,32 +489,37 @@ def main():
     if any(im.size != (128, 128) for im in src.values()):
         raise ValueError("All input sprite sheets must be 128×128.")
     manifest = {"sheet_size": [128, 128], "frame_size": [32, 32], "rows": ROWS,
+                "color_mode": "white_grayscale", "tint": "multiply_rgb_preserve_alpha",
+                "grayscale_values": sorted({p[0] for p in GRAYSCALE}),
                 "columns": 4, "origin": [16, 32], "origin_note": "Suggested bottom center; every body and overlay must use the same origin.",
                 "layer_order": ["body", "bottom", "top_or_dress", "shoes", "hair"],
                 "source_sha256": {name: hashlib.sha256((args.source / name).read_bytes()).hexdigest() for name in sorted(src)}, "items": []}
     sheets = {}
     checks = []
-    for style, slot, colors, maker in DESIGNS:
-        for color in colors:
-            name = f"{style}_{color.title()}"
-            sheet = Image.new("RGBA", (128, 128))
-            for row in range(4):
-                for col in range(4):
-                    frame = maker(src, row, col, PALETTES[color], style)
-                    sheet.paste(frame, (col * SIZE, row * SIZE))
-            sheet.save(output / "sheets" / f"{name}.png")
-            sheets[name] = sheet
-            manifest["items"].append({"id": name, "name": name.replace("_", " "), "slot": slot, "file": f"sheets/{name}.png"})
-            alpha = set(sheet.getchannel("A").get_flattened_data())
-            bounds = [tile(sheet, r, c).getbbox() for r in range(4) for c in range(4)]
-            if alpha != {0, 255} or not all(bounds):
-                raise ValueError(f"Invalid transparency or empty frames: {name}")
-            if any(bound[0] == 0 or bound[2] == 32 or bound[1] == 0 for bound in bounds):
-                raise ValueError(f"Unexpected frame-edge pixels: {name}")
-            checks.append({"file": name + ".png", "size": list(sheet.size), "alpha": sorted(alpha), "nonempty_frames": len(bounds), "frame_bounds": bounds})
+    for style, slot, maker in DESIGNS:
+        name = style  # Export one stable base-item ID and filename per unique design.
+        sheet = Image.new("RGBA", (128, 128))
+        for row in range(4):
+            for col in range(4):
+                frame = maker(src, row, col, GRAYSCALE, style)
+                sheet.paste(frame, (col * SIZE, row * SIZE))
+        sheet.save(output / "sheets" / f"{name}.png")
+        sheets[name] = sheet
+        manifest["items"].append({"id": name, "name": style.replace("_", " "),
+                                  "slot": slot, "file": f"sheets/{name}.png", "design": style, "engine_tintable": True})
+        alpha = set(sheet.getchannel("A").get_flattened_data())
+        bounds = [tile(sheet, r, c).getbbox() for r in range(4) for c in range(4)]
+        if alpha != {0, 255} or not all(bounds):
+            raise ValueError(f"Invalid transparency or empty frames: {name}")
+        if any(r != g or g != b for r, g, b, a in sheet.get_flattened_data() if a):
+            raise ValueError(f"Non-grayscale garment pixels: {name}")  # Prevent baked-in color from returning on rebuild.
+        if any(bound[0] == 0 or bound[2] == 32 or bound[1] == 0 for bound in bounds):
+            raise ValueError(f"Unexpected frame-edge pixels: {name}")
+        checks.append({"file": name + ".png", "size": list(sheet.size), "alpha": sorted(alpha), "grayscale": True,
+                       "nonempty_frames": len(bounds), "frame_bounds": bounds})
     for name in ("Piko_Woman_Walk_4-dir_V2.png", "Piko_Man_Walk_4-dir_V1.png"):
         src[name].save(output / "reference" / name)
-    recolor(src["Piko_Hair_Walk_4-dir_V1.png"], PALETTES["brown"]).save(output / "reference" / "hair.png")
+    recolor(src["Piko_Hair_Walk_4-dir_V1.png"], GRAYSCALE).save(output / "reference" / "hair.png")
     looks = previews(src, sheets, output)
     write_viewer(output, manifest, looks)
     write_docs(output)

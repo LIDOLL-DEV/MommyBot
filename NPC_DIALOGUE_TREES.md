@@ -144,3 +144,15 @@ Littlepottchi reminders use fixed, gentle game messages for wet diapers, leaks, 
 ## Standalone Piko sprite pack
 
 The standalone Piko clothing pack adds no dialogue branches. Its display names may label future wardrobe choices after item integration; do not infer gameplay properties or reactions from artwork alone.
+
+Piko clothing now exports white grayscale for engine RGB tinting. Each of the ten unique designs uses its base item ID and filename; color-suffixed duplicate files have been removed. Tune `GRAYSCALE` in the builder and verify R=G=B plus unchanged alpha masks. The generated preview and manifest reflect this tinting workflow.
+
+
+## Piko hairstyle expansion
+
+Piko hairstyle display names come from the pack manifest. This asset expansion does not add reactions or dialogue branches.
+
+
+## Piko outfit expansion
+
+The outfit manifest short_hem flag describes visual coverage only. New dialogue or reactions require explicit authoring; this sprite pack adds none.

@@ -107,3 +107,15 @@ Littlepottchi play and rest are durable timed activities. Start an activity thro
 ## Standalone Piko sprite pack
 
 The standalone Piko clothing pack provides art IDs in its generated `manifest.json`; it does not register quest rewards. Add and validate game item records before using these IDs in quests. Dresses replace both top and bottom layers.
+
+Piko clothing now exports white grayscale for engine RGB tinting. Each of the ten unique designs uses its base item ID and filename; color-suffixed duplicate files have been removed. Tune `GRAYSCALE` in the builder and verify R=G=B plus unchanged alpha masks. The generated preview and manifest reflect this tinting workflow.
+
+
+## Piko hairstyle expansion
+
+The Piko hairstyle pack supplies eight art IDs only. Register those IDs in the target game before attaching hairstyle rewards; no quest behavior is changed by this export.
+
+
+## Piko outfit expansion
+
+The new outfit pack adds Short Smock Dress, Short Sundress, Short Pinafore, Kimono, Raincoat, Dungarees, Wrap Dress, and Sailor Dress art IDs. Register items before using rewards. Each outfit replaces top/bottom; diaper and shoes remain separate. No quest rules are changed.

@@ -8,7 +8,6 @@ import webbrowser
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk
-from render_littlepottchi import render
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / "assets/dressup"
@@ -163,6 +162,7 @@ class WardrobeEditor:
         self.preview()
 
     def preview(self):
+        from render_littlepottchi import render  # Load the catalog renderer only for catalog previews, not standalone sprite packs.
         if not self.list.curselection():
             return
         group, item = self.current()

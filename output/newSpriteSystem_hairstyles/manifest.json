@@ -1,0 +1,92 @@
+{
+  "sheet_size": [
+    128,
+    128
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "rows": [
+    "front",
+    "left",
+    "right",
+    "back"
+  ],
+  "columns": 4,
+  "color_mode": "white_grayscale",
+  "grayscale_values": [
+    135,
+    187,
+    236,
+    255
+  ],
+  "layer_order": [
+    "body",
+    "clothing",
+    "hair"
+  ],
+  "origin_note": "Use the same frame origin as the body; no trimming.",
+  "source_sha256": {
+    "Piko_Woman_Walk_4-dir_V2.png": "9ed6930d4230003e7faaf1fc62acad4c40691f4710bc51f375f18648b9984240",
+    "Piko_Man_Walk_4-dir_V1.png": "aa703bd77b5822a0c64e8b1696a73f5febbc74929ae173a2059242807a12c6e6"
+  },
+  "items": [
+    {
+      "id": "Pixie_Cut",
+      "name": "Pixie Cut",
+      "slot": "hair",
+      "file": "sheets/Pixie_Cut.png",
+      "engine_tintable": true
+    },
+    {
+      "id": "Blunt_Bob",
+      "name": "Blunt Bob",
+      "slot": "hair",
+      "file": "sheets/Blunt_Bob.png",
+      "engine_tintable": true
+    },
+    {
+      "id": "Shoulder_Length",
+      "name": "Shoulder Length",
+      "slot": "hair",
+      "file": "sheets/Shoulder_Length.png",
+      "engine_tintable": true
+    },
+    {
+      "id": "High_Ponytail",
+      "name": "High Ponytail",
+      "slot": "hair",
+      "file": "sheets/High_Ponytail.png",
+      "engine_tintable": true
+    },
+    {
+      "id": "Twin_Tails",
+      "name": "Twin Tails",
+      "slot": "hair",
+      "file": "sheets/Twin_Tails.png",
+      "engine_tintable": true
+    },
+    {
+      "id": "Side_Braid",
+      "name": "Side Braid",
+      "slot": "hair",
+      "file": "sheets/Side_Braid.png",
+      "engine_tintable": true
+    },
+    {
+      "id": "Double_Buns",
+      "name": "Double Buns",
+      "slot": "hair",
+      "file": "sheets/Double_Buns.png",
+      "engine_tintable": true
+    },
+    {
+      "id": "Spiky_Crop",
+      "name": "Spiky Crop",
+      "slot": "hair",
+      "file": "sheets/Spiky_Crop.png",
+      "engine_tintable": true
+    }
+  ]
+}
