@@ -102,3 +102,8 @@ Fresh changes clear wetness and mess together; toggling the mode grants nothing
 and preserves the remaining countdown. Do not require messy mode for ordinary care.
 
 Littlepottchi play and rest are durable timed activities. Start an activity through the authenticated doll action; award its rewards only after finishesAt, once. Food, water and fresh replacements satisfy separate needs. Do not award coins or alter collection ownership for care tasks. See LITTLEPOTTCHI_API.md.
+
+
+## Standalone Piko sprite pack
+
+The standalone Piko clothing pack provides art IDs in its generated `manifest.json`; it does not register quest rewards. Add and validate game item records before using these IDs in quests. Dresses replace both top and bottom layers.

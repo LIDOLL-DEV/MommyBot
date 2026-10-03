@@ -50,7 +50,7 @@ export async function runWalletAction(interaction, wallet, identities, action, o
       case "gift":
       case "gift-retry": {
         if (!interaction.guildId || !canAward(interaction, process.env.TOUHOU_ADMIN_ROLE_ID || "")) {
-          throw new WalletError("forbidden", "You need Manage Server or the configured trader admin role to gift currency in a server.");
+          throw new WalletError("forbidden", "You need Manage Server or a bot admin role to gift currency in a server.");
         }
         const target = options.getUser("user", true);
         if (target.bot) throw new WalletError("invalid_gift", "Choose a person, not a bot, to receive this gift.");

@@ -88,8 +88,9 @@ Use these commands in your Discord server after deploying and restarting the bot
 /lidollid wallet gift user:@Someone currency:stars amount:5
 ```
 
-Only members with **Manage Server** (including Administrator) or the role in
-`TOUHOU_ADMIN_ROLE_ID` can give rewards. Both commands credit the recipient's
+Only members with **Manage Server** (including Administrator), a **Bot admin
+role** chosen in the admin panel, or the role in `TOUHOU_ADMIN_ROLE_ID` can give
+rewards. Both commands credit the recipient's
 online Little Log wallet; they do not debit the administrator or change a local
 game balance. The administrator does not need a connected wallet. The recipient
 must finish `/lidollid login` and connect their wallet first. Amounts must be

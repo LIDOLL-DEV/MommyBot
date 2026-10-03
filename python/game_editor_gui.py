@@ -4,8 +4,9 @@ import argparse
 import copy
 import json
 import subprocess
+import webbrowser
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk
 from render_littlepottchi import render
 
@@ -58,6 +59,7 @@ class WardrobeEditor:
         ttk.Button(form, text="Preview rear camera", command=self.preview_camera).pack(fill="x")
         ttk.Button(form, text="View excitement & toy rules", command=self.show_toy_rules).pack(fill="x", pady=(8, 0))
         ttk.Button(form, text="Preview character anatomy", command=self.preview_anatomy).pack(fill="x", pady=(8, 0))
+        ttk.Button(form, text="Preview Piko sprite pack", command=self.preview_sprite_pack).pack(fill="x", pady=(8, 0))
         ttk.Label(form, text="Bulk = wet + messy accident capacity.\nFull means uncomfortable; later accidents\nroll 10% leak chance per excess bulk.\nLeaks need one wipe. Fit records the\nart's native stance, not a wear restriction.\nPreview uses the game's stretching rules.", wraplength=240).pack(pady=20)  # Distinguish original art registration from automatic clothing fitting.
         self.status = ttk.Label(form, wraplength=240)
         self.status.pack(fill="x")
@@ -66,6 +68,16 @@ class WardrobeEditor:
         self.list.selection_set(0)
         self.select()
         self.search.trace_add("write", self.filter_rows)
+
+    def preview_sprite_pack(self):
+        folder = filedialog.askdirectory(title="Select a Piko pack containing preview.html", initialdir=ROOT / "output")
+        if not folder:
+            return
+        preview = Path(folder) / "preview.html"
+        if not preview.is_file():
+            messagebox.showerror("Preview unavailable", "Select the generated pack folder containing preview.html.")
+            return
+        webbrowser.open(preview.resolve().as_uri())  # Open the independent frame preview without changing the wardrobe catalog.
 
     def preview_anatomy(self):
         window = tk.Toplevel(self.root)
@@ -233,7 +245,14 @@ class WardrobeEditor:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--validate", action="store_true", help="Validate the catalog without opening a window")
+    parser.add_argument("--sprite-pack", type=Path, help="Open a generated Piko pack preview without loading the wardrobe GUI")
     args = parser.parse_args()
+    if args.sprite_pack:
+        preview = args.sprite_pack / "preview.html"
+        if not preview.is_file():
+            parser.error("The sprite pack must contain preview.html")
+        webbrowser.open(preview.resolve().as_uri())  # Support reviewing the sprite pack directly from modding-tool launchers.
+        raise SystemExit(0)
     if args.validate:
         result = validate()
         print(result.stdout or result.stderr)

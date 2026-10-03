@@ -139,3 +139,8 @@ shaming the player. The fixed `mess` reminder is superseded by a leak reminder
 when shared capacity is reached; neither message includes personal tracker data.
 
 Littlepottchi reminders use fixed, gentle game messages for wet diapers, leaks, food, water, play, rest and completion. They never quote personal tracking records or imply a medical prediction. Keep the approved message sets aligned in care.js and the Little Log service worker. See LITTLEPOTTCHI_API.md.
+
+
+## Standalone Piko sprite pack
+
+The standalone Piko clothing pack adds no dialogue branches. Its display names may label future wardrobe choices after item integration; do not infer gameplay properties or reactions from artwork alone.

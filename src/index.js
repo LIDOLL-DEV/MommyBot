@@ -18,6 +18,7 @@ import { readFileSync } from "node:fs";
 import { createMemberWelcome } from "./welcome.js";
 import { createReportPublisher } from "./reports/publisher.js";
 import { initializeCommunity } from "./admin/index.js";
+import { setAdminRoleSource } from "./permissions.js";
 import { createOnlinePublisher } from "./mmo/online.js";
 import { isVentChannel } from "./bot/ventGuard.js";
 
@@ -44,6 +45,7 @@ async function main() {
   // Create and login the Discord client
   const client = createClient();
   const community = initializeCommunity(client);
+  setAdminRoleSource(guildId => community.settings(guildId).adminRoles); // Roles chosen in the admin panel join Manage Server for gifts and awards.
   const welcome = createMemberWelcome(client);
   const reports = createReportPublisher(client); // Open durable report delivery storage before Discord starts.
   const mmoOnline = createOnlinePublisher(client); // Read only authenticated game-server arrivals, independently of bot account linking.

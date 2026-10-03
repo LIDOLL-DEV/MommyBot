@@ -698,3 +698,8 @@ Log worker check also verifies approved messy copy without real push delivery.
 Run npm test for littlepottchi-care.test.js and little-log-bridge.test.js: saved report means, zero rates, report replay, offline wettings, exact capacity, replacement/stance, timed rewards, reminder opt-in/identity, API auth, quiet hours and lost push acknowledgements. Run scripts/check-dressup-browser.mjs with local Chrome for food/water, timed play, leaks, replacements, reminder controls and existing gacha/mobile flows. All transports and records are synthetic. See LITTLEPOTTCHI_API.md for the sibling Little Log checks.
 
 Run `node --test test/reward-authority.test.js test/online-wallet.test.js test/diamonds.test.js` for reward signing and wallet regressions. The adjacent tracker test `node tests/mommybot-diamonds-integration.mjs` exercises this real client against its HTTP API with synthetic data and no Discord calls.
+
+
+## Standalone Piko sprite pack
+
+The Piko builder validates twenty 128x128 RGBA sheets, sixteen nonempty frames each, binary alpha, and frame boundaries. Its `validation.json` records all 320 bounds. Review hand occlusion, hems, and footwear in the generated preview, compare original SHA-256 hashes, and verify final origin/layer settings in GameMaker. The modding editor can launch this preview with `--sprite-pack PATH` without loading its normal catalog.

@@ -8,7 +8,7 @@ import { WalletService } from "../src/wallet/service.js";
 import { WalletError } from "../src/wallet/client.js";
 import { handleWalletInteraction } from "../src/wallet/commands.js";
 import { buildIdentityCommand } from "../src/auth/index.js";
-import { canAward } from "../src/permissions.js";
+import { canAward, setAdminRoleSource } from "../src/permissions.js";
 
 function fixture(t) {
   const directory = mkdtempSync(path.join(os.tmpdir(), "mommybot-gifts-"));
@@ -90,6 +90,16 @@ test("ordinary users, DMs, bots and unlinked recipients cannot receive a new adm
   assert.equal(canAward({ member: { roles: ["reward-role"] } }, "reward-role"), true);
   assert.equal(canAward({ member: { roles: { cache: new Map([["reward-role", {}]]) } } }, "reward-role"), true);
   assert.equal(canAward({ member: { roles: ["different"] } }, "reward-role"), false);
+});
+
+test("roles chosen in a server's admin panel grant bot admin actions only in that server", t => {
+  setAdminRoleSource(guild => guild === "guild" ? ["helper"] : []);
+  t.after(() => setAdminRoleSource(() => []));
+  assert.equal(canAward({ guildId: "guild", member: { roles: ["helper"] } }), true);
+  assert.equal(canAward({ guildId: "guild", member: { roles: { cache: new Map([["helper", {}]]) } } }), true);
+  assert.equal(canAward({ guildId: "elsewhere", member: { roles: ["helper"] } }), false);
+  assert.equal(canAward({ guildId: "guild", member: { roles: ["different"] } }), false);
+  assert.equal(canAward({ guildId: null, member: { roles: ["helper"] } }), false);
 });
 
 test("lost gift responses survive restart, block unlink and recover once through recipient retry", async t => {

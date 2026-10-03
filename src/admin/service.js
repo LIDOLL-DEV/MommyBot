@@ -17,6 +17,7 @@ export function createAdminService(client, store, access, community, env = proce
             viewers: audiences.filter(role => channel.permissionsFor(role)?.has(P.ViewChannel)).map(role => role.id) })),
         roles: [...roles.values()].filter(role => selfServiceRole(role, guild, bot, member)).map(role => ({ id: role.id, name: role.name })),
         readableRoles: audiences.map(role => ({ id: role.id, name: role.name })),
+        adminRoleChoices: audiences.filter(role => !role.managed).map(role => ({ id: role.id, name: role.name })),
         // Membership and channel visibility are only read for diaper checks and the starboard audience, so any role may be named there.
         status: { connected: client.isReady(), ping: Math.max(0, Math.round(client.ws.ping)),
           swearJarAvailable: env.LIDOLLID_ENABLED === "true" && env.LIDOLLCOIN_ENABLED === "true" && env.SWEAR_JAR_ENABLED !== "false",
@@ -35,6 +36,13 @@ export function createAdminService(client, store, access, community, env = proce
         if (!Array.isArray(ignored) || ignored.length > 100) throw new AdminError("Choose at most one hundred ignored swear-jar channels.");
         const swearJarIgnored = [...new Set(ignored.map(discordId))];
         const swearWords = swearWordList(input.swearWords); // An omitted or empty list keeps the deployment's own word list.
+        const requested = input.adminRoles ?? store.settings(guild.id).adminRoles; // Older clients that never send the list keep the saved bot admins.
+        if (!Array.isArray(requested) || requested.length > 20) throw new AdminError("Choose at most twenty bot admin roles.");
+        const adminRoles = [...new Set(requested.map(discordId))];
+        for (const id of adminRoles) {
+          const role = await guild.roles.fetch(id);
+          if (!role || role.id === guild.id || role.managed) throw new AdminError("Choose real, non-integration roles as bot admins; @everyone cannot be one.");
+        } // Bot admins can gift currency, so the role must be one the server deliberately hands out.
         const checks = input.diaperChecks ?? { enabled: false, channel: "", role: "" }; // Older clients that never send the block leave diaper checks off.
         if (!checks || typeof checks !== "object" || Array.isArray(checks) || typeof checks.enabled !== "boolean") throw new AdminError("Choose on or off for diaper checks.");
         const diaperChecks = { enabled: checks.enabled, channel: checks.channel ? discordId(checks.channel) : "", role: checks.role ? discordId(checks.role) : "" };
@@ -75,7 +83,7 @@ export function createAdminService(client, store, access, community, env = proce
           }
         }
         const { actor } = await access.require(session, guild.id);
-        store.save(guild.id, { chat: input.chat, swearJar: input.swearJar, swearJarIgnored, swearWords, welcomes: input.welcomes, diaperChecks, showcase, starboard: normalized }, actor);
+        store.save(guild.id, { chat: input.chat, swearJar: input.swearJar, swearJarIgnored, swearWords, welcomes: input.welcomes, adminRoles, diaperChecks, showcase, starboard: normalized }, actor);
         return { ok: true, message: "Settings saved. Existing highlights refresh during synchronization; new reactions use these settings now." };
       }
       if (input.action === "reaction-add") {

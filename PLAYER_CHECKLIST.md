@@ -106,3 +106,8 @@
 See [SWEAR_JAR_GUIDE.md](SWEAR_JAR_GUIDE.md) for the word list and full rules,
 [ACCOUNT_LINKING_GUIDE.md](ACCOUNT_LINKING_GUIDE.md) for sign-in help, and
 [GAMES_GUIDE.md](GAMES_GUIDE.md) for available games.
+
+
+## Standalone Piko sprite pack
+
+For the standalone Piko art pack, open its `preview.html`, try all ten outfit presets, and inspect four directions on both supplied bodies. This preview is independent of saved games and does not equip or unlock items.

@@ -263,6 +263,27 @@ test("diaper checks require a non-public channel and an opt-in role before they 
   assert.equal(f.store.settings(ids.guild).diaperChecks.enabled, false);
 });
 
+test("bot admin roles are saved per server, kept when an older client omits them, and must be real hand-out roles", async t => {
+  const f = adminFixture(t);
+  const input = { action: "settings", guild: ids.guild, chat: true, swearJar: true, welcomes: true, starboard: { enabled: false, channel: "", sources: [], emoji: "⭐", threshold: 3 } };
+  assert.deepEqual(f.store.settings(ids.guild).adminRoles, []);
+  await f.service.act(f.session, { ...input, adminRoles: [ids.role, ids.role2, ids.role] });
+  assert.deepEqual(f.store.settings(ids.guild).adminRoles, [ids.role, ids.role2]);
+  assert.deepEqual(f.community.settings(ids.other).adminRoles, []);
+  await f.service.act(f.session, input); // An older panel that never sends the list keeps the saved bot admins.
+  assert.deepEqual(f.store.settings(ids.guild).adminRoles, [ids.role, ids.role2]);
+  await f.service.act(f.session, { ...input, adminRoles: [] });
+  assert.deepEqual(f.store.settings(ids.guild).adminRoles, []);
+  await assert.rejects(f.service.act(f.session, { ...input, adminRoles: [ids.guild] }), /@everyone cannot be one/);
+  await assert.rejects(f.service.act(f.session, { ...input, adminRoles: [ids.other] }), /real, non-integration roles/);
+  f.role.managed = true;
+  await assert.rejects(f.service.act(f.session, { ...input, adminRoles: [ids.role] }), /non-integration/);
+  await assert.rejects(f.service.act(f.session, { ...input, adminRoles: "everyone" }), /at most twenty/);
+  await assert.rejects(f.service.act(f.session, { ...input, adminRoles: ["moderators"] }), /valid Discord/);
+  const state = await f.service.state(f.session, ids.guild);
+  assert.deepEqual(state.adminRoleChoices.map(role => role.id), [ids.role2]);
+});
+
 test("a starboard audience role replaces the @everyone requirement without ever widening who sees a highlight", async t => {
   const f = adminFixture(t);
   const board = { enabled: true, channel: ids.board, sources: [ids.source], emoji: "⭐", threshold: 1, audience: ids.role };

@@ -158,7 +158,7 @@ export function createTouhouHandlers(store, { channelId = "", adminRoleId = "", 
         return characterCard(entry, entry.owner_id ? `Owned by <@${entry.owner_id}>.` : "Available through random adoption.");
       }
       case "award": {
-        if (!canAward(interaction, adminRoleId)) throw new TraderError("You need Manage Server or the configured trader admin role to award currency.");
+        if (!canAward(interaction, adminRoleId)) throw new TraderError("You need Manage Server or a bot admin role to award currency.");
         if (options.getString("currency", true) !== "coins") throw new TraderError("Admin awards use LiDollcoins. Stars remain an adoption payment option.");
         const result = await (economy || store).award(guildId, user.id, target.id, "coins", options.getInteger("amount", true), interaction.id);
         return { content: `Awarded <@${target.id}> **${result.amount} ${currencyLabel(result.currency)}**.` };

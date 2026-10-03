@@ -291,8 +291,8 @@ Little Log wallet support lives in `src/wallet/`; see
 [ONLINE_WALLET_GUIDE.md](ONLINE_WALLET_GUIDE.md). Request explicit OIDC wallet
 consent for both currencies in the combined account login, and keep bearer grants
 out of Discord replies and logs. Administrator gifts live in `src/wallet/gifts.js`;
-the shared `src/permissions.js` policy requires Manage Server or
-`TOUHOU_ADMIN_ROLE_ID` on gift creation and administrator retries. Recipients may
+the shared `src/permissions.js` policy requires Manage Server, a server's
+admin-panel `adminRoles`, or `TOUHOU_ADMIN_ROLE_ID` on gift creation and administrator retries. Recipients may
 only retry their own already-approved gift. Keep its original guild, actor,
 recipient, asset, amount and account/API binding in `wallet_gifts`, along with
 the Discord interaction ID and durable provider request ID. Load its pending
@@ -568,3 +568,8 @@ the action transaction so a rejected change cannot reroll its newly due leak.
 Wipe consumption and the resulting cleaned state still commit atomically.
 
 Wallet mint/refund calls must go through WalletClient so server proofs bind the exact recipient and operation. Never serialize its non-enumerable rewardKey or forward it to browsers. See ONLINE_WALLET_GUIDE.md for setup.
+
+
+## Standalone Piko sprite pack
+
+The standalone Piko sprite pack is built by `python/build_piko_clothing.py` from the user-supplied 128x128 sheets. Run it with `--source PATH --output PATH`; each garment retains sixteen 32x32 frames. The output contains its own manifest, preview, and contributor notes. This does not import clothing into the MommyBot catalog. `python/game_editor_gui.py` includes a Piko preview button and accepts `--sprite-pack PATH`.

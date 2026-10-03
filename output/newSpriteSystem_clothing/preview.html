@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Piko wardrobe preview</title>
+<style>
+body{background:#202a37;color:#eee;font:16px system-ui;max-width:1060px;margin:32px auto;padding:0 20px}
+main{display:flex;gap:28px;flex-wrap:wrap} aside{width:310px}label{display:block;margin:14px 0 5px}
+select,button,input{font:inherit;padding:7px;width:100%;box-sizing:border-box}button{margin-top:16px;cursor:pointer}
+canvas{image-rendering:pixelated;border:1px solid #617386}p{line-height:1.5;color:#bfcdd9}h1{font-size:26px}
+</style><h1>Piko wardrobe preview</h1><p>20 transparent clothing overlays. Every sheet uses the original 128×128 canvas and sixteen 32×32 frames.</p>
+<main><aside><label for="look">Outfit</label><select id="look"></select>
+<label for="body">Body</label><select id="body"><option value="Piko_Woman_Walk_4-dir_V2.png">Woman V2</option><option value="Piko_Man_Walk_4-dir_V1.png">Man V1</option></select>
+<label for="direction">Direction</label><select id="direction"><option>Front</option><option>Left</option><option>Right</option><option>Back</option></select>
+<label for="top">Top</label><select id="top"></select><label for="bottom">Bottom</label><select id="bottom"></select>
+<label for="dress">Dress (replaces top and bottom)</label><select id="dress"></select>
+<label for="shoes">Footwear</label><select id="shoes"></select>
+<label for="speed">Frames per second</label><input id="speed" type="range" min="1" max="12" value="6">
+<button id="pause">Pause animation</button><p id="status">Loading images…</p></aside>
+<section><canvas id="walk" width="384" height="384"></canvas><p>Animation at 12× zoom, with nearest-neighbor pixels.</p>
+<canvas id="sheet" width="512" height="512"></canvas><p>Composite sheet: four columns × four direction rows.</p></section></main>
+<script>
+const pack = {"items": [{"id": "Hoodie_Sage", "name": "Hoodie Sage", "slot": "top", "file": "sheets/Hoodie_Sage.png"}, {"id": "Hoodie_Plum", "name": "Hoodie Plum", "slot": "top", "file": "sheets/Hoodie_Plum.png"}, {"id": "Cardigan_Rose", "name": "Cardigan Rose", "slot": "top", "file": "sheets/Cardigan_Rose.png"}, {"id": "Cardigan_Navy", "name": "Cardigan Navy", "slot": "top", "file": "sheets/Cardigan_Navy.png"}, {"id": "Striped_Tee_Navy", "name": "Striped Tee Navy", "slot": "top", "file": "sheets/Striped_Tee_Navy.png"}, {"id": "Striped_Tee_Rose", "name": "Striped Tee Rose", "slot": "top", "file": "sheets/Striped_Tee_Rose.png"}, {"id": "Jeans_Indigo", "name": "Jeans Indigo", "slot": "bottom", "file": "sheets/Jeans_Indigo.png"}, {"id": "Jeans_Black", "name": "Jeans Black", "slot": "bottom", "file": "sheets/Jeans_Black.png"}, {"id": "Chinos_Sand", "name": "Chinos Sand", "slot": "bottom", "file": "sheets/Chinos_Sand.png"}, {"id": "Chinos_Olive", "name": "Chinos Olive", "slot": "bottom", "file": "sheets/Chinos_Olive.png"}, {"id": "Pleated_Skirt_Navy", "name": "Pleated Skirt Navy", "slot": "bottom", "file": "sheets/Pleated_Skirt_Navy.png"}, {"id": "Pleated_Skirt_Plum", "name": "Pleated Skirt Plum", "slot": "bottom", "file": "sheets/Pleated_Skirt_Plum.png"}, {"id": "Sundress_Coral", "name": "Sundress Coral", "slot": "dress", "file": "sheets/Sundress_Coral.png"}, {"id": "Sundress_Lavender", "name": "Sundress Lavender", "slot": "dress", "file": "sheets/Sundress_Lavender.png"}, {"id": "Pinafore_Teal", "name": "Pinafore Teal", "slot": "dress", "file": "sheets/Pinafore_Teal.png"}, {"id": "Pinafore_Burgundy", "name": "Pinafore Burgundy", "slot": "dress", "file": "sheets/Pinafore_Burgundy.png"}, {"id": "Boots_Brown", "name": "Boots Brown", "slot": "shoes", "file": "sheets/Boots_Brown.png"}, {"id": "Boots_Black", "name": "Boots Black", "slot": "shoes", "file": "sheets/Boots_Black.png"}, {"id": "Mary_Janes_Black", "name": "Mary Janes Black", "slot": "shoes", "file": "sheets/Mary_Janes_Black.png"}, {"id": "Mary_Janes_Red", "name": "Mary Janes Red", "slot": "shoes", "file": "sheets/Mary_Janes_Red.png"}], "looks": [["Sage hoodie / indigo jeans", ["Jeans_Indigo", "Hoodie_Sage", "Boots_Brown"]], ["Plum hoodie / black jeans", ["Jeans_Black", "Hoodie_Plum", "Boots_Black"]], ["Rose cardigan / navy pleats", ["Pleated_Skirt_Navy", "Cardigan_Rose", "Mary_Janes_Black"]], ["Navy cardigan / plum pleats", ["Pleated_Skirt_Plum", "Cardigan_Navy", "Mary_Janes_Red"]], ["Navy stripes / sand chinos", ["Chinos_Sand", "Striped_Tee_Navy", "Boots_Brown"]], ["Rose stripes / olive chinos", ["Chinos_Olive", "Striped_Tee_Rose", "Boots_Black"]], ["Coral sundress", ["Sundress_Coral", "Mary_Janes_Red"]], ["Lavender sundress", ["Sundress_Lavender", "Mary_Janes_Black"]], ["Teal pinafore", ["Pinafore_Teal", "Boots_Brown"]], ["Burgundy pinafore", ["Pinafore_Burgundy", "Boots_Black"]]]};
+const $ = id => document.getElementById(id);
+const images = new Map();
+const slots = ['top','bottom','dress','shoes'];
+for (const slot of slots) {
+  $(slot).add(new Option('None',''));
+  for (const item of pack.items.filter(item => item.slot === slot)) $(slot).add(new Option(item.name,item.id));
+}
+pack.looks.forEach(([name],index) => $('look').add(new Option(name,index)));
+function chooseLook() { // Apply a complete outfit without leaving conflicting layers selected.
+  slots.forEach(slot => $(slot).value = '');
+  for (const id of pack.looks[Number($('look').value)][1]) {
+    const item = pack.items.find(item => item.id === id); $(item.slot).value = id;
+  }
+}
+$('look').onchange = chooseLook; chooseLook();
+$('dress').onchange = () => { if ($('dress').value) {$('top').value = ''; $('bottom').value = '';}};
+for (const slot of ['top','bottom']) $(slot).onchange = () => {$('dress').value = '';};
+let paused = false, frame = 0, last = 0;
+$('pause').onclick = () => { paused = !paused; $('pause').textContent = paused ? 'Resume animation' : 'Pause animation'; };
+function background(ctx,width,height,cell) { // Draw a checkerboard to reveal the transparent canvas.
+  for (let y=0;y<height;y+=cell) for(let x=0;x<width;x+=cell) {
+    ctx.fillStyle = ((x+y)/cell)%2 ? '#394755' : '#303d4a'; ctx.fillRect(x,y,cell,cell);
+  }
+}
+const sources = [...pack.items.map(item=>[item.id,item.file]),...['Piko_Woman_Walk_4-dir_V2.png','Piko_Man_Walk_4-dir_V1.png','hair.png'].map(name=>[name,'reference/'+name])];
+Promise.all(sources.map(([id,path])=>new Promise((resolve,reject)=>{
+  const img=new Image();img.onload=()=>{images.set(id,img);resolve();};img.onerror=()=>reject(new Error(path));img.src=path;
+}))).then(()=>{$('status').textContent='Loaded. Original frame offsets are preserved.'; requestAnimationFrame(draw);})
+.catch(error=>{$('status').textContent='Could not load '+error.message+'. Keep this file inside the complete pack folder.';});
+function draw(now) { // Render the selected layers at their unmodified frame origins.
+  if (!paused && now-last >= 1000/Number($('speed').value)) {frame=(frame+1)%4;last=now;}
+  const layers=[$('body').value];
+  for(const slot of ($('dress').value ? ['dress','shoes'] : ['bottom','top','shoes'])) if($(slot).value) layers.push($(slot).value);
+  layers.push('hair.png');
+  const walk=$('walk').getContext('2d'), sheet=$('sheet').getContext('2d');
+  walk.imageSmoothingEnabled=false;sheet.imageSmoothingEnabled=false;
+  background(walk,384,384,24);background(sheet,512,512,16);
+  for(const id of layers) {walk.drawImage(images.get(id),frame*32,$('direction').selectedIndex*32,32,32,0,0,384,384);sheet.drawImage(images.get(id),0,0,512,512);}
+  sheet.strokeStyle='#718292';for(let i=0;i<=4;i++){sheet.beginPath();sheet.moveTo(i*128,0);sheet.lineTo(i*128,512);sheet.moveTo(0,i*128);sheet.lineTo(512,i*128);sheet.stroke();}
+  requestAnimationFrame(draw);
+}
+</script></html>

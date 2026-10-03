@@ -57,8 +57,9 @@ can award LiDollcoins to a connected player's wallet:
 /touhou award user:@player currency:LiDollcoins amount:25
 ```
 
-You may set `TOUHOU_ADMIN_ROLE_ID` in `.env` to allow an additional role to award
-currency. Every award is recorded with the administrator's user ID. Ordinary
+Server administrators can choose **Bot admin roles** in the admin panel to let
+more roles award currency in that server. `TOUHOU_ADMIN_ROLE_ID` in `.env` still
+adds one role for every server. Every award is recorded with the administrator's user ID. Ordinary
 players cannot use admin rewards. Players can earn LiDollcoins through battle
 victories, sales and trader buybacks. Imports of old balances are not enabled.
 

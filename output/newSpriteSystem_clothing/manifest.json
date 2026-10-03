@@ -1,0 +1,164 @@
+{
+  "sheet_size": [
+    128,
+    128
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "rows": [
+    "front",
+    "left",
+    "right",
+    "back"
+  ],
+  "columns": 4,
+  "origin": [
+    16,
+    32
+  ],
+  "origin_note": "Suggested bottom center; every body and overlay must use the same origin.",
+  "layer_order": [
+    "body",
+    "bottom",
+    "top_or_dress",
+    "shoes",
+    "hair"
+  ],
+  "source_sha256": {
+    "Booty_Shorts.png": "b7e9d11880a2ecae429ada2d8f702b3f1c582f28f21b0fc70d9b8b01f024a494",
+    "Daisy_Hair.png": "7f0d1dcaa07c21f5afd4e2db5466bebab36a9c9020a5437096715d6f41a38ddf",
+    "Diaper.png": "e9b5b0871f373b43d3fec866a2fad01bf4c225f1ee6a95e86cf15f16b0243578",
+    "Diaper1.png": "e9b5b0871f373b43d3fec866a2fad01bf4c225f1ee6a95e86cf15f16b0243578",
+    "Piko_Dress_Walk_4-dir_V1.png": "227801aabe5066d9dd830b4a0ead23d571c65237e3bb5f9b97378f9b4135176d",
+    "Piko_Hair_Walk_4-dir_V1.png": "7a3f9879665bc543c3cb260a5341dedb5a532ac25b26b60580fe2e7d39ab314e",
+    "Piko_Man_Walk_4-dir_V1.png": "aa703bd77b5822a0c64e8b1696a73f5febbc74929ae173a2059242807a12c6e6",
+    "Piko_Socks_Walk_4-dir_V1.png": "7a1dadb6fac55dd79812f44b730f1619c7cb81ccdcd67f2411c28862475a6551",
+    "Piko_Woman_Walk_4-dir_V2.png": "9ed6930d4230003e7faaf1fc62acad4c40691f4710bc51f375f18648b9984240",
+    "Shoes.png": "21640db0c72c0ad84202fb88b8ee9bb95ea20b01066f83960f4875f16d2f2f82",
+    "Tee.png": "86a864ea689593fe7340fd07e99794f9c1710b469bf3cb433ddef60799ae88ac"
+  },
+  "items": [
+    {
+      "id": "Hoodie_Sage",
+      "name": "Hoodie Sage",
+      "slot": "top",
+      "file": "sheets/Hoodie_Sage.png"
+    },
+    {
+      "id": "Hoodie_Plum",
+      "name": "Hoodie Plum",
+      "slot": "top",
+      "file": "sheets/Hoodie_Plum.png"
+    },
+    {
+      "id": "Cardigan_Rose",
+      "name": "Cardigan Rose",
+      "slot": "top",
+      "file": "sheets/Cardigan_Rose.png"
+    },
+    {
+      "id": "Cardigan_Navy",
+      "name": "Cardigan Navy",
+      "slot": "top",
+      "file": "sheets/Cardigan_Navy.png"
+    },
+    {
+      "id": "Striped_Tee_Navy",
+      "name": "Striped Tee Navy",
+      "slot": "top",
+      "file": "sheets/Striped_Tee_Navy.png"
+    },
+    {
+      "id": "Striped_Tee_Rose",
+      "name": "Striped Tee Rose",
+      "slot": "top",
+      "file": "sheets/Striped_Tee_Rose.png"
+    },
+    {
+      "id": "Jeans_Indigo",
+      "name": "Jeans Indigo",
+      "slot": "bottom",
+      "file": "sheets/Jeans_Indigo.png"
+    },
+    {
+      "id": "Jeans_Black",
+      "name": "Jeans Black",
+      "slot": "bottom",
+      "file": "sheets/Jeans_Black.png"
+    },
+    {
+      "id": "Chinos_Sand",
+      "name": "Chinos Sand",
+      "slot": "bottom",
+      "file": "sheets/Chinos_Sand.png"
+    },
+    {
+      "id": "Chinos_Olive",
+      "name": "Chinos Olive",
+      "slot": "bottom",
+      "file": "sheets/Chinos_Olive.png"
+    },
+    {
+      "id": "Pleated_Skirt_Navy",
+      "name": "Pleated Skirt Navy",
+      "slot": "bottom",
+      "file": "sheets/Pleated_Skirt_Navy.png"
+    },
+    {
+      "id": "Pleated_Skirt_Plum",
+      "name": "Pleated Skirt Plum",
+      "slot": "bottom",
+      "file": "sheets/Pleated_Skirt_Plum.png"
+    },
+    {
+      "id": "Sundress_Coral",
+      "name": "Sundress Coral",
+      "slot": "dress",
+      "file": "sheets/Sundress_Coral.png"
+    },
+    {
+      "id": "Sundress_Lavender",
+      "name": "Sundress Lavender",
+      "slot": "dress",
+      "file": "sheets/Sundress_Lavender.png"
+    },
+    {
+      "id": "Pinafore_Teal",
+      "name": "Pinafore Teal",
+      "slot": "dress",
+      "file": "sheets/Pinafore_Teal.png"
+    },
+    {
+      "id": "Pinafore_Burgundy",
+      "name": "Pinafore Burgundy",
+      "slot": "dress",
+      "file": "sheets/Pinafore_Burgundy.png"
+    },
+    {
+      "id": "Boots_Brown",
+      "name": "Boots Brown",
+      "slot": "shoes",
+      "file": "sheets/Boots_Brown.png"
+    },
+    {
+      "id": "Boots_Black",
+      "name": "Boots Black",
+      "slot": "shoes",
+      "file": "sheets/Boots_Black.png"
+    },
+    {
+      "id": "Mary_Janes_Black",
+      "name": "Mary Janes Black",
+      "slot": "shoes",
+      "file": "sheets/Mary_Janes_Black.png"
+    },
+    {
+      "id": "Mary_Janes_Red",
+      "name": "Mary Janes Red",
+      "slot": "shoes",
+      "file": "sheets/Mary_Janes_Red.png"
+    }
+  ]
+}

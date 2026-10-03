@@ -271,3 +271,8 @@ each. A leak requires a wipe; contained overflow does not. Changes in tuning
 do not reroll old accidents or erase saved cleanup requirements.
 
 Diaper bulk is a separate integer capacity (1�100 wettings) in assets/dressup/catalog.json; the wardrobe editor can tune it without changing the reviewed stance. The asset importer preserves edited bulk. Care durations and need periods are in src/dressup/care.js; pantry fullness/joy values are in the catalog. Rhythm comes from the latest saved community AI counts, with a labeled four-hour fallback. See LITTLEPOTTCHI_API.md.
+
+
+## Standalone Piko sprite pack
+
+Piko overlays use deterministic pixel editing in `python/build_piko_clothing.py`. Tune `PALETTES`, `DESIGNS`, and per-pose masks there; regenerate into a fresh output folder. Keep binary alpha and original frame offsets. These assets do not change runtime generation, fit rules, or clothing pools.

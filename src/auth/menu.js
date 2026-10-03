@@ -104,7 +104,7 @@ export class IdentityMenus {
       if (extra || s.busy || String(s.version) !== revision) throw new MenuError("This menu already changed. Use its latest controls or reopen /menu.");
       if (!(interaction.isButton?.() || interaction.isUserSelectMenu?.() || interaction.isModalSubmit?.())) throw new MenuError("Use the buttons and selections in this menu.");
       if ((["gift", "gift-retry"].includes(s.intent) || action.startsWith("gift-") || action === "send-gift") && !this.isAdmin(interaction) && action !== "home") {
-        throw new MenuError("You need Manage Server or the configured trader admin role to gift currency.");
+        throw new MenuError("You need Manage Server or a bot admin role to gift currency.");
       }
       s.busy = true; locked = true;
       if (action === "code" || action === "amount") {

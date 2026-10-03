@@ -42,6 +42,8 @@ function render() {
   $("diaperEnabled").checked = settings.diaperChecks.enabled;
   options("diaperChannel", state.channels, "Choose a channel"); $("diaperChannel").value = settings.diaperChecks.channel;
   options("diaperRole", state.readableRoles ?? state.roles, "Choose a role"); $("diaperRole").value = settings.diaperChecks.role;
+  options("adminRoles", state.adminRoleChoices ?? []);
+  for (const option of $("adminRoles").options) option.selected = (settings.adminRoles ?? []).includes(option.value);
   $("showcaseEnabled").checked = settings.showcase.enabled;
   options("showcaseChannel", state.channels, "Choose a channel"); $("showcaseChannel").value = settings.showcase.channel;
   $("starEnabled").checked = settings.starboard.enabled;
@@ -98,6 +100,7 @@ $("settings").addEventListener("submit", event => { event.preventDefault(); void
   swearWords: $("swearWords").value.split(/[\n,]/).map(word => word.trim()).filter(Boolean),
   diaperChecks: { enabled: $("diaperEnabled").checked, channel: $("diaperChannel").value, role: $("diaperRole").value },
   showcase: { enabled: $("showcaseEnabled").checked, channel: $("showcaseChannel").value },
+  adminRoles: [...$("adminRoles").selectedOptions].map(option => option.value),
   starboard: { enabled: $("starEnabled").checked, channel: $("starChannel").value, audience: $("starAudience").value, sources: [...$("sources").selectedOptions].map(option => option.value), emoji: $("starEmoji").value, threshold: Number($("threshold").value) },
 })); });
 $("roleForm").addEventListener("submit", event => { event.preventDefault(); void run(async () => {
