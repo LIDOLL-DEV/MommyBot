@@ -59,7 +59,7 @@ async function main() {
   }); // Refuse to sell a break in a server that has already paused swear jar fines, and honor its own word list.
   const diaperChecks = createDiaperChecks(client, identity?.identities, process.env, {
     settings: guildId => community.settings(guildId),
-  }); // Each server asks one LiDollID-verified member of its chosen role every two to four hours.
+  }); // Each server asks one LiDollID-verified member of its chosen role every six to eight hours.
   const showcase = createCharacterShowcase(client, wallet, identity?.identities, process.env, {
     settings: guildId => community.settings(guildId),
   }); // Character sheets are read with the existing LiDollQuest companion credential and posted to each server's chosen channel.

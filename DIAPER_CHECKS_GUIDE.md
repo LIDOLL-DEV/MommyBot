@@ -1,7 +1,7 @@
 # MommyBot's diaper checks
 
 MommyBot asks opted-in members in Discord whether they are dry or wet.
-Every two to four hours each server tags one LiDollID-verified member of its
+Every six to eight hours each server tags one LiDollID-verified member of its
 participating role, and an administrator can ask anyone at any time. MommyBot
 believes whatever the member answers: nothing is checked against any record.
 
@@ -23,7 +23,7 @@ sent. Leaving the server has the same effect.
 
 ## Random checks
 
-Each server has its own window of **two to four hours**, drawn at random and
+Each server has its own window of **six to eight hours**, drawn at random and
 redrawn after every check of any kind. When it passes, MommyBot tags **one**
 member and asks *"Are you **dry** or **wet**?"*. The AI writes only a friendly
 lead-in; it is told not to ask anything itself, and a lead-in containing a
@@ -109,7 +109,7 @@ non-administrators, and MommyBot rechecks the caller's live Administrator
 permission before acting, so a stale permission cache cannot authorize it.
 
 The reply is private. The check is posted in the server's check channel exactly
-like a random check, and pushes that server's next random check two to four
+like a random check, and pushes that server's next random check six to eight
 hours out.
 
 Because an administrator asking is deliberate and immediate, this is the one

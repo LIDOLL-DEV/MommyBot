@@ -57,7 +57,7 @@ are not affected.
 
 Initially off. Choose a check channel that is **not** visible to `@everyone` and a
 participating role, then enable and save. Only LiDollID-verified members holding
-that role are ever asked. Every two to four hours MommyBot tags one of them, in
+that role are ever asked. Every six to eight hours MommyBot tags one of them, in
 turn, to ask whether they are dry or wet, and believes whatever they answer.
 Saying they are not wearing one at all gets a gentle reminder to go and put one
 on. Nothing is asked between

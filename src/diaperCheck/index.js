@@ -25,7 +25,7 @@ export function buildDiaperCheckCommand() {
 export function diaperCheckStatus(env = process.env, { identities = env.LIDOLLID_ENABLED === "true" } = {}) {
   if (env.DIAPER_CHECKS_ENABLED !== "true") return "OFF: set DIAPER_CHECKS_ENABLED=true to run diaper checks.";
   if (!identities) return "OFF: requires LIDOLLID_ENABLED=true so only LiDollID-verified members are asked.";
-  return "ON: every 2-4 hours each server asks one LiDollID-verified member of its participating role, quiet 22:00-06:00 server time.";
+  return "ON: every 6-8 hours each server asks one LiDollID-verified member of its participating role, quiet 22:00-06:00 server time.";
 } // Explain every configuration that silently prevents checks, without printing records or member identities.
 
 export function createDiaperChecks(client, identities, env = process.env, {
@@ -164,7 +164,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
         else {
           await ask(check);
           content = journal.get(check.id)?.asked
-            ? `Asked <@${target.id}> in <#${saved.channel}>. The next random check here comes two to four hours from now.`
+            ? `Asked <@${target.id}> in <#${saved.channel}>. The next random check here comes six to eight hours from now.`
             : `The question for <@${target.id}> is saved but could not be sent; MommyBot will retry. Check its permissions in <#${saved.channel}>.`;
         }
       }
@@ -178,7 +178,7 @@ export function createDiaperChecks(client, identities, env = process.env, {
       const saved = guildSettings(guildId);
       if (!saved?.role) continue; // Checks need a role to choose from.
       if (journal.unsentInGuild(guildId)) continue; // Never ask a second member while a question is still being delivered.
-      if (!journal.due(guildId, now())) continue; // One check per server every two to four hours.
+      if (!journal.due(guildId, now())) continue; // One check per server every six to eight hours.
       let remaining = identities.discordLinks().map(link => link.discord_id).filter(user => !journal.openElsewhere(user, guildId));
       let asked = false;
       while (remaining.length) {

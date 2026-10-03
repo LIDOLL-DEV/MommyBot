@@ -2,8 +2,8 @@ import Database from "better-sqlite3";
 import { randomInt, randomUUID } from "node:crypto";
 
 export const HOUR = 3_600_000;
-export const CHECK_MIN_MS = 2 * HOUR;
-export const CHECK_MAX_MS = 4 * HOUR;
+export const CHECK_MIN_MS = 6 * HOUR;
+export const CHECK_MAX_MS = 8 * HOUR;
 export const DELIVERY_WINDOW_MS = 60 * 60_000;
 export const SILENT_START_HOUR = 22;
 export const SILENT_END_HOUR = 6;
@@ -34,7 +34,7 @@ export class DiaperCheckStore {
     // The retired Littlepottchi care copies and per-member windows are removed; checks no longer rest on any record.
   } // Keep open questions, the rotation and each server's next check durable so a restart never re-asks or double-asks.
 
-  interval() { return CHECK_MIN_MS + this.draw(CHECK_MAX_MS - CHECK_MIN_MS + 1); } // A uniform 2-4 hour gap, redrawn after every check.
+  interval() { return CHECK_MIN_MS + this.draw(CHECK_MAX_MS - CHECK_MIN_MS + 1); } // A uniform 6-8 hour gap, redrawn after every check.
 
   get(id) { return this.db.prepare("SELECT * FROM diaper_checks WHERE id=?").get(id); }
 
@@ -107,7 +107,7 @@ export class DiaperCheckStore {
   reschedule(guild, now = this.now()) {
     this.db.prepare("INSERT INTO diaper_guild_schedule VALUES (?,?) ON CONFLICT(guild_id) DO UPDATE SET next_check=excluded.next_check")
       .run(guild, now + this.interval());
-  } // Every check in a server, however it started, pushes that server's next random check 2-4 hours out.
+  } // Every check in a server, however it started, pushes that server's next random check 6-8 hours out.
 
   due(guild, now = this.now()) {
     const saved = this.db.prepare("SELECT next_check FROM diaper_guild_schedule WHERE guild_id=?").get(guild);

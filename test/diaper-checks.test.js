@@ -47,7 +47,7 @@ function fixture(t, env = {}) {
   // A server member who never verified with LiDollID.
   f.due = () => f.store.db.prepare(`INSERT INTO diaper_guild_schedule VALUES ('guild',?)
     ON CONFLICT(guild_id) DO UPDATE SET next_check=excluded.next_check`).run(f.now - 1);
-  // Open this server's random window now instead of waiting two to four hours.
+  // Open this server's random window now instead of waiting six to eight hours.
   f.message = (content, overrides = {}) => ({
     id: String(f.nextId++), guildId: "guild", channelId: "check-channel", createdTimestamp: f.now,
     author: { id: "alice", bot: false }, content,
@@ -147,7 +147,7 @@ test("a wet answer is trusted and met with reassurance, never an accusation", as
   assert.equal(f.checks()[0].answer, "wet");
 });
 
-test("nobody is asked before the server's window opens, and each check pushes it two to four hours out", async t => {
+test("nobody is asked before the server's window opens, and each check pushes it six to eight hours out", async t => {
   const f = fixture(t); f.link("alice");
   await f.bot.tick();
   assert.equal(f.checks().length, 0); // A newly enabled server waits a full window first.
@@ -292,7 +292,7 @@ test("an answer saved under the old yes/no labels is still delivered with its me
 test("status reports every configuration that silently prevents checks", () => {
   assert.match(diaperCheckStatus({}), /OFF: set DIAPER_CHECKS_ENABLED/);
   assert.match(diaperCheckStatus({ DIAPER_CHECKS_ENABLED: "true" }), /OFF: requires LIDOLLID_ENABLED/);
-  assert.match(diaperCheckStatus(BRIDGE), /^ON: every 2-4 hours/);
+  assert.match(diaperCheckStatus(BRIDGE), /^ON: every 6-8 hours/);
 });
 
 test("saying you are not wearing a diaper is recognized directly, and outranks a yes or no in the same message", async () => {
